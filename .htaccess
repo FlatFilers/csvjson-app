@@ -1,0 +1,42 @@
+addDefaultCharset utf-8
+
+<IfModule mod_headers.c>
+    Header set X-UA-Compatible "chrome=1"
+</IfModule>
+
+Options -Indexes
+
+RewriteEngine on
+
+# Force www
+RewriteCond %{HTTP_HOST} !^www\.
+RewriteCond %{HTTP_HOST} !^localhost
+RewriteCond %{HTTP_HOST} !^findyourtennis$
+RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
+
+# favicon always at same place!
+RewriteCond $0 !=img/favicon.ico
+RewriteRule ^([^/]+/)*favicon\.ico$ /img/favicon.ico [L]
+
+# Removes access to the system folder by users.
+RewriteCond %{REQUEST_URI} ^system.*
+RewriteRule ^(.*)$ /index.php/$1 [L]
+
+# Removes access to the application folder by users.
+RewriteCond %{REQUEST_URI} ^application.*
+RewriteRule ^(.*)$ /index.php/$1 [L]
+
+# Remove access to git stuff
+RewriteRule ^(.*/)?\.git+ - [F,L]
+ErrorDocument 403 "Access Forbidden"
+
+# Remove access to README file
+RewriteRule ^README.md [F,L]
+ErrorDocument 403 "Access Forbidden"
+
+# Checks to see if the user is attempting to access a valid file,
+# such as an image or css document, if this isn't true it sends the
+# request to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php/$1 [L]

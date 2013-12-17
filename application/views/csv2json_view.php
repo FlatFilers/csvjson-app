@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+		<link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
 		
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
@@ -28,7 +28,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
-					<h1>CSV 2 JSON</h1>
+					<h1>CSV to JSON</h1>
 					<p>Convert your CSV formatted data to JSON.</p>
 				</div>
 			</div>
