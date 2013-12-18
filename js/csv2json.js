@@ -20,10 +20,11 @@ $(document).ready(function() {
 		$separator = $('input[type=radio][name="separator"]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
+		$clear = $('a.clear'),
 		$convert = $('#convert');
 	
 	function getSeparator(csv) {
-		var userSpecified = $separator.find(':checked').val(),
+		var userSpecified = $separator.filter(':checked').val(),
 			separator = charMap[userSpecified];
 		if (separator) return separator;
 		
@@ -46,14 +47,19 @@ $(document).ready(function() {
 			$fileLabel.text(progress+'%');
 		},
 		success: function(result) {
+			$fileLabel.html(fileLabelHtml);
 			$csv.val(result);
 		},
 		fail: function(e, data) {
-			console.log('fail');
-		},
-		done: function(e, data) {
 			$fileLabel.html(fileLabelHtml);
+			// Show an error god damn it!
 		}
+	});
+	
+	$clear.click(function(e) {
+		e.preventDefault();
+		$(this).siblings('textarea').empty();
+		return false;
 	});
 	
 	$convert.click(function(e) {
