@@ -1,3 +1,7 @@
 textarea {
 	min-height: 200px;
 }
+
+span.fileinput-button>label {
+	font-weight: normal;
+}

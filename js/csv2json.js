@@ -15,6 +15,8 @@ $(document).ready(function() {
 		};
 	
 	var $file = $('#fileupload'),
+		$fileLabel = $('.fileinput-button>label'),
+		fileLabelHtml = $fileLabel.html(),
 		$separator = $('input[type=radio][name="separator"]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
@@ -37,7 +39,22 @@ $(document).ready(function() {
 	}
 
 	// Set up file upload. Hopefully we don't have to send anything to the server.
-	$file.fileupload();
+	$file.fileupload({
+		url: '/csv2json/upload',
+		progress: function(e, data) {
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			$fileLabel.text(progress+'%');
+		},
+		success: function(result) {
+			$csv.val(result);
+		},
+		fail: function(e, data) {
+			console.log('fail');
+		},
+		done: function(e, data) {
+			$fileLabel.html(fileLabelHtml);
+		}
+	});
 	
 	$convert.click(function(e) {
 		var csv = _.trim($csv.val());

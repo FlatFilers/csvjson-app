@@ -37,8 +37,10 @@
 				<div class="form-group col-md-6">
 					<label>Upload a file</label>
 					<span class="btn btn-default fileinput-button form-control">
-						<i class="glyphicon glyphicon-plus"></i>
-						<span>Select a file...</span>
+						<label>
+							<i class="glyphicon glyphicon-plus"></i>
+							<span>Select a file...</span>
+						</label>
 						<input id="fileupload" type="file" name="file" />
 					</span>
 				</div>

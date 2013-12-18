@@ -18,7 +18,11 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
+if (strpos($_SERVER['SERVER_NAME'], "csvjson.com") !== FALSE) {
+	define('ENVIRONMENT', 'production');
+} else {
 	define('ENVIRONMENT', 'development');
+}
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
