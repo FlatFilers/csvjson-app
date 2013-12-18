@@ -18,7 +18,7 @@ class Csv2json extends CI_Controller {
 		}
 		
 		$mime = $this->getMimeType($_FILES['file']['tmp_name']);
-		if ($mime != 'text/plain') {
+		if (!strpos($mime, 'text/plain') === 0) {
 			header('HTTP/1.1 400 Bad Request', true, 400);
 			log_message('error', 'File upload '.$_FILES['file']['tmp_name']." invalid mime type: $mime");
 			return;
