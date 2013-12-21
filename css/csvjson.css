@@ -26,7 +26,7 @@ span.fileinput-button>label {
 
 .form-control {
 	border-radius: 3px;
-	border-bottom: 1px solid #f0f0f0;
+	background-color: #f0f0f0;
 }
 
 
@@ -39,7 +39,7 @@ span.fileinput-button>label {
 .code-group a.clear {
 	position: absolute;
 	top: 40px;
-	right: 40px;
+	right: 20px;
 	font-size: 20px;
 	color: #999;
 }
