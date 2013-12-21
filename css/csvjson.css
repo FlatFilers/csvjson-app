@@ -23,8 +23,7 @@ a.navbar-brand {
 	padding-bottom: 5px;
 }
 
-.csv.col-md-6,
-.json.col-md-6 {
+.more-bottom-margin {
 	margin-bottom: 20px;
 }
 
@@ -40,6 +39,10 @@ span.fileinput-button>label {
 	border: none;
 	box-shadow: none;
 	background-color: #f0f0f0;
+}
+
+label {
+	color: #333;
 }
 
 

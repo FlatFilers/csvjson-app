@@ -6,7 +6,7 @@
 	</div>
 	
 	<div class="row">
-		<div class="csv col-md-6">
+		<div class="col-md-6 more-bottom-margin">
 			<div class="form-group">
 				<label>Upload a file</label>
 				<span class="btn btn-default fileinput-button form-control">
@@ -25,7 +25,7 @@
 			<button id="convert" type="submit" class="btn btn-primary">Convert</button>
 		</div>
 		
-		<div class="json col-md-6">
+		<div class="col-md-6 more-bottom-margin">
 			<div class="form-group">
 				<label>Field separator</label>
 				<div class="form-control">
