@@ -7,7 +7,12 @@ class Csv2json extends CI_Controller {
 	}
 	
 	public function index() {
-		$this->load->view('csv2json_view');
+		$data = array(
+			'page' => 'csv2json',
+			'title' => 'CSV to JSON',
+			'view' => 'csv2json_view'
+		);
+		$this->load->view('page_view', $data);
 	}
 	
 	public function upload() {

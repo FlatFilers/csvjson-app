@@ -1,3 +1,7 @@
+.navbar {
+	border-radius: 0;
+}
+
 a.navbar-brand {
 	background-image: url("/img/favicon-inverse.png");
 	height: 32px;
