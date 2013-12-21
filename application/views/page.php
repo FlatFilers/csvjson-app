@@ -8,6 +8,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
 		<title><?=$title?></title>
+		<meta name="description" content="<?=$description?>">
 		
 		<script src="/js/jquery-2.0.3.min.js" type="text/javascript"></script>
 		<script src="/js/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>

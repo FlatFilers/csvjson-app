@@ -10,9 +10,10 @@ class Json_validator extends CI_Controller {
 		$data = array(
 			'page' => 'json_validator',
 			'title' => 'JSON Validator',
+			'description' => 'Online tool for validating JSON',
 			'view' => 'json_validator_view'
 		);
-		$this->load->view('page_view', $data);
+		$this->load->view('page', $data);
 	}
 	
 }
