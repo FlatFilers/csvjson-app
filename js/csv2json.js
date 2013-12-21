@@ -58,7 +58,7 @@ $(document).ready(function() {
 	
 	$clear.click(function(e) {
 		e.preventDefault();
-		$(this).siblings('textarea').empty();
+		$(this).siblings('textarea').val('');
 		return false;
 	});
 	
@@ -87,6 +87,6 @@ $(document).ready(function() {
 			json.push(row);
 		}
 		
-		$json.text(JSON.stringify(json, null, 2));
+		$json.val(JSON.stringify(json, null, 2));
 	});
 });

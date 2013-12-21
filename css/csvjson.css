@@ -1,8 +1,20 @@
-.header {
+a.navbar-brand {
+	background-image: url("/img/favicon-inverse.png");
+	height: 32px;
+	margin: 10px 10px 10px 10px;
+	width: 32px;
+}
+@media (min-width: 768px) {
+	.navbar > .container .navbar-brand {
+		margin-left: 0;
+	}
+}
+
+.description {
 	margin-bottom: 10px;
 }
 
-.header p {
+.description p {
 	border-bottom: 1px solid #f0f0f0;
 	padding-bottom: 5px;
 }
@@ -24,11 +36,6 @@ span.fileinput-button>label {
 	border: none;
 	box-shadow: none;
 	background-color: #f0f0f0;
-}
-
-/**** Navigation bar ****/
-.navbar {
-	border-radius: 0;
 }
 
 
