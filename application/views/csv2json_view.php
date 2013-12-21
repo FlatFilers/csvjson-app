@@ -28,23 +28,25 @@
 	</head>
 	<body>
 		<nav class="navbar navbar-inverse" role="navigation">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="navbar-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="/">CSVJSON</a>
-			</div>
-			<div class="collapse navbar-collapse" id="navbar-collapse">
-				<ul class="nav navbar-nav">
-					<li class="active"><a>CSV to JSON</a></li>
-					<li><a href="/json-validator">JSON Validator</a></li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/about">About</a></li>
-				</ul>
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="/">CSVJSON</a>
+				</div>
+				<div class="collapse navbar-collapse" id="navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a>CSV to JSON</a></li>
+						<li><a href="/json-validator">JSON Validator</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="/about">About</a></li>
+					</ul>
+				</div>
 			</div>
 		</nav>
 		<div class="container">
@@ -68,7 +70,7 @@
 					</div>
 					<div class="form-group code-group">
 						<label>Or paste your CSV here</label>
-						<textarea id="csv" class="form-control"><?="a,b,c\n1,2,3"?></textarea>
+						<textarea id="csv" class="form-control" rows="15"><?="a,b,c\n1,2,3"?></textarea>
 						<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 					</div>
 					<button id="convert" type="submit" class="btn btn-primary">Convert</button>
@@ -86,7 +88,7 @@
 					</div>
 					<div class="form-group code-group">
 						<label>JSON</label>
-						<textarea id="json" class="form-control"></textarea>
+						<textarea id="json" class="form-control" rows="15"></textarea>
 						<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 					</div>
 					<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
