@@ -2,7 +2,16 @@ CSVJSON.json_beautifier = function() {
 
 	var errorEmpty = "Please upload a file or type in something.";
 
-	var uploadUrl = "/json_beautifier/upload";
+	var uploadUrl = "/json_beautifier/upload",
+		spaceMap = {
+			'tab': '\t',
+			'1': 1,
+			'2': 2,
+			'3': 3,
+			'4': 4,
+			'.': '.',
+			'..': '..'
+		};
 	
 	var $file = $('#fileupload'),
 		$fileLabel = $('.fileinput-button>label'),
@@ -43,13 +52,14 @@ CSVJSON.json_beautifier = function() {
 	}
 	
 	$convert.click(function(e) {
-		var space = '\t',
-			dropQuotesOnKeys = $('#drop-quotes-on-keys').is(':checked');
+		var space = spaceMap[$('#space').val()],
+			dropQuotesOnKeys = $('#drop-quotes-on-keys').is(':checked'),
+			dropQuotesOnNumbers = $('#drop-quotes-on-numbers').is(':checked');
 		
 		var json = _.trim($json.val());
 		if (json.length == 0) throw errorEmpty;
 		
-		var object = JSON3.parse(json, reviver, space);
+		var object = JSON3.parse(json, dropQuotesOnNumbers ? reviver : null, space);
 		
 		
 		var result = JSON3.stringify(object, null, space, dropQuotesOnKeys);

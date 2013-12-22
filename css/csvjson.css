@@ -45,6 +45,14 @@ label {
 	color: #333;
 }
 
+label.inline {
+	font-weight:normal;
+}
+
+textarea {
+	font-family: Courier New;
+}
+
 
 /**** Code text boxes ****/
 

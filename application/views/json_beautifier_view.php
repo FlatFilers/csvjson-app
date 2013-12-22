@@ -29,7 +29,23 @@
 			<div class="form-group">
 				<label>Options</label>
 				<div class="form-control">
-					<label class="radio-inline"><input type="checkbox" id="drop-quotes-on-keys" value="0"/> Drop quotes on keys</label>
+					<label class="inline">No quotes</label>
+					<label class="inline"><input type="checkbox" id="drop-quotes-on-keys" /> on keys</label>
+					<label class="inline"><input type="checkbox" id="drop-quotes-on-numbers" /> on numbers</label>
+					&nbsp;
+					<label class="inline">
+						Indent
+						<select id="space">
+							<option value="tab">tab</option>
+							<option value="1">1 space</option>
+							<option value="2">2 spaces</option>
+							<option value="3">3 spaces</option>
+							<option value="4">4 spaces</option>
+							<option value=".">.</option>
+							<option value="..">..</option>
+						</select>
+						</select>
+					</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
