@@ -10,6 +10,12 @@
 		<title><?=$title?></title>
 		<meta name="description" content="<?=$description?>">
 		
+		<script type="text/javascript">
+			window.CSVJSON = {
+				page: '<?=$page?>'
+			};
+		</script>
+		
 		<script src="/js/jquery-2.0.3.min.js" type="text/javascript"></script>
 		<script src="/js/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 		
@@ -20,14 +26,15 @@
 		<?php if (ENVIRONMENT == 'production'): ?>
 			<script src="/js/csvjson.min.js" type="text/javascript"></script>
 		<?php else: ?>
-			<script src="/js/json/json2.js" type="text/javascript"></script>
 			<script src="/js/jQuery-File-Upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 			<script src="/js/jQuery-File-Upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
 			<script src="/js/jQuery-File-Upload/js/jquery.fileupload.js" type="text/javascript"></script>
 			<script src="/js/underscore.js" type="text/javascript"></script>
 			<script src="/js/underscore.string.js" type="text/javascript"></script>
+			<script src="/js/json/json3.js" type="text/javascript"></script>
 			<script src="/js/csv2json.js" type="text/javascript"></script>
-			<script src="/js/json_validator.js" type="text/javascript"></script>
+			<script src="/js/json_beautifier.js" type="text/javascript"></script>
+			<script src="/js/main.js" type="text/javascript"></script>
 		<?php endif; ?>
 	</head>
 	<body>
@@ -45,7 +52,7 @@
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">
 						<li class="<?=$page == 'csv2json' ? 'active' : ''?>"><a href="/csv2json">CSV to JSON</a></li>
-						<li class="<?=$page == 'json_validator' ? 'active' : ''?>"><a href="/json_validator">JSON Validator</a></li>
+						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="/about">About</a></li>

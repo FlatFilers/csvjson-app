@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Json_validator extends CI_Controller {
+class Json_beautifier extends CI_Controller {
 	
 	public function __construct() {
 		parent::__construct();
@@ -8,10 +8,10 @@ class Json_validator extends CI_Controller {
 	
 	public function index() {
 		$data = array(
-			'page' => 'json_validator',
-			'title' => 'JSON Validator',
-			'description' => 'Online tool for validating JSON',
-			'view' => 'json_validator_view'
+			'page' => 'json_beautifier',
+			'title' => 'JSON Beautifier',
+			'description' => 'Online tool for formatting JSON',
+			'view' => 'json_beautifier_view'
 		);
 		$this->load->view('page', $data);
 	}

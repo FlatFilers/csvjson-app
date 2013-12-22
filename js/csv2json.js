@@ -1,10 +1,7 @@
-$(document).ready(function() {
-
-	// Load Underscore String
-	_.mixin(_.str.exports());
+CSVJSON.csv2json = function() {
 
 	var errorDetectingSeparator = "We could not detect the separator.",
-		errorEmpty = "Please upload a file to type in something.",
+		errorEmpty = "Please upload a file or type in something.",
 		errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.";
 
 	var uploadUrl = "/csv2json/upload",
@@ -41,7 +38,7 @@ $(document).ready(function() {
 
 	// Set up file upload. Hopefully we don't have to send anything to the server.
 	$file.fileupload({
-		url: '/csv2json/upload',
+		url: uploadUrl,
 		progress: function(e, data) {
 			var progress = parseInt(data.loaded / data.total * 100, 10);
 			$fileLabel.text(progress+'%');
@@ -89,4 +86,4 @@ $(document).ready(function() {
 		
 		$json.val(JSON.stringify(json, null, 2));
 	});
-});
+};
