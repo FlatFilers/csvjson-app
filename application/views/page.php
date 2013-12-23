@@ -12,7 +12,8 @@
 		
 		<script type="text/javascript">
 			window.CSVJSON = {
-				page: '<?=$page?>'
+				page: '<?=$page?>',
+				version: <?=VERSION?>
 			};
 		</script>
 		
@@ -21,20 +22,20 @@
 		
 		<link href="/js/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		<link href="/js/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
-		<link href="/css/csvjson.css" rel="stylesheet" type="text/css" charset="utf-8" />
+		<link href="/css/csvjson.css?v=<?=VERSION?>" rel="stylesheet" type="text/css" charset="utf-8" />
 		
 		<?php if (ENVIRONMENT == 'production'): ?>
-			<script src="/js/csvjson.min.js" type="text/javascript"></script>
+			<script src="/js/csvjson.min.js?v=<?=VERSION?>" type="text/javascript"></script>
 		<?php else: ?>
 			<script src="/js/jQuery-File-Upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
 			<script src="/js/jQuery-File-Upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
 			<script src="/js/jQuery-File-Upload/js/jquery.fileupload.js" type="text/javascript"></script>
-			<script src="/js/underscore.js" type="text/javascript"></script>
-			<script src="/js/underscore.string.js" type="text/javascript"></script>
-			<script src="/js/json/json3.js" type="text/javascript"></script>
-			<script src="/js/csv2json.js" type="text/javascript"></script>
-			<script src="/js/json_beautifier.js" type="text/javascript"></script>
-			<script src="/js/main.js" type="text/javascript"></script>
+			<script src="/js/underscore/underscore.js" type="text/javascript"></script>
+			<script src="/js/underscore/underscore.string.js" type="text/javascript"></script>
+			<script src="/js/src/json3.js" type="text/javascript"></script>
+			<script src="/js/src/csv2json.js" type="text/javascript"></script>
+			<script src="/js/src/json_beautifier.js" type="text/javascript"></script>
+			<script src="/js/src/main.js" type="text/javascript"></script>
 		<?php endif; ?>
 	</head>
 	<body>
@@ -47,7 +48,9 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/" title="csvjson.com - Conversion tools"></a>
+					<a class="navbar-brand" href="/" title="csvjson.com - Conversion tools">
+						<i class="glyphicon glyphicon-chevron-right"></i>
+					</a>
 				</div>
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">

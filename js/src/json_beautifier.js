@@ -14,35 +14,18 @@ CSVJSON.json_beautifier = function() {
 		};
 	
 	var $file = $('#fileupload'),
-		$fileLabel = $('.fileinput-button>label'),
-		fileLabelHtml = $fileLabel.html(),
 		$json = $('#json'),
 		$result = $('#result'),
 		$clear = $('a.clear'),
 		$convert = $('#convert');
 	
-	// Set up file upload. Hopefully we don't have to send anything to the server.
-	$file.fileupload({
-		url: uploadUrl,
-		progress: function(e, data) {
-			var progress = parseInt(data.loaded / data.total * 100, 10);
-			$fileLabel.text(progress+'%');
-		},
-		success: function(result) {
-			$fileLabel.html(fileLabelHtml);
-			$csv.val(result);
-		},
-		fail: function(e, data) {
-			$fileLabel.html(fileLabelHtml);
-			// Show an error god damn it!
-		}
-	});
+	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $json);
+	CSVJSON.bindClear($clear);
 	
-	$clear.click(function(e) {
-		e.preventDefault();
-		$(this).siblings('textarea').val('');
+	function err(error) {
+		CSVJSON.reportError($result, error);
 		return false;
-	});
+	}
 	
 	// For JSON.parse
 	// Converts numbers in strings to pure integers or floats
@@ -57,7 +40,7 @@ CSVJSON.json_beautifier = function() {
 			dropQuotesOnNumbers = $('#drop-quotes-on-numbers').is(':checked');
 		
 		var json = _.trim($json.val());
-		if (json.length == 0) throw errorEmpty;
+		if (json.length == 0) err(errorEmpty);
 		
 		var object = JSON3.parse(json, dropQuotesOnNumbers ? reviver : null, space);
 		

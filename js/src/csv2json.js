@@ -12,8 +12,6 @@ CSVJSON.csv2json = function() {
 		};
 	
 	var $file = $('#fileupload'),
-		$fileLabel = $('.fileinput-button>label'),
-		fileLabelHtml = $fileLabel.html(),
 		$separator = $('input[type=radio][name="separator"]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
@@ -35,43 +33,28 @@ CSVJSON.csv2json = function() {
 		});
 		return keyMax ? charMap[keyMax] : undefined;
 	}
-
-	// Set up file upload. Hopefully we don't have to send anything to the server.
-	$file.fileupload({
-		url: uploadUrl,
-		progress: function(e, data) {
-			var progress = parseInt(data.loaded / data.total * 100, 10);
-			$fileLabel.text(progress+'%');
-		},
-		success: function(result) {
-			$fileLabel.html(fileLabelHtml);
-			$csv.val(result);
-		},
-		fail: function(e, data) {
-			$fileLabel.html(fileLabelHtml);
-			// Show an error god damn it!
-		}
-	});
 	
-	$clear.click(function(e) {
-		e.preventDefault();
-		$(this).siblings('textarea').val('');
+	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $csv);
+	CSVJSON.bindClear($clear);
+	
+	function err(error) {
+		CSVJSON.reportError($json, error);
 		return false;
-	});
+	}
 	
 	$convert.click(function(e) {
 		var csv = _.trim($csv.val());
-		if (csv.length == 0) throw errorEmpty;
+		if (csv.length == 0) return err(errorEmpty);
 		
 		var separator = getSeparator(csv);
-		if (!separator) throw errorDetectingSeparator;
+		if (!separator) return err(errorDetectingSeparator);
 		console.log('separator', separator);
 		
 		var lines = _.lines(csv);
-		if (lines.length == 0) throw errorEmpty;
+		if (lines.length == 0) return err(errorEmpty);
 		
 		var keys = _.words(lines.shift(), separator);
-		if (keys.length == 0) throw errorEmptyHeader;
+		if (keys.length == 0) return err(errorEmptyHeader);
 		
 		var	json = [];
 		for (var l = 0; l < lines.length; l++) {

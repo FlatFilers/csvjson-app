@@ -2,16 +2,42 @@
 	border-radius: 0;
 }
 
-a.navbar-brand {
-	background-image: url("/img/favicon-inverse.png");
-	height: 32px;
-	margin: 10px 10px 10px 10px;
-	width: 32px;
+.navbar-inverse {
+	background-color: #e51400;
+	border: 0;
 }
+
+.navbar-brand {
+	float: left;
+	padding: 11px 10px 10px 0;
+	font-size: 26px;
+	line-height: 26px;
+}
+
+.navbar-inverse .navbar-brand {
+	color: #000000;
+}
+
+.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
+	color: #000000;
+	background-color: transparent;
+}
+
 @media (min-width: 768px) {
 	.navbar > .container .navbar-brand {
 		margin-left: 0;
 	}
+}
+
+.navbar-inverse .navbar-nav > li > a {
+	color: #000000;
+}
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+	color: #ffffff;
+	background-color: #ba141a;
 }
 
 .description {
@@ -33,6 +59,22 @@ span.fileinput-button>label {
 
 .btn {
 	border-radius: 3px;
+}
+
+.btn-primary {
+	color: #ffffff;
+	background-color: #ba141a;
+	border-color: #ba141a;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.open .dropdown-toggle.btn-primary {
+	color: #ffffff;
+	background-color: #e51400;
+	border-color: #e51400;
 }
 
 .form-control {
@@ -66,9 +108,11 @@ textarea {
 	right: 20px;
 	font-size: 20px;
 	color: #999;
+	opacity: 0.5;
 }
 
 .code-group a.clear:hover,
 .code-group a.clear:active {
-	color: #DD0000;
+	color: #ba141a;
+	opacity: 1.0;
 }

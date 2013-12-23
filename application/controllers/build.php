@@ -1,5 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+// Builds our assets
+// TO DO: Minify CSS too
+
 class Build extends CI_Controller {
 	
 	public function __construct() {
@@ -12,52 +15,32 @@ class Build extends CI_Controller {
 		echo "Minifying Javascript Files...<br/>";
 	
 		// Increase the version number by 0.001
-		$contents = file_get_contents(FCPATH.'js/version.js');
-		if ($contents === FALSE) {
-			echo "Error trying to read version.js file!";
+		$old_version = file_get_contents(VERSION_FILE);
+		if ($old_version === FALSE) {
+			echo "Error trying to read version file!";
 			return;
 		}
-		$old_version = '';
-		$new_version = '';
-		$output = '';
-		$a = explode("\n",$contents);
-		foreach ($a as $line) {
-			$line = trim($line);
-			if (strpos($line, 'window.csvjsonVersion') === 0) {
-				$words = explode('=', $line);
-				if (count($words) != 2) {
-					echo "Invalid version.js file! Found window.csvjsonVersion but not equal sign!";
-					return;
-				}
-				$old_version = trim(str_replace(';', '', $words[1]));
-				if (!is_numeric($old_version)) {
-					echo "Invalid version.js file! Found version '$old_version' but it is not a number!";
-					return;
-				}
-				$new_version = $old_version + 0.001;
-				$line = "window.csvjsonVersion = $new_version;";
-			}
-			$output .= $line."\n";
-		}
-		$write_result = file_put_contents(FCPATH.'js/version.js', $output);
+		$new_version = $old_version + 0.001;
+		$write_result = file_put_contents(VERSION_FILE, $new_version);
 		if ($write_result === FALSE) {
-			echo "Error trying to write version.js file!";
+			echo "Error trying to write version file!";
 			return;
 		}
 		echo "Version: $new_version<br/>";
 		flush();
 		
+		// Create our concatenated and minified JS file
 		$file = 'csvjson.min.js';
 		$result = $this->buildJS($file, array(
 			'jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
 			'jQuery-File-Upload/js/jquery.iframe-transport.js',
 			'jQuery-File-Upload/js/jquery.fileupload.js',
-			'underscore.js',
-			'underscore.string.js',
-			'json/json3.js',
-			'csv2json.js',
-			'json_beautifier.js',
-			'main.js'
+			'underscore/underscore.js',
+			'underscore/underscore.string.js',
+			'src/json3.js',
+			'src/csv2json.js',
+			'src/json_beautifier.js',
+			'src/main.js'
 		));
 		if ($result === FALSE) {
 			echo "Error building $file<br/>";

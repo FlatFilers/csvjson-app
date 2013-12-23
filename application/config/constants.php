@@ -36,6 +36,9 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+// Version of things
+define('VERSION_FILE', FCPATH."js/src/version");
+define('VERSION', file_get_contents(VERSION_FILE));
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
