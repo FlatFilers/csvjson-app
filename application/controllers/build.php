@@ -1,6 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 // Builds our assets
+// Also updates the application version
+// Uses the Assets configuration (config/assets.php).
+
 // TO DO: Minify CSS too
 
 class Build extends CI_Controller {
@@ -30,37 +33,27 @@ class Build extends CI_Controller {
 		flush();
 		
 		// Create our concatenated and minified JS file
-		$file = 'csvjson.min.js';
-		$result = $this->buildJS($file, array(
-			'jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
-			'jQuery-File-Upload/js/jquery.iframe-transport.js',
-			'jQuery-File-Upload/js/jquery.fileupload.js',
-			'underscore/underscore.js',
-			'underscore/underscore.string.js',
-			'json/jsonlint.js',
-			'src/json3.js',
-			'src/csv2json.js',
-			'src/json_beautifier.js',
-			'src/main.js'
-		));
-		if ($result === FALSE) {
-			echo "Error building $file<br/>";
-			echo $result;
-			return;
+		foreach ($this->config['js_assets'] as $minFile => $files) {
+			$result = $this->buildJs($minFile, $files);
+			if ($result === FALSE) {
+				echo "Error building $minFile<br/>";
+				echo $result;
+				return;
+			}
+			echo "$file ".$result." bytes<br/>";
 		}
-		echo "$file ".$result." bytes<br/>";
 	}
 	
 	private function buildJS($output_file, $files, $comment_file='') {
 		$this->load->library('jsmin');
 		
-		$fid = fopen(FCPATH.'js/'.$output_file, 'w');
+		$fid = fopen(FCPATH.$output_file, 'w');
 		if (!empty($comment_file)) {
-			$comment = file_get_contents(FCPATH.'js/'.$comment_file);
+			$comment = file_get_contents(FCPATH.$comment_file);
 			fwrite($fid, $comment."\n");
 		}
 		foreach ($files as $file) {
-			$contents = file_get_contents(FCPATH.'js/'.$file);
+			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
 				echo "Crap - couldn't load file: ".$file;
 				fclose($fid);
@@ -71,6 +64,6 @@ class Build extends CI_Controller {
 			fwrite($fid, $this->jsmin->minify($contents)."\n");
 		}
 		fclose($fid);
-		return filesize(FCPATH.'js/'.$output_file);
+		return filesize(FCPATH.$output_file);
 	}
 }
