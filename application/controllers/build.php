@@ -37,6 +37,7 @@ class Build extends CI_Controller {
 			'jQuery-File-Upload/js/jquery.fileupload.js',
 			'underscore/underscore.js',
 			'underscore/underscore.string.js',
+			'json/jsonlint.js',
 			'src/json3.js',
 			'src/csv2json.js',
 			'src/json_beautifier.js',

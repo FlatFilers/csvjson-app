@@ -42,12 +42,14 @@ CSVJSON.json_beautifier = function() {
 		var json = _.trim($json.val());
 		if (json.length == 0) err(errorEmpty);
 		
-		var object = JSON3.parse(json, dropQuotesOnNumbers ? reviver : null, space);
-		
-		
-		var result = JSON3.stringify(object, null, space, dropQuotesOnKeys);
-		
-		$result.val(result);
+		var object, result;
+		try {
+			object = jsonlint.parse(json, dropQuotesOnNumbers ? reviver : null, space);
+			result = JSON3.stringify(object, null, space, dropQuotesOnKeys);
+			$result.removeClass('error').val(result);
+		} catch (error) {
+			err(error);
+		}
 	});
 	
 };

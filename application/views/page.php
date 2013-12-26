@@ -32,6 +32,7 @@
 			<script src="/js/jQuery-File-Upload/js/jquery.fileupload.js" type="text/javascript"></script>
 			<script src="/js/underscore/underscore.js" type="text/javascript"></script>
 			<script src="/js/underscore/underscore.string.js" type="text/javascript"></script>
+			<script src="/js/json/jsonlint.js" type="text/javascript"></script>
 			<script src="/js/src/json3.js" type="text/javascript"></script>
 			<script src="/js/src/csv2json.js" type="text/javascript"></script>
 			<script src="/js/src/json_beautifier.js" type="text/javascript"></script>

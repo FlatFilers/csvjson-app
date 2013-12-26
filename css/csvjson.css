@@ -95,6 +95,11 @@ textarea {
 	font-family: Courier New;
 }
 
+textarea.error {
+	color: #990000;
+	background-color: #ffeeee;
+}
+
 
 /**** Code text boxes ****/
 

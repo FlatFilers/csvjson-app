@@ -67,6 +67,7 @@ CSVJSON.csv2json = function() {
 			json.push(row);
 		}
 		
-		$json.val(JSON.stringify(json, null, 2));
+		var result = JSON.stringify(json, null, 2);
+		$json.removeClass('error').val(result);
 	});
 };
