@@ -1,5 +1,17 @@
+// Cache user inputs into HTML5 local storage. Restore them upon next page load.
+// Usage:
+//   $('body').CacheInputs();
+//
+// Will store stringified JSON in local storage, against the key you specify
+// or 'cache-inputs' if you omit it. See settings below.
+//
+// Author: Martin Drapeau
+//
+// Greatly inspired from Johnathan Schnittger
+// Original source: http://www.developerdrive.com/2013/08/jquery-plugin-for-caching-forms-using-html5-local-storage/
+//
 (function($) {
-    $.fn.CacheInputs = function( options ) {
+    $.fn.CacheInputs = function(options) {
         var settings = $.extend({
 			key: 'cache-inputs',
 			inputs: [
@@ -29,7 +41,7 @@
             var element = $(this),
 				selector = settings.inputs.join(', ');
             
-            if (typeof(Storage)!=="undefined"){
+            if (typeof(Storage) !== "undefined") {
                 var key = settings.key;
                 
                 var data = false;
@@ -43,7 +55,7 @@
                 }
                 element.find(selector).change(on_change);
                 
-                element.find(selector).each(function(){
+                element.find(selector).each(function() {
                     if ($(this).attr('type') != 'submit') {
                         var $input = $(this),
 							id = $input.attr('id'),
