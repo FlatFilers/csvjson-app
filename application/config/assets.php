@@ -37,6 +37,12 @@ $config['js_assets'] = array(
 	)
 );
 
+$config['css_assets'] = array(
+	'css/csvjson.css' => array(
+		'css/main.css'
+	)
+);
+
 // TO DO CSS assets...
 
 /* End of file assets.php */

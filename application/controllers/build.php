@@ -33,25 +33,32 @@ class Build extends CI_Controller {
 		flush();
 		
 		// Create our concatenated and minified JS file
-		foreach ($this->config['js_assets'] as $minFile => $files) {
+		foreach ($this->config->item('js_assets') as $minFile => $files) {
 			$result = $this->buildJs($minFile, $files);
 			if ($result === FALSE) {
 				echo "Error building $minFile<br/>";
 				echo $result;
 				return;
 			}
-			echo "$file ".$result." bytes<br/>";
+			echo "$minFile ".$result." bytes<br/>";
+		}
+		
+		// Create our concatenated and minified CSS file
+		foreach ($this->config->item('css_assets') as $minFile => $files) {
+			$result = $this->buildCss($minFile, $files);
+			if ($result === FALSE) {
+				echo "Error building $minFile<br/>";
+				echo $result;
+				return;
+			}
+			echo "$minFile ".$result." bytes<br/>";
 		}
 	}
 	
-	private function buildJS($output_file, $files, $comment_file='') {
+	private function buildJS($output_file, $files) {
 		$this->load->library('jsmin');
 		
 		$fid = fopen(FCPATH.$output_file, 'w');
-		if (!empty($comment_file)) {
-			$comment = file_get_contents(FCPATH.$comment_file);
-			fwrite($fid, $comment."\n");
-		}
 		foreach ($files as $file) {
 			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
@@ -62,6 +69,25 @@ class Build extends CI_Controller {
 			$comment = "// ".$file;
 			fwrite($fid, $comment."\n");
 			fwrite($fid, $this->jsmin->minify($contents)."\n");
+		}
+		fclose($fid);
+		return filesize(FCPATH.$output_file);
+	}
+	
+	private function buildCSS($output_file, $files) {
+		$this->load->library('cssmin');
+		
+		$fid = fopen(FCPATH.$output_file, 'w');
+		foreach ($files as $file) {
+			$contents = file_get_contents(FCPATH.$file);
+			if ($contents === FALSE) {
+				echo "Crap - couldn't load file: ".$file;
+				fclose($fid);
+				return;
+			}
+			$comment = "// ".$file;
+			fwrite($fid, $comment."\n");
+			fwrite($fid, $this->cssmin->minify($contents)."\n");
 		}
 		fclose($fid);
 		return filesize(FCPATH.$output_file);
