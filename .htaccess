@@ -11,7 +11,6 @@ RewriteEngine on
 # Force www
 RewriteCond %{HTTP_HOST} !^www\.
 RewriteCond %{HTTP_HOST} !^localhost
-RewriteCond %{HTTP_HOST} !^findyourtennis$
 RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
 
 # favicon always at same place!
