@@ -1,7 +1,13 @@
 (function($) {
     $.fn.CacheInputs = function( options ) {
         var settings = $.extend({
-			key: 'cache-inputs'
+			key: 'cache-inputs',
+			inputs: [
+				'input[type=text]',
+				'input[type=radio]',
+				'input[type=checkbox]',
+				'select'
+			]
 		}, options);
         
         function on_change(event) {
@@ -20,7 +26,8 @@
         }
         
         return this.each(function() {    
-            var element = $(this);
+            var element = $(this),
+				selector = settings.inputs.join(', ');
             
             if (typeof(Storage)!=="undefined"){
                 var key = settings.key;
@@ -34,9 +41,9 @@
                     localStorage[key] = JSON.stringify({});
                     data = JSON.parse(localStorage[key]);
                 }
-                element.find('input, select').change(on_change);
+                element.find(selector).change(on_change);
                 
-                element.find('input, select').each(function(){
+                element.find(selector).each(function(){
                     if ($(this).attr('type') != 'submit') {
                         var $input = $(this),
 							id = $input.attr('id'),

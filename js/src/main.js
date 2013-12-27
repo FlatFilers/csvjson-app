@@ -47,6 +47,9 @@ $(document).ready(function() {
 		
 	});
 	
+	// Cache inputs as the user changes them so they remain upon next page load
+	$('.container').CacheInputs({key:CSVJSON.page});
+	
 	var fn = CSVJSON[CSVJSON.page];
 	if (typeof(fn) !== 'function') throw "Module "+CSVJSON.page+" not found.";
 	CSVJSON[CSVJSON.page]();
