@@ -27,11 +27,19 @@ CSVJSON.json_beautifier = function() {
 		return false;
 	}
 	
-	// For JSON.parse
-	// Converts numbers in strings to pure integers or floats
-	function reviver(key, value) {
-		var number = value - 0;
-		return isNaN(number) ? value : number;
+	// Recursively walk an object to convert strings that are numbers
+	// to pure integers or floats.
+	function walkObjectAndDropQuotesOnNumbers(object) {
+		if (!_.isObject(object)) return;
+		
+		_.each(object, function(value, key) {
+			if (_.isString(value)) {
+				var number = value - 0;
+				object[key] = isNaN(number) ? value : number;
+			} else if (_.isObject(value) || _.isArray(value)) {
+				walkObjectAndDropQuotesOnNumbers(value);
+			}
+		});
 	}
 	
 	$convert.click(function(e) {
@@ -44,7 +52,8 @@ CSVJSON.json_beautifier = function() {
 		
 		var object, result;
 		try {
-			object = jsonlint.parse(json, dropQuotesOnNumbers ? reviver : null, space);
+			object = jsonlint.parse(json);
+			if (dropQuotesOnNumbers) walkObjectAndDropQuotesOnNumbers(object);
 			result = JSON3.stringify(object, null, space, dropQuotesOnKeys);
 			$result.removeClass('error').val(result);
 		} catch (error) {
