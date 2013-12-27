@@ -4,8 +4,6 @@
 // Also updates the application version
 // Uses the Assets configuration (config/assets.php).
 
-// TO DO: Minify CSS too
-
 class Build extends CI_Controller {
 	
 	public function __construct() {
@@ -32,7 +30,7 @@ class Build extends CI_Controller {
 		echo "Version: $new_version<br/>";
 		flush();
 		
-		// Create our concatenated and minified JS file
+		// Create our concatenated and minified JS files
 		foreach ($this->config->item('js_assets') as $minFile => $files) {
 			$result = $this->buildJs($minFile, $files);
 			if ($result === FALSE) {
@@ -43,7 +41,7 @@ class Build extends CI_Controller {
 			echo "$minFile ".$result." bytes<br/>";
 		}
 		
-		// Create our concatenated and minified CSS file
+		// Create our concatenated and minified CSS files
 		foreach ($this->config->item('css_assets') as $minFile => $files) {
 			$result = $this->buildCss($minFile, $files);
 			if ($result === FALSE) {
