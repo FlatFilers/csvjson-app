@@ -7,7 +7,7 @@
  *
  * Call this to build and minify your assets.
  * Uses the Assets configuration (config/assets.php).
- * Used by views views/js_assets.php and view/css_assets.php
+ * Used by view views/assets.php.
  *
  */
 
@@ -37,64 +37,67 @@ class Build extends CI_Controller {
 		echo "Version: $new_version<br/>";
 		flush();
 		
-		// Create our concatenated and minified JS files
-		foreach ($this->config->item('js_assets') as $minFile => $files) {
-			$result = $this->buildJs($minFile, $files);
-			if ($result === FALSE) {
-				echo "Error building $minFile<br/>";
-				echo $result;
+		// Create our bundle files
+		foreach ($this->config->item('assets') as $bundle) {
+			if ($bundle['type'] == JAVASCRIPT) {
+				$result = $this->buildJs($bundle['output'], $bundle['files'], isset($bundle['comment']) ? $bundle['comment'] : NULL);
+			} else if ($bundle['type'] == CSS) {
+				$result = $this->buildCss($bundle['output'], $bundle['files'], isset($bundle['comment']) ? $bundle['comment'] : NULL);
+			} else {
+				echo 'Invalid bundle type '+$bundle['type'];
 				return;
 			}
-			echo "$minFile ".$result." bytes<br/>";
-		}
-		
-		// Create our concatenated and minified CSS files
-		foreach ($this->config->item('css_assets') as $minFile => $files) {
-			$result = $this->buildCss($minFile, $files);
 			if ($result === FALSE) {
-				echo "Error building $minFile<br/>";
-				echo $result;
+				echo "Error building ".$bundle['output']."<br/>";
 				return;
 			}
-			echo "$minFile ".$result." bytes<br/>";
+			echo $bundle['output']." ".$result." bytes<br/>";
 		}
 	}
 	
-	private function buildJS($output_file, $files) {
+	private function buildJS($output_file, $files, $comment=NULL) {
 		$this->load->library('jsmin');
 		
 		$fid = fopen(FCPATH.$output_file, 'w');
+		
+		if ($comment) fwrite($fid, "/* $comment */\n");
+		
 		foreach ($files as $file) {
 			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
 				echo "Crap - couldn't load file: ".$file;
 				fclose($fid);
-				return;
+				return FALSE;
 			}
-			$comment = "// ".$file;
-			fwrite($fid, $comment."\n");
+			fwrite($fid, "// $file\n");
 			fwrite($fid, $this->jsmin->minify($contents)."\n");
 		}
+		
 		fclose($fid);
+		
 		return filesize(FCPATH.$output_file);
 	}
 	
-	private function buildCSS($output_file, $files) {
+	private function buildCSS($output_file, $files, $comment=NULL) {
 		$this->load->library('cssmin');
 		
 		$fid = fopen(FCPATH.$output_file, 'w');
+		
+		if ($comment) fwrite($fid, "/* $comment */\n");
+		
 		foreach ($files as $file) {
 			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
 				echo "Crap - couldn't load file: ".$file;
 				fclose($fid);
-				return;
+				return FALSE;
 			}
-			$comment = "// ".$file;
-			fwrite($fid, $comment."\n");
+			fwrite($fid, "// $file\n");
 			fwrite($fid, $this->cssmin->minify($contents)."\n");
 		}
+		
 		fclose($fid);
+		
 		return filesize(FCPATH.$output_file);
 	}
 }

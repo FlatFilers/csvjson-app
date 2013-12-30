@@ -23,8 +23,7 @@
 		<link href="/js/3rd/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		
-		<?php $this->load->view('css_assets'); ?>		
-		<?php $this->load->view('js_assets'); ?>
+		<?php $this->load->view('assets'); ?>
 	</head>
 	<body>
 		<header class="navbar navbar-inverse" role="banner">

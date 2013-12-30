@@ -56,19 +56,51 @@ Make sur to change `csvjson.com` to your own domain.
 Javascript/CSS Bundling and Minification
 ----------------------------------------
 
-Bundles are defined in the config file `assets.php` (located under /application/config/). A Javascript bundle is a map `<min file> => [<js file>, <js file>, ...]`. For example, two bundles are defined here:
+`$config['assets']` is an array of asset bundle records. An asset bundle record contains these attributes:
+- type: javascript or css
+- output: Name of the output file; minified and concatenated
+- files: List of files to bunble
+- comment: Comment to include at the begining of the output file. Set to NULL not to write one.
+
+For example:
 ```
-$config['js_assets'] = array(
-  'js/3rd.min.js' => array(
-    'js/3rd/jquery.js',
-    'js/3rd/underscore.js',
-    'js/3rd/backbone.js',
-  )
-	'js/app.min.js' => array(
-	  'js/src/file1.js',
-	  'js/src/main.js'
-	)
+$config['assets'] = array(
+  array(
+    'type' => JAVASCRIPT,
+    'output' => 'js/3rd.min.js',
+    'files' => array(
+      'js/3rd/jquery.js',
+      'js/3rd/underscore.js',
+      'js/3rd/backbone.js'
+  ),
+  array(
+    'type' => JAVASCRIPT,
+    'output' => 'js/myapp.min.js',
+    'files' => array(
+      'js/src/main.js',
+      'js/src/utils.js'
+    ),
+    'comment': 'MyApp | (c) 2013'
 );
+```
+Will produce:
+```
+  /js/3rd.min.js
+```
+Composed of these files:
+```
+  /js/3rd/jquery.js
+  /js/3rd/underscore.js
+  /js/3rd/backbone.js
+```
+And...
+```
+  /js/myapp.min.js
+```
+From:
+```
+  /js/src/main.js
+  /js/src/utils.js
 ```
 
 Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
@@ -76,12 +108,9 @@ Bundles are compiled in the Build controller (`application/controllers/build.php
 http://localhost/build
 ```
 
-Same principle for CSS assets defined in `$config['css_assets']`.
-
-Special views exist to load the assets. See `application/views/js_assets.php` and `application/views/css_assets.php`. In `production`, these will load the built assets (.min.js). In `development`, all Javascript and CSS files get loaded. To load your assets, add these lines of code in the `HEAD` section of your HTML page:
+A special view exist to load the assets. See `application/views/assets.php`. In `production`, these will load the built assets (.min.js & .min.css). In `development`, all Javascript and CSS files get loaded. To load your assets, add these lines of code in the `HEAD` section of your HTML page:
 ```
-<?php $this->load->view('css_assets'); ?>		
-<?php $this->load->view('js_assets'); ?>
+<?php $this->load->view('assets'); ?>
 ```
 
 

@@ -5,11 +5,19 @@
 | JS and CSS assets - bundling and minifying
 |--------------------------------------------------------------------------
 |
-| js_assets config is a map between a bundled & minified JS file to a list
-| of unminified JS files. In DEVELOPMENT, the unminified files are loaded.
-| In PRODUCTION, only the bundled/minified version is loaded.
+| Config assets is an array of asset bundle records. An asset bundle record
+| contains these attributes:
+|  - type: javascript or css
+|  - output: Name of the output file; minified and concatenated
+|  - files: List of files to bunble
+|  - comment: Comment to include at the begining of the output file. Set
+|             to NULL not to write one.
 |
-| Same principle with css_assets for CSS files.
+| Controller Build (controllers/build.php) performs the bundling and
+| minification.
+|
+| View assets.php will load the assets. In DEVELOPMENT, the unminified files
+| get loaded. In PRODUCTION, only the bundled/minified version gets loaded.
 |
 | Production files get appended a query string parameter v=<VERSION> to
 | force browser and CDN caching to reload the asset. VERSION is a constant
@@ -22,17 +30,35 @@
 |
 | For example:
 |
-| $config['js_assets'] = array(
-|   'js/myapp.min.js' => array(
-|     'js/src/main.js',
-|     'js/src/utils.js'
-|   )
+| $config['assets'] = array(
+|   array(
+|     'type' => JAVASCRIPT,
+|     'output' => 'js/3rd.min.js',
+|     'files' => array(
+|       'js/3rd/jquery.js',
+|       'js/3rd/underscore.js',
+|       'js/3rd/backbone.js'
+|   ),
+|   array(
+|     'type' => JAVASCRIPT,
+|     'output' => 'js/myapp.min.js',
+|     'files' => array(
+|       'js/src/main.js',
+|       'js/src/utils.js'
+|     ),
+|     'comment': 'MyApp | (c) 2013'
 | );
 |
 | Will produce:
-|   /js/myapp.min.js
-|
+|   /js/3rd.min.js
 | Composed of these files:
+|   /js/3rd/jquery.js
+|   /js/3rd/underscore.js
+|   /js/3rd/backbone.js
+|
+| And...
+|   /js/myapp.min.js
+| From:
 |   /js/src/main.js
 |   /js/src/utils.js
 |
@@ -44,28 +70,47 @@
 define('VERSION_FILE', FCPATH."js/src/version");
 define('VERSION', file_get_contents(VERSION_FILE));
 
-// Javascript bundles
-$config['js_assets'] = array(
-	'js/csvjson.min.js' => array(
-		'js/3rd/jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
-		'js/3rd/jQuery-File-Upload/js/jquery.iframe-transport.js',
-		'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
-		'js/3rd/underscore/underscore.js',
-		'js/3rd/underscore/underscore.string.js',
-		'js/3rd/json/jsonlint.js',
-		'js/src/json3.js',
-		'js/src/csv2json.js',
-		'js/src/json_beautifier.js',
-		'js/src/jquery.cache-inputs.js',
-		'js/src/main.js'
-	)
-);
+// Types
+define('JAVASCRIPT', 'javascript');
+define('CSS', 'css');
 
-// CSS bundles
-$config['css_assets'] = array(
-	'css/csvjson.css' => array(
-		'css/main.css'
-	)
+// Our copyright comment to include in our bundles
+$comment = 'CSVJSON | (c) 2013 Martin Drapeau | https://github.com/martindrapeau/CSVJSON';
+
+// Asset bundles
+$config['assets'] = array(
+	array(
+		'type' => CSS,
+		'output' => 'css/csvjson.css',
+		'files' => array(
+			'css/main.css'
+		),
+		'comment' => $comment
+	),
+	array(
+		'type' => JAVASCRIPT,
+		'output' => 'js/3rd.min.js',
+		'files' => array(
+			'js/3rd/jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
+			'js/3rd/jQuery-File-Upload/js/jquery.iframe-transport.js',
+			'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
+			'js/3rd/underscore/underscore.js',
+			'js/3rd/underscore/underscore.string.js',
+			'js/3rd/json/jsonlint.js',
+		)
+	),
+	array(
+		'type' => JAVASCRIPT,
+		'output' => 'js/csvjson.min.js',
+		'files' => array(
+			'js/src/json3.js',
+			'js/src/csv2json.js',
+			'js/src/json_beautifier.js',
+			'js/src/jquery.cache-inputs.js',
+			'js/src/main.js'
+		),
+		'comment' => $comment
+	),
 );
 
 /* End of file assets.php */
