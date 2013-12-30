@@ -18,8 +18,15 @@ If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote
 
 Directory Structure
 -------------------
-
-Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Feel free to change that if you like.
+```
+--application
+--system
+--js
+  --3rd
+  --src
+--css
+```
+Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
 
 
 ENVIRONMENT
