@@ -5,13 +5,15 @@ CSVJSON is...
 
 1.  Various tools that as a programmer I use now an then. Like converting CSV to JSON, or formatting JSON and making it pretty. More tools to come as I build as I go.
 2.  A PHP CodeIgniter Boilerplate I use for my own apps. Includes JS/CSS bundling and minification.
+3.  A clean and simple example of building an application with CodeIgniter.
+
 
 Installation
 ------------
 
 Clone and drop inside a folder under a virtual host using your favorite WAMP or LAMP stack. CodeIgniter's index.php will start everything.
 
-If you use Apache, comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
+If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
 
 
 ENVIRONMENT
@@ -59,9 +61,9 @@ Special views exist to load the assets. See `application/views/js_assets.php` an
 FAQ
 ===
 
-Q: What performs minification?
+Q: What performs minification?<br/>
 A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
 
-Q: Does it perform CSS pre-processing of SASS, LESS or Stylus?
+Q: Does it perform CSS pre-processing of SASS, LESS or Stylus?<br/>
 A: No. Feel free to fork and add it. Would be nice.
 
