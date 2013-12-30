@@ -8,6 +8,14 @@ CSVJSON is...
 3.  A clean and simple example of building an application with CodeIgniter.
 
 
+Features
+--------
+
+- Built using Bootstrap 3.0, nice and responsive.
+- Simple directory structure for assets.
+- Includes bundling and minification of Javascript and CSS.
+
+
 Installation
 ------------
 
@@ -29,7 +37,7 @@ Directory Structure
 Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
 
 
-ENVIRONMENT
+Environment
 -----------
 
 CodeIgniter lets you define a constant called ENVIRONMENT. Can be development, testing or production. To make things simple, index.php sets that variable by looking at the hostname.
@@ -75,7 +83,7 @@ Special views exist to load the assets. See `application/views/js_assets.php` an
 ```
 
 
-VERSION
+Version
 -------
 
 Assets in production are post-fixed with a cache buster query string like `?v=123` where 123 is the version of your application. There is a text file `js/src/version` which contains that number, and is loaded in `confi/assets.php` to set constant `VERSION`. That number is automatically increased by 0.001 when you perform a build.
