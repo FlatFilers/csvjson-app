@@ -1,5 +1,12 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/*
+ * CSV to JSON Controller
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ *
+ */
+
 class Csv2json extends CI_Controller {
 	
 	public function __construct() {

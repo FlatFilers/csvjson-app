@@ -1,3 +1,8 @@
+/*
+ * CSV to JSON
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ */
 CSVJSON.csv2json = function() {
 
 	var errorDetectingSeparator = "We could not detect the separator.",

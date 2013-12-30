@@ -1,8 +1,15 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-// Builds our assets
-// Also updates the application version
-// Uses the Assets configuration (config/assets.php).
+/*
+ * Javascript and CSS Bundling and Minification.
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ *
+ * Call this to build and minify your assets.
+ * Uses the Assets configuration (config/assets.php).
+ * Used by views views/js_assets.php and view/css_assets.php
+ *
+ */
 
 class Build extends CI_Controller {
 	

@@ -1,5 +1,12 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/*
+ * JSON Beautifier controller
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ *
+ */
+
 class Json_beautifier extends CI_Controller {
 	
 	public function __construct() {

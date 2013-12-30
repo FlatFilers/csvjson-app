@@ -1,3 +1,8 @@
+/*
+ * CSV JSON main file - where everything starts
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ */
 $(document).ready(function() {
 	
 	// Load Underscore String

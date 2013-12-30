@@ -18,10 +18,10 @@
 		</script>
 		
 		<script src="/js/jquery-2.0.3.min.js" type="text/javascript"></script>
-		<script src="/js/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+		<script src="/js/3rd/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 		
-		<link href="/js/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" charset="utf-8" />
-		<link href="/js/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
+		<link href="/js/3rd/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" charset="utf-8" />
+		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		
 		<?php $this->load->view('css_assets'); ?>		
 		<?php $this->load->view('js_assets'); ?>

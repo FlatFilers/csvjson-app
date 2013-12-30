@@ -47,12 +47,12 @@ define('VERSION', file_get_contents(VERSION_FILE));
 // Javascript bundles
 $config['js_assets'] = array(
 	'js/csvjson.min.js' => array(
-		'js/jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
-		'js/jQuery-File-Upload/js/jquery.iframe-transport.js',
-		'js/jQuery-File-Upload/js/jquery.fileupload.js',
-		'js/underscore/underscore.js',
-		'js/underscore/underscore.string.js',
-		'js/json/jsonlint.js',
+		'js/3rd/jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
+		'js/3rd/jQuery-File-Upload/js/jquery.iframe-transport.js',
+		'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
+		'js/3rd/underscore/underscore.js',
+		'js/3rd/underscore/underscore.string.js',
+		'js/3rd/json/jsonlint.js',
 		'js/src/json3.js',
 		'js/src/csv2json.js',
 		'js/src/json_beautifier.js',

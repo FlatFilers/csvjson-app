@@ -1,3 +1,8 @@
+/*
+ * JSON Beautifier
+ *
+ * Copyright (c) 2013 Martin Drapeau
+ */
 CSVJSON.json_beautifier = function() {
 
 	var errorEmpty = "Please upload a file or type in something.";
