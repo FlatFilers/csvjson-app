@@ -83,9 +83,11 @@ Assets in production are post-fixed with a cache buster query string like `?v=12
 FAQ
 ===
 
-Q: What performs minification?<br/>
+Q: What performs minification? <br/>
 A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
 
-Q: Does it perform CSS pre-processing of SASS, LESS or Stylus?<br/>
+Q: Does it perform CSS pre-processing of SASS, LESS or Stylus? <br/>
 A: No. Feel free to fork and add it. Would be nice.
 
+Q: There is no use of a database. What is recommended for that? <br/>
+A: This app is simple. For DB, use CodeIgniter's excellent Active Record class, and make sure to put that code into Models. 
