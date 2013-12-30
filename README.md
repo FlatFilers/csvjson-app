@@ -3,7 +3,7 @@ CSVJSON
 
 CSVJSON is...
 
-1.  Various tools that as a programmer I use now an then. Like converting CSV to JSON, or formatting JSON and making it pretty. More tools to come as I build as I go.
+1.  Various tools that as a programmer I use now an then. Like converting CSV to JSON, or formatting JSON and making it pretty. More tools to come... I build them when the need comes.
 2.  A PHP CodeIgniter Boilerplate I use for my own apps. Includes JS/CSS bundling and minification.
 3.  A clean and simple example of building an application with CodeIgniter.
 
