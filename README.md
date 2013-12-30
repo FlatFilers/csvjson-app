@@ -7,6 +7,8 @@ CSVJSON is...
 2.  A PHP CodeIgniter Boilerplate I use for my own apps. Includes JS/CSS bundling and minification.
 3.  A clean and simple example of building an application with CodeIgniter.
 
+The rest of this documentation focuses on points 2 and 3.
+
 
 Features
 --------
