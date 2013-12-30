@@ -16,6 +16,12 @@ Clone and drop inside a folder under a virtual host using your favorite WAMP or 
 If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
 
 
+Directory Structure
+-------------------
+
+Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Feel free to change that if you like.
+
+
 ENVIRONMENT
 -----------
 
@@ -48,7 +54,10 @@ $config['js_assets'] = array(
 );
 ```
 
-Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated.
+Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
+```
+http://localhost/build
+```
 
 Same principle for CSS assets defined in `$config['css_assets']`.
 
@@ -57,6 +66,12 @@ Special views exist to load the assets. See `application/views/js_assets.php` an
 <?php $this->load->view('css_assets'); ?>		
 <?php $this->load->view('js_assets'); ?>
 ```
+
+
+VERSION
+-------
+
+Assets in production are post-fixed with a cache buster query string like `?v=123` where 123 is the version of your application. There is a text file `js/src/version` which contains that number, and is loaded in `confi/assets.php` to set constant `VERSION`. That number is automatically increased by 0.001 when you perform a build.
 
 FAQ
 ===
