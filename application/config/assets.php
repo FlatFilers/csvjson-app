@@ -75,7 +75,7 @@ $config['assets'] = array(
 			'js/src/main.js'
 		),
 		'comment' => $comment
-	),
+	)
 );
 
 /* End of file assets.php */

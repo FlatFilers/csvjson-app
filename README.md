@@ -18,10 +18,19 @@ Clone and drop inside a folder under a virtual host using your favorite WAMP or 
 If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
 
 
+Extending
+---------
+
+To add a new tool, add yourself a controller (under application/controllers/), a view (under application/views/) and a Javascript file (under js/src/). You can put your CSS directly inside css/csvjson.css.
+
+
 Directory Structure
 -------------------
 ```
 --application
+  --config
+  --controllers
+  --views
 --system
 --js
   --3rd
@@ -57,48 +66,42 @@ Javascript/CSS Bundling and Minification
 For example:
 ```
 $config['assets'] = array(
-  array(
-    'type' => JAVASCRIPT,
-    'output' => 'js/3rd.min.js',
-    'files' => array(
-      'js/3rd/jquery.js',
-      'js/3rd/underscore.js',
-      'js/3rd/backbone.js'
-  ),
-  array(
-    'type' => JAVASCRIPT,
-    'output' => 'js/myapp.min.js',
-    'files' => array(
-      'js/src/main.js',
-      'js/src/utils.js'
-    ),
-    'comment': 'MyApp | (c) 2013'
+	array(
+		'type' => CSS,
+		'output' => 'css/csvjson.css',
+		'files' => array(
+			'css/main.css'
+		),
+		'comment' => $comment
+	),
+	array(
+		'type' => JAVASCRIPT,
+		'output' => 'js/csvjson.min.js',
+		'files' => array(
+			'js/src/json3.js',
+			'js/src/csv2json.js',
+			'js/src/json_beautifier.js',
+			'js/src/jquery.cache-inputs.js',
+			'js/src/main.js'
+		),
+		'comment' => $comment
+	)
 );
 ```
 Will produce:
 ```
-  /js/3rd.min.js
-```
-Composed of these files:
-```
-  /js/3rd/jquery.js
-  /js/3rd/underscore.js
-  /js/3rd/backbone.js
+  /css/csvjson.css
 ```
 And...
 ```
-  /js/myapp.min.js
-```
-From:
-```
-  /js/src/main.js
-  /js/src/utils.js
+  /js/csvjson.min.js
 ```
 
 Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
 ```
 http://localhost/build
 ```
+Built assets are committed to git.
 
 A special view exist to load the assets. See `application/views/assets.php`. In `production`, these will load the built assets (.min.js & .min.css). In `development`, all Javascript and CSS files get loaded. To load your assets, add these lines of code in the `HEAD` section of your HTML page:
 ```
