@@ -23,4 +23,14 @@ class Json_beautifier extends CI_Controller {
 		$this->load->view('page', $data);
 	}
 	
+	public function upload() {
+		$result = uploadFileIsValid('file');
+		if ($result !== TRUE) {
+			header('HTTP/1.1 400 Bad Request', true, 400);
+			log_message('error', $result);
+		}
+		
+		echo file_get_contents($_FILES['file']['tmp_name']);
+	}
+	
 }

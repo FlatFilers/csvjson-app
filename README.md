@@ -1,21 +1,13 @@
 CSVJSON
 =======
 
-CSVJSON is...
+Online formatting and conversion tools that I use as a web developer.
+- CSV to JSON: Convert CSV (Excel) to JSON format.
+- JSON Beautifier: Validate and format JSON. Convert it to Javascript code.
 
-1.  Various tools that as a programmer I use now an then. Like converting CSV to JSON, or formatting JSON and making it pretty. More tools to come... I build them when the need comes.
-2.  A PHP CodeIgniter Boilerplate I use for my own apps. Includes JS/CSS bundling and minification.
-3.  A clean and simple example of building an application with CodeIgniter.
+CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
 
-The rest of this documentation focuses on points 2 and 3.
-
-
-Features
---------
-
-- Built using Bootstrap 3.0, nice and responsive.
-- Simple directory structure for assets.
-- Includes bundling and minification of Javascript and CSS.
+Forking welcome: https://github.com/martindrapeau/CSVJSON
 
 
 Installation
@@ -122,11 +114,12 @@ Assets in production are post-fixed with a cache buster query string like `?v=12
 FAQ
 ===
 
+Q: What if I fund a bug or would like to propose an enhancement? <br/>
+A: Report it via GitHub issues: https://github.com/martindrapeau/CSVJSON/issues
+
 Q: What performs minification? <br/>
 A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
 
-Q: Does it perform CSS pre-processing of SASS, LESS or Stylus? <br/>
+Q: Does bundling and minification support CSS pre-processing like SASS, LESS or Stylus? <br/>
 A: No. Feel free to fork and add it. Would be nice.
 
-Q: There is no use of a database. What is recommended for that? <br/>
-A: This app is simple. For DB, use CodeIgniter's excellent Active Record class, and make sure to put that code into Models. 

@@ -27,41 +27,6 @@
 | generated. FCPATH will be prefixed. For example js/myapp.min.js or
 | js/jquery.js.
 |
-|
-| For example:
-|
-| $config['assets'] = array(
-|   array(
-|     'type' => JAVASCRIPT,
-|     'output' => 'js/3rd.min.js',
-|     'files' => array(
-|       'js/3rd/jquery.js',
-|       'js/3rd/underscore.js',
-|       'js/3rd/backbone.js'
-|   ),
-|   array(
-|     'type' => JAVASCRIPT,
-|     'output' => 'js/myapp.min.js',
-|     'files' => array(
-|       'js/src/main.js',
-|       'js/src/utils.js'
-|     ),
-|     'comment': 'MyApp | (c) 2013'
-| );
-|
-| Will produce:
-|   /js/3rd.min.js
-| Composed of these files:
-|   /js/3rd/jquery.js
-|   /js/3rd/underscore.js
-|   /js/3rd/backbone.js
-|
-| And...
-|   /js/myapp.min.js
-| From:
-|   /js/src/main.js
-|   /js/src/utils.js
-|
 */
 
 // Version of things

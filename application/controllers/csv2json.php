@@ -24,26 +24,12 @@ class Csv2json extends CI_Controller {
 	}
 	
 	public function upload() {
-		if ($_FILES['file']['error'] !== UPLOAD_ERR_OK ||
-			!is_uploaded_file($_FILES['file']['tmp_name'])) {
+		$result = uploadFileIsValid('file');
+		if ($result !== TRUE) {
 			header('HTTP/1.1 400 Bad Request', true, 400);
-			return;
-		}
-		
-		$mime = $this->getMimeType($_FILES['file']['tmp_name']);
-		if (!strpos($mime, 'text/plain') === 0) {
-			header('HTTP/1.1 400 Bad Request', true, 400);
-			log_message('error', 'File upload '.$_FILES['file']['tmp_name']." invalid mime type: $mime");
-			return;
+			log_message('error', $result);
 		}
 		
 		echo file_get_contents($_FILES['file']['tmp_name']);
-	}
-	
-	private function getMimeType($file) {
-		if (ENVIRONMENT == 'development') return 'text/plain';
-		$file = escapeshellarg($file);
-		$mime = shell_exec("file -bi " . $file);
-		return $mime;
 	}
 }
