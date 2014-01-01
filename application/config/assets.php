@@ -27,6 +27,8 @@
 | generated. FCPATH will be prefixed. For example js/myapp.min.js or
 | js/jquery.js.
 |
+| Copyright (c) 2014 Martin Drapeau
+|
 */
 
 // Version of things

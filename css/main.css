@@ -121,3 +121,23 @@ textarea.error {
 	color: #ba141a;
 	opacity: 1.0;
 }
+
+/**** Footer ****/
+footer.navbar {
+	margin: 20px inherit 0 inherit;
+	border-top: 1px solid #F0F0F0;
+}
+
+footer.navbar .container p {
+	margin: 10px 0;
+	color: #666;
+}
+
+footer.navbar .container a {
+	color: #666;
+}
+
+footer.navbar .container a:hover,
+footer.navbar .container a:active {
+	color: #333;
+}

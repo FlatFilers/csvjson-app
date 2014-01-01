@@ -1,7 +1,7 @@
 /*
  * CSV to JSON
  *
- * Copyright (c) 2013 Martin Drapeau
+ * Copyright (c) 2014 Martin Drapeau
  */
 CSVJSON.csv2json = function() {
 

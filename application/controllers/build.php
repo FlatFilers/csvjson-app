@@ -3,7 +3,7 @@
 /*
  * Javascript and CSS Bundling and Minification.
  *
- * Copyright (c) 2013 Martin Drapeau
+ * Copyright (c) 2014 Martin Drapeau
  *
  * Call this to build and minify your assets.
  * Uses the Assets configuration (config/assets.php).

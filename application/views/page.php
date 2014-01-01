@@ -44,13 +44,17 @@
 						<li class="<?=$page == 'csv2json' ? 'active' : ''?>"><a href="/csv2json">CSV to JSON</a></li>
 						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<li><a href="/about">About</a></li>
-					</ul>
 				</div>
 			</div>
 		</header>
 
 		<?php $this->load->view($view); ?>
+		
+		<footer class="navbar">
+			<div class="container">
+				<p class="pull-left">&copy; 2014 <a href="https://github.com/martindrapeau">Martin Drapeau</a></p>
+				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Fork me on Github</a></p>
+			</div>
+		</footer>
 	</body>
 </html>
