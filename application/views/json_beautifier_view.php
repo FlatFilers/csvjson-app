@@ -19,13 +19,13 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
-				<textarea id="json" class="form-control" rows="15"><?='{"pi":"3.14159265359", "one":"1", "one+5":"6", "Array":[1,2,3], "if":"else"}'?></textarea>
-				<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+				<textarea id="json" class="form-control input" rows="15"><?='{"pi":"3.14159265359", "one":"1", "one+5":"6", "Array":[1,2,3], "if":"else"}'?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
 				<i class="glyphicon glyphicon-chevron-right"></i> Beautify
 			</button>
 		</div>
+		
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Options</label>
@@ -46,14 +46,18 @@
 							<option value="..">..</option>
 						</select>
 					</label>
+					&nbsp;
+					<label class="inline" title="Collpase arrays inline if less than 80 characters"><input type="checkbox" id="inline-short-arrays" /> Inline short arrays</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
-				<label>Result</label>
-				<textarea id="result" class="form-control" rows="15"></textarea>
-				<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+				<label>Result</label> <span class="result-note"></span>
+				<textarea id="result" class="form-control result" rows="15"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
+			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
+			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 		</div>
+		
 	</div>
 </div>

@@ -19,8 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-				<textarea id="csv" class="form-control" rows="15"><?="a,b,c\n1,2,3"?></textarea>
-				<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+				<textarea id="csv" class="form-control input" rows="15"><?="a,b,c\n1,2,3"?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert
@@ -39,10 +38,11 @@
 			</div>
 			<div class="form-group code-group">
 				<label>JSON</label>
-				<textarea id="json" class="form-control" rows="15"></textarea>
-				<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+				<textarea id="json" class="form-control result" rows="15"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
+			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
+			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 		</div>
 	</div>
 </div>

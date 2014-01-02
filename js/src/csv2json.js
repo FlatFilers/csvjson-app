@@ -21,7 +21,7 @@ CSVJSON.csv2json = function() {
 		$csv = $('#csv'),
 		$json = $('#json'),
 		$clear = $('a.clear'),
-		$convert = $('#convert');
+		$convert = $('#convert, a.convert');
 	
 	function getSeparator(csv) {
 		var userSpecified = $separator.filter(':checked').val(),
@@ -48,6 +48,7 @@ CSVJSON.csv2json = function() {
 	}
 	
 	$convert.click(function(e) {
+		e.preventDefault();
 		var csv = _.trim($csv.val());
 		if (csv.length == 0) return err(errorEmpty);
 		

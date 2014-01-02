@@ -101,25 +101,47 @@ textarea.error {
 }
 
 
+/**** Main controls ****/
+
+a.clear {
+	position: absolute;
+	top: 140px;
+	left: -10px;
+	font-size: 20px;
+	color: #999;
+	opacity: 0.5;
+}
+
+a.clear:hover,
+a.clear:active {
+	color: #ba141a;
+	opacity: 1.0;
+}
+
+a.convert {
+	position: absolute;
+	top: 110px;
+	left: -10px;
+	font-size: 20px;
+	color: #999;
+	opacity: 0.5;
+}
+
+a.convert:hover,
+a.convert:active {
+	color: #000;
+	opacity: 1.0;
+}
+
 /**** Code text boxes ****/
 
 .code-group {
 	position: relative;
 }
 
-.code-group a.clear {
-	position: absolute;
-	top: 40px;
-	right: 20px;
-	font-size: 20px;
-	color: #999;
-	opacity: 0.5;
-}
-
-.code-group a.clear:hover,
-.code-group a.clear:active {
-	color: #ba141a;
-	opacity: 1.0;
+span.result-note {
+	padding-left: 10px;
+	color: #990000;
 }
 
 /**** Footer ****/

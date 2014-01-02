@@ -22,7 +22,7 @@ $(document).ready(function() {
 		bindClear: function($clear) {
 			$clear.click(function(e) {
 				e.preventDefault();
-				$(this).siblings('textarea').val('').removeClass('error');
+				$('textarea.input, textarea.result').val('').removeClass('error');
 				return false;
 			});
 		},
