@@ -48,6 +48,17 @@ $(document).ready(function() {
 					// Show an error god damn it!
 				}
 			});
+		},
+		
+		// Sets which inputs will be persisted when saved as a permalink
+		$inputsForSave: [],
+		setInputsForSave: function($inputs) {
+			CSVJSON.$inputsForSave = $inputs;
+		},
+		
+		// Create a permalink - save this page
+		save: function() {
+			
 		}
 		
 	});

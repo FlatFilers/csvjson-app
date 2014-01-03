@@ -13,14 +13,26 @@ class Csv2json extends CI_Controller {
 		parent::__construct();
 	}
 	
-	public function index() {
-		$data = array(
+	function _remap($method, $params) {
+		if (is_callable(array($this, $method)))
+			return call_user_func_array(array($this, $method), $params);
+		return $this->index();
+	}
+	
+	public function index($id=NULL) {
+		$data = array();
+		if ($id !== NULL) {
+			$data = restoreFromDisk($id);
+			if (!is_array($data)) $data = array();
+		}
+		
+		$this->load->view('page', array(
 			'page' => 'csv2json',
 			'title' => 'CSV to JSON',
 			'description' => 'Online tool for converting CSV to JSON',
+			'data' => $data,
 			'view' => 'csv2json_view'
-		);
-		$this->load->view('page', $data);
+		));
 	}
 	
 	public function upload() {
@@ -32,4 +44,10 @@ class Csv2json extends CI_Controller {
 		
 		echo file_get_contents($_FILES['file']['tmp_name']);
 	}
+	
+	// AJAX call to persist and create a permalink
+	public function save() {
+		
+	}
+	
 }

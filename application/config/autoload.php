@@ -64,7 +64,7 @@ $autoload['libraries'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('upload_helper');
+$autoload['helper'] = array('csvjson_helper');
 
 
 /*

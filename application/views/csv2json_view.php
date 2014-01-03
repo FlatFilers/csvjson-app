@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-				<textarea id="csv" class="form-control input" rows="15"><?="a,b,c\n1,2,3"?></textarea>
+				<textarea id="csv" class="form-control input save" rows="15"><?="a,b,c\n1,2,3"?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert
@@ -29,11 +29,11 @@
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Field separator</label>
-				<div class="form-control">
-					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" value="auto" checked="checked" />Auto-detect</label>
-					<label class="radio-inline"><input type="radio" id="comma" name="separator" value="comma" />Comma</label>
-					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" value="semiColon" />Semi-colon</label>
-					<label class="radio-inline"><input type="radio" id="tab" name="separator" value="tab" />Tab</label>
+				<div class="form-control options">
+					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" checked="checked" />Auto-detect</label>
+					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" />Comma</label>
+					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
+					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>
 				</div>
 			</div>
 			<div class="form-group code-group">

@@ -13,9 +13,10 @@ Forking welcome: https://github.com/martindrapeau/CSVJSON
 Installation
 ------------
 
-Clone and drop inside a folder under a virtual host using your favorite WAMP or LAMP stack. CodeIgniter's index.php will start everything.
+1.  Clone and drop inside a folder under a virtual host using your favorite WAMP or LAMP stack.
+2.  Create a `data` directory at the same level as `www`. Saved data for permalinks get stored there.
 
-If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
+CodeIgniter's index.php will start everything. If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
 
 
 Extending
