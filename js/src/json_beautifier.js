@@ -30,7 +30,7 @@ CSVJSON.json_beautifier = function() {
 	$clear.click(function(e) {
 		$resultNote.empty();
 	});
-	CSVJSON.setInputsForSave($('input.save, textarea.save'));
+	CSVJSON.setInputsForSave($('input.save, textarea.save, select.save'));
 	
 	function err(error) {
 		CSVJSON.reportError($result, error);

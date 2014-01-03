@@ -2,6 +2,7 @@
 
 /*
  * CSVJSON base controller. Every controller tool inherits from this one.
+ * Uses helpers in application/helpers/csvjson_helper.php.
  *
  * Copyright (c) 2014 Martin Drapeau
  *

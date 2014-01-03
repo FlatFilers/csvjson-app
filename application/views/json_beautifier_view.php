@@ -19,8 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
-				<?php $default = '{"pi":"3.14159265359", "one":"1", "one+5":"6", "Array":[1,2,3], "if":"else"}';
-				?>
+				<?php $default = '{"pi":"3.14159265359", "one":"1", "one+5":"6", "Array":[1,2,3], "if":"else"}'; ?>
 				<textarea id="json" class="form-control input save" rows="15"><?=$data && isset($data['json']) ? $data['json'] : $default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
@@ -60,7 +59,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Result</label> <span class="result-note"></span>
-				<textarea id="result" class="form-control result" rows="15"></textarea>
+				<textarea id="result" class="form-control result save" rows="15"><?=$data && isset($data['result']) ? $data['result'] : ''?></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
