@@ -8,9 +8,13 @@ $(document).ready(function() {
 	// Load Underscore String
 	_.mixin(_.str.exports());
 	
+	// Returns the URL of the page, <domain>/<page>. Excludes persisted ids.
+	function baseUrl() {
+		return window.location.protocol + '//' + window.location.hostname + '/' + CSVJSON.page;
+	}
+	
 	// Global CSVJSON was created in the page. Extend it with helper
 	// functions and load the module for this page.
-	
 	_.extend(CSVJSON, {
 	
 		// Reports an error in the 'result' textarea
@@ -57,14 +61,48 @@ $(document).ready(function() {
 		},
 		
 		// Create a permalink - save this page
-		save: function() {
+		save: function(e) {
+			e.preventDefault();
 			
+			var url = baseUrl() + '/save';
+			if (CSVJSON.id) url += '/' + CSVJSON.id;
+			
+			var data = {};
+			CSVJSON.$inputsForSave.each(function() {
+				var $el = $(this),
+					id = $el.attr('id'),
+					val = $el.is('input[type=radio], input[type=checkbox]') ? $el.is(':checked') : $el.val();
+				data[id] = val;
+			});
+			
+			$.post(url, data)
+				.done(function(id) {
+					CSVJSON.id = id;
+					var newUrl = baseUrl() + '/' + id;
+					if (window.location.href != newUrl) {
+						if (window.history && window.history.pushState)
+							window.history.pushState("", "", newUrl);
+						else
+							window.location.href = newUrl;
+					}
+				})
+				.fail(function(error) {
+					alert('error');
+				});
+			
+			return false;
 		}
 		
 	});
 	
 	// Cache inputs as the user changes them so they remain upon next page load
-	$('.container').CacheInputs({key:CSVJSON.page});
+	$('.container').CacheInputs({
+		key: CSVJSON.page,
+		ignoreOnStart: !!CSVJSON.id
+	});
+	
+	// Save a permalink
+	$('#save').click(CSVJSON.save);
 	
 	var fn = CSVJSON[CSVJSON.page];
 	if (typeof(fn) !== 'function') throw "Module "+CSVJSON.page+" not found.";

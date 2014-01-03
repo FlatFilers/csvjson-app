@@ -19,7 +19,8 @@
 				'input[type=radio]',
 				'input[type=checkbox]',
 				'select'
-			]
+			],
+			ignoreOnStart: false
 		}, options);
         
         function on_change(event) {
@@ -38,7 +39,7 @@
         }
         
         return this.each(function() {    
-            var element = $(this),
+            var $el = $(this),
 				selector = settings.inputs.join(', ');
             
             if (typeof(Storage) !== "undefined") {
@@ -53,25 +54,26 @@
                     localStorage[key] = JSON.stringify({});
                     data = JSON.parse(localStorage[key]);
                 }
-                element.find(selector).change(on_change);
+                $el.find(selector).change(on_change);
                 
-                element.find(selector).each(function() {
-                    if ($(this).attr('type') != 'submit') {
-                        var $input = $(this),
-							id = $input.attr('id'),
-							value = data[id];
-						if (value === undefined) return true;
-                        if ($input.attr('type') == 'radio' || $input.attr('type') == 'checkbox') {
-                            if (value) {
-                                $input.attr('checked', true);
-                            } else {
-                                $input.removeAttr('checked');
-                            }
-                        } else {
-                            $input.val(value);
-                        }
-                    }
-                });
+				if (!settings.ignoreOnStart)
+					$el.find(selector).each(function() {
+						if ($(this).attr('type') != 'submit') {
+							var $input = $(this),
+								id = $input.attr('id'),
+								value = data[id];
+							if (value === undefined) return true;
+							if ($input.attr('type') == 'radio' || $input.attr('type') == 'checkbox') {
+								if (value) {
+									$input.attr('checked', true);
+								} else {
+									$input.removeAttr('checked');
+								}
+							} else {
+								$input.val(value);
+							}
+						}
+					});
                 
             }
         });

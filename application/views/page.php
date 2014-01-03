@@ -12,8 +12,10 @@
 		
 		<script type="text/javascript">
 			window.CSVJSON = {
-				page: '<?=$page?>',
-				version: <?=VERSION?>
+				page: "<?=$page?>",
+				version: <?=VERSION?>,
+				id: <?=$id ? '"'.$id.'"' : 'null'?>,
+				data: <?=json_encode($data)?>
 			};
 		</script>
 		
@@ -44,6 +46,9 @@
 						<li class="<?=$page == 'csv2json' ? 'active' : ''?>"><a href="/csv2json">CSV to JSON</a></li>
 						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#" id="save" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+					</ul>
 				</div>
 			</div>
 		</header>
@@ -52,8 +57,8 @@
 		
 		<footer class="navbar">
 			<div class="container">
-				<p class="pull-left">&copy; 2014 <a href="https://github.com/martindrapeau">Martin Drapeau</a></p>
-				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Fork me on Github</a></p>
+				<p class="pull-left">&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>. Made in Montréal.</p>
+				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Code is on Github</a></p>
 			</div>
 		</footer>
 	</body>
