@@ -27,10 +27,14 @@ class MY_controller extends CI_Controller {
 	}
 	
 	public function index($id=NULL) {
-		$data = array();
+		$data = '';
 		if ($id != NULL) {
-			$data = restoreFromDisk($id);
-			//if (!is_array($data)) $data = array();
+			$filename = FCPATH."../data/$id";
+			if (!file_exists($filename)) {
+				show_404();
+				return;
+			}
+			$data = file_get_contents($filename);
 		}
 		
 		$this->load->view('page', array(
@@ -53,16 +57,14 @@ class MY_controller extends CI_Controller {
 		echo file_get_contents($_FILES['file']['tmp_name']);
 	}
 	
-	// AJAX call to persist and create a permalink
-	// Returns HTTP code 200 on success, with the id.
+	// AJAX call to persist and create a permalink. Saves the raw
+	// POST body on disk.
+	// Returns HTTP code 200 on success, a
 	// Returns an HTTP code 400 on error, with the error message.
 	public function save($id=NULL) {
 		if ($id == NULL) $id = generateUniqueId();
-		$result = saveToDisk($id, $_POST);
-		if ($result !== TRUE) {
-			ajaxReply($result, FALSE);
-			return;
-		}
+		$data = file_get_contents("php://input");
+		file_put_contents(FCPATH."../data/$id", $data);
 		ajaxReply($id);
 	}
 }

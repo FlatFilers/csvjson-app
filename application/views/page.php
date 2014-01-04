@@ -15,7 +15,7 @@
 				page: "<?=$page?>",
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
-				data: <?=json_encode($data)?>
+				data: <?=$data ? $data : 'null'?>
 			};
 		</script>
 		

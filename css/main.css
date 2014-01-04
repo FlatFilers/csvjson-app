@@ -40,6 +40,12 @@
 	background-color: #ba141a;
 }
 
+.navbar-inverse .navbar-nav > li.disabled > a,
+.navbar-inverse .navbar-nav > li.disabled > a:hover,
+.navbar-inverse .navbar-nav > li.disabled > a:focus {
+	color: #555;
+}
+
 .description {
 	margin-bottom: 10px;
 }

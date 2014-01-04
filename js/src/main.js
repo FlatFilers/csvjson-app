@@ -8,14 +8,30 @@ $(document).ready(function() {
 	// Load Underscore String
 	_.mixin(_.str.exports());
 	
-	// Returns the URL of the page, <domain>/<page>. Excludes persisted ids.
+	// Helper which returns the URL of the page, <domain>/<page>.
+	// Excludes any persisted id.
 	function baseUrl() {
 		return window.location.protocol + '//' + window.location.hostname + '/' + CSVJSON.page;
 	}
 	
-	// Global CSVJSON was created in the page. Extend it with helper
-	// functions and load the module for this page.
+	// Global Singleton object CSVJSON was created in the page. Extend it with
+	// helper functions and load the module for this page.
 	_.extend(CSVJSON, {
+		
+		init: function() {
+
+			// Cache inputs as the user changes them so they remain upon next page load
+			$('.container').CacheInputs({
+				key: CSVJSON.page,
+				ignoreOnStart: !!CSVJSON.id
+			});
+			
+			// Restore if parmalink, or bind save
+			if (CSVJSON.id)
+				CSVJSON.restore();
+			else
+				CSVJSON.renderSave('active');
+		},
 	
 		// Reports an error in the 'result' textarea
 		reportError: function($textarea, error) {
@@ -75,36 +91,94 @@ $(document).ready(function() {
 				data[id] = val;
 			});
 			
-			$.post(url, data)
-				.done(function(id) {
-					CSVJSON.id = id;
-					var newUrl = baseUrl() + '/' + id;
-					if (window.location.href != newUrl) {
-						if (window.history && window.history.pushState)
-							window.history.pushState("", "", newUrl);
-						else
-							window.location.href = newUrl;
-					}
-				})
-				.fail(function(error) {
-					alert('error');
-				});
+			CSVJSON.renderSave('saving');
+			
+			// Send as JSON. Expect the id on success.
+			$.ajax(url, {
+				type : 'POST',
+				data : JSON.stringify(data),
+				contentType : 'application/json'
+			})
+			.done(function(id) {
+				CSVJSON.id = id;
+				var newUrl = baseUrl() + '/' + id;
+				if (window.location.href != newUrl) {
+					if (window.history && window.history.pushState)
+						window.history.pushState("", "", newUrl);
+					else
+						window.location.href = newUrl;
+				}
+				CSVJSON.renderSave('saved');
+			})
+			.fail(function(xhr) {
+				var error = xhr.responseText ? xhr.responseText : 'Unexpected error saving.';
+				CSVJSON.renderSave('error', error);
+			});
 			
 			return false;
-		}
+		},
 		
+		restore: function() {
+			if (!CSVJSON.data) return;
+			
+			_.each(CSVJSON.data, function(value, id) {
+				var $el = $('#' + id);
+				if (!$el.length) return true;
+				
+				if ($el.is('input[type=radio]')) {
+					if (value) $el.attr('selected', 'selected');
+				} else if ($el.is('input[type=checkbox]')) {
+					if (value) $el.attr('checked', 'checked');
+				} else {
+					$el.val(value);
+				}
+			});
+			
+			CSVJSON.renderSave('saved');
+		},
+		
+		renderSave: function(state, error) {
+			var $save = $('#save');
+			
+			switch (state) {
+				case 'active':
+					if ($save.hasClass('active')) return;
+					$('#save')
+						.unbind().click(CSVJSON.save)
+						.html('<i class="glyphicon glyphicon-link"></i> Save')
+						.attr('title', 'Save a permanent link to come back later, or share to with a friend.' + (CSVJSON.id ? ' Will overwrite your previous work.' : ''))
+						.closest('li').removeClass('disabled');
+					break;
+				case 'saving':
+					$save.unbind('click')
+						.html('<i class="glyphicon glyphicon-arrow-down"></i> Save')
+						.attr('title', 'Please wait...')
+						.closest('li').addClass('disabled');
+				case 'saved':
+					$save.unbind('click')
+						.html('<i class="glyphicon glyphicon-link"></i> Saved')
+						.attr('title', 'Copy the URL in the address bar to share, or bookmark it to save for later.')
+						.closest('li').addClass('disabled');
+					CSVJSON.$inputsForSave.one('change.makedirty', function(e) {
+						CSVJSON.renderSave('active');
+						CSVJSON.$inputsForSave.unbind('.makedirty');
+					});
+					break;
+				case 'error':
+					$save.unbind('click')
+						.html('<i class="glyphicon glyphicon-warning-sign"></i> Error saving')
+						.attr('title', error ? error : 'An unexpected error while saving.')
+						.closest('li').addClass('disabled');
+					break;
+			}
+		}
 	});
 	
-	// Cache inputs as the user changes them so they remain upon next page load
-	$('.container').CacheInputs({
-		key: CSVJSON.page,
-		ignoreOnStart: !!CSVJSON.id
-	});
-	
-	// Save a permalink
-	$('#save').click(CSVJSON.save);
-	
+	// Load the proper JS module for this page
 	var fn = CSVJSON[CSVJSON.page];
 	if (typeof(fn) !== 'function') throw "Module "+CSVJSON.page+" not found.";
 	CSVJSON[CSVJSON.page]();
+	
+	// Start the application
+	CSVJSON.init();
 });

@@ -20,7 +20,7 @@
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
 				<?php $default = "a,b,c\n1,2,3"; ?>
-				<textarea id="csv" class="form-control input save" rows="15"><?=$data && isset($data['csv']) ? $data['csv'] : $default?></textarea>
+				<textarea id="csv" class="form-control input save" rows="15"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert
@@ -31,15 +31,15 @@
 			<div class="form-group">
 				<label>Field separator</label>
 				<div class="form-control options">
-					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" <?=!$data || !isset($data['auto-detect']) || $data['auto-detect'] ? 'checked="checked"' : ''?> />Auto-detect</label>
-					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" <?=$data && isset($data['comma']) && $data['comma'] ? 'checked="checked"' : ''?> />Comma</label>
-					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" <?=$data && isset($data['semi-colon']) && $data['semi-colon'] ? 'checked="checked"' : ''?> />Semi-colon</label>
-					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" <?=$data && isset($data['tab']) && $data['tab'] ? 'checked="checked"' : ''?> />Tab</label>
+					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" />Auto-detect</label>
+					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" />Comma</label>
+					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
+					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
 				<label>JSON</label>
-				<textarea id="json" class="form-control result save" rows="15"><?=$data && isset($data['result']) ? $data['result'] : ''?></textarea>
+				<textarea id="json" class="form-control result save" rows="15"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
