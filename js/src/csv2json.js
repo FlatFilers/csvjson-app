@@ -17,7 +17,7 @@ CSVJSON.csv2json = function() {
 		};
 	
 	var $file = $('#fileupload'),
-		$separator = $('input[type=radio][name="separator"]'),
+		$separator = $('input[type=radio][name=separator]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
 		$clear = $('a.clear'),

@@ -118,6 +118,7 @@ $(document).ready(function() {
 			return false;
 		},
 		
+		// Restore a saved session - revive inputs and textareas
 		restore: function() {
 			if (!CSVJSON.data) return;
 			
@@ -137,6 +138,7 @@ $(document).ready(function() {
 			CSVJSON.renderSave('saved');
 		},
 		
+		// Render the Save link and bind proper action
 		renderSave: function(state, error) {
 			var $save = $('#save');
 			

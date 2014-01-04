@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
- * CSVJSON base controller. Every controller tool inherits from this one.
+ * CSVJSON base controller. Every tool controller inherits from this one.
  * Uses helpers in application/helpers/csvjson_helper.php.
  *
  * Copyright (c) 2014 Martin Drapeau
@@ -59,7 +59,7 @@ class MY_Controller extends CI_Controller {
 	
 	// AJAX call to persist and create a permalink. Saves the raw
 	// POST body on disk.
-	// Returns HTTP code 200 on success, a
+	// Returns HTTP code 200 on success, and the id.
 	// Returns an HTTP code 400 on error, with the error message.
 	public function save($id=NULL) {
 		if ($id == NULL) $id = generateUniqueId();
