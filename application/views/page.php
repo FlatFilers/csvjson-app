@@ -58,7 +58,7 @@
 		<footer class="navbar">
 			<div class="container">
 				<p class="pull-left">&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>. Built in Montréal.</p>
-				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Code is on Github</a></p>
+				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Code on Github</a></p>
 			</div>
 		</footer>
 	</body>
