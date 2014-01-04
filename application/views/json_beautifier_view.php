@@ -44,7 +44,7 @@
 						<select id="space" class="save">
 							<option value="tab">tab</option>
 							<option value="1">1 space</option>
-							<option value="2">2 spaces</option>
+							<option value="2" selected="selected">2 spaces</option>
 							<option value="3">3 spaces</option>
 							<option value="4">4 spaces</option>
 							<option value=".">.</option>

@@ -31,7 +31,7 @@
 			<div class="form-group">
 				<label>Field separator</label>
 				<div class="form-control options">
-					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" />Auto-detect</label>
+					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" checked="checked" />Auto-detect</label>
 					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" />Comma</label>
 					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
 					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>

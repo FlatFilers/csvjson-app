@@ -87,8 +87,8 @@ $(document).ready(function() {
 			CSVJSON.$inputsForSave.each(function() {
 				var $el = $(this),
 					id = $el.attr('id'),
-					val = $el.is('input[type=radio], input[type=checkbox]') ? $el.is(':checked') : $el.val();
-				data[id] = val;
+					value = $el.is('input[type=radio], input[type=checkbox]') ? $el.is(':checked') : $el.val();
+				data[id] = value;
 			});
 			
 			CSVJSON.renderSave('saving');
@@ -126,9 +126,7 @@ $(document).ready(function() {
 				var $el = $('#' + id);
 				if (!$el.length) return true;
 				
-				if ($el.is('input[type=radio]')) {
-					if (value) $el.attr('selected', 'selected');
-				} else if ($el.is('input[type=checkbox]')) {
+				if ($el.is('input[type=radio], input[type=checkbox]')) {
 					if (value) $el.attr('checked', 'checked');
 				} else {
 					$el.val(value);
