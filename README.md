@@ -4,6 +4,7 @@ CSVJSON
 Online formatting and conversion tools that I use as a web developer.
 - CSV to JSON: Convert CSV (Excel) to JSON format.
 - JSON Beautifier: Validate and format JSON. Convert it to Javascript code.
+- More to come later...
 
 CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
 
@@ -16,13 +17,22 @@ Installation
 1.  Clone and drop inside a folder under a virtual host using your favorite WAMP or LAMP stack.
 2.  Create a `data` directory at the same level as `www`. Saved data for permalinks get stored there.
 
-CodeIgniter's index.php will start everything. If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
+CodeIgniter's index.php will start everything. If you plan to deploy in a production environment, edit it and change this with your domain name:
+```
+if (strpos($_SERVER['SERVER_NAME'], "csvjson.com") !== FALSE) {
+	define('ENVIRONMENT', 'production');
+} else {
+	define('ENVIRONMENT', 'development');
+}
+```
+
+If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
 
 
 Extending
----------
+=========
 
-To add a new tool, add yourself a controller (under application/controllers/), a view (under application/views/) and a Javascript file (under js/src/). You can put your CSS directly inside css/csvjson.css.
+To add a new tool, add yourself a controller (under application/controllers/), a view (under application/views/) and a Javascript file (under js/src/). You can put your CSS directly inside css/main.css.
 
 
 Directory Structure
@@ -41,79 +51,18 @@ Directory Structure
 Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
 
 
-Environment
------------
-
-CodeIgniter lets you define a constant called ENVIRONMENT. Can be development, testing or production. To make things simple, index.php sets that variable by looking at the hostname.
-```
-if (strpos($_SERVER['SERVER_NAME'], "csvjson.com") !== FALSE) {
-	define('ENVIRONMENT', 'production');
-} else {
-	define('ENVIRONMENT', 'development');
-}
-```
-Make sur to change `csvjson.com` to your own domain.
-
-
 Javascript/CSS Bundling and Minification
 ----------------------------------------
 
-`$config['assets']` is an array of asset bundle records. An asset bundle record contains these attributes:
-- type: javascript or css
-- output: Name of the output file; minified and concatenated
-- files: List of files to bunble
-- comment: Comment to include at the begining of the output file. Set to NULL not to write one.
+You must add your new Javascript file (and optionally CSS) in `$config['assets']` located in the `application/config/assets.php` file.
 
-For example:
-```
-$config['assets'] = array(
-	array(
-		'type' => CSS,
-		'output' => 'css/csvjson.css',
-		'files' => array(
-			'css/main.css'
-		),
-		'comment' => $comment
-	),
-	array(
-		'type' => JAVASCRIPT,
-		'output' => 'js/csvjson.min.js',
-		'files' => array(
-			'js/src/json3.js',
-			'js/src/csv2json.js',
-			'js/src/json_beautifier.js',
-			'js/src/jquery.cache-inputs.js',
-			'js/src/main.js'
-		),
-		'comment' => $comment
-	)
-);
-```
-Will produce:
-```
-  /css/csvjson.css
-```
-And...
-```
-  /js/csvjson.min.js
-```
 
 Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
 ```
 http://localhost/build
 ```
-Built assets are committed to git.
+Built assets must then be committed to git. In production, built assets are loaded.
 
-A special view exist to load the assets. See `application/views/assets.php`. In `production`, these will load the built assets (.min.js & .min.css). In `development`, all Javascript and CSS files get loaded. To load your assets, add these lines of code in the `HEAD` section of your HTML page:
-```
-<?php $this->load->view('assets'); ?>
-```
-
-
-Version
--------
-
-Assets in production are post-fixed with a cache buster query string like `?v=123` where 123 is the version of your application. There is a text file `js/src/version` which contains that number, and is loaded in `confi/assets.php` to set constant `VERSION`. That number is automatically increased by 0.001 when you perform a build.
 
 FAQ
 ===
