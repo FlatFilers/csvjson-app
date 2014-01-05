@@ -4,7 +4,7 @@ CSVJSON
 Online formatting and conversion tools that I use as a web developer.
 - CSV to JSON: Convert CSV (Excel) to JSON format.
 - JSON Beautifier: Validate and format JSON. Convert it to Javascript code.
-- More to come later...
+- More to come...
 
 CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
 
@@ -32,7 +32,24 @@ If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote
 Extending
 =========
 
-To add a new tool, add yourself a controller (under application/controllers/), a view (under application/views/) and a Javascript file (under js/src/). You can put your CSS directly inside css/main.css.
+To add a new tool, follow these steps:
+1.  Create a controller (under application/controllers/). Must inherit MY_Controller.
+2.  Create a view (under application/views/).
+3.  Create a Javascript file (under js/src/).
+4.  Create a CSS file (under css) or you can put your CSS directly inside css/main.css.
+5.  Update `$config['assets']` located in the `application/config/assets.php` file and add reference to your Javascript and optionally CSS files.
+
+You are then ready to code. In development (ENVIRNOMENT=development), your Javascript and CSS files get loaded.
+
+
+Deploy for production
+---------------------
+
+To deploy for production, you must perform a build. Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
+```
+http://localhost/build
+```
+Built assets must then be committed to git. In production, built assets are loaded.
 
 
 Directory Structure
@@ -49,19 +66,6 @@ Directory Structure
 --css
 ```
 Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
-
-
-Javascript/CSS Bundling and Minification
-----------------------------------------
-
-You must add your new Javascript file (and optionally CSS) in `$config['assets']` located in the `application/config/assets.php` file.
-
-
-Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
-```
-http://localhost/build
-```
-Built assets must then be committed to git. In production, built assets are loaded.
 
 
 FAQ
