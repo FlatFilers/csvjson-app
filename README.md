@@ -33,6 +33,7 @@ Extending
 =========
 
 To add a new tool, follow these steps:
+
 1.  Create a controller (under application/controllers/). Must inherit MY_Controller.
 2.  Create a view (under application/views/).
 3.  Create a Javascript file (under js/src/).
