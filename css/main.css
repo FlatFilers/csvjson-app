@@ -52,11 +52,13 @@
 }
 
 .navbar-inverse .navbar-toggle {
-	border-color: #990000;
+	background-color: #ba141a;
+	border-color: #ba141a;
 }
 
 .navbar-inverse .navbar-toggle:hover, .navbar-inverse .navbar-toggle:focus {
 	background-color: #990000;
+	border-color: #990000;
 }
 
 .navbar-inverse .navbar-collapse {
