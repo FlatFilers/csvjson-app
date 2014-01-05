@@ -20,7 +20,7 @@ CSVJSON.csv2json = function() {
 		$separator = $('input[type=radio][name=separator]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
-		$clear = $('a.clear'),
+		$clear = $('#clear, a.clear'),
 		$convert = $('#convert, a.convert');
 	
 	function getSeparator(csv) {

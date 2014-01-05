@@ -138,12 +138,12 @@ $(document).ready(function() {
 		
 		// Render the Save link and bind proper action
 		renderSave: function(state, error) {
-			var $save = $('#save');
+			var $save = $('a.save-permalink');
 			
 			switch (state) {
 				case 'active':
 					if ($save.hasClass('active')) return;
-					$('#save')
+					$save
 						.unbind().click(CSVJSON.save)
 						.html('<i class="glyphicon glyphicon-link"></i> Save')
 						.attr('title', 'Save a permanent link to come back later, or share to with a friend.' + (CSVJSON.id ? ' Will overwrite your previous work.' : ''))

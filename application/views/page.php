@@ -40,6 +40,12 @@
 					<a class="navbar-brand" href="/" title="csvjson.com - Conversion tools">
 						<i class="glyphicon glyphicon-chevron-right"></i>
 					</a>
+					<ul class="nav navbar-nav navbar-left">
+						<li class="active"><a href="/<?=$page?>"><?=$title?></a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+					</ul>					
 				</div>
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">
@@ -47,7 +53,7 @@
 						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#" id="save" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+						<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
 					</ul>
 				</div>
 			</div>

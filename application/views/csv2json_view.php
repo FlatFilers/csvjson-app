@@ -25,6 +25,9 @@
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert
 			</button>
+			<button id="clear" type="submit" class="btn">
+				<i class="glyphicon glyphicon-remove"></i> Clear
+			</button>
 		</div>
 		
 		<div class="col-md-7 more-bottom-margin">
