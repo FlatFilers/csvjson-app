@@ -1,14 +1,14 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your CSV formatted data to JSON.</p>
+			<p>Convert your CSV or TSV formatted data to JSON. Copy and paste your Excel data to convert it to JSON.</p>
 		</div>
 	</div>
 	
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
-				<label>Upload a file</label>
+				<label>Upload a CSV file</label>
 				<span class="btn btn-default fileinput-button form-control">
 					<label>
 						<i class="glyphicon glyphicon-plus"></i>
