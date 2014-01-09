@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
-				<?php $default = '{"pi":"3.14159265359", "one":"1", "one+5":"6", "Array":[1,2,3], "if":"else"}'; ?>
+				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
 				<textarea id="json" class="form-control input save" rows="15"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
@@ -69,5 +69,28 @@
 			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 		</div>
 		
+	</div>
+	<br/>
+	<div class="row">
+		<div class="col-md-12 about">
+			<h4>About JSON</h4>
+			<ul>
+				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <strong><a href="http://www.json.org">www.json.org</a></strong>.</li>
+				<li>
+					JSON is based on Javascript but the format is stricter. JSON requires double quotes around keys whereas Javascript does not. For example, this is valid Javascript:<br/>
+					<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
+					However the above is not valid JSON. Double quotes must be placed around pi, e and prime.
+					<pre>{"pi": 3.14159265359, "e": 2.7182818284, "prime": [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
+					<em>JSON Beautifier has a toggle to drop quotes on keys. It can do so if Javascript allows it. For example, we cannot drop quotes around key "1+6".</em>
+				</li>
+				<li>Modern browsers have a built-in global object <strong>JSON</strong> with encoding and decoding functions. These are:
+					<ul>
+						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify">JSON.stringify</a> to encode a Javascript object into a JSON string; and</li>
+						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse">JSON.parse</a> to parse a JSON string and convert it to a Javascript object.</li>
+					</ul>
+					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js">JSON2</a> written by Douglas Crockford as polyfill.
+				</li>
+			</ul>
+		</div>
 	</div>
 </div>

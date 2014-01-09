@@ -192,6 +192,7 @@ a.convert:active {
 	}
 }
 
+
 /**** Code text boxes ****/
 
 .code-group {
@@ -202,6 +203,19 @@ span.result-note {
 	padding-left: 10px;
 	color: #990000;
 }
+
+pre {
+	border: none;
+	border-radius: 3px;
+}
+
+
+/**** About <tool> section ****/
+
+.about ul li {
+	margin-bottom: 5px;
+}
+	
 
 /**** Footer ****/
 footer.navbar {
