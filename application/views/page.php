@@ -7,7 +7,7 @@
 		
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
-		<title><?=$title?></title>
+		<title><?=$title?> - CSVJSON</title>
 		<meta name="description" content="<?=$description?>">
 		
 		<script type="text/javascript">
@@ -40,21 +40,18 @@
 		<header class="navbar navbar-inverse" role="banner">
 			<div class="container">
 				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="/" title="csvjson.com - Conversion tools">
-						<i class="glyphicon glyphicon-chevron-right"></i>
+					<a class="navbar-brand" href="/" title="csvjson.com - Online Conversion Tools">
+						<img src="/img/logo-text.png" alt="> CSVJSON" />
 					</a>
 					<ul class="nav navbar-nav navbar-left">
 						<li class="active"><a href="/<?=$page?>"><?=$title?></a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
-					</ul>					
+					</ul>
+					<ul class="nav navbar-nav navbar-left">
+						<li><a class="navbar-toggle-no-style" data-toggle="collapse" data-target=".navbar-collapse">More <span class="caret"></span></a></li>
+					</ul>
 				</div>
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">
@@ -72,8 +69,13 @@
 		
 		<footer class="navbar">
 			<div class="container">
-				<p class="pull-left">&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>. Made in Montréal, Canada.</p>
-				<p class="pull-right"><a href="https://github.com/martindrapeau/CSVJSON">Code available on Github</a></p>
+				<p class="pull-left">
+					&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
+				</p>
+				<p class="pull-right">
+					<a href="https://github.com/martindrapeau/CSVJSON/issues">Report an issue</a> &nbsp;
+					<a href="https://github.com/martindrapeau/CSVJSON">Code on Github</a>
+				</p>
 			</div>
 		</footer>
 	</body>

@@ -14,7 +14,7 @@ class Json_beautifier extends MY_Controller {
 		
 		$this->page = 'json_beautifier';
 		$this->title = 'JSON Beautifier';
-		$this->description = 'Online tool for formatting JSON';
+		$this->description = 'Online tool for validating and formatting JSON.';
 		$this->view = 'json_beautifier_view';
 	}
 	

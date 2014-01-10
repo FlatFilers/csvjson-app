@@ -18,6 +18,7 @@
 
 .navbar-inverse .navbar-brand {
 	color: #000000;
+	padding: 0;
 }
 
 .navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
@@ -70,10 +71,6 @@
 		display: inherit;
 		margin: 0;
 	}
-	.navbar > .container .navbar-header > button.navbar-toggle {
-		float: left;
-		margin-left: 15px;
-	}
 	.navbar > .container .navbar-header .navbar-left {
 		float: left;
 	}
@@ -83,7 +80,13 @@
 	.navbar > .container .navbar-header .navbar-nav a {
 		padding: 15px;
 	}
+	.navbar > .container .navbar-header  .navbar-nav a.navbar-toggle-no-style {
+		cursor: pointer;
+	}
 	.navbar > .container .navbar-collapse > .navbar-nav.navbar-right {
+		display: none;
+	}	
+	.hide-small {
 		display: none;
 	}
 }
