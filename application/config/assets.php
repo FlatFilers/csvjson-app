@@ -63,7 +63,7 @@ $config['assets'] = array(
 			'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
 			'js/3rd/underscore/underscore.js',
 			'js/3rd/underscore/underscore.string.js',
-			'js/3rd/json/jsonlint.js',
+			'js/3rd/json/jsonlint.js'
 		)
 	),
 	array(
@@ -72,6 +72,7 @@ $config['assets'] = array(
 		'files' => array(
 			'js/src/json3.js',
 			'js/src/csv2json.js',
+			'js/src/mysql2json.js',
 			'js/src/json_beautifier.js',
 			'js/src/jquery.cache-inputs.js',
 			'js/src/main.js'

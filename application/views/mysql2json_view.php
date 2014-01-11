@@ -1,14 +1,14 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your CSV or TSV formatted data to JSON. Copy/paste or upload your Excel data to convert it to JSON.</p>
+			<p>Convert your MySQL data dump to JSON. Copy/paste or upload your MySQL dump to convert it to JSON.</p>
 		</div>
 	</div>
 	
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
-				<label>Upload a CSV file</label>
+				<label>Upload a MySQL file</label>
 				<span class="btn btn-default fileinput-button form-control">
 					<label>
 						<i class="glyphicon glyphicon-plus"></i>
@@ -18,9 +18,9 @@
 				</span>
 			</div>
 			<div class="form-group code-group">
-				<label>Or paste your CSV here</label>
+				<label>Or paste your MySQL here</label>
 				<?php $default = "a,b,c\n1,2,3"; ?>
-				<textarea id="csv" class="form-control input save" rows="15"><?=$default?></textarea>
+				<textarea id="mysql" class="form-control input save" rows="15"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert

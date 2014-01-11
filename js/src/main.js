@@ -8,12 +8,6 @@ $(document).ready(function() {
 	// Load Underscore String
 	_.mixin(_.str.exports());
 	
-	// Helper which returns the URL of the page, <domain>/<page>.
-	// Excludes any persisted id.
-	function baseUrl() {
-		return window.location.protocol + '//' + window.location.hostname + '/' + CSVJSON.page;
-	}
-	
 	// Global Singleton object CSVJSON was created in the page. Extend it with
 	// helper functions and load the module for this page.
 	_.extend(CSVJSON, {
@@ -31,6 +25,12 @@ $(document).ready(function() {
 				CSVJSON.restore();
 			else
 				CSVJSON.renderSave('active');
+		},
+		
+		// Returns the URL of the page, <domain>/<page>.
+		// Excludes any persisted id.
+		baseUrl: function() {
+			return window.location.protocol + '//' + window.location.hostname + '/' + CSVJSON.page;
 		},
 	
 		// Reports an error in the 'result' textarea
@@ -80,7 +80,7 @@ $(document).ready(function() {
 		save: function(e) {
 			e.preventDefault();
 			
-			var url = baseUrl() + '/save';
+			var url = CSVJSON.baseUrl() + '/save';
 			if (CSVJSON.id) url += '/' + CSVJSON.id;
 			
 			var data = {};
@@ -101,7 +101,7 @@ $(document).ready(function() {
 			})
 			.done(function(id) {
 				CSVJSON.id = id;
-				var newUrl = baseUrl() + '/' + id;
+				var newUrl = CSVJSON.baseUrl() + '/' + id;
 				if (window.location.href != newUrl) {
 					if (window.history && window.history.pushState)
 						window.history.pushState("", "", newUrl);
