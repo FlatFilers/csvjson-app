@@ -42,8 +42,15 @@ $(document).ready(function() {
 		bindClear: function($clear) {
 			$clear.click(function(e) {
 				e.preventDefault();
+				ga('send', 'event', '_trackEvent', CSVJSON.page, 'clear');
 				$('textarea.input, textarea.result').val('').removeClass('error');
 				return false;
+			});
+		},
+		
+		bindConvert: function($convert) {
+			$convert.click(function(e) {
+				ga('send', 'event', '_trackEvent', CSVJSON.page, 'convert');
 			});
 		},
 		
@@ -79,6 +86,7 @@ $(document).ready(function() {
 		// Create a permalink - save this page
 		save: function(e) {
 			e.preventDefault();
+			ga('send', 'event', '_trackEvent', CSVJSON.page, 'save');
 			
 			var url = CSVJSON.baseUrl() + '/save';
 			if (CSVJSON.id) url += '/' + CSVJSON.id;

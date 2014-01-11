@@ -40,6 +40,7 @@ CSVJSON.csv2json = function() {
 	}
 	
 	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $csv);
+	CSVJSON.bindConvert($convert);
 	CSVJSON.bindClear($clear);
 	CSVJSON.setInputsForSave($('input.save, textarea.save'));
 	

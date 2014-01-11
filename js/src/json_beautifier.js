@@ -26,6 +26,7 @@ CSVJSON.json_beautifier = function() {
 		$convert = $('#convert, a.convert');
 	
 	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $json);
+	CSVJSON.bindConvert($convert);
 	CSVJSON.bindClear($clear);
 	$clear.click(function(e) {
 		$resultNote.empty();

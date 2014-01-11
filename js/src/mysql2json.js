@@ -17,6 +17,7 @@ CSVJSON.mysql2json = function() {
 		$convert = $('#convert, a.convert');
 	
 	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $mysql);
+	CSVJSON.bindConvert($convert);
 	CSVJSON.bindClear($clear);
 	CSVJSON.setInputsForSave($('input.save, textarea.save'));
 	
