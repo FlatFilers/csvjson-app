@@ -25,13 +25,9 @@ CSVJSON.json_beautifier = function() {
 		$clear = $('#clear, a.clear'),
 		$convert = $('#convert, a.convert');
 	
-	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $json);
-	CSVJSON.bindConvert($convert);
-	CSVJSON.bindClear($clear);
 	$clear.click(function(e) {
 		$resultNote.empty();
 	});
-	CSVJSON.setInputsForSave($('input.save, textarea.save, select.save'));
 	
 	function err(error) {
 		CSVJSON.reportError($result, error);
@@ -104,4 +100,14 @@ CSVJSON.json_beautifier = function() {
 		}
 	});
 	
+	CSVJSON.start({
+		$convert: $convert,
+		$clear: $clear,
+		$save: $('input.save, textarea.save, select.save'),
+		upload: {
+			$file: $file,
+			url: uploadUrl,
+			$textarea: $json
+		}
+	});
 };

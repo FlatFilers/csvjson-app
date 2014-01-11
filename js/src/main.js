@@ -8,11 +8,35 @@ $(document).ready(function() {
 	// Load Underscore String
 	_.mixin(_.str.exports());
 	
-	// Global Singleton object CSVJSON was created in the page. Extend it with
-	// helper functions and load the module for this page.
+	// Global Singleton object CSVJSON was created inline via PHP. It contains:
+	//   - page: The module name, and function name to load that module.
+	//   - version: CSVJSON application version.
+	//   - id: If persisted, the session id.
+	//   - data: If persisted, the data fetched from the server.
+	// Here we extend it with helper functions and load the module for this page.
 	_.extend(CSVJSON, {
 		
-		init: function() {
+		// To be called by the module passing:
+		//  - $convert: Convert buttons to be bound.
+		//  - $clear: Clear buttons to be bound.
+		//  - $save: Elements to persist when saving.
+		//  - upload: Hash of elements to handle upload. Must contain:
+		//    - $file: Upload button element
+		//    - url: Upload URL.
+		//    - $textarea: Element to drop the content in.
+		start: function(options) {
+			options || (options = {});
+			
+			// Bind elements
+			if (options.upload) {
+				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
+				if (!options.upload.url) throw "Invalid option 'upload'. Missing url.";
+				if (!options.upload.$textarea) throw "Invalid option 'upload'. Missing $textarea.";
+				CSVJSON.bindFileUploadToFillTextarea(options.upload.$file, options.upload.url, options.upload.$textarea);
+			}
+			if (options.$convert) CSVJSON.bindConvert(options.$convert);
+			if (options.$clear) CSVJSON.bindClear(options.$clear);
+			if (options.$save) CSVJSON.setInputsForSave(options.$save);
 
 			// Cache inputs as the user changes them so they remain upon next page load
 			$('.container').CacheInputs({
@@ -38,7 +62,7 @@ $(document).ready(function() {
 			$textarea.addClass('error').val(error);
 		},
 		
-		// Binds the clear button on a textarea
+		// Binds the clear button to clear textareas
 		bindClear: function($clear) {
 			$clear.click(function(e) {
 				e.preventDefault();
@@ -182,11 +206,9 @@ $(document).ready(function() {
 		}
 	});
 	
-	// Load the proper JS module for this page
+	// Load the proper JS module for this page.
+	// Each module extended CSVJSON with a function of its page name.
 	var fn = CSVJSON[CSVJSON.page];
 	if (typeof(fn) !== 'function') throw "Module "+CSVJSON.page+" not found.";
 	CSVJSON[CSVJSON.page]();
-	
-	// Start the application
-	CSVJSON.init();
 });

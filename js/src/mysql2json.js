@@ -16,11 +16,6 @@ CSVJSON.mysql2json = function() {
 		$clear = $('#clear, a.clear'),
 		$convert = $('#convert, a.convert');
 	
-	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $mysql);
-	CSVJSON.bindConvert($convert);
-	CSVJSON.bindClear($clear);
-	CSVJSON.setInputsForSave($('input.save, textarea.save'));
-	
 	function err(error) {
 		CSVJSON.reportError($result, error);
 		return false;
@@ -110,5 +105,16 @@ CSVJSON.mysql2json = function() {
 			}, '');
 		
 		$result.removeClass('error').val(result);
+	});
+	
+	CSVJSON.start({
+		$convert: $convert,
+		$clear: $clear,
+		$save: $('input.save, textarea.save'),
+		upload: {
+			$file: $file,
+			url: uploadUrl,
+			$textarea: $mysql
+		}
 	});
 };

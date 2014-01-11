@@ -39,11 +39,6 @@ CSVJSON.csv2json = function() {
 		return keyMax ? charMap[keyMax] : undefined;
 	}
 	
-	CSVJSON.bindFileUploadToFillTextarea($file, uploadUrl, $csv);
-	CSVJSON.bindConvert($convert);
-	CSVJSON.bindClear($clear);
-	CSVJSON.setInputsForSave($('input.save, textarea.save'));
-	
 	function err(error) {
 		CSVJSON.reportError($json, error);
 		return false;
@@ -77,5 +72,16 @@ CSVJSON.csv2json = function() {
 		
 		var result = JSON.stringify(json, null, 2);
 		$json.removeClass('error').val(result);
+	});
+	
+	CSVJSON.start({
+		$convert: $convert,
+		$clear: $clear,
+		$save: $('input.save, textarea.save'),
+		upload: {
+			$file: $file,
+			url: uploadUrl,
+			$textarea: $csv
+		}
 	});
 };
