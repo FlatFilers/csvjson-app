@@ -75,7 +75,7 @@
 		<div class="col-md-12 about">
 			<h4>About JSON</h4>
 			<ul>
-				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <strong><a href="http://www.json.org" target="_blank">www.json.org</a></strong>.</li>
+				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <a href="http://www.json.org" target="_blank">www.json.org</a>.</li>
 				<li>
 					JSON is based on Javascript but the format is stricter. JSON requires double quotes around keys whereas Javascript does not. For example, this is valid Javascript:<br/>
 					<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
