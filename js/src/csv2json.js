@@ -56,15 +56,20 @@ CSVJSON.csv2json = function() {
 		var lines = _.lines(csv);
 		if (lines.length == 0) return err(errorEmpty);
 		
+		// Extract and clean
 		var keys = _.words(lines.shift(), separator);
 		if (keys.length == 0) return err(errorEmptyHeader);
+		keys = _.map(keys, function(key) {
+			return _(key).chain().trim().trim('"').value();
+		});
 		
+		// Extra data
 		var	json = [];
 		for (var l = 0; l < lines.length; l++) {
 			var row = {};
 			var items = _.words(lines[l], separator);
 			for (var i = 0; i < keys.length; i++) {
-				var value = _.trim(items[i], '"'),
+				var value = _(items[i]).chain().trim().trim('"').value(),
 					number = value - 0;
 				row[keys[i]] = isNaN(number) ? value : number;
 			}
