@@ -45,41 +45,51 @@ CSVJSON.mysql2json = function() {
 		if (lines.length == 0) return err(errorEmpty);
 		
 		// Split into tables
-		var tables = {};
-		for (var l = 0; l < lines.length; l++) {
-			var line = lines[l],
-				words = _.words(line);
-			if (!words.length) continue;
-			
-			if (words.length >= 3 &&
-				words[0].toUpperCase() == 'CREATE' &&
-				words[1].toUpperCase() == 'TABLE') {
-				var name = _.trim(words[2], "`'\"");
-				tables[name] = {
-					header: [],
-					values: []
-				};
-				var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
-				tables[name].header = _.reduce(values, function(result, value) {
-					var words = _.words(value);
-					// TO DO: test
-					var first = _.trim(words[0]);
-					if (_.startsWith(first, "'") || _.startsWith(first, "`") || _.startsWith(first, '"'))
-						result.push(_.trim(first, "`'\""));
-					return result;
-				}, []);
+		var tables = {}, l, line;
+		try {
+			for (l = 0; l < lines.length; l++) {
+				line = lines[l],
+					words = _.words(line);
+				if (!words.length) continue;
+				
+				if (words.length >= 3 &&
+					words[0].toUpperCase() == 'CREATE' &&
+					words[1].toUpperCase() == 'TABLE') {
+					var name = _.trim(words[2], "`'\"");
+					tables[name] = {
+						header: [],
+						values: []
+					};
+					var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
+					tables[name].header = _.reduce(values, function(result, value) {
+						var words = _.words(value);
+						if (!words.length)
+							throw "Cannot find columns for table " + name;
+						var first = _.trim(words[0]);
+						if (_.startsWith(first, "'") || _.startsWith(first, "`") || _.startsWith(first, '"'))
+							result.push(_.trim(first, "`'\""));
+						return result;
+					}, []);
+					if (!tables[name].header.length)
+						throw "No columns found for table " + name;
+				}
+				else if (words.length >= 3 &&
+					words[0].toUpperCase() == 'INSERT' &&
+					words[1].toUpperCase() == 'INTO') {
+					var name = _.trim(words[2], "`'\"");
+					if (!tables[name])
+						throw "Table "+name+" was not defined in a CREATE TABLE.";
+					var table = tables[name];
+					var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
+					if (!values.length)
+						throw "No values found for table " + name;
+					tables[name].values.push(_.map(values, function(value) {
+						return _.trim(value, " `'\"");
+					}));
+				}
 			}
-			else if (words.length >= 3 &&
-				words[0].toUpperCase() == 'INSERT' &&
-				words[1].toUpperCase() == 'INTO') {
-				var name = _.trim(words[2], "`'\"");
-				// TO DO: test
-				var table = tables[name];
-				var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
-				tables[name].values.push(_.map(values, function(value) {
-					return _.trim(value, " `'\"");
-				}));
-			}
+		} catch(error) {
+			return err("Error: " + error + "\n..." + line);
 		}
 		//$result.val(JSON.stringify(tables, null, 2)); return;
 		

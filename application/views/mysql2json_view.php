@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your MySQL data dump to JSON or Javascript. Copy/paste or upload your MySQL dump to convert it. When converting to Javascript, one variable is created per table.</p>
+			<p>Convert your MySQL export to JSON or Javascript. Copy/paste or upload your MySQL export to convert it. When converting to Javascript, one variable is created per table.</p>
 		</div>
 	</div>
 	

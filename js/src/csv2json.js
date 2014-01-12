@@ -4,11 +4,11 @@
  * Copyright (c) 2014 Martin Drapeau
  */
 CSVJSON.csv2json = function() {
-
+	
 	var errorDetectingSeparator = "We could not detect the separator.",
 		errorEmpty = "Please upload a file or type in something.",
 		errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.";
-
+	
 	var uploadUrl = "/csv2json/upload",
 		charMap = {
 			comma: ',',
