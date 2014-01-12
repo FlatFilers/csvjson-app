@@ -64,8 +64,9 @@ CSVJSON.csv2json = function() {
 			var row = {};
 			var items = _.words(lines[l], separator);
 			for (var i = 0; i < keys.length; i++) {
-				var value = items[i] - 0;
-				row[keys[i]] = isNaN(value) ? items[i] : value;
+				var value = _.trim(items[i], '"'),
+					number = value - 0;
+				row[keys[i]] = isNaN(number) ? value : number;
 			}
 			json.push(row);
 		}
