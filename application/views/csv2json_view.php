@@ -21,7 +21,7 @@
 				<label>Or paste your CSV here</label>
 <textarea id="csv" class="form-control input save" rows="15">
 album, year, US_peak_chart_post
-The White Stripe, 1999, -
+The White Stripes, 1999, -
 De Stijl, 2000, -
 White Blood Cells, 2001, 61
 Elephant, 2003, 6
