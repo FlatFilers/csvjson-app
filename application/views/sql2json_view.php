@@ -1,14 +1,14 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your MySQL export to JSON or Javascript. Copy/paste or upload your MySQL export to convert it. When converting to Javascript, one variable is created per table.</p>
+			<p>Convert your SQL table or database export to JSON or Javascript. Copy/paste or upload your SQL export to convert it. When converting to Javascript, one variable is created per table.</p>
 		</div>
 	</div>
 	
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
-				<label>Upload a MySQL file</label>
+				<label>Upload a SQL file</label>
 				<span class="btn btn-default fileinput-button form-control">
 					<label>
 						<i class="glyphicon glyphicon-plus"></i>
@@ -18,8 +18,8 @@
 				</span>
 			</div>
 			<div class="form-group code-group">
-				<label>Or paste your MySQL here</label>
-<textarea id="mysql" class="form-control input save" rows="15">
+				<label>Or paste your SQL here</label>
+<textarea id="sql" class="form-control input save" rows="15">
 /**
  * Continents 
  */
@@ -70,6 +70,15 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
 			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+		</div>
+	</div>
+	<br/>
+	<div class="row">
+		<div class="col-md-12 about">
+			<h4>About SQL to JSON</h4>
+			<ul>
+				<li>Works by detecting <code>CREATE TABLE</code> and <code>INSERT INTO</code> statements, in order to create an object representation of the tables.</li>
+			</ul>
 		</div>
 	</div>
 </div>

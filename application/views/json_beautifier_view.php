@@ -81,9 +81,9 @@
 					<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
 					However the above is not valid JSON. Double quotes must be placed around pi, e and prime.
 					<pre>{"pi": 3.14159265359, "e": 2.7182818284, "prime": [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
-					<em>JSON Beautifier has a toggle to drop quotes on keys. It can do so if Javascript allows it. For example, we cannot drop quotes around key "1+6".</em>
+					<em>JSON Beautifier has a toggle to drop quotes on keys. It can do so if Javascript allows it. For example, we cannot drop quotes around key <code>"1+6"</code>.</em>
 				</li>
-				<li>Modern browsers have a built-in global object <strong>JSON</strong> with encoding and decoding functions. These are:
+				<li>Modern browsers have a built-in global object <code>JSON</code> with encoding and decoding functions. These are:
 					<ul>
 						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify">JSON.stringify</a> to encode a Javascript object into a JSON string; and</li>
 						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse">JSON.parse</a> to parse a JSON string and convert it to a Javascript object.</li>

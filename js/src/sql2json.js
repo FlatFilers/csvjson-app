@@ -1,17 +1,17 @@
 /*
- * MySQL to JSON
+ * SQL to JSON
  *
  * Copyright (c) 2014 Martin Drapeau
  */
-CSVJSON.mysql2json = function() {
+CSVJSON.sql2json = function() {
 
 	var errorEmpty = "Please upload a file or type in something.";
 
-	var uploadUrl = "/mysql2json/upload";
+	var uploadUrl = "/sql2json/upload";
 	
 	var $file = $('#fileupload'),
 		$format = $('input[type=radio][name=format]'),
-		$mysql = $('#mysql'),
+		$sql = $('#sql'),
 		$result = $('#result'),
 		$clear = $('#clear, a.clear'),
 		$convert = $('#convert, a.convert');
@@ -23,13 +23,13 @@ CSVJSON.mysql2json = function() {
 	
 	$convert.click(function(e) {
 		e.preventDefault();
-		var mysql = _.trim($mysql.val());
-		if (mysql.length == 0) return err(errorEmpty);
+		var sql = _.trim($sql.val());
+		if (sql.length == 0) return err(errorEmpty);
 		
 		var format = $format.filter(':checked').val();
 		
 		// Remove comments and empty lines, and collapse statemnts on one line
-		mysql = mysql
+		sql = sql
 				// Remove comments
 				.replace(/(?:\/\*(?:[\s\S]*?)\*\/)|(?:([\s;])+\/\/(?:.*)$)/gm, '$1')
 				.replace(/^--.*[\r\n]/gm, "")
@@ -39,9 +39,9 @@ CSVJSON.mysql2json = function() {
 				.replace(/;\s*[\r\n]/gm, ";;")
 				.replace(/[\r\n]/gm, "")
 				.replace(/;;/gm, ";\n");
-		//$result.val(mysql); return;
+		//$result.val(sql); return;
 		
-		var lines = _.lines(mysql);
+		var lines = _.lines(sql);
 		if (lines.length == 0) return err(errorEmpty);
 		
 		// Split into tables
@@ -124,7 +124,7 @@ CSVJSON.mysql2json = function() {
 		upload: {
 			$file: $file,
 			url: uploadUrl,
-			$textarea: $mysql
+			$textarea: $sql
 		}
 	});
 };

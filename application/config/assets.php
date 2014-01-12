@@ -72,7 +72,7 @@ $config['assets'] = array(
 		'files' => array(
 			'js/src/json3.js',
 			'js/src/csv2json.js',
-			'js/src/mysql2json.js',
+			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',
 			'js/src/jquery.cache-inputs.js',
 			'js/src/main.js'
