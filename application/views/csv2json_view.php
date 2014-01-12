@@ -54,7 +54,7 @@
 			<h4>About CSV</h4>
 			<ul>
 				<li>
-					CSV stands for <a href="http://en.wikipedia.org/wiki/Comma-separated_values">Comma Separated Values</a>.
+					CSV stands for <a href="http://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">Comma Separated Values</a>.
 					Often used as an interchange data format to represent table records, one per line. CSV is plain text.
 				</li>
 				<li>

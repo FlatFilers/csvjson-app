@@ -75,7 +75,7 @@
 				</p>
 				<p class="pull-right">
 					<a href="https://github.com/martindrapeau/CSVJSON/issues">Report an issue</a> &nbsp;
-					<a href="https://github.com/martindrapeau/CSVJSON">Code on Github</a>
+					<a href="https://github.com/martindrapeau/CSVJSON">Code available on Github</a>
 				</p>
 			</div>
 		</footer>

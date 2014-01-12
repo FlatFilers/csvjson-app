@@ -75,7 +75,7 @@
 		<div class="col-md-12 about">
 			<h4>About JSON</h4>
 			<ul>
-				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <strong><a href="http://www.json.org">www.json.org</a></strong>.</li>
+				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <strong><a href="http://www.json.org" target="_blank">www.json.org</a></strong>.</li>
 				<li>
 					JSON is based on Javascript but the format is stricter. JSON requires double quotes around keys whereas Javascript does not. For example, this is valid Javascript:<br/>
 					<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
@@ -85,10 +85,10 @@
 				</li>
 				<li>Modern browsers have a built-in global object <code>JSON</code> with encoding and decoding functions. These are:
 					<ul>
-						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify">JSON.stringify</a> to encode a Javascript object into a JSON string; and</li>
-						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse">JSON.parse</a> to parse a JSON string and convert it to a Javascript object.</li>
+						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify" target="_blank">JSON.stringify</a> to encode a Javascript object into a JSON string; and</li>
+						<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse" target="_blank">JSON.parse</a> to parse a JSON string and convert it to a Javascript object.</li>
 					</ul>
-					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js">JSON2</a> written by Douglas Crockford as polyfill.
+					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js" target="_blank">JSON2</a> written by Douglas Crockford as polyfill.
 				</li>
 			</ul>
 		</div>
