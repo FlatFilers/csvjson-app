@@ -36,15 +36,15 @@
 				<div class="form-control">
 					<label class="inline">No quotes</label>
 					<label class="inline">
-						<input type="checkbox" id="drop-quotes-on-keys" class="save" /> on keys
+						<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="save" /> on keys
 					</label>
 					<label class="inline">
-						<input type="checkbox" id="drop-quotes-on-numbers" class="save" /> on numbers
+						<input type="checkbox" id="drop-quotes-on-numbers" name="drop-quotes-on-numbers" class="save" /> on numbers
 					</label>
 					&nbsp;
 					<label class="inline">
 						Indent
-						<select id="space" class="save">
+						<select id="space" name="space" class="save">
 							<option value="tab">tab</option>
 							<option value="1">1 space</option>
 							<option value="2" selected="selected">2 spaces</option>
@@ -56,7 +56,7 @@
 					</label>
 					&nbsp;
 					<label class="inline" title="Collpase arrays inline if less than 80 characters">
-						<input type="checkbox" id="inline-short-arrays" class="save" /> Inline short arrays
+						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" /> Inline short arrays
 					</label>
 				</div>
 			</div>

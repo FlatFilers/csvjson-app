@@ -2,8 +2,13 @@
  * Usage:
  *   $('body').CacheInputs();
  *
- * Will store stringified JSON in local storage, against the key you specify
- * or 'cache-inputs' if you omit it. See settings below.
+ * Options:
+ *  - key: Will store stringified JSON in local storage, against this key.
+ *         Default is 'cache-inputs'.
+ *  - inputs: Array of selectors to specify what inputs to save. Defaults
+ *         to inputs of type text, radio and checkbox, along with select.
+ *  - ignoreOnStart: Boolean to indicate whether or not to restore state
+ *         upon page load. Defaults to true.
  *
  * Author: Martin Drapeau
  *
@@ -26,13 +31,13 @@
         function on_change(event) {
             var $input = $(event.target),
 				key = settings.key,
-				id = $input.attr('id'),
+				name = $input.attr('name'),
 				data = JSON.parse(localStorage[key]);
 			
-            if ($input.attr('type') == 'radio' || $input.attr('type') == 'checkbox') {
-                data[id] = $input.is(':checked');
+            if ($input.attr('type') == 'checkbox') {
+                data[name] = $input.is(':checked');
             } else {
-                data[id] = $input.val();
+                data[name] = $input.val();
             }
             
             localStorage[key] = JSON.stringify(data);
@@ -60,11 +65,17 @@
 					$el.find(selector).each(function() {
 						if ($(this).attr('type') != 'submit') {
 							var $input = $(this),
-								id = $input.attr('id'),
-								value = data[id];
+								name = $input.attr('name'),
+								value = data[name];
 							if (value === undefined) return true;
-							if ($input.attr('type') == 'radio' || $input.attr('type') == 'checkbox') {
+							if ($input.attr('type') == 'checkbox') {
 								if (value) {
+									$input.attr('checked', true);
+								} else {
+									$input.removeAttr('checked');
+								}
+							} else if ($input.attr('type') == 'radio') {
+								if (value == $input.val()) {
 									$input.attr('checked', true);
 								} else {
 									$input.removeAttr('checked');
