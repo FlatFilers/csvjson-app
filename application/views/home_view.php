@@ -21,10 +21,10 @@
 		<div class="col-md-12">
 			<h4>About CSVJSON</h4>
 			<p>
-				As a developer format conversion is something I sometimes have to do. I often look online for solutions and tools finding they only covered partly my needs.
+				As a developer format conversion is something I sometimes have to do. I often look online for solutions and tools finding they only cover partly my needs.
 			</p>
 			<p>
-				CSVJSON is a do-it-yourself and more permanent solution. Its on <a href="https://github.com/martindrapeau/CSVJSON">Github</a> for anyone to contribute enhancements or to write new tools.
+				CSVJSON is a do-it-myself and more permanent solution. Its on <a href="https://github.com/martindrapeau/CSVJSON">Github</a> for anyone to contribute enhancements or to write new tools.
 			</p>
 			<p>
 				CSVJSON is built using PHP CodeIgniter and Javascript. Convserions are mostly done client-side with Javascript.
@@ -33,7 +33,7 @@
 				The best feature of CSVJSON? You can save your session for later, and share it with a co-worker.
 			</p>
 			<p>
-				I hope it can be useful to you. Happy coding,
+				I hope it can be useful to you. Happy conversion,
 			</p>
 			<p>--Martin</p>
 		</div>
