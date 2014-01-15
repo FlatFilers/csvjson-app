@@ -226,3 +226,13 @@ footer.navbar .container a:hover,
 footer.navbar .container a:active {
 	color: #333;
 }
+
+/*** Home page ***/
+
+.home .tool {
+	padding: 20px 32px;
+	font-size: 30px;
+	line-height: 1.33;
+	border-radius: 6px;
+	width: 100%;
+}

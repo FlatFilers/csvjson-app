@@ -70,11 +70,12 @@ $config['assets'] = array(
 		'type' => JAVASCRIPT,
 		'output' => 'js/csvjson.min.js',
 		'files' => array(
+			'js/src/jquery.cache-inputs.js',
 			'js/src/json3.js',
 			'js/src/csv2json.js',
 			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',
-			'js/src/jquery.cache-inputs.js',
+			'js/src/home.js',
 			'js/src/main.js'
 		),
 		'comment' => $comment

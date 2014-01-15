@@ -38,7 +38,7 @@
 |
 */
 
-$route['default_controller'] = "csv2json";
+$route['default_controller'] = "csvjson";
 $route['404_override'] = '';
 
 

@@ -17,4 +17,6 @@ inherit 0 inherit;border-top:1px solid #F0F0F0}footer.navbar .container
 p{margin:10px
 0;color:#666}footer.navbar .container
 a{color:#666}footer.navbar .container a:hover,
-footer.navbar .container a:active{color:#333}
+footer.navbar .container a:active{color:#333}.home
+.tool{padding:20px
+32px;font-size:30px;line-height:1.33;border-radius:6px;width:100%}
