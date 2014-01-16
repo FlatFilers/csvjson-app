@@ -63,15 +63,25 @@ $config['assets'] = array(
 			'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
 			'js/3rd/underscore/underscore.js',
 			'js/3rd/underscore/underscore.string.js',
-			'js/3rd/json/jsonlint.js'
+			'js/3rd/json/json2.js'
 		)
 	),
 	array(
 		'type' => JAVASCRIPT,
 		'output' => 'js/csvjson.min.js',
 		'files' => array(
+			'js/csvjson/json2-mod.js',
+			'js/csvjson/jsonlint.js',
+			'js/csvjson/csv2json.js',
+			'js/csvjson/sql2json.js',
+			'js/csvjson/json_beautifier.js'
+		)
+	),
+	array(
+		'type' => JAVASCRIPT,
+		'output' => 'js/app.min.js',
+		'files' => array(
 			'js/src/jquery.cache-inputs.js',
-			'js/src/json3.js',
 			'js/src/csv2json.js',
 			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',

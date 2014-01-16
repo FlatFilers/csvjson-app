@@ -1,9 +1,10 @@
 /*
 
-	**** json3.js
-	**** 2013-12-22
-	**** Adds a 4th parameter dropQuotesOnKeys to on JSON.stringify,
-	**** to drop quotes around keys. Defaults to false.
+	**** json2-mod.js
+	**** 2013-12-22, Martin Drapeau
+	**** Modified json2 to add a 4th parameter dropQuotesOnKeys on
+	**** stringify to drop quotes around keys. Defaults to false.
+	**** Creates a global object JSON2_mod.
 	
     json2.js
     2013-05-26
@@ -25,7 +26,7 @@
     This file creates a global JSON object containing two methods: stringify
     and parse.
 
-        JSON3.stringify(value, replacer, space, dropQuotesOnKeys)
+        JSON2_mod.stringify(value, replacer, space, dropQuotesOnKeys)
             value       any JavaScript value, usually an object or array.
 
             replacer    an optional parameter that determines how object
@@ -112,7 +113,7 @@
             // text is '["Date(---current time---)"]'
 
 
-        JSON3.parse(text, reviver)
+        JSON2_mod.parse(text, reviver)
             This method parses a JSON text to produce an object or array.
             It can throw a SyntaxError exception.
 
@@ -171,8 +172,8 @@
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-if (typeof JSON3 !== 'object') {
-    JSON3 = {};
+if (typeof JSON2_mod !== 'object') {
+    JSON2_mod = {};
 }
 
 (function () {
@@ -373,8 +374,8 @@ if (typeof JSON3 !== 'object') {
 
 // If the JSON object does not yet have a stringify method, give it one.
 
-    if (typeof JSON3.stringify !== 'function') {
-        JSON3.stringify = function (value, replacer, space, dropQuotesOnKeys) {
+    if (typeof JSON2_mod.stringify !== 'function') {
+        JSON2_mod.stringify = function (value, replacer, space, dropQuotesOnKeys) {
 
 // The stringify method takes a value and an optional replacer, and an optional
 // space parameter, and returns a JSON text. The replacer can be a function
@@ -420,8 +421,8 @@ if (typeof JSON3 !== 'object') {
 
 // If the JSON object does not yet have a parse method, give it one.
 
-    if (typeof JSON3.parse !== 'function') {
-        JSON3.parse = function (text, reviver) {
+    if (typeof JSON2_mod.parse !== 'function') {
+        JSON2_mod.parse = function (text, reviver) {
 
 // The parse method takes a text and an optional reviver function, and returns
 // a JavaScript value if the text is a valid JSON text.

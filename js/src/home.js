@@ -1,8 +1,6 @@
 /*
- * CSV to JSON
+ * CSVJSON Application - Home Page
  *
  * Copyright (c) 2014 Martin Drapeau
  */
-CSVJSON.home = function() {
-	
-};
+APP.home = function() {};

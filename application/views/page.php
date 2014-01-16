@@ -11,7 +11,7 @@
 		<meta name="description" content="<?=$description?>">
 		
 		<script type="text/javascript">
-			window.CSVJSON = {
+			window.APP = {
 				page: "<?=$page?>",
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
