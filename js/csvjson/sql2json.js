@@ -14,7 +14,8 @@
 	 *
 	 */
 	
-	var errorEmpty = "Please upload a file or type in something.";
+	var errorEmpty = "Please upload a file or type in something.",
+		inQuotes = new RegExp(/(^`.*`$)|(^'.*'$)|(^".*"$)/);
 	
 	function convert(sql) {
 		if (sql.length == 0) throw errorEmpty;
@@ -45,7 +46,10 @@
 				if (words.length >= 3 &&
 					words[0].toUpperCase() == 'CREATE' &&
 					words[1].toUpperCase() == 'TABLE') {
-					var name = _.trim(words[2], "`'\"");
+					var i = 2;
+					while (!words[i].match(inQuotes) && i < words.length) i++;
+					if (i >= words.length) throw "Cannot find table name in CREATE TABLE statement.";
+					var name = _.trim(words[i], "`'\"");
 					tables[name] = {
 						header: [],
 						values: []

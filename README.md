@@ -1,7 +1,7 @@
 CSVJSON
 =======
 
-www.csvjson.com are online formatting and conversion tools that I use as a web developer.
+www.csvjson.com are online formatting and conversion tools that I use as a developer.
 - [CSV to JSON](http://www.csvjson.com/csv2json) : Convert CSV (Excel) to JSON format.
 - [JSON Beautifier](http://www.csvjson.com/json_beautifier) : Validate and format JSON. Convert it to Javascript code.
 - More to come...
@@ -32,15 +32,16 @@ If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote
 Extending
 =========
 
-To add a new tool, follow these steps:
+To add a new tool, best to look at an existing example. For example csv2json. Follow these steps:
 
 1.  Create a controller (under application/controllers/). Must inherit MY_Controller.
 2.  Create a view (under application/views/).
-3.  Create a Javascript file (under js/src/).
+3.  Create the conversion Javascript file (under js/src/csvjson). This file will contain your new conversion function on the CSVJSON global.
+3.  Create the UI Javascript file (under js/src/). This will drive the UI, and call your conversion function to do the work.
 4.  Create a CSS file (under css) or you can put your CSS directly inside css/main.css.
 5.  Update `$config['assets']` located in the `application/config/assets.php` file and add reference to your Javascript and optionally CSS files.
 
-You are then ready to code. In development (ENVIRNOMENT=development), your Javascript and CSS files get loaded.
+You are then ready to code. In development (ENVIRONMENT=development), your Javascript and CSS files get loaded.
 
 
 Deploy for production
@@ -63,6 +64,7 @@ Directory Structure
 --system
 --js
   --3rd
+  --csvjson
   --src
 --css
 ```
@@ -73,7 +75,7 @@ FAQ
 ===
 
 Q: What if I fund a bug or would like to propose an enhancement? <br/>
-A: Report it via GitHub issues: https://github.com/martindrapeau/CSVJSON/issues
+A: Report it via [Github issues](https://github.com/martindrapeau/CSVJSON/issues).
 
 Q: What performs minification? <br/>
 A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.

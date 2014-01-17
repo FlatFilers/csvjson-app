@@ -46,9 +46,11 @@
 					<ul class="nav navbar-nav navbar-left">
 						<li class="active"><a href="/<?=$page?>"><?=$title?></a></li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
-					</ul>
+					<?php if ($page != 'home'): ?>
+						<ul class="nav navbar-nav navbar-right">
+							<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+						</ul>
+					<?php endif; ?>
 					<ul class="nav navbar-nav navbar-left">
 						<li><a class="navbar-toggle-no-style" data-toggle="collapse" data-target=".navbar-collapse">More <span class="caret"></span></a></li>
 					</ul>
@@ -59,9 +61,11 @@
 						<li class="<?=$page == 'sql2json' ? 'active' : ''?>"><a href="/sql2json">SQL to JSON</a></li>
 						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
-					</ul>
+					<?php if ($page != 'home'): ?>
+						<ul class="nav navbar-nav navbar-right">
+							<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+						</ul>
+					<?php endif; ?>
 				</div>
 			</div>
 		</header>
