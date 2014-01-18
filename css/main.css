@@ -236,3 +236,7 @@ footer.navbar .container a:active {
 	border-radius: 6px;
 	width: 100%;
 }
+
+.home blockquote p {
+	font-size: 16px;
+}
