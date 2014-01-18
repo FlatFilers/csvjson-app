@@ -28,10 +28,10 @@
 					CSVJSON is a do-it-myself and more permanent solution. Its on <a href="https://github.com/martindrapeau/csvjson-app">Github</a> for anyone to contribute enhancements or to write new tools.
 				</p>
 				<p>
-					Conversions are written in Javascript and performed client-side. CSVJSON is served with PHP Codeigniter.
+					The best feature of CSVJSON? You can save your session for later, and share it with a co-worker.
 				</p>
 				<p>
-					The best feature of CSVJSON? You can save your session for later, and share it with a co-worker.
+					Conversions are written in Javascript and performed client-side. CSVJSON is served with PHP Codeigniter.
 				</p>
 				<p>
 					I hope it can be useful to you. Happy conversions!
