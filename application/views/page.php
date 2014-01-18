@@ -78,8 +78,8 @@
 					&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
 				</p>
 				<p class="pull-right">
-					<a href="https://github.com/martindrapeau/CSVJSON/issues">Report an issue</a> &nbsp;
-					<a href="https://github.com/martindrapeau/CSVJSON">Code available on Github</a>
+					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
+					<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github</a>
 				</p>
 			</div>
 		</footer>

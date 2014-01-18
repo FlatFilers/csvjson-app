@@ -42,7 +42,7 @@ define('JAVASCRIPT', 'javascript');
 define('CSS', 'css');
 
 // Our copyright comment to include in our bundles
-$comment = 'CSVJSON | (c) 2013 Martin Drapeau | https://github.com/martindrapeau/CSVJSON';
+$comment = 'CSVJSON | (c) 2013 Martin Drapeau | https://github.com/martindrapeau/csvjson-app';
 
 // Asset bundles
 $config['assets'] = array(

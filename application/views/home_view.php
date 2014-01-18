@@ -1,7 +1,7 @@
 <div class="container home">
 	<div class="row">
 		<div class="col-md-12">
-			<h4>Online tools for developers to convert popular data formats. Persist your session for later, share with co-workers.</h4>
+			<h4>Online tools to convert popular data formats. Persist your session for later, share with co-workers.</h4>
 		</div>
 	</div>
 	<br/>
@@ -21,10 +21,10 @@
 		<div class="col-md-12">
 			<h4>About CSVJSON</h4>
 			<p>
-				As a developer format conversion is something I sometimes have to do. I often look online for solutions and tools finding they only cover partly my needs.
+				As a developer, format conversion is something I sometimes have to do. I often look online for solutions and tools finding they only cover partly my needs.
 			</p>
 			<p>
-				CSVJSON is a do-it-myself and more permanent solution. Its on <a href="https://github.com/martindrapeau/CSVJSON">Github</a> for anyone to contribute enhancements or to write new tools.
+				CSVJSON is a do-it-myself and more permanent solution. Its on <a href="https://github.com/martindrapeau/csvjson-app">Github</a> for anyone to contribute enhancements or to write new tools.
 			</p>
 			<p>
 				CSVJSON conversions are written in Javascript and performed client-side. CSVJSON is server with PHP Codeigniter.

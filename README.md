@@ -8,7 +8,7 @@ www.csvjson.com are online formatting and conversion tools that I use as a devel
 
 CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
 
-Forking welcome: https://github.com/martindrapeau/CSVJSON
+Forking welcome: https://github.com/martindrapeau/csvjson-app
 
 
 Installation
@@ -75,7 +75,7 @@ FAQ
 ===
 
 Q: What if I fund a bug or would like to propose an enhancement? <br/>
-A: Report it via [Github issues](https://github.com/martindrapeau/CSVJSON/issues).
+A: Report it via [Github issues](https://github.com/martindrapeau/csvjson-app/issues).
 
 Q: What performs minification? <br/>
 A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
