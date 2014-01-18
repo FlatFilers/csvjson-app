@@ -5,7 +5,7 @@
  * Options:
  *  - key: Will store stringified JSON in local storage, against this key.
  *         Default is 'cache-inputs'.
- *  - inputs: Array of selectors to specify what inputs to save. Defaults
+ *  - selector: jQuery selector to specify what inputs to save. Defaults
  *         to inputs of type text, radio and checkbox, along with select.
  *  - ignoreOnStart: Boolean to indicate whether or not to restore state
  *         upon page load. Defaults to true.
@@ -19,12 +19,12 @@
     $.fn.CacheInputs = function(options) {
         var settings = $.extend({
 			key: 'cache-inputs',
-			inputs: [
+			selector: [
 				'input[type=text]',
 				'input[type=radio]',
 				'input[type=checkbox]',
 				'select'
-			],
+			].join(', '),
 			ignoreOnStart: false
 		}, options);
         
@@ -45,7 +45,7 @@
         
         return this.each(function() {    
             var $el = $(this),
-				selector = settings.inputs.join(', ');
+				selector = settings.selector;
             
             if (typeof(Storage) !== "undefined") {
                 var key = settings.key;

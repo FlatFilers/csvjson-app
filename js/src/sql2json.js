@@ -45,7 +45,7 @@ APP.sql2json = function() {
 	APP.start({
 		$convert: $convert,
 		$clear: $clear,
-		$save: $('input.save, textarea.save'),
+		$saveElements: $('input.save, textarea.save'),
 		upload: {
 			$file: $file,
 			url: uploadUrl,

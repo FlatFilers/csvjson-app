@@ -57,7 +57,7 @@ APP.json_beautifier = function() {
 	APP.start({
 		$convert: $convert,
 		$clear: $clear,
-		$save: $('input.save, textarea.save, select.save'),
+		$saveElements: $('input.save, textarea.save, select.save'),
 		upload: {
 			$file: $file,
 			url: uploadUrl,

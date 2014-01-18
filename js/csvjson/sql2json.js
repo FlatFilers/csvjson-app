@@ -20,7 +20,7 @@
 	function convert(sql) {
 		if (sql.length == 0) throw errorEmpty;
 		
-		// Remove comments and empty lines, and collapse statemnts on one line
+		// Remove comments and empty lines, and collapse statements on one line
 		sql = sql
 				// Remove comments
 				.replace(/(?:\/\*(?:[\s\S]*?)\*\/)|(?:([\s;])+\/\/(?:.*)$)/gm, '$1')
@@ -29,9 +29,9 @@
 				.replace(/^\s*[\r\n]/gm, "")
 				// Collapse statements (TO DO: Convert this to a single regex)
 				.replace(/;\s*[\r\n]/gm, ";;")
-				.replace(/[\r\n]/gm, "")
-				.replace(/;;/gm, ";\n");
-		
+				.replace(/[\r\n]/gm, " ")
+				.replace(/;;\s?/gm, ";\n");
+		//throw sql;
 		var lines = _.lines(sql);
 		if (lines.length == 0) throw errorEmpty;
 		
@@ -43,9 +43,11 @@
 					words = _.words(line);
 				if (!words.length) continue;
 				
+				// CREATE TABLE [IF NOT EXISTS] <table> (<col>, ...)
 				if (words.length >= 3 &&
 					words[0].toUpperCase() == 'CREATE' &&
 					words[1].toUpperCase() == 'TABLE') {
+					
 					var i = 2;
 					while (!words[i].match(inQuotes) && i < words.length) i++;
 					if (i >= words.length) throw "Cannot find table name in CREATE TABLE statement.";
@@ -54,6 +56,7 @@
 						header: [],
 						values: []
 					};
+					
 					var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
 					tables[name].header = _.reduce(values, function(result, value) {
 						var words = _.words(value);
@@ -64,22 +67,62 @@
 							result.push(_.trim(first, "`'\""));
 						return result;
 					}, []);
-					if (!tables[name].header.length)
-						throw "No columns found for table " + name;
+					
+					if (!tables[name].header.length) throw "No columns found for table " + name;
 				}
-				else if (words.length >= 3 &&
+				
+				// INSERT INTO <table> VALUES (<cell>, ...)
+				else if (words.length >= 4 &&
 					words[0].toUpperCase() == 'INSERT' &&
-					words[1].toUpperCase() == 'INTO') {
+					words[1].toUpperCase() == 'INTO' &&
+					words[2].match(inQuotes) &&
+					words[3].toUpperCase() == 'VALUES') {
+					
 					var name = _.trim(words[2], "`'\"");
 					if (!tables[name])
 						throw "Table "+name+" was not defined in a CREATE TABLE.";
 					var table = tables[name];
+					
 					var values = _(line).chain().strRight("(").strLeftBack(")").words(",").value();
-					if (!values.length)
-						throw "No values found for table " + name;
+					if (!values.length) throw "No values found for table " + name;
+					
 					tables[name].values.push(_.map(values, function(value) {
 						return _.trim(value, " `'\"");
 					}));
+				}
+				
+				// INSERT INTO <table> (<col>, ...) VALUES (<cell>, ...), ...
+				else if (words.length >= 4 &&
+					words[0].toUpperCase() == 'INSERT' &&
+					words[1].toUpperCase() == 'INTO' &&
+					words[2].match(inQuotes) &&
+					_.startsWith(words[3], "(")) {
+					
+					var name = _.trim(words[2], "`'\"");
+					if (!tables[name])
+						throw "Table "+name+" was not defined in a CREATE TABLE.";
+					var table = tables[name];
+					
+					var i = 3;
+					while (words[i].toUpperCase() != 'VALUES' && i < words.length) i++;
+					if (i == words.length || words[i].toUpperCase() != 'VALUES')
+						throw "Error parsing INSERT INTO statement. Cannot find VALUES."
+					i += 1;
+					if (i == words.length)
+						throw "Error parsing INSERT INTO statement. No values found after VALUES.";
+					
+					var records = _.trim(words.slice(i).join(" "))
+						.replace(/(\))\s*,\s*(\()/g, "),(")
+						.replace(/^\(/, "")
+						.replace(/\)$/, "")
+						.split("),(");
+					
+					_.each(records, function(str) {
+						var values = _.words(str, ",");
+						tables[name].values.push(_.map(values, function(value) {
+							return _.trim(value, " `'\"");
+						}));
+					});
 				}
 			}
 		} catch(error) {

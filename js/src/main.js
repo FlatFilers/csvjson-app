@@ -19,7 +19,7 @@ $(document).ready(function() {
 		// To be called by the module passing:
 		//  - $convert: Convert buttons to be bound.
 		//  - $clear: Clear buttons to be bound.
-		//  - $save: Elements to persist when saving.
+		//  - $saveElements: Elements to persist when saving.
 		//  - upload: Hash of elements to handle upload. Must contain:
 		//    - $file: Upload button element
 		//    - url: Upload URL.
@@ -36,7 +36,7 @@ $(document).ready(function() {
 			}
 			if (options.$convert) APP.bindConvert(options.$convert);
 			if (options.$clear) APP.bindClear(options.$clear);
-			if (options.$save) APP.setInputsForSave(options.$save);
+			if (options.$saveElements) APP.setInputsForSave(options.$saveElements);
 
 			// Cache inputs as the user changes them so they remain upon next page load
 			$('.container').CacheInputs({
@@ -68,6 +68,7 @@ $(document).ready(function() {
 				e.preventDefault();
 				ga('send', 'event', '_trackEvent', APP.page, 'clear');
 				$('textarea.input, textarea.result').val('').removeClass('error');
+				APP.renderSave('active');
 				return false;
 			});
 		},
@@ -75,6 +76,7 @@ $(document).ready(function() {
 		bindConvert: function($convert) {
 			$convert.click(function(e) {
 				ga('send', 'event', '_trackEvent', APP.page, 'convert');
+				APP.renderSave('active');
 			});
 		},
 		
@@ -92,7 +94,7 @@ $(document).ready(function() {
 				},
 				success: function(result) {
 					$fileLabel.html(fileLabelHtml);
-					$textarea.val(result);
+					$textarea.val(result).change();
 				},
 				fail: function(e, data) {
 					$fileLabel.html(fileLabelHtml);
@@ -105,6 +107,9 @@ $(document).ready(function() {
 		$inputsForSave: [],
 		setInputsForSave: function($inputs) {
 			APP.$inputsForSave = $inputs;
+			APP.$inputsForSave.change(function(e) {
+				APP.renderSave('active');
+			});
 		},
 		
 		// Create a permalink - save this page
@@ -176,28 +181,31 @@ $(document).ready(function() {
 				case 'active':
 					if ($save.hasClass('active')) return;
 					$save
-						.unbind().click(APP.save)
+						.unbind('click')
+						.click(APP.save)
 						.html('<i class="glyphicon glyphicon-link"></i> Save')
 						.attr('title', 'Save a permanent link to come back later, or share to with a friend.' + (APP.id ? ' Will overwrite your previous work.' : ''))
 						.closest('li').removeClass('disabled');
 					break;
 				case 'saving':
-					$save.unbind('click')
+					$save
+						.unbind('click')
+						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-arrow-down"></i> Save')
 						.attr('title', 'Please wait...')
 						.closest('li').addClass('disabled');
 				case 'saved':
-					$save.unbind('click')
+					$save
+						.unbind('click')
+						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-link"></i> Saved')
 						.attr('title', 'Copy the URL in the address bar to share, or bookmark it to save for later.')
 						.closest('li').addClass('disabled');
-					APP.$inputsForSave.one('change.makedirty', function(e) {
-						APP.renderSave('active');
-						APP.$inputsForSave.unbind('.makedirty');
-					});
 					break;
 				case 'error':
-					$save.unbind('click')
+					$save
+						.unbind('click')
+						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-warning-sign"></i> Error saving')
 						.attr('title', error ? error : 'An unexpected error while saving.')
 						.closest('li').addClass('disabled');
