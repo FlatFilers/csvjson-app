@@ -88,6 +88,7 @@ $(document).ready(function() {
 			
 			$file.fileupload({
 				url: uploadUrl,
+				pasteZone: null,
 				progress: function(e, data) {
 					var progress = parseInt(data.loaded / data.total * 100, 10);
 					$fileLabel.text(progress+'%');
