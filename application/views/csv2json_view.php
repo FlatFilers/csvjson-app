@@ -83,11 +83,12 @@ Nine Miles from the White City, 2013, -
 		</div>
 		<div class="col-md-4">
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- 300x250 -->
+<!-- responsive -->
 <ins class="adsbygoogle"
-     style="display:inline-block;width:300px;height:250px"
+     style="display:block"
      data-ad-client="ca-pub-8893443121967263"
-     data-ad-slot="8890239630"></ins>
+     data-ad-slot="6994704030"
+     data-ad-format="auto"></ins>
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
