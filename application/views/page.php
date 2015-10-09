@@ -77,7 +77,7 @@
 		<footer class="navbar">
 			<div class="container">
 				<p class="pull-left">
-					&copy; 2014 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
+					&copy; 2014-2015 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
 				</p>
 				<p class="pull-right">
 					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
