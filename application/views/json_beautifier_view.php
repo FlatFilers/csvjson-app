@@ -72,7 +72,7 @@
 	</div>
 	<br/>
 	<div class="row">
-		<div class="col-md-12 about">
+		<div class="col-md-8 about">
 			<h4>About JSON</h4>
 			<ul>
 				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <a href="http://www.json.org" target="_blank">www.json.org</a>.</li>
@@ -91,6 +91,18 @@
 					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js" target="_blank">JSON2</a> written by Douglas Crockford as polyfill.
 				</li>
 			</ul>
+		</div>
+		<div class="col-md-4">
+			<h4>&nbsp;</h4>
+			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+			<!-- 320x100 -->
+			<ins class="adsbygoogle"
+			     style="display:inline-block;width:320px;height:100px"
+			     data-ad-client="ca-pub-8893443121967263"
+			     data-ad-slot="7472382034"></ins>
+			<script>
+			(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
 		</div>
 	</div>
 </div>
