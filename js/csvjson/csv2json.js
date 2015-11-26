@@ -127,7 +127,7 @@
 		var a = CSVtoArray(csv, separator);
 		if (!a) throw errorEmpty;
 
-		if (options.pivot) a = _.zip.apply(_, a);
+		if (options.transpose) a = _.zip.apply(_, a);
 
 		var keys = a.shift();
 		if (keys.length == 0) throw errorEmptyHeader;

@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your CSV or TSV formatted data to JSON. Optionally pivot your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>
+			<p>Convert your CSV or TSV formatted data to JSON. Optionally transpose your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>
 		</div>
 	</div>
 	
@@ -50,8 +50,8 @@ Nine Miles from the White City, 2013, -
 					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
 					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>
 					&nbsp;
-					<label class="inline" title="Pivot or translate the data beforehand.">
-						<input type="checkbox" id="pivot" name="pivot" class="save" /> Pivot
+					<label class="inline" title="Transpose the data beforehand.">
+						<input type="checkbox" id="transpose" name="transpose" class="save" /> Transpose
 					</label>
 					&nbsp;
 					<label class="inline">Output:</label>
@@ -88,7 +88,7 @@ Nine Miles from the White City, 2013, -
 					When data is copied from Excel for example, it is stored as TSV in the Clipboard.
 				</li>
 				<li>
-					You can pivot or translate the csv before conversion. Rows become columns, and columns become rows.
+					You can transpose the csv before conversion. Rows become columns, and columns become rows.
 				</li>
 				<li>
 					You can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.

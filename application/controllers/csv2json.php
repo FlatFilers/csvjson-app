@@ -14,7 +14,7 @@ class Csv2json extends MY_Controller {
 		
 		$this->page = 'csv2json';
 		$this->title = 'CSV to JSON';
-		$this->description = 'Online tool for converting CSV to JSON. Convert Excel to JSON. Pivot data. Output array or hash.';
+		$this->description = 'Online tool for converting CSV to JSON. Convert Excel to JSON. Transpose data. Output array or hash.';
 		$this->view = 'csv2json_view';
 	}
 	

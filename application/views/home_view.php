@@ -45,7 +45,7 @@
 				Added options to <a href="/csv2json">CSV to JSON</a>:
 			</p>
 			<ul>
-				<li><strong>Pivot</strong>: You can now pivot the csv data before conversion. </li>
+				<li><strong>Transpose</strong>: You can now transpose the csv data before conversion. </li>
 				<li><strong>Output object instead of array</strong>: By default an array of objects is output. You can now output an object or hash. The first column becomes the hash key.</li>
 			</ul>
 		</div>

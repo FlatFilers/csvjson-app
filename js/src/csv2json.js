@@ -13,7 +13,7 @@ APP.csv2json = function() {
 		},
 		$file = $('#fileupload'),
 		$separator = $('input[type=radio][name=separator]'),
-		$pivot = $('input[type=checkbox][name=pivot]'),
+		$transpose = $('input[type=checkbox][name=transpose]'),
 		$output = $('input[type=radio][name=output]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
@@ -26,7 +26,7 @@ APP.csv2json = function() {
 		var csv = _.trim($csv.val()),
 			separator = $separator.filter(':checked').val(),
 			options = {
-				pivot: $pivot.is(":checked"),
+				transpose: $transpose.is(":checked"),
 				hash: $output.filter(':checked').val() == 'hash'
 			},
 			json;
