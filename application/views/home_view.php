@@ -19,7 +19,7 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-12">
-			<h4>About CSVJSON</h4>
+			<h3>About CSVJSON</h3>
 			<blockquote>
 				<p>
 					As a developer, format conversion is something I sometimes have to do. I often look online for solutions and tools finding they only cover partly my needs.
@@ -28,13 +28,45 @@
 					CSVJSON is a do-it-myself and more permanent solution. Its best feature? You can save your session for later, and share it with a co-worker.
 				</p>
 				<p>
-					CSVJSON is on <a href="https://github.com/martindrapeau/csvjson-app">Github</a> for anyone to contribute enhancements or to write new tools. Conversions are written in Javascript and performed client-side. It is served with PHP Codeigniter.
+					If you find bugs or would like an improvement, please leave a comment below.
 				</p>
 				<p>
 					I hope it can be useful to you. Happy conversions!
 				</p>
 				<p>--Martin</p>
 			</blockquote>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<h3>Change Log</h3>
+			<h4>2015-11-25</h4>
+			<p>
+				Added options to <a href="/csv2json">CSV to JSON</a>:
+			</p>
+			<ul>
+				<li><strong>Pivot</strong>: You can now pivot the csv data before conversion. </li>
+				<li><strong>Output object instead of array</strong>: By default an array of objects is output. You can now output an object or hash. The first column becomes the hash key.</li>
+			</ul>
+		</div>
+		<div class="col-md-6">
+			<h3>Feedback</h3>
+			<div id="disqus_thread"></div>
+			<script>
+			var disqus_config = function () {
+				this.page.url = 'http://www.csv2json.com';
+				this.page.identifier = 'csv2json';
+			};
+			(function() { // DON'T EDIT BELOW THIS LINE
+				var d = document, s = d.createElement('script');
+
+				s.src = '//csv2json.disqus.com/embed.js';
+
+				s.setAttribute('data-timestamp', +new Date());
+				(d.head || d.body).appendChild(s);
+			})();
+			</script>
+			<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 		</div>
 	</div>
 	<br/>

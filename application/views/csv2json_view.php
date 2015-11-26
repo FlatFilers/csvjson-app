@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your CSV or TSV formatted data to JSON. Copy/paste or upload your Excel data to convert it to JSON.</p>
+			<p>Convert your CSV or TSV formatted data to JSON. Optionally pivot your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>
 		</div>
 	</div>
 	
@@ -43,12 +43,20 @@ Nine Miles from the White City, 2013, -
 		
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
-				<label>Field separator</label>
+				<label>Field separator &amp; options</label>
 				<div class="form-control options">
 					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" checked="checked" />Auto-detect</label>
 					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" />Comma</label>
 					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
 					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>
+					&nbsp;
+					<label class="inline" title="Pivot or translate the data beforehand.">
+						<input type="checkbox" id="pivot" name="pivot" class="save" /> Pivot
+					</label>
+					&nbsp;
+					<label class="inline">Output:</label>
+					<label class="radio-inline" title="Output an array of objects."><input type="radio" id="output-array" name="output" class="save" value="array" checked="checked" />Array</label>
+					<label class="radio-inline"  title="Output an object instead of an array. First column is used as hash key."><input type="radio" id="output-hash" name="output" class="save" value="hash" />Hash</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
@@ -78,6 +86,12 @@ Nine Miles from the White City, 2013, -
 					Other separator are often used like tabs <code>\t</code>or semi-colons <code>;</code>.
 					TSV or Tab Separated Values is used to store table data in Clipboards.
 					When data is copied from Excel for example, it is stored as TSV in the Clipboard.
+				</li>
+				<li>
+					You can pivot or translate the csv before conversion. Rows become columns, and columns become rows.
+				</li>
+				<li>
+					You can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
 		</div>
