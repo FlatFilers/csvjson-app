@@ -5,7 +5,7 @@
  */
 APP.csv2json = function() {
 	
-	var uploadUrl = "/csv2json/upload",
+	var uploadUrl = '/csv2json/upload',
 		sepMap = {
 			comma: ',',
 			semiColon: ';',
@@ -13,6 +13,8 @@ APP.csv2json = function() {
 		},
 		$file = $('#fileupload'),
 		$separator = $('input[type=radio][name=separator]'),
+		$pivot = $('input[type=checkbox][name=pivot]'),
+		$output = $('input[type=radio][name=output]'),
 		$csv = $('#csv'),
 		$json = $('#json'),
 		$clear = $('#clear, a.clear'),
@@ -23,9 +25,12 @@ APP.csv2json = function() {
 		
 		var csv = _.trim($csv.val()),
 			separator = $separator.filter(':checked').val(),
-			options = {},
+			options = {
+				pivot: $pivot.is(":checked"),
+				hash: $output.filter(':checked').val() == 'hash'
+			},
 			json;
-		if (separator != "auto") options.separator = sepMap[separator];
+		if (separator != 'auto') options.separator = sepMap[separator];
 		
 		try {
 			json = CSVJSON.csv2json(csv, options);

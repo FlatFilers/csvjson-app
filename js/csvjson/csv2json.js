@@ -127,21 +127,30 @@
 		var a = CSVtoArray(csv, separator);
 		if (!a) throw errorEmpty;
 
+		if (options.pivot) a = _.zip.apply(_, a);
+
 		var keys = a.shift();
 		if (keys.length == 0) throw errorEmptyHeader;
 		keys = _.map(keys, function(key) {
 			return _(key).chain().trim().trim('"').value();
 		});
 		
-		var	json = [];
+		var	json = options.hash ? {} : [];
 		for (var l = 0; l < a.length; l++) {
-			var row = {};
+			var row = {},
+				hashKey;
 			for (var i = 0; i < keys.length; i++) {
 				var value = _(a[l][i]).chain().trim().trim('"').value(),
 					number = value - 0;
-				row[keys[i]] = isNaN(number) ? value : number;
+				if (options.hash && i == 0)
+					hashKey = value;
+				else
+					row[keys[i]] = isNaN(number) ? value : number;
 			}
-			json.push(row);
+			if (options.hash)
+				json[hashKey] = row;
+			else
+				json.push(row);
 		}
 		
 		return json;
