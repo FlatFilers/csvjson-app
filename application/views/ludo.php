@@ -19,7 +19,7 @@
 <div class="ludo">
 	<a href="http://www.ludosquest.com" target="_blank">
 		<p>Take a break from coding. Play Ludo's Quest for 5 minutes.</p>
-		<img src="http://www.ludosquest.com/site/img/screen<?=rand(1,23)?>-small.png" alt="Ludo's Quest" />
+		<img src="http://www.ludosquest.com/site/img/screen<?=rand(1,21)?>-small.png" alt="Ludo's Quest" />
 		<p>www.ludosquest.com</p>
 	</a>
 </div>
