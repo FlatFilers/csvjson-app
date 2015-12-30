@@ -317,7 +317,7 @@ if (typeof JSON2_mod !== 'object') {
 
                 length = value.length;
                 for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || 'null';
+                    partial[i] = str(i, value, dropQuotesOnKeys) || 'null';
                 }
 
 // Join all of the elements together, separated with commas, and wrap them in
@@ -339,7 +339,7 @@ if (typeof JSON2_mod !== 'object') {
                 for (i = 0; i < length; i += 1) {
                     if (typeof rep[i] === 'string') {
                         k = rep[i];
-                        v = str(k, value);
+                        v = str(k, value, dropQuotesOnKeys);
                         if (v) {
                             partial.push((dropQuotesOnKeys ? condQuoteKey(k) : quote(k)) + (gap ? ': ' : ':') + v);
                         }
@@ -351,7 +351,7 @@ if (typeof JSON2_mod !== 'object') {
 
                 for (k in value) {
                     if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
+                        v = str(k, value, dropQuotesOnKeys);
                         if (v) {
                             partial.push((dropQuotesOnKeys ? condQuoteKey(k) : quote(k)) + (gap ? ': ' : ':') + v);
                         }
