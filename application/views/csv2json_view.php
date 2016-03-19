@@ -94,6 +94,14 @@ Nine Miles from the White City, 2013, -
 					You can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
+			<h4>Change Log</h4>
+			<ul>
+				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
+				<li><strong>Nov 26, 2015</strong> Improvement: Added transpose option.</li>
+				<li><strong>Jan 30, 2014</strong> Bug fix: Pasting Excel data into Textarea would cause an upload.</li>
+				<li><strong>Jan 12, 2014</strong> Initial release.</li>
+			</ul>
+			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php $this->load->view("ludo"); ?>

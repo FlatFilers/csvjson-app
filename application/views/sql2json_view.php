@@ -79,6 +79,11 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			<ul>
 				<li>Works by detecting <code>CREATE TABLE</code> and <code>INSERT INTO</code> statements, in order to create an object representation of the tables.</li>
 			</ul>
+			<h4>Change Log</h4>
+			<ul>
+				<li><strong>Jan 12, 2014</strong> Initial release.</li>
+			</ul>
+			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php $this->load->view("ludo"); ?>

@@ -91,6 +91,13 @@
 					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js" target="_blank">JSON2</a> written by Douglas Crockford as polyfill.
 				</li>
 			</ul>
+			<h4>Change Log</h4>
+			<ul>
+				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
+				<li><strong>Jun 1, 2015</strong> Bug fix: proper support of commas inside quotes.</li>
+				<li><strong>Jan 12, 2014</strong> Initial release.</li>
+			</ul>
+			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php $this->load->view("ludo"); ?>
