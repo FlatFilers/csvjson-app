@@ -97,7 +97,7 @@ Nine Miles from the White City, 2013, -
 			<h4>Change Log</h4>
 			<ul>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
-				<li><strong>Nov 26, 2015</strong> Improvement: Added transpose option.</li>
+				<li><strong>Nov 26, 2015</strong> Improvement: Added options to transpose and output object instead of array.</li>
 				<li><strong>Jan 30, 2014</strong> Bug fix: Pasting Excel data into Textarea would cause an upload.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>

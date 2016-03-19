@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2016-03-19</h4>
+			<p>
+				Make the Github repository public again. Re-opened to community.
+			</p>
 			<h4>2015-11-25</h4>
 			<p>
 				Added options to <a href="/csv2json">CSV to JSON</a>:
@@ -48,6 +52,15 @@
 				<li><strong>Transpose</strong>: You can now transpose the csv data before conversion. </li>
 				<li><strong>Output object instead of array</strong>: By default an array of objects is output. You can now output an object or hash. The first column becomes the hash key.</li>
 			</ul>
+			<br/>
+			<h3>Bugs and Feature Requests</h3>
+			<p>
+				<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github.</a>
+				Report bugs or ask for improvements either through
+				<a href="https://github.com/martindrapeau/csvjson-app/issues">Github issues</a>
+				or by leaving a Disqus comment.
+			</p>
+			<br/>
 		</div>
 		<div class="col-md-6">
 			<h3>Feedback</h3>
