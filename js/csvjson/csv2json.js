@@ -49,7 +49,7 @@
                 "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
 
                 // Standard fields.
-                "([^\"\\" + strDelimiter + "\\r\\n]*))"
+                "([^\\" + strDelimiter + "\\r\\n]*))"
             ),
             "gi"
             );
