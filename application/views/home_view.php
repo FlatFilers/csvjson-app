@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2016-07-09</h4>
+			<p>
+				Bug fix in CSV conversion : If no text is present in a csv field, it was assigned 0 (zero) by default.
+			</p>
 			<h4>2016-06-20</h4>
 			<p>
 				Bug fix in CSV conversion: strings containing quotes and commas were prematurely cut.

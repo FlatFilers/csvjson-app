@@ -96,6 +96,7 @@ Nine Miles from the White City, 2013, -
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>
 				<li><strong>Jun 20, 2016</strong> Bug fix: strings containing quotes and commas were prematurely cut.</li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
 				<li><strong>Nov 26, 2015</strong> Improvement: Added options to transpose and output object instead of array.</li>

@@ -141,7 +141,7 @@
 				hashKey;
 			for (var i = 0; i < keys.length; i++) {
 				var value = _(a[l][i]).chain().trim().trim('"').value(),
-					number = value - 0;
+					number = value === "" ? NaN : value - 0;
 				if (options.hash && i == 0)
 					hashKey = value;
 				else
