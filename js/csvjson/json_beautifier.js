@@ -50,7 +50,7 @@
 				var inline = list[start] + content.join(' ') + _.trim(list[i]);
 				if (inline.length < 80) {
 					list.splice(start, i-start+1, inline);
-					i = start + 1;
+					i = start;
 				}
 				start = null;
 				content = [];

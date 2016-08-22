@@ -93,6 +93,7 @@
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Aug 22, 2016</strong> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9">GitHub issue #9</a></li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
 				<li><strong>Jun 1, 2015</strong> Bug fix: proper support of commas inside quotes.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
