@@ -38,7 +38,8 @@ APP.json_beautifier = function() {
 			space: spaceMap[$('#space').val()],
 			dropQuotesOnKeys: $('#drop-quotes-on-keys').is(':checked'),
 			dropQuotesOnNumbers: $('#drop-quotes-on-numbers').is(':checked'),
-			inlineShortArrays: $('#inline-short-arrays').is(':checked')
+			inlineShortArrays: $('#inline-short-arrays').is(':checked'),
+			inlineShortArraysDepth: parseInt($('#inline-short-arrays-depth').val(), 10)
 		};
 		
 		var result;

@@ -55,8 +55,15 @@
 						</select>
 					</label>
 					&nbsp;
-					<label class="inline" title="Collpase arrays inline if less than 80 characters">
-						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" /> Inline short arrays
+					<label class="inline" title="Collpase arrays inline if less than 80 characters. You can limit the nesting depth where it applies.">
+						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />Inline short arrays
+						<select id="inline-short-arrays-depth" name="inline-short-arrays-depth" class="save">
+							<option value="1" selected="selected">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
 					</label>
 				</div>
 			</div>
@@ -93,6 +100,7 @@
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Sep 27, 2016</strong> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/martindrapeau/csvjson-app/issues/12">GitHub issue #12</a></li>
 				<li><strong>Aug 22, 2016</strong> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9">GitHub issue #9</a></li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
 				<li><strong>Jun 1, 2015</strong> Bug fix: proper support of commas inside quotes.</li>

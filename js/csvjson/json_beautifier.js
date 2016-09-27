@@ -44,10 +44,15 @@
 			start = null,
 			content = [];
 		while (i < list.length) {
-			if (list[i].match(/\[$/)) {
+			var startMatch = !!list[i].match(/\[/),
+				endMatch = !!list[i].match(/\],?/);
+
+			if (startMatch && !endMatch) {
+				content = [list[i]];
 				start = i;
-			} else if (list[i].match(/\],?$/) && start) {
-				var inline = list[start] + content.join(' ') + _.trim(list[i]);
+			} else if (endMatch && !startMatch && start) {
+				content.push(_.trim(list[i]));
+				var inline = content.join(' ');
 				if (inline.length < 80) {
 					list.splice(start, i-start+1, inline);
 					i = start;
@@ -68,13 +73,24 @@
 		var space = options.space || 2,
 			dropQuotesOnKeys = options.dropQuotesOnKeys || false,
 			dropQuotesOnNumbers = options.dropQuotesOnNumbers || false,
-			inlineShortArrays = options.inlineShortArrays || false;
+			inlineShortArrays = options.inlineShortArrays || false,
+			inlineShortArraysDepth = options.inlineShortArraysDepth || 1;
 
 		var object = jsonlint.parse(json);
 		if (dropQuotesOnNumbers) walkObjectAndDropQuotesOnNumbers(object);
 		
 		var result = JSON2_mod.stringify(object, null, space, dropQuotesOnKeys);
-		if (inlineShortArrays) result = inlineShortArraysInResult(result);
+		if (inlineShortArrays) {
+			var newResult = inlineShortArraysInResult(result);
+			if (inlineShortArraysDepth > 1) {
+				for (var i = 1; i < inlineShortArraysDepth; i++) {
+					result = newResult;
+					newResult = inlineShortArraysInResult(result);
+					if (newResult == result) break;
+				}
+			}
+			result = newResult;
+		}
 		
 		return result;
 	};

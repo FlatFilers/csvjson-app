@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2016-09-27</h4>
+			<p>
+				Bug fix and improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub Issue #12</a> - Inline short arrays bug fix and improvement. Added nesting depth option.
+			</p>
 			<h4>2016-08-29</h4>
 			<p>
 				Bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.
