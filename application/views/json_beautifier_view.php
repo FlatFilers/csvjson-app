@@ -20,7 +20,7 @@
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
-				<textarea id="json" class="form-control input save" rows="15"><?=$default?></textarea>
+				<textarea id="json" class="form-control input save" rows="20"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
 				<i class="glyphicon glyphicon-chevron-right"></i> Beautify
@@ -34,7 +34,7 @@
 			<div class="form-group">
 				<label>Options</label>
 				<div class="form-control">
-					<label class="inline">No quotes</label>
+					<label class="inline">No quotes:</label>
 					<label class="inline">
 						<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="save" /> on keys
 					</label>
@@ -56,7 +56,8 @@
 					</label>
 					&nbsp;
 					<label class="inline" title="Collpase arrays inline if less than 80 characters. You can limit the nesting depth where it applies.">
-						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />Inline short arrays
+						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />
+						Inline short arrays
 						<select id="inline-short-arrays-depth" name="inline-short-arrays-depth" class="save">
 							<option value="1" selected="selected">1</option>
 							<option value="2">2</option>
@@ -64,12 +65,13 @@
 							<option value="4">4</option>
 							<option value="5">5</option>
 						</select>
+						level deep
 					</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
 				<label>Result</label> <span class="result-note"></span>
-				<textarea id="result" class="form-control result save" rows="15"></textarea>
+				<textarea id="result" class="form-control result save" rows="20"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
