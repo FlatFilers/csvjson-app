@@ -42,23 +42,27 @@
 			<h3>Change Log</h3>
 			<h4>2016-09-27</h4>
 			<p>
-				Bug fix and improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub Issue #12</a> - Inline short arrays bug fix and improvement. Added nesting depth option.
+				CSV to JSON improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/13" target="_blank">GitHub Issue #13</a> - Added option to parse number values or not to retain original number formatting.
+			</p>
+			<h4>2016-09-27</h4>
+			<p>
+				JSON Beautifier bug fix and improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub Issue #12</a> - Inline short arrays bug fix and improvement. Added nesting depth option.
 			</p>
 			<h4>2016-08-29</h4>
 			<p>
-				Bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.
+				SQL to JSON bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.
 			</p>
 			<h4>2016-08-22</h4>
 			<p>
-				Bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9">GitHub issue #9</a>
+				JSON Beautifier bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9">GitHub issue #9</a>
 			</p>
 			<h4>2016-07-09</h4>
 			<p>
-				Bug fix in CSV conversion : If no text is present in a csv field, it was assigned 0 (zero) by default.
+				CSV to JSON bug fix: If no text is present in a csv field, it was assigned 0 (zero) by default.
 			</p>
 			<h4>2016-06-20</h4>
 			<p>
-				Bug fix in CSV conversion: strings containing quotes and commas were prematurely cut.
+				CSV to JSON bug fix: strings containing quotes and commas were prematurely cut.
 			</p>
 			<h4>2016-03-19</h4>
 			<p>

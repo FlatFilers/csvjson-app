@@ -145,7 +145,7 @@
 				if (options.hash && i == 0)
 					hashKey = value;
 				else
-					row[keys[i]] = isNaN(number) ? value : number;
+					row[keys[i]] = isNaN(number) || !options.parseNumbers ? value : number;
 			}
 			if (options.hash)
 				json[hashKey] = row;

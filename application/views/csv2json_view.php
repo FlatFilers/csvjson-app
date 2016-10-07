@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-<textarea id="csv" class="form-control input save" rows="15">
+<textarea id="csv" class="form-control input save" rows="20">
 album, year, US_peak_chart_post
 The White Stripes, 1999, -
 De Stijl, 2000, -
@@ -43,12 +43,21 @@ Nine Miles from the White City, 2013, -
 		
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
-				<label>Field separator &amp; options</label>
+				<label>Options <small>Hover on option for help</small></label>
 				<div class="form-control options">
-					<label class="radio-inline"><input type="radio" id="auto-detect" name="separator" class="save" value="auto" checked="checked" />Auto-detect</label>
-					<label class="radio-inline"><input type="radio" id="comma" name="separator" class="save" value="comma" />Comma</label>
-					<label class="radio-inline"><input type="radio" id="semi-colon" name="separator" class="save" value="semiColon" />Semi-colon</label>
-					<label class="radio-inline"><input type="radio" id="tab" name="separator" class="save" value="tab" />Tab</label>
+					<label class="inline save" title="Choose your separator">
+						Separator
+						<select id="separator" name="separator">
+							<option value="auto" selected="selected">Auto-detect</option>
+							<option value="comma">Comma</option>
+							<option value="semiColon">Semi-colon</option>
+							<option value="tab">Tab</option>
+						</select>
+					</label>
+					&nbsp;
+					<label class="inline" title="Check to parse numbers (i.e. '7e2' would become 700). Uncheck to keep original formatted numbers as strings.">
+						<input type="checkbox" id="parseNumbers" name="parseNumbers" class="save" checked="checked "/> Parse numbers
+					</label>
 					&nbsp;
 					<label class="inline" title="Transpose the data beforehand.">
 						<input type="checkbox" id="transpose" name="transpose" class="save" /> Transpose
@@ -61,7 +70,7 @@ Nine Miles from the White City, 2013, -
 			</div>
 			<div class="form-group code-group">
 				<label>JSON</label>
-				<textarea id="json" class="form-control result save" rows="15"></textarea>
+				<textarea id="json" class="form-control result save" rows="20"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -96,6 +105,7 @@ Nine Miles from the White City, 2013, -
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>
 				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>
 				<li><strong>Jun 20, 2016</strong> Bug fix: strings containing quotes and commas were prematurely cut.</li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>

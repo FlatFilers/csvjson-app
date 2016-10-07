@@ -12,7 +12,8 @@ APP.csv2json = function() {
 			tab: '\t'
 		},
 		$file = $('#fileupload'),
-		$separator = $('input[type=radio][name=separator]'),
+		$separator = $('select[name=separator]'),
+		$parseNumbers = $('input[type=checkbox][name=parseNumbers]'),
 		$transpose = $('input[type=checkbox][name=transpose]'),
 		$output = $('input[type=radio][name=output]'),
 		$csv = $('#csv'),
@@ -24,15 +25,17 @@ APP.csv2json = function() {
 		e.preventDefault();
 		
 		var csv = _.trim($csv.val()),
-			separator = $separator.filter(':checked').val(),
+			separator = $separator.find('option:selected').val(),
 			options = {
-				transpose: $transpose.is(":checked"),
-				hash: $output.filter(':checked').val() == 'hash'
+				transpose: $transpose.is(':checked'),
+				hash: $output.filter(':checked').val() == 'hash',
+				parseNumbers: $parseNumbers.is(':checked')
 			},
 			json;
 		if (separator != 'auto') options.separator = sepMap[separator];
 		
 		try {
+			console.log(options);
 			json = CSVJSON.csv2json(csv, options);
 		} catch(error) {
 			APP.reportError($json, error);

@@ -20,4 +20,5 @@ a{color:#666}footer.navbar .container a:hover,
 footer.navbar .container a:active{color:#333}.home
 .tool{padding:20px
 32px;font-size:30px;line-height:1.33;border-radius:6px;width:100%}.home blockquote
-p{font-size:16px}
+p{font-size:16px}.form-group label
+small{font-weight:normal;font-style:italic;margin-left:5px}

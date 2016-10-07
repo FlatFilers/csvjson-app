@@ -32,17 +32,17 @@
 		
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
-				<label>Options</label>
+				<label>Options <small>Hover on option for help</small></label>
 				<div class="form-control">
 					<label class="inline">No quotes:</label>
-					<label class="inline">
+					<label class="inline" title="JSON wraps keys with double quotes by default. Javascript doesn't need them though. Check this box to drop them. Will make for invalid JSON but valid Javascript.">
 						<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="save" /> on keys
 					</label>
-					<label class="inline">
+					<label class="inline" title="Check this box to parse number values and drop quotes around them.">
 						<input type="checkbox" id="drop-quotes-on-numbers" name="drop-quotes-on-numbers" class="save" /> on numbers
 					</label>
 					&nbsp;
-					<label class="inline">
+					<label class="inline" title="Indentation preference.">
 						Indent
 						<select id="space" name="space" class="save">
 							<option value="tab">tab</option>
