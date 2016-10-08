@@ -6,20 +6,20 @@
 APP.csv2json = function() {
 	
 	var uploadUrl = '/csv2json/upload',
-		sepMap = {
-			comma: ',',
-			semiColon: ';',
-			tab: '\t'
-		},
-		$file = $('#fileupload'),
-		$separator = $('select[name=separator]'),
-		$parseNumbers = $('input[type=checkbox][name=parseNumbers]'),
-		$transpose = $('input[type=checkbox][name=transpose]'),
-		$output = $('input[type=radio][name=output]'),
-		$csv = $('#csv'),
-		$json = $('#json'),
-		$clear = $('#clear, a.clear'),
-		$convert = $('#convert, a.convert');
+  		sepMap = {
+  			comma: ',',
+  			semiColon: ';',
+  			tab: '\t'
+  		},
+  		$file = $('#fileupload'),
+  		$separator = $('select[name=separator]'),
+  		$parseNumbers = $('input[type=checkbox][name=parseNumbers]'),
+  		$transpose = $('input[type=checkbox][name=transpose]'),
+  		$output = $('input[type=radio][name=output]'),
+  		$csv = $('#csv'),
+  		$json = $('#json'),
+  		$clear = $('#clear, a.clear'),
+  		$convert = $('#convert, a.convert');
 	
 	$convert.click(function(e) {
 		e.preventDefault();

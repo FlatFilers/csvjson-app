@@ -73,6 +73,7 @@ $config['assets'] = array(
 			'js/csvjson/json2-mod.js',
 			'js/csvjson/jsonlint.js',
 			'js/csvjson/csv2json.js',
+			'js/csvjson/json2csv.js',
 			'js/csvjson/sql2json.js',
 			'js/csvjson/json_beautifier.js'
 		)
@@ -83,6 +84,7 @@ $config['assets'] = array(
 		'files' => array(
 			'js/src/jquery.cache-inputs.js',
 			'js/src/csv2json.js',
+			'js/src/json2csv.js',
 			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',
 			'js/src/home.js',
