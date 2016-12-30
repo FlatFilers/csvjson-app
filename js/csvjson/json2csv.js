@@ -17,18 +17,19 @@
 	 *
 	 */
 
-	var errorMissingSeparator = "Missing separator option.",
-		  errorEmpty = "Please upload a file or type in something.",
-		  errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.";
+	var errorMissingSeparator = 'Missing separator option.',
+		  errorEmpty = 'Please upload a file or type in something.',
+      errorNotObject = 'json argument must be an object',
+		  errorEmptyHeader = 'Could not detect header. Ensure first row cotains your column headers.';
 
 	function convert(json, options) {
 		options || (options = {});
-		if (json.length == 0) throw errorEmpty;
+    if (typeof json != 'object') throw errorNotObject;
 		
-		var separator = options.separator;
+    var separator = options.separator;
 		if (!separator) throw errorMissingSeparator;
 
-    // TODO...
+    //
     
     return json;
 	}
