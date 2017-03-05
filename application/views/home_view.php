@@ -1,4 +1,4 @@
-<div class="container home">
+<div class="container-fluid home">
 	<div class="row">
 		<div class="col-md-12">
 			<h4>Online tools to convert popular data formats. Persist your session for later, share with co-workers.</h4>

@@ -1,4 +1,7 @@
 <style>
+	.miam {
+		padding-bottom: 15px;
+	}
 	.miam p {
 		background-color: #0C2144;
 	    width: 300px;

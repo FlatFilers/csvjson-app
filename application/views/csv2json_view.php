@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
 			<p>Convert your CSV or TSV formatted data to JSON. Optionally transpose your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>

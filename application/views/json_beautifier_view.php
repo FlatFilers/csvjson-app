@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
 			<p>Beautify your JSON. Validate and format it. Indent as you wish. Remove double quotes around numbers. Remove double quotes on keys. Collapse short arrays.</p>

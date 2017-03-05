@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
 			<p>Convert your SQL table or database export to JSON or Javascript. Copy/paste or upload your SQL export to convert it. When converting to Javascript, one variable is created per table.</p>

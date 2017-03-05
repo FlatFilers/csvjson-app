@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
 			<p>Convert your JSON to CSV or TSV formatted data. Copy/paste or upload your JSON to convert it to CSV.</p>

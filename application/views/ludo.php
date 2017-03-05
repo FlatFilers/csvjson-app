@@ -1,4 +1,7 @@
 <style>
+	.ludo {
+		padding-bottom: 15px;
+	}
 	.ludo p {
 		background-color: #333;
 	    width: 300px;

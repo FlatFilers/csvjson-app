@@ -40,7 +40,7 @@
 	</head>
 	<body>
 		<header class="navbar navbar-inverse" role="banner">
-			<div class="container">
+			<div class="container-fluid">
 				<div class="navbar-header">
 					<a class="navbar-brand" href="/" title="csvjson.com - Online Conversion Tools">
 						<img src="/img/logo-text.png" alt="> CSVJSON" />
@@ -75,9 +75,9 @@
 		<?php $this->load->view($view); ?>
 		
 		<footer class="navbar">
-			<div class="container">
+			<div class="container-fluid">
 				<p class="pull-left">
-					&copy; 2014-2016 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
+					&copy; 2014-2017 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
 				</p>
 				<p class="pull-right">
 					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
