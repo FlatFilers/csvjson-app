@@ -4,7 +4,7 @@
 			<p>Convert your CSV or TSV formatted data to JSON. Optionally transpose your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
@@ -40,7 +40,7 @@ Nine Miles from the White City, 2013, -
 				<i class="glyphicon glyphicon-remove"></i> Clear
 			</button>
 		</div>
-		
+
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Options <small>Hover on option for help</small></label>
@@ -62,10 +62,14 @@ Nine Miles from the White City, 2013, -
 					<label class="inline" title="Transpose the data beforehand.">
 						<input type="checkbox" id="transpose" name="transpose" class="save" /> Transpose
 					</label>
-					&nbsp;
+					&nbsp;<label class="inline" title="Collapse.">
+						<input type="checkbox" id="collapse" name="collapse" class="save" /> Collapse
+					</label>
+					<span>&nbsp;</span>
 					<label class="inline">Output:</label>
 					<label class="radio-inline" title="Output an array of objects."><input type="radio" id="output-array" name="output" class="save" value="array" checked="checked" />Array</label>
 					<label class="radio-inline"  title="Output an object instead of an array. First column is used as hash key."><input type="radio" id="output-hash" name="output" class="save" value="hash" />Hash</label>
+
 				</div>
 			</div>
 			<div class="form-group code-group">
