@@ -94,7 +94,7 @@
 					var records = _.trim(words.slice(i).join(" "))
 						.replace(/(\))\s*,\s*(\()/g, "),(")
 						.replace(/^\(/, "")
-						.replace(/\)$/, "")
+						.replace(/\)\s*;?$/, "")
 						.split("),(");
 					
 					_.each(records, function(str) {
@@ -135,7 +135,7 @@
 					var records = _.trim(words.slice(i).join(" "))
 						.replace(/(\))\s*,\s*(\()/g, "),(")
 						.replace(/^\(/, "")
-						.replace(/\)$/, "")
+						.replace(/\)\s*;?$/, "")
 						.split("),(");
 					
 					_.each(records, function(str) {
