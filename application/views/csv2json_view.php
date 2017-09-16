@@ -116,7 +116,10 @@ Nine Miles from the White City, 2013, -
 			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
-			<?php $this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom"); ?>
+			<?php
+				$this->load->view('adsense');
+				//$this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom");
+			?>
 		</div>
 	</div>
 </div>

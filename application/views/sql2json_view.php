@@ -81,13 +81,17 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Sep 4, 2017</strong> Parsing bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.</li>
 				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>
 			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
-			<?php $this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom"); ?>
+			<?php
+				$this->load->view('adsense');
+				//$this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom");
+			?>
 		</div>
 	</div>
 </div>
