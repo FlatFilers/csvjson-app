@@ -1,10 +1,13 @@
 <h4>&nbsp;</h4>
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- bottom right -->
-<ins class="adsbygoogle"
-     style="display:inline-block;width:336px;height:280px"
-     data-ad-client="ca-pub-8893443121967263"
-     data-ad-slot="8309983216"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+<?php if (ENVIRONMENT == 'production'): ?>
+  <script type="text/javascript">
+    ( function() {
+      if (window.CHITIKA === undefined) { window.CHITIKA = { 'units' : [] }; };
+      var unit = {"calltype":"async[2]","publisher":"martindrapeau","width":300,"height":250,"sid":"Chitika Default"};
+      var placement_id = window.CHITIKA.units.length;
+      window.CHITIKA.units.push(unit);
+      document.write('<div id="chitikaAdBlock-' + placement_id + '"></div>');
+  }());
+  </script>
+  <script type="text/javascript" src="//cdn.chitika.net/getads.js" async></script>
+<?php endif; ?>
