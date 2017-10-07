@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-<textarea id="csv" class="form-control input save" rows="20">
+<textarea id="csv" class="form-control input save" rows="15">
 album, year, US_peak_chart_post
 The White Stripes, 1999, -
 De Stijl, 2000, -
@@ -70,7 +70,7 @@ Nine Miles from the White City, 2013, -
 			</div>
 			<div class="form-group code-group">
 				<label>JSON</label>
-				<textarea id="json" class="form-control result save" rows="20"></textarea>
+				<textarea id="json" class="form-control result save" rows="15"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -117,7 +117,7 @@ Nine Miles from the White City, 2013, -
 		</div>
 		<div class="col-md-4">
 			<?php
-				$this->load->view('adsense');
+				$this->load->view('carbonads');
 				//$this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom");
 			?>
 		</div>
