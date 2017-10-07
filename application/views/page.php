@@ -74,10 +74,8 @@
 		
 		<footer class="navbar">
 			<div class="container-fluid">
-				<p class="pull-left">
-					&copy; 2014-2017 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a>
-				</p>
-				<p class="pull-right">
+				<p>
+					&copy; 2014-2017 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a> &nbsp;
 					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
 					<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github</a>
 				</p>

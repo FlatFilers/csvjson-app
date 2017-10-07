@@ -11,10 +11,10 @@
     padding: 1.5rem;
     width: 32rem;
     text-align: left !important;
-    /* font-size: 1.1rem; */
     margin: 0;
     min-height: 1.3rem;
     z-index: 1000;
+    border-top-left-radius: 10px;
   }
   #carbonads .carbon-img {
     float: left;
