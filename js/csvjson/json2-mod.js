@@ -217,12 +217,13 @@ if (typeof JSON2_mod !== 'object') {
             '\f': '\\f',
             '\r': '\\r',
             '"' : '\\"',
+            "'": "\\'",
             '\\': '\\\\'
         },
         rep;
 
 
-    function quote(string) {
+    function quote(string, quoteType) {
 
 // If the string contains no control characters, no quote characters, and no
 // backslash characters, then we can safely slap some quotes around it.
@@ -230,21 +231,27 @@ if (typeof JSON2_mod !== 'object') {
 // sequences.
 
         escapable.lastIndex = 0;
-        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+
+        var surroundingQuote = '"';
+        if (quoteType === 'single') {
+            surroundingQuote = "'";
+        }
+
+        return escapable.test(string) ? surroundingQuote + string.replace(escapable, function (a) {
             var c = meta[a];
             return typeof c === 'string'
                 ? c
                 : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-        }) + '"' : '"' + string + '"';
+        }) + surroundingQuote : surroundingQuote + string + surroundingQuote;
     }
 	
 // Conditionally quote a key if it cannot be a Javascript variable
-	function condQuoteKey(string) {
-		return keyable.test(string) ? string : quote(string);
+	function condQuoteKey(string, quoteType) {
+		return keyable.test(string) ? string : quote(string, quoteType);
 	}
 
 
-    function str(key, holder, dropQuotesOnKeys) {
+    function str(key, holder, dropQuotesOnKeys, quoteType) {
 
 // Produce a string from holder[key].
 
@@ -274,7 +281,7 @@ if (typeof JSON2_mod !== 'object') {
 
         switch (typeof value) {
         case 'string':
-            return quote(value);
+            return quote(value, quoteType);
 
         case 'number':
 
@@ -317,7 +324,7 @@ if (typeof JSON2_mod !== 'object') {
 
                 length = value.length;
                 for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value, dropQuotesOnKeys) || 'null';
+                    partial[i] = str(i, value, dropQuotesOnKeys, quoteType) || 'null';
                 }
 
 // Join all of the elements together, separated with commas, and wrap them in
@@ -339,9 +346,9 @@ if (typeof JSON2_mod !== 'object') {
                 for (i = 0; i < length; i += 1) {
                     if (typeof rep[i] === 'string') {
                         k = rep[i];
-                        v = str(k, value, dropQuotesOnKeys);
+                        v = str(k, value, dropQuotesOnKeys, quoteType);
                         if (v) {
-                            partial.push((dropQuotesOnKeys ? condQuoteKey(k) : quote(k)) + (gap ? ': ' : ':') + v);
+                            partial.push((dropQuotesOnKeys ? condQuoteKey(k, quoteType) : quote(k, quoteType)) + (gap ? ': ' : ':') + v);
                         }
                     }
                 }
@@ -351,9 +358,9 @@ if (typeof JSON2_mod !== 'object') {
 
                 for (k in value) {
                     if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value, dropQuotesOnKeys);
+                        v = str(k, value, dropQuotesOnKeys, quoteType);
                         if (v) {
-                            partial.push((dropQuotesOnKeys ? condQuoteKey(k) : quote(k)) + (gap ? ': ' : ':') + v);
+                            partial.push((dropQuotesOnKeys ? condQuoteKey(k, quoteType) : quote(k, quoteType)) + (gap ? ': ' : ':') + v);
                         }
                     }
                 }
@@ -375,7 +382,7 @@ if (typeof JSON2_mod !== 'object') {
 // If the JSON object does not yet have a stringify method, give it one.
 
     if (typeof JSON2_mod.stringify !== 'function') {
-        JSON2_mod.stringify = function (value, replacer, space, dropQuotesOnKeys) {
+        JSON2_mod.stringify = function (value, replacer, space, dropQuotesOnKeys, quoteType) {
 
 // The stringify method takes a value and an optional replacer, and an optional
 // space parameter, and returns a JSON text. The replacer can be a function
@@ -414,7 +421,7 @@ if (typeof JSON2_mod !== 'object') {
 // Make a fake root object containing our value under the key of ''.
 // Return the result of stringifying the value.
 
-            return str('', {'': value}, dropQuotesOnKeys);
+            return str('', {'': value}, dropQuotesOnKeys, quoteType);
         };
     }
 

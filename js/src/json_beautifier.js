@@ -36,6 +36,7 @@ APP.json_beautifier = function() {
 		
 		var options = {
 			space: spaceMap[$('#space').val()],
+			quoteType: $('#quote-type').val(),
 			dropQuotesOnKeys: $('#drop-quotes-on-keys').is(':checked'),
 			dropQuotesOnNumbers: $('#drop-quotes-on-numbers').is(':checked'),
 			inlineShortArrays: $('#inline-short-arrays').is(':checked'),
@@ -52,7 +53,7 @@ APP.json_beautifier = function() {
 		}
 		
 		$result.removeClass('error').val(result);
-		if (options.dropQuotesOnKeys) $resultNote.text('Invalid JSON, but valid Javascript');
+		if (options.dropQuotesOnKeys || options.quoteType === 'single') $resultNote.text('Invalid JSON, but valid Javascript');
 	});
 	
 	APP.start({
