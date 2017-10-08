@@ -20,7 +20,7 @@
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
-				<textarea id="json" class="form-control input save" rows="15"><?=$default?></textarea>
+				<textarea id="json" class="form-control input save" rows="18"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert
@@ -46,7 +46,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>CSV or TSV</label>
-				<textarea id="csv" class="form-control result save" rows="15"></textarea>
+				<textarea id="csv" class="form-control result save" rows="18"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>

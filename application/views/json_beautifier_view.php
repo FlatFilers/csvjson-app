@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Beautify your JSON. Validate and format it. Indent as you wish. Remove double quotes around numbers. Remove double quotes on keys. Collapse short arrays.</p>
+			<p>Online tool to beautify your JSON. Validate and format your JSON. Indent your JSON as you wish. Remove double quotes around numbers. Remove double quotes on keys. Collapse short arrays.</p>
 		</div>
 	</div>
 	
@@ -20,7 +20,7 @@
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
-				<textarea id="json" class="form-control input save" rows="15"><?=$default?></textarea>
+				<textarea id="json" class="form-control input save" rows="18"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
 				<i class="glyphicon glyphicon-chevron-right"></i> Beautify
@@ -78,7 +78,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Result</label> <span class="result-note"></span>
-				<textarea id="result" class="form-control result save" rows="15"></textarea>
+				<textarea id="result" class="form-control result save" rows="18"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -97,7 +97,8 @@
 					<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
 					However the above is not valid JSON. Double quotes must be placed around pi, e and prime.
 					<pre>{"pi": 3.14159265359, "e": 2.7182818284, "prime": [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
-					<em>JSON Beautifier has a toggle to drop quotes on keys. It can do so if Javascript allows it. For example, we cannot drop quotes around key <code>"1+6"</code>.</em>
+					CSVJSON's JSON Beautifier has a toggle to drop quotes on keys. It can do so if Javascript allows it. For example, we cannot drop quotes around key <code>"1+6"</code>.
+					CSVJSON also has a toggle to use single quotes to wrap keys and values.
 				</li>
 				<li>Modern browsers have a built-in global object <code>JSON</code> with encoding and decoding functions. These are:
 					<ul>
@@ -106,6 +107,7 @@
 					</ul>
 					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js" target="_blank">JSON2</a> written by Douglas Crockford as polyfill.
 				</li>
+				<li>CSVJON uses a <a href="https://github.com/martindrapeau/csvjson-app/blob/master/js/csvjson/json2-mod.js" target="_blank">modified version of JSON2</a> which adds formatting options to drop quotes on keys, and sepcify the quote type. Anyone is free to use and extend it by forking the <a href="https://github.com/martindrapeau/csvjson-app" target="_blank">CSVJSON Github repo</a>.</li>
 			</ul>
 			<h4>Change Log</h4>
 			<ul>

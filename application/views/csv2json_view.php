@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-<textarea id="csv" class="form-control input save" rows="15">
+<textarea id="csv" class="form-control input save" rows="18">
 album, year, US_peak_chart_post
 The White Stripes, 1999, -
 De Stijl, 2000, -
@@ -70,7 +70,7 @@ Nine Miles from the White City, 2013, -
 			</div>
 			<div class="form-group code-group">
 				<label>JSON</label>
-				<textarea id="json" class="form-control result save" rows="15"></textarea>
+				<textarea id="json" class="form-control result save" rows="18"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
@@ -97,10 +97,10 @@ Nine Miles from the White City, 2013, -
 					When data is copied from Excel for example, it is stored as TSV in the Clipboard.
 				</li>
 				<li>
-					You can transpose the csv before conversion. Rows become columns, and columns become rows.
+					With CSVJSON you can transpose the csv before conversion. Rows become columns, and columns become rows.
 				</li>
 				<li>
-					You can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
+					With CSVJSON you can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
 			<h4>Change Log</h4>

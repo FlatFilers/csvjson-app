@@ -19,7 +19,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your SQL here</label>
-<textarea id="sql" class="form-control input save" rows="15">
+<textarea id="sql" class="form-control input save" rows="18">
 /**
  * Continents 
  */
@@ -65,7 +65,7 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			</div>
 			<div class="form-group code-group">
 				<label>Result</label>
-				<textarea id="result" class="form-control result save" rows="15"></textarea>
+				<textarea id="result" class="form-control result save" rows="18"></textarea>
 			</div>
 			<p class="help-block">Ctrl + A then Ctrl + C to copy to clipboard.</p>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>

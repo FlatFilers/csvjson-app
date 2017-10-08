@@ -1,10 +1,14 @@
 /*
 
 	**** json2-mod.js
+
 	**** 2013-12-22, Martin Drapeau
 	**** Modified json2 to add a 4th parameter dropQuotesOnKeys on
 	**** stringify to drop quotes around keys. Defaults to false.
 	**** Creates a global object JSON2_mod.
+
+    **** 2017-10-07, Abimbola Idowu
+    **** Added quoteType option.
 	
     json2.js
     2013-05-26
@@ -26,7 +30,7 @@
     This file creates a global JSON object containing two methods: stringify
     and parse.
 
-        JSON2_mod.stringify(value, replacer, space, dropQuotesOnKeys)
+        JSON2_mod.stringify(value, replacer, space, dropQuotesOnKeys, quoteType)
             value       any JavaScript value, usually an object or array.
 
             replacer    an optional parameter that determines how object
@@ -44,7 +48,14 @@
 						an optional parameter to drop quotes on keys, when possible.
 						Useful to represent a Javascript object. Quotes will be
 						dropped only if the key can be declared as a valid Javascript
-						object.
+						object. Do note that the output will not be valid JSON, but
+                        it will be valid Javascript.
+
+            quoteType
+                        an optional parameter to specify the quote character.
+                        Defaults to double quote " however you can overwrite with
+                        a single quote '. Do note that the output will not be valid
+                        JSON, but it will be valid Javascript.
 			
             This method produces a JSON text from a JavaScript value.
 

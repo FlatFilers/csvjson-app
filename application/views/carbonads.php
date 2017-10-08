@@ -1,7 +1,7 @@
 <?php if (ENVIRONMENT == 'production'): ?>
 <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=csvjsoncom" id="_carbonads_js"></script>
 <style>
-  @media (min-width: 767px) {
+  @media (min-width: 992px) {
     #carbonads {
       position: fixed;
       right: 0;
