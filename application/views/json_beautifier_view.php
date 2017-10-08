@@ -54,6 +54,13 @@
 							<option value="..">..</option>
 						</select>
 					</label>
+					<label class="inline" title="Quote type around values">
+						Quotes
+						<select id="quote-type" name="quote-type" class="save">
+							<option value="single">Single</option>
+							<option value="double" selected="selected">Double</option>
+						</select>
+					</label>
 					&nbsp;
 					<label class="inline" title="Collpase arrays inline if less than 80 characters. You can limit the nesting depth where it applies.">
 						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />
