@@ -74,7 +74,7 @@
 			dropQuotesOnKeys = options.dropQuotesOnKeys || false,
 			dropQuotesOnNumbers = options.dropQuotesOnNumbers || false,
 			inlineShortArrays = options.inlineShortArrays || false,
-			inlineShortArraysDepth = options.inlineShortArraysDepth || 1;
+			inlineShortArraysDepth = options.inlineShortArraysDepth || 1,
 			quoteType = options.quoteType || 'double'
 
 		var object = jsonlint.parse(json);

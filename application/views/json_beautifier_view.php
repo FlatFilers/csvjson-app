@@ -57,8 +57,8 @@
 					<label class="inline" title="Quote type around values">
 						Quotes
 						<select id="quote-type" name="quote-type" class="save">
-							<option value="single">Single Quote</option>
-							<option value="double" selected="selected">Double Quote</option>
+							<option value="single">Single</option>
+							<option value="double" selected="selected">Double</option>
 						</select>
 					</label>
 					&nbsp;
