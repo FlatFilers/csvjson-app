@@ -71,11 +71,11 @@
 		if (json.length == 0) throw errorEmpty;
 		
 		var space = options.space || 2,
-			dropQuotesOnKeys = options.dropQuotesOnKeys || false,
-			dropQuotesOnNumbers = options.dropQuotesOnNumbers || false,
-			inlineShortArrays = options.inlineShortArrays || false,
-			inlineShortArraysDepth = options.inlineShortArraysDepth || 1,
-			quoteType = options.quoteType || 'double'
+				dropQuotesOnKeys = options.dropQuotesOnKeys || false,
+				dropQuotesOnNumbers = options.dropQuotesOnNumbers || false,
+				inlineShortArrays = options.inlineShortArrays || false,
+				inlineShortArraysDepth = options.inlineShortArraysDepth || 1,
+				quoteType = options.quoteType || 'double';
 
 		var object = jsonlint.parse(json);
 		if (dropQuotesOnNumbers) walkObjectAndDropQuotesOnNumbers(object);
