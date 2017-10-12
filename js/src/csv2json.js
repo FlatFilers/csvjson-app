@@ -4,7 +4,7 @@
  * Copyright (c) 2014 Martin Drapeau
  */
 APP.csv2json = function() {
-	
+
 	var uploadUrl = '/csv2json/upload',
   		sepMap = {
   			comma: ',',
@@ -15,25 +15,27 @@ APP.csv2json = function() {
   		$separator = $('select[name=separator]'),
   		$parseNumbers = $('input[type=checkbox][name=parseNumbers]'),
   		$transpose = $('input[type=checkbox][name=transpose]'),
+  		$collapse = $('input[type=checkbox][name=collapse]'),
   		$output = $('input[type=radio][name=output]'),
   		$csv = $('#csv'),
   		$json = $('#json'),
   		$clear = $('#clear, a.clear'),
   		$convert = $('#convert, a.convert');
-	
+
 	$convert.click(function(e) {
 		e.preventDefault();
-		
+
 		var csv = _.trim($csv.val()),
 			separator = $separator.find('option:selected').val(),
 			options = {
 				transpose: $transpose.is(':checked'),
+				collapse: $collapse.is(':checked'),
 				hash: $output.filter(':checked').val() == 'hash',
-				parseNumbers: $parseNumbers.is(':checked')
+				parseNumbers: $parseNumbers.is(':checked'),
 			},
 			json;
 		if (separator != 'auto') options.separator = sepMap[separator];
-		
+
 		try {
 			console.log(options);
 			json = CSVJSON.csv2json(csv, options);
@@ -41,11 +43,13 @@ APP.csv2json = function() {
 			APP.reportError($json, error);
 			return false;
 		}
-		
-		var result = JSON.stringify(json, null, 2);
+
+		var result = options.collapse
+			? JSON.stringify(json)
+			: JSON.stringify(json, null, 2);
 		$json.removeClass('error').val(result);
 	});
-	
+
 	APP.start({
 		$convert: $convert,
 		$clear: $clear,

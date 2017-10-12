@@ -9,19 +9,19 @@
 	 *  - separator: Optional. Character which acts as separator. If omitted,
 	 *               will attempt to detect comma (,), semi-colon (;) or tab (\t).
 	 *
-	 * Dependencies: 
+	 * Dependencies:
 	 *  - underscore (http://underscorejs.org/)
 	 *  - underscore.string (https://github.com/epeli/underscore.string)
 	 *
 	 * Copyright (c) 2014 Martin Drapeau
 	 *
 	 */
-	
+
 	var errorDetectingSeparator = "We could not detect the separator.",
 		errorEmpty = "Please upload a file or type in something.",
 		errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.",
 		separators = [",", ";", "\t"];
-	
+
 	function detectSeparator(csv) {
 		var counts = {},
 			sepMax;
@@ -103,6 +103,7 @@
             } else {
 
                 // We found a non-quoted value.
+				// but escape any internal quotes
                 strMatchedValue = arrMatches[ 3 ];
 
             }
@@ -116,11 +117,11 @@
         // Return the parsed data.
         return( arrData );
     }
-	
+
 	function convert(csv, options) {
 		options || (options = {});
 		if (csv.length == 0) throw errorEmpty;
-		
+
 		var separator = options.separator || detectSeparator(csv);
 		if (!separator) throw errorDetectingSeparator;
 
@@ -134,13 +135,13 @@
 		keys = _.map(keys, function(key) {
 			return _(key).chain().trim().trim('"').value();
 		});
-		
+
 		var	json = options.hash ? {} : [];
 		for (var l = 0; l < a.length; l++) {
 			var row = {},
 				hashKey;
 			for (var i = 0; i < keys.length; i++) {
-				var value = _(a[l][i]).chain().trim().trim('"').value(),
+				var value = _(a[l][i]).chain().trim().value(),
 					number = value === "" ? NaN : value - 0;
 				if (options.hash && i == 0)
 					hashKey = value;
@@ -152,11 +153,11 @@
 			else
 				json.push(row);
 		}
-		
+
 		return json;
 	};
-	
+
 	this.CSVJSON || (this.CSVJSON = {});
 	this.CSVJSON.csv2json = convert;
-	
+
 }).call(this);
