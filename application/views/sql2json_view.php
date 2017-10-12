@@ -1,7 +1,8 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your SQL table or database export to JSON or Javascript. Copy/paste or upload your SQL export to convert it. When converting to Javascript, one variable is created per table.</p>
+			<h1 style="font-size: 18px; margin-top: 10px;">Convert your SQL table or database export to JSON or Javascript.</h1>
+			<p>1) Copy/paste or upload your SQL export to convert it. 2) Convert to JSON or Javascript (one variable is created per table). 3) Copy and paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
 	

@@ -1,7 +1,8 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your CSV or TSV formatted data to JSON. Optionally transpose your data, or output an object instead of an array. Copy/paste or upload your Excel data to convert it to JSON.</p>
+			<h1 style="font-size: 18px; margin-top: 10px;">Online tool to convert your CSV or TSV formatted data to JSON.</h1>
+			<p>1) Copy/paste or upload your Excel data (CSV or TSV) to convert it to JSON. 2) Set up options: parse numbers, transpose your data, or output an object instead of an array. 3) Convert and copy/paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
 	
@@ -100,7 +101,7 @@ Nine Miles from the White City, 2013, -
 					With CSVJSON you can transpose the csv before conversion. Rows become columns, and columns become rows.
 				</li>
 				<li>
-					With CSVJSON you can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
+					With CSVJSON you can output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
 			<h4>Change Log</h4>
