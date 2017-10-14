@@ -72,6 +72,21 @@ Directory Structure
 Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
 
 
+AWS S3
+------
+Saved sessions are stored in Amazon Web Services Simple Storage.
+The following config file must exist, but never be committed and versioned in git 
+application/config/aws_s3.php
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+if (defined('CURL_SSLVERSION_TLSv1')) {
+  define('AWS_S3_KEY', 'XXXX');
+  define('AWS_S3_SECRET', 'XXXX');
+  define('AWS_S3_REGION', 'us-east-2');
+  define('AWS_S3_BUCKET', 'csvjson');
+  define('AWS_S3_URL', 'https://'.AWS_S3_BUCKET.'.s3.amazonaws.com/');
+}
+$config['aws_s3'] = array('supported' => defined('AWS_S3_URL'));
+
 FAQ
 ===
 

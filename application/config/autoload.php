@@ -80,7 +80,7 @@ $autoload['helper'] = array('csvjson_helper');
 |
 */
 
-$autoload['config'] = array('assets');
+$autoload['config'] = array('assets', 'aws_s3');
 
 
 /*

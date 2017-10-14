@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src * filesystem: data: gap: http://www.google-analytics.com http://www.googletagmanager.com http://ssl.gstatic.com http://www.csvjson.com http://csvjson.s3.amazonaws.com http://s3.us-east-2.amazonaws.com http://www.csvjson.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src * data:">
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
@@ -15,7 +16,8 @@
 				page: "<?=$page?>",
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
-				data: <?=$data ? $data : 'null'?>
+				data: <?=$data ? $data : 'null'?>,
+				data_url: <?=$data_url ? $data_url : 'null'?>
 			};
 		</script>
 		

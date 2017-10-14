@@ -45,10 +45,18 @@ $(document).ready(function() {
 			});
 			
 			// Restore if parmalink, or bind save
-			if (APP.id)
-				APP.restore();
-			else
+			if (APP.id) {
+				if (APP.data_url) {
+					$.get(APP.data_url).done(function(data) {
+						APP.data = data;
+						APP.restore();
+					});
+				} else {
+					APP.restore();
+				}
+			} else {
 				APP.renderSave('active');
+			}
 		},
 		
 		// Returns the URL of the page, <domain>/<page>.
