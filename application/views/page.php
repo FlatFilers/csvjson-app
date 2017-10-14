@@ -17,7 +17,7 @@
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
 				data: <?=$data ? $data : 'null'?>,
-				data_url: <?=$data_url ? $data_url : 'null'?>
+				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>
 			};
 		</script>
 		
