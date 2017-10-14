@@ -47,7 +47,7 @@ $(document).ready(function() {
 			// Restore if parmalink, or bind save
 			if (APP.id) {
 				if (APP.data_url) {
-					$.get(APP.data_url).done(function(data) {
+					$.getJSON(APP.data_url).done(function(data) {
 						APP.data = data;
 						APP.restore();
 					});
