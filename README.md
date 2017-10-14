@@ -83,7 +83,7 @@ if (defined('CURL_SSLVERSION_TLSv1')) {
   define('AWS_S3_SECRET', 'XXXX');
   define('AWS_S3_REGION', 'us-east-2');
   define('AWS_S3_BUCKET', 'csvjson');
-  define('AWS_S3_URL', 'https://'.AWS_S3_BUCKET.'.s3.amazonaws.com/');
+  define('AWS_S3_URL', 'http://s3.'.AWS_S3_REGION.'.amazonaws.com/'.AWS_S3_BUCKET.'/');
 }
 $config['aws_s3'] = array('supported' => defined('AWS_S3_URL'));
 
