@@ -17,6 +17,11 @@ Installation
 
 1.  Clone and drop inside a folder under a virtual host using your favorite WAMP or LAMP stack.
 2.  Create a `data` directory at the same level as `www`. Saved data for permalinks get stored there.
+3.  Create file application/config/aws_s3.php and paste this into it:
+```
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+$config['aws_s3'] = array('supported' => defined('AWS_S3_URL'));
+```
 
 CodeIgniter's index.php will start everything. If you plan to deploy in a production environment, edit it and change this with your domain name:
 ```
@@ -28,7 +33,6 @@ if (strpos($_SERVER['SERVER_NAME'], "csvjson.com") !== FALSE) {
 ```
 
 If you use Apache, CSVJSON comes with a .htaccess all ready to go. Blocks remote access of sensible files like this README, .git, etc...
-
 
 Extending
 =========
