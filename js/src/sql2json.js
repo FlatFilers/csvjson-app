@@ -39,7 +39,7 @@ APP.sql2json = function() {
 				return result + "var " + name + " = " + JSON.stringify(table, null, 2) + ";\n";
 			}, '');
 		
-		$result.removeClass('error').val(result);
+		$result.removeClass('error').val(result).change();
 	});
 	
 	APP.start({

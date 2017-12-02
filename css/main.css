@@ -121,6 +121,12 @@ span.fileinput-button>label {
 	border-color: #e51400;
 }
 
+.btn-primary.disabled,
+.btn-primary[disabled] {
+	background-color:#e51400;
+	border-color:#e51400;
+}
+
 .form-control {
 	border: none;
 	box-shadow: none;

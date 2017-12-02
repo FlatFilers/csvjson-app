@@ -28,6 +28,7 @@ $(document).ready(function() {
 			options || (options = {});
 			
 			// Bind elements
+			APP.bindDownload();
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
 				if (!options.upload.url) throw "Invalid option 'upload'. Missing url.";
@@ -75,7 +76,7 @@ $(document).ready(function() {
 			$clear.click(function(e) {
 				e.preventDefault();
 				ga('send', 'event', '_trackEvent', APP.page, 'clear');
-				$('textarea.input, textarea.result').val('').removeClass('error');
+				$('textarea.input, textarea.result').val('').removeClass('error').change();
 				APP.renderSave('active');
 				return false;
 			});
@@ -108,6 +109,22 @@ $(document).ready(function() {
 				fail: function(e, data) {
 					$fileLabel.html(fileLabelHtml);
 					// Show an error god damn it!
+				}
+			});
+		},
+
+		bindDownload() {
+			var $textarea = $('textarea.result'),
+					$download = $('a#download');
+			$textarea.change(function() {
+				var data = escape($textarea.val());
+				$download.attr('href', 'data:application/json;charset=utf-8,' + data);
+				$download.removeAttr('title');
+				if (data && data.length < 65400) {
+					$download.removeAttr('disabled');
+				} else {
+					$download.attr('disabled', 'disabled');
+					if (data.length) $download.title('Too large to download. Copy to clipboard instead.')
 				}
 			});
 		},

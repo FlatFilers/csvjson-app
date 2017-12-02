@@ -43,7 +43,7 @@ APP.csv2json = function() {
 		}
 		
 		var result = JSON.stringify(json, null, 2);
-		$json.removeClass('error').val(result);
+		$json.removeClass('error').val(result).change();
 	});
 	
 	APP.start({

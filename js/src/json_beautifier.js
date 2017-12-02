@@ -52,7 +52,7 @@ APP.json_beautifier = function() {
 			return false;
 		}
 		
-		$result.removeClass('error').val(result);
+		$result.removeClass('error').val(result).change();
 		if (options.dropQuotesOnKeys || options.quoteType === 'single') $resultNote.text('Invalid JSON, but valid Javascript');
 	});
 	

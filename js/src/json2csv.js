@@ -31,7 +31,7 @@ APP.json2csv = function() {
 			return false;
 		}
 		
-		$csv.removeClass('error').val(result);
+		$csv.removeClass('error').val(result).change();
 	});
 	
 	APP.start({
