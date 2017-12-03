@@ -84,7 +84,7 @@
 			<a id="download" class="btn btn-primary" href="" download="csvjson.json" disabled="disabled" target="_self">
 				<i class="glyphicon glyphicon-download"></i> Download
 			</a>
-			<em>&nbsp;&nbsp;Ctrl + A then Ctrl + C to copy to clipboard.</em>
+			<em>&nbsp;&nbsp; or Ctrl + A then Ctrl + C to copy to clipboard.</em>
 			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
 			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 		</div>
