@@ -119,14 +119,16 @@ $(document).ready(function() {
 			$textarea.change(function() {
 				var data = escape($textarea.val());
 				$download.attr('href', 'data:application/json;charset=utf-8,' + data);
-				$download.removeAttr('title');
+				$download.attr('title', 'Download result in csvjson.json');
 				if (data && data.length < 65400) {
 					$download.removeAttr('disabled');
 				} else {
 					$download.attr('disabled', 'disabled');
-					if (data.length) $download.title('Too large to download. Copy to clipboard instead.')
+					$download.attr('title', 'Do data to download. Convert first.');
+					if (data.length) $download.attr('title', 'Too large to download. Copy to clipboard instead.')
 				}
 			});
+			$textarea.change();
 		},
 		
 		// Sets which inputs will be persisted when saved as a permalink
