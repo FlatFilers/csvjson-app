@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2017-12-13</h4>
+			<p>
+				SQL to JSON parsing bug fix. Do not split when detecting a comma in a string value: <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">GitHub Issue #25</a>.
+			</p>
 			<h4>2017-10-07</h4>
 			<p>
 				<a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/martindrapeau/csvjson-app/issues/23" target="_blank">GitHub issue #23</a>

@@ -85,6 +85,7 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Dec 13, 2017</strong> Parsing bug fix not to split when detecting a comma in a string value: <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">GitHub Issue #25</a>. Thank you <a href="https://github.com/jdserato" target="_blank">Jay Vince Serato</a> for reporting the issue.</li>
 				<li><strong>Sep 4, 2017</strong> Parsing bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.</li>
 				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>

@@ -15,10 +15,12 @@
 	 */
 	
 	var errorEmpty = "Please upload a file or type in something.",
-		inQuotes = new RegExp(/(^`.*`$)|(^'.*'$)|(^".*"$)/);
+			inQuotes = new RegExp(/(^`.*`$)|(^'.*'$)|(^".*"$)/);
 	
 	function convert(sql) {
 		if (sql.length == 0) throw errorEmpty;
+
+		var matches = [];
 		
 		// Remove comments and empty lines, and collapse statements on one line
 		sql = sql
@@ -30,7 +32,10 @@
 				// Collapse statements (TO DO: Convert this to a single regex)
 				.replace(/;\s*[\r\n]/gm, ";;")
 				.replace(/[\r\n]/gm, " ")
-				.replace(/;;\s?/gm, ";\n");
+				.replace(/;;\s?/gm, ";\n")
+				// Extract quoted string values and replace with placeholders
+				.replace(/'([^']|'')*'/g, function(m) {matches.push(_.trim(m, "'")); return "'{{"+(matches.length-1)+"}}'";});
+
 		//throw sql;
 		var lines = _.lines(sql);
 		if (lines.length == 0) throw errorEmpty;
@@ -155,15 +160,16 @@
 		} catch(error) {
 			throw "Error: " + error + "\n..." + line;
 		}
+
 		
-		// Convert to objects now
+		// Convert to objects now and re-introduce quoted string values
 		var	objects = {};
 		_.each(tables, function(table, name) {
 			var keys = table.header;
 			objects[name] = _.map(table.values, function(values) {
 				var o = {};
 				for (var k=0; k < keys.length; k++)
-					o[keys[k]] = values[k];
+					o[keys[k]] = values[k].replace(/^{{([0-9]+)}}$/, function(m,i) {return matches[i];});
 				return o;
 			});
 		});
