@@ -41,8 +41,9 @@
 		<div class="col-md-6">
 			<h3>Change Log</h3>
 			<h4>2017-12-18</h4>
-				Added a minify option to compact JSON by removing spaces and new lines. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/21" target="_blank">GitHub Issue #21</a>. Thank you <a href="https://github.com/myatmins" target="_blank">Myat Min Soe</a> for requesting this feature.
+			<p>SQL to JSON parsing bug fix. Convert <code>NULL</code> to <code>null</code>.</p>
 			<p>
+				Added a minify option to compact JSON by removing spaces and new lines. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/21" target="_blank">GitHub Issue #21</a>. Thank you <a href="https://github.com/myatmins" target="_blank">Myat Min Soe</a> for requesting this feature.
 			</p>
 			<h4>2017-12-13</h4>
 			<p>

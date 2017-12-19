@@ -100,6 +100,8 @@
 						.replace(/(\))\s*,\s*(\()/g, "),(")
 						.replace(/^\(/, "")
 						.replace(/\)\s*;?$/, "")
+						.replace(/\(\s*(NULL)\s*/gi, '({{NULL}}')
+						.replace(/,\s*(NULL)\s*/gi, ',{{NULL}}')
 						.split("),(");
 					
 					_.each(records, function(str) {
@@ -141,6 +143,8 @@
 						.replace(/(\))\s*,\s*(\()/g, "),(")
 						.replace(/^\(/, "")
 						.replace(/\)\s*;?$/, "")
+						.replace(/\(\s*(NULL)\s*/gi, '({{NULL}}')
+						.replace(/,\s*(NULL)\s*/gi, ',{{NULL}}')
 						.split("),(");
 					
 					_.each(records, function(str) {
@@ -168,8 +172,10 @@
 			var keys = table.header;
 			objects[name] = _.map(table.values, function(values) {
 				var o = {};
-				for (var k=0; k < keys.length; k++)
+				for (var k=0; k < keys.length; k++) {
 					o[keys[k]] = values[k].replace(/^{{([0-9]+)}}$/, function(m,i) {return matches[i];});
+					if (o[keys[k]] == '{{NULL}}') o[keys[k]] = null;
+				}
 				return o;
 			});
 		});
