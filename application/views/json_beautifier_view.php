@@ -75,6 +75,10 @@
 						</select>
 						level deep
 					</label>
+					&nbsp;
+					<label class="inline" title="Minify or compact result by removing spaces and new lines. Warning: this overrides other options.">
+						<input type="checkbox" id="minify" name="minify" class="save" /> Minify
+					</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
@@ -115,6 +119,7 @@
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2017</strong> Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/martindrapeau/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></li>
 				<li><strong>Sep 27, 2016</strong> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub issue #12</a></li>
 				<li><strong>Aug 22, 2016</strong> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9" target="_blank">GitHub issue #9</a></li>

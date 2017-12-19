@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2017-12-18</h4>
+				Added a minify option to compact JSON by removing spaces and new lines. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/21" target="_blank">GitHub Issue #21</a>. Thank you <a href="https://github.com/myatmins" target="_blank">Myat Min Soe</a> for requesting this feature.
+			<p>
+			</p>
 			<h4>2017-12-13</h4>
 			<p>
 				SQL to JSON parsing bug fix. Do not split when detecting a comma in a string value: <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">GitHub Issue #25</a>.

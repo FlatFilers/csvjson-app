@@ -62,6 +62,10 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 				<div class="form-control options">
 					<label class="radio-inline"><input type="radio" id="json" name="format" class="save" value="json" checked="checked" />JSON</label>
 					<label class="radio-inline"><input type="radio" id="javascript" name="format" class="save" value="javascript" />Javascript</label>
+					&nbsp;
+					<label class="inline" title="Minify or compact result by removing spaces and new lines.">
+						<input type="checkbox" id="minify" name="minify" class="save" /> Minify
+					</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
@@ -85,6 +89,7 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Dec 13, 2017</strong> Parsing bug fix not to split when detecting a comma in a string value: GitHub Issues <a href="https://github.com/martindrapeau/csvjson-app/issues/17" target="_blank">#17</a> and <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">#25</a>. Thank you <a href="https://github.com/Idafe" target="_blank">Idafe</a> and <a href="https://github.com/jdserato" target="_blank">Jay Vince Serato</a> for reporting the issue.</li>
 				<li><strong>Sep 4, 2017</strong> Parsing bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.</li>
 				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>

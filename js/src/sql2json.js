@@ -12,7 +12,8 @@ APP.sql2json = function() {
 		$sql = $('#sql'),
 		$result = $('#result'),
 		$clear = $('#clear, a.clear'),
-		$convert = $('#convert, a.convert');
+		$convert = $('#convert, a.convert'),
+		$minify = $('#minify');
 	
 	$convert.click(function(e) {
 		e.preventDefault();
@@ -30,13 +31,14 @@ APP.sql2json = function() {
 		
 		// Output requested format
 		var format = $format.filter(':checked').val(),
-			result = '';
+				space = $minify.is(':checked') ? undefined : 2,
+				result = '';
 		
 		if (format == "json")
-			result = JSON.stringify(json, null, 2);
+			result = JSON.stringify(json, null, space);
 		else
 			result = _.reduce(json, function(result, table, name) {
-				return result + "var " + name + " = " + JSON.stringify(table, null, 2) + ";\n";
+				return result + "var " + name + " = " + JSON.stringify(table, null, space) + ";\n";
 			}, '');
 		
 		$result.removeClass('error').val(result).change();

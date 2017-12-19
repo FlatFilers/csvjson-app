@@ -67,6 +67,10 @@ Nine Miles from the White City, 2013, -
 					<label class="inline">Output:</label>
 					<label class="radio-inline" title="Output an array of objects."><input type="radio" id="output-array" name="output" class="save" value="array" checked="checked" />Array</label>
 					<label class="radio-inline"  title="Output an object instead of an array. First column is used as hash key."><input type="radio" id="output-hash" name="output" class="save" value="hash" />Hash</label>
+					&nbsp;
+					<label class="inline" title="Minify or compact result by removing spaces and new lines.">
+						<input type="checkbox" id="minify" name="minify" class="save" /> Minify
+					</label>
 				</div>
 			</div>
 			<div class="form-group code-group">
@@ -109,6 +113,7 @@ Nine Miles from the White City, 2013, -
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>
 				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>
 				<li><strong>Jun 20, 2016</strong> Bug fix: strings containing quotes and commas were prematurely cut.</li>

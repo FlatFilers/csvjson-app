@@ -19,7 +19,8 @@ APP.csv2json = function() {
   		$csv = $('#csv'),
   		$json = $('#json'),
   		$clear = $('#clear, a.clear'),
-  		$convert = $('#convert, a.convert');
+  		$convert = $('#convert, a.convert'),
+			$minify = $('#minify');
 	
 	$convert.click(function(e) {
 		e.preventDefault();
@@ -42,7 +43,7 @@ APP.csv2json = function() {
 			return false;
 		}
 		
-		var result = JSON.stringify(json, null, 2);
+		var result = JSON.stringify(json, null, $minify.is(':checked') ? undefined : 2);
 		$json.removeClass('error').val(result).change();
 	});
 	

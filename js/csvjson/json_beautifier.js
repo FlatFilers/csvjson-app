@@ -75,13 +75,14 @@
 				dropQuotesOnNumbers = options.dropQuotesOnNumbers || false,
 				inlineShortArrays = options.inlineShortArrays || false,
 				inlineShortArraysDepth = options.inlineShortArraysDepth || 1,
-				quoteType = options.quoteType || 'double';
+				quoteType = options.quoteType || 'double',
+				minify = options.minify || false;
 
 		var object = jsonlint.parse(json);
 		if (dropQuotesOnNumbers) walkObjectAndDropQuotesOnNumbers(object);
 		
-		var result = JSON2_mod.stringify(object, null, space, dropQuotesOnKeys, quoteType);
-		if (inlineShortArrays) {
+		var result = JSON2_mod.stringify(object, null, minify ? undefined : space, dropQuotesOnKeys, quoteType);
+		if (inlineShortArrays && !minify) {
 			var newResult = inlineShortArraysInResult(result);
 			if (inlineShortArraysDepth > 1) {
 				for (var i = 1; i < inlineShortArraysDepth; i++) {

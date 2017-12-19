@@ -40,7 +40,8 @@ APP.json_beautifier = function() {
 			dropQuotesOnKeys: $('#drop-quotes-on-keys').is(':checked'),
 			dropQuotesOnNumbers: $('#drop-quotes-on-numbers').is(':checked'),
 			inlineShortArrays: $('#inline-short-arrays').is(':checked'),
-			inlineShortArraysDepth: parseInt($('#inline-short-arrays-depth').val(), 10)
+			inlineShortArraysDepth: parseInt($('#inline-short-arrays-depth').val(), 10),
+			minify: $('#minify').is(':checked')
 		};
 		
 		var result;
