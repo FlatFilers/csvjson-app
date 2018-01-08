@@ -34,7 +34,7 @@
 				.replace(/[\r\n]/gm, " ")
 				.replace(/;;\s?/gm, ";\n")
 				// Extract quoted string values and replace with placeholders
-				.replace(/'([^']|'')*'/g, function(m) {matches.push(_.trim(m, "'")); return "'{{"+(matches.length-1)+"}}'";});
+				.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, function(m) {matches.push(_.trim(m, "'\"")); return "'{{"+(matches.length-1)+"}}'";});
 
 		//throw sql;
 		var lines = _.lines(sql);
@@ -173,7 +173,7 @@
 			objects[name] = _.map(table.values, function(values) {
 				var o = {};
 				for (var k=0; k < keys.length; k++) {
-					o[keys[k]] = values[k].replace(/^{{([0-9]+)}}$/, function(m,i) {return matches[i];});
+					o[keys[k]] = typeof values[k] == 'string' ? values[k].replace(/^{{([0-9]+)}}$/, function(m,i) {return matches[i];}) : values[k];
 					if (o[keys[k]] == '{{NULL}}') o[keys[k]] = null;
 				}
 				return o;

@@ -40,6 +40,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2018-01-08</h4>
+			<p>
+				Support escaped quotes in SQL to JSON: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>.
+			</p>
 			<h4>2017-12-18</h4>
 			<p>SQL to JSON parsing bug fix. Convert <code>NULL</code> to <code>null</code>.</p>
 			<p>
