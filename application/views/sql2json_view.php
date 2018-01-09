@@ -90,7 +90,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
-				<li><strong>Jan 8, 2018</strong> Support escaped quotes: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>.</li>
+				<li><strong>Jan 8, 2018</strong> Support escaped quotes: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.</li>
 				<li><strong>Dec 18, 2017</strong> Bug fix: Convert a <code>NULL</code> value to <code>null</code>.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Dec 13, 2017</strong> Parsing bug fix not to split when detecting a comma in a string value: GitHub Issues <a href="https://github.com/martindrapeau/csvjson-app/issues/17" target="_blank">#17</a> and <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">#25</a>. Thank you <a href="https://github.com/Idafe" target="_blank">Idafe</a> and <a href="https://github.com/jdserato" target="_blank">Jay Vince Serato</a> for reporting the issue.</li>
