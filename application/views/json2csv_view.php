@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your JSON to CSV or TSV formatted data. Copy/paste or upload your JSON to convert it to CSV.</p>
+			<p>Convert your JSON to CSV or TSV formatted data. Copy/paste or upload your JSON to convert it. For Excel, convert to TSV then copy and paste into Excel.</p>
 		</div>
 	</div>
 	
@@ -19,8 +19,58 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
-				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
-				<textarea id="json" class="form-control input save" rows="18"><?=$default?></textarea>
+				<textarea id="json" class="form-control input save" rows="18">[
+  {
+    "album": "The White Stripes",
+    "year": 1999,
+    "US_peak_chart_post": "-"
+  },
+  {
+    "album": "De Stijl",
+    "year": 2000,
+    "US_peak_chart_post": "-"
+  },
+  {
+    "album": "White Blood Cells",
+    "year": 2001,
+    "US_peak_chart_post": 61
+  },
+  {
+    "album": "Elephant",
+    "year": 2003,
+    "US_peak_chart_post": 6
+  },
+  {
+    "album": "Get Behind Me Satan",
+    "year": 2005,
+    "US_peak_chart_post": 3
+  },
+  {
+    "album": "Icky Thump",
+    "year": 2007,
+    "US_peak_chart_post": 2
+  },
+  {
+    "album": "Under Great White Northern Lights",
+    "year": 2010,
+    "US_peak_chart_post": 11
+  },
+  {
+    "album": "Live in Mississippi",
+    "year": 2011,
+    "US_peak_chart_post": "-"
+  },
+  {
+    "album": "Live at the Gold Dollar",
+    "year": 2012,
+    "US_peak_chart_post": "-"
+  },
+  {
+    "album": "Nine Miles from the White City",
+    "year": 2013,
+    "US_peak_chart_post": "-"
+  }
+]</textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
 				<i class="glyphicon glyphicon-chevron-right"></i> Convert

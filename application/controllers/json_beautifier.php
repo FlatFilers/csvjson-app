@@ -13,8 +13,8 @@ class Json_beautifier extends MY_Controller {
 		parent::__construct();
 		
 		$this->page = 'json_beautifier';
-		$this->title = 'JSON Beautifier';
-		$this->description = 'Online tool for validating and formatting JSON.';
+		$this->title = 'JSON Beautifier. Validate and format JSON.';
+		$this->description = 'Online tool for validating, formatting and beautifying JSON.';
 		$this->view = 'json_beautifier_view';
 	}
 	

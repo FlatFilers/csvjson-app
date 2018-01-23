@@ -26,13 +26,13 @@ APP.csv2json = function() {
 		e.preventDefault();
 		
 		var csv = _.trim($csv.val()),
-			separator = $separator.find('option:selected').val(),
-			options = {
-				transpose: $transpose.is(':checked'),
-				hash: $output.filter(':checked').val() == 'hash',
-				parseNumbers: $parseNumbers.is(':checked')
-			},
-			json;
+  			separator = $separator.find('option:selected').val(),
+  			options = {
+  				transpose: $transpose.is(':checked'),
+  				hash: $output.filter(':checked').val() == 'hash',
+  				parseNumbers: $parseNumbers.is(':checked')
+  			},
+  			json;
 		if (separator != 'auto') options.separator = sepMap[separator];
 		
 		try {

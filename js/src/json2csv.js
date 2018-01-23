@@ -6,6 +6,11 @@
 APP.json2csv = function() {
 	
 	var uploadUrl = '/json2csv/upload',
+  		sepMap = {
+  			comma: ',',
+  			semiColon: ';',
+  			tab: '\t'
+  		},
   		$file = $('#fileupload'),
   		$separator = $('select[name=separator]'),
       $json = $('#json'),
@@ -20,7 +25,7 @@ APP.json2csv = function() {
 		if (json.length == 0) err(errorEmpty);
 		
 		var options = {
-			separator: $separator.find('option:selected').val(),
+			separator: sepMap[$separator.find('option:selected').val()]
 		};
 		
 		var result;

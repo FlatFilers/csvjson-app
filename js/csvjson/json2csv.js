@@ -19,19 +19,48 @@
 
 	var errorMissingSeparator = 'Missing separator option.',
 		  errorEmpty = 'Please upload a file or type in something.',
-      errorNotObject = 'json argument must be an object',
-		  errorEmptyHeader = 'Could not detect header. Ensure first row cotains your column headers.';
+		  errorEmptyHeader = 'Could not detect header. Ensure first row cotains your column headers.',
+		  errorNotAnArray = 'Your JSON must be an array or objects.',
+		  errorItemNotAnObject = 'Item is not an object: {0}';
 
 	function convert(json, options) {
 		options || (options = {});
-    if (typeof json != 'object') throw errorNotObject;
+
+		var data = jsonlint.parse(json);
+    if (!_.isArray(data)) throw errorNotAnArray;
 		
     var separator = options.separator;
 		if (!separator) throw errorMissingSeparator;
 
-    //
+    var allKeys = [],
+    		allRows = [];
+    for (var i = 0; i < data.length; i++) {
+    	var o = data[i],
+    			row = {};
+    	if (o !== undefined && o !== null && (!_.isObject(o) || _.isArray(o)))
+    		throw errorItemNotAnObject.replace('{0}', JSON.stringify(o));
+    	var keys = _.keys(o);
+    	for (var k = 0; k < keys.length; k++) {
+    		var key = keys[k];
+    		if (allKeys.indexOf(key) === -1) allKeys.push(key);
+    		var value = o[key];
+    		if (value !== undefined && value !== null) row[key] = JSON.stringify(value);
+    	}
+    	allRows.push(row);
+    }
+
+    var csv = '';
+    for (var r = 0; r < allRows.length; r++) {
+    	var row = allRows[r],
+    			rowText = '';
+    	for (var k = 0; k < allKeys.length; k++) {
+    		var key = allKeys[k];
+    		rowText += (row[key] || '') + separator;
+    	}
+    	csv += rowText + '\n';
+    }
     
-    return json;
+    return csv;
 	}
 	
 	this.CSVJSON || (this.CSVJSON = {});
