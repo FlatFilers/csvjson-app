@@ -81,6 +81,7 @@ AWS S3
 Saved sessions are stored in Amazon Web Services Simple Storage.
 The following config file must exist, but never be committed and versioned in git 
 application/config/aws_s3.php
+```
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 if (defined('CURL_SSLVERSION_TLSv1')) {
   define('AWS_S3_KEY', 'XXXX');
@@ -90,6 +91,7 @@ if (defined('CURL_SSLVERSION_TLSv1')) {
   define('AWS_S3_URL', 'http://s3.'.AWS_S3_REGION.'.amazonaws.com/'.AWS_S3_BUCKET.'/');
 }
 $config['aws_s3'] = array('supported' => defined('AWS_S3_URL'));
+```
 
 FAQ
 ===
