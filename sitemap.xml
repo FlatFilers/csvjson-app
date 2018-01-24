@@ -11,6 +11,11 @@
 		<priority>0.8</priority>
 	</url>
 	<url>
+		<loc>http://www.jsoncsv.com/json2csv</loc>
+		<changefreq>monthly</changefreq>
+		<priority>0.8</priority>
+	</url>
+	<url>
 		<loc>http://www.jsoncsv.com/sql2json</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>

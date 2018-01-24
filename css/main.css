@@ -199,6 +199,10 @@ a.convert:active {
 	opacity: 1.0;
 }
 
+a#issue {
+	margin-top: 10px;
+}
+
 @media (max-width: 991px) {
 	a.clear,
 	a.convert {

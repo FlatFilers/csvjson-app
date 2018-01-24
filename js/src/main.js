@@ -252,7 +252,7 @@ $(document).ready(function() {
 			});
 			$issue.popover({
 				html: true,
-				placement: "left",
+				placement: "top",
 				content: function() {
 					return template({url: window.location.href});
 				}
