@@ -17,7 +17,7 @@ APP.csv2json = function() {
   		$transpose = $('input[type=checkbox][name=transpose]'),
   		$output = $('input[type=radio][name=output]'),
   		$csv = $('#csv'),
-  		$json = $('#json'),
+  		$result = $('#result'),
   		$clear = $('#clear, a.clear'),
   		$convert = $('#convert, a.convert'),
 			$minify = $('#minify');
@@ -39,12 +39,12 @@ APP.csv2json = function() {
 			console.log(options);
 			json = CSVJSON.csv2json(csv, options);
 		} catch(error) {
-			APP.reportError($json, error);
+			APP.reportError($result, error);
 			return false;
 		}
 		
 		var result = JSON.stringify(json, null, $minify.is(':checked') ? undefined : 2);
-		$json.removeClass('error').val(result).change();
+		$result.removeClass('error').val(result).change();
 	});
 	
 	APP.start({

@@ -14,7 +14,7 @@ APP.json2csv = function() {
   		$file = $('#fileupload'),
   		$separator = $('select[name=separator]'),
       $json = $('#json'),
-  		$csv = $('#csv'),
+  		$result = $('#result'),
   		$clear = $('#clear, a.clear'),
   		$convert = $('#convert, a.convert');
 	
@@ -32,11 +32,11 @@ APP.json2csv = function() {
 		try {
 			result = CSVJSON.json2csv(json, options);
 		} catch (error) {
-			APP.reportError($csv, error);
+			APP.reportError($result, error);
 			return false;
 		}
 		
-		$csv.removeClass('error').val(result).change();
+		$result.removeClass('error').val(result).change();
 	});
 	
 	APP.start({
@@ -46,7 +46,7 @@ APP.json2csv = function() {
 		upload: {
 			$file: $file,
 			url: uploadUrl,
-			$textarea: $csv
+			$textarea: $result
 		}
 	});
 };

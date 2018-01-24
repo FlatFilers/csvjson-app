@@ -60,6 +60,7 @@
 				<div class="collapse navbar-collapse" id="navbar-collapse">
 					<ul class="nav navbar-nav navbar-left">
 						<li class="<?=$page == 'csv2json' ? 'active' : ''?>"><a href="/csv2json">CSV to JSON</a></li>
+						<li class="<?=$page == 'json2csv' ? 'active' : ''?>"><a href="/json2csv">JSON to CSV</a></li>
 						<li class="<?=$page == 'sql2json' ? 'active' : ''?>"><a href="/sql2json">SQL to JSON</a></li>
 						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
 					</ul>

@@ -1,7 +1,8 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<p>Convert your JSON to CSV or TSV formatted data. Copy/paste or upload your JSON to convert it. For Excel, convert to TSV then copy and paste into Excel.</p>
+      <h1 class="discrete">Convert your JSON to CSV or TSV formatted data. </h1>
+			<p>1) Copy/paste or upload your JSON to convert it. 2) Choose your separator. 3) For Excel, convert to TSV then copy and paste into Excel. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
 	
@@ -87,54 +88,42 @@
 					<label class="inline save" title="Choose your separator">
 						Separator
 						<select id="separator" name="separator">
-							<option value="comma" selected="selected">Comma</option>
-							<option value="tab">Tab</option>
-							<option value="semiColon">Semi-colon</option>
+							<option value="comma" selected="selected">Comma (CSV)</option>
+							<option value="tab">Tab (TSV)</option>
+							<option value="semiColon">Semi-colon (CSV for French locale)</option>
 						</select>
 					</label>
 				</div>
 			</div>
-			<div class="form-group code-group">
-				<label>CSV or TSV</label>
-				<textarea id="csv" class="form-control result save" rows="18"></textarea>
-			</div>
-			<a id="download" class="btn btn-primary" href="" download="csvjson.json" disabled="disabled" target="_self">
-				<i class="glyphicon glyphicon-download"></i> Download
-			</a>
-			<em>&nbsp;&nbsp;or Ctrl + A then Ctrl + C to copy to clipboard.</em>
-			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
-			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+      <?php $this->load->view('result_textarea_buttons_view', array('result_title' => 'Result', 'download' => 'csvjson.csv')); ?>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-8">
-			<h4>About CSV</h4>
+			<h4>About CSV, TSV and Excel</h4>
 			<ul>
 				<li>
 					CSV stands for <a href="http://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">Comma Separated Values</a>.
 					Often used as an interchange data format to represent table records, one per line. CSV is plain text.
 				</li>
 				<li>
-					The first line is often the header, or column names. Each subsequent row is a record and should have the same number of fields.
+					TSV or Tab Separated Values is used to store table data in the Clipboard.
+          You can then copy (Ctrl+C) and paste (Ctrl+V) it into Excel.
 				</li>
-				<li>
-					Fields containing the separator character, line breaks and double-quotes must be enclosed inside double quotes <code>"</code>.
-				</li>
-				<li>
-					Other separator are often used like tabs <code>\t</code>or semi-colons <code>;</code>.
-					TSV or Tab Separated Values is used to store table data in Clipboards.
-					When data is copied from Excel for example, it is stored as TSV in the Clipboard.
-				</li>
-				<li>
-					You can transpose the csv before conversion. Rows become columns, and columns become rows.
-				</li>
-				<li>
-					You can also output a hash (or object) instead of an array. In that case, the hash key will be the first column.
-				</li>
+        <li>
+          In French, Excel will expect a semi-colons <code>;</code> instead of a comma <code>,</code>.
+          Make sure to pick that option if you are going to import the CSV file in Excel.
+        </li>
 			</ul>
+      <h4>About JSON to CSV</h4>
+      <ul>
+        <li>
+          JSON to CSV will convert an array of objects into a table. Nested arrays or objects will simply be stringified and copied as is in each cell.
+        </li>
+      </ul>
 			<h4>Change Log</h4>
 			<ul>
-				<li><strong>Oct 8, 2016</strong> Initial release.</li>
+				<li><strong>Jan 24, 2018</strong> Initial release.</li>
 			</ul>
 			<?php $this->load->view('feedback'); ?>
 		</div>

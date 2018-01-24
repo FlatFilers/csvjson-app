@@ -6,13 +6,16 @@
 	</div>
 	<br/>
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<h2 class="text-center"><a href="/csv2json" class="btn btn-primary tool">CSV to JSON</a></h2>
 		</div>
-		<div class="col-md-4">
+		<div class="col-md-3">
+			<h2 class="text-center"><a href="/json2csv" class="btn btn-primary tool">JSON to CSV</a></h2>
+		</div>
+		<div class="col-md-3">
 			<h2 class="text-center"><a href="/sql2json" class="btn btn-primary tool">SQL to JSON</a></h2>
 		</div>
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<h2 class="text-center"><a href="/json_beautifier" class="btn btn-primary tool">JSON Beautifier</a></h2>
 		</div>
 	</div>
@@ -40,6 +43,9 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2018-01-24</h4>
+			<p>Added a new converter: <a href="/json2csv">JSON to CSV</a>.</p>
+			<p>New button to report a bug or ask for improvements.</p>
 			<h4>2018-01-08</h4>
 			<p>
 				Support escaped quotes in <a href="/sql2json">SQL to JSON</a>: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.

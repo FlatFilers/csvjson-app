@@ -29,6 +29,7 @@ $(document).ready(function() {
 			
 			// Bind elements
 			APP.bindDownload();
+			APP.bindIssue();
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
 				if (!options.upload.url) throw "Invalid option 'upload'. Missing url.";
@@ -142,7 +143,7 @@ $(document).ready(function() {
 		
 		// Create a permalink - save this page
 		save: function(e) {
-			e.preventDefault();
+			if (e) e.preventDefault();
 			ga('send', 'event', '_trackEvent', APP.page, 'save');
 			
 			var url = APP.baseUrl() + '/save';
@@ -159,7 +160,7 @@ $(document).ready(function() {
 			APP.renderSave('saving');
 			
 			// Send as JSON. Expect the id on success.
-			$.ajax(url, {
+			return $.ajax(url, {
 				type : 'POST',
 				data : JSON.stringify(data),
 				contentType : 'application/json'
@@ -179,8 +180,6 @@ $(document).ready(function() {
 				var error = xhr.responseText ? xhr.responseText : 'Unexpected error saving.';
 				APP.renderSave('error', error);
 			});
-			
-			return false;
 		},
 		
 		// Restore a saved session - revive inputs and textareas
@@ -239,9 +238,38 @@ $(document).ready(function() {
 						.closest('li').addClass('disabled');
 					break;
 			}
+		},
+
+		bindIssue: function() {
+			var $issue = $('a#issue'),
+					template = _.template([
+						'<p>1. Save your test case (click on <span class="bg-red"><i class="glyphicon glyphicon-link"></i> Save</span> in navbar). Copy the URL to the clipboard.</p>',
+						'<p>2. <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">Consult issues on Github.</a> If you find an existing issue matching yours, please comment and paste the URL of your test case.</p>',
+						'<p>3. If you do not find an existing issue, create one by clicking on this button: <a id="github-issue" class="btn btn-xs btn-primary" href="https://github.com/martindrapeau/csvjson-app/issues/new?body=<%=encodeURIComponent(url)%>" target="_blank">Create an issue in Github</a></p>'
+					].join(' '));
+			$issue.click(function(e) {
+				e.preventDefault();
+			});
+			$issue.popover({
+				html: true,
+				placement: "left",
+				content: function() {
+					return template({url: window.location.href});
+				}
+			});
 		}
 	});
-	
+
+	// Hide popovers when clicking outside.
+	// Source: https://stackoverflow.com/questions/11703093/how-to-dismiss-a-twitter-bootstrap-popover-by-clicking-outside
+	$('body').on('click', function (e) {
+	    $('[data-toggle="popover"]').each(function () {
+	        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+	            $(this).popover('hide');
+	        }
+	    });
+	});
+		
 	// Load the proper JS module for this page.
 	// Each module extended APP with a function of its page name.
 	var fn = APP[APP.page];

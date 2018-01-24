@@ -21,13 +21,14 @@
 		  errorEmpty = 'Please upload a file or type in something.',
 		  errorEmptyHeader = 'Could not detect header. Ensure first row cotains your column headers.',
 		  errorNotAnArray = 'Your JSON must be an array or objects.',
-		  errorItemNotAnObject = 'Item is not an object: {0}';
+		  errorItemNotAnObject = 'Item is not an object: {0}',
+      errorHelp = "\n\nOH NO! I don't know how to convert that. Help me understand what you want. Click on the button below to report a bug or suggestion.";
 
 	function convert(json, options) {
 		options || (options = {});
 
 		var data = jsonlint.parse(json);
-    if (!_.isArray(data)) throw errorNotAnArray;
+    if (!_.isArray(data)) throw errorNotAnArray + errorHelp;
 		
     var separator = options.separator;
 		if (!separator) throw errorMissingSeparator;
@@ -38,7 +39,7 @@
     	var o = data[i],
     			row = {};
     	if (o !== undefined && o !== null && (!_.isObject(o) || _.isArray(o)))
-    		throw errorItemNotAnObject.replace('{0}', JSON.stringify(o));
+    		throw errorItemNotAnObject.replace('{0}', JSON.stringify(o)) + errorHelp;
     	var keys = _.keys(o);
     	for (var k = 0; k < keys.length; k++) {
     		var key = keys[k];
@@ -52,12 +53,12 @@
     var csv = '';
     for (var r = 0; r < allRows.length; r++) {
     	var row = allRows[r],
-    			rowText = '';
+    			rowArray = [];
     	for (var k = 0; k < allKeys.length; k++) {
     		var key = allKeys[k];
-    		rowText += (row[key] || '') + separator;
+    		rowArray.push(row[key] || '');
     	}
-    	csv += rowText + '\n';
+    	csv += rowArray.join(separator) + '\n';
     }
     
     return csv;

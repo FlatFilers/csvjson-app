@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<h1 style="font-size: 18px; margin-top: 10px;">Convert your SQL table or database export to JSON or Javascript.</h1>
+			<h1 class="discrete">Convert your SQL table or database export to JSON or Javascript.</h1>
 			<p>1) Copy/paste or upload your SQL export to convert it. 2) Convert to JSON or Javascript (one variable is created per table). 3) Copy and paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
@@ -69,16 +69,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 					</label>
 				</div>
 			</div>
-			<div class="form-group code-group">
-				<label>Result</label>
-				<textarea id="result" class="form-control result save" rows="18"></textarea>
-			</div>
-			<a id="download" class="btn btn-primary" href="" download="csvjson.json" disabled="disabled" target="_self">
-				<i class="glyphicon glyphicon-download"></i> Download
-			</a>
-			<em>&nbsp;&nbsp;or Ctrl + A then Ctrl + C to copy to clipboard.</em>
-			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
-			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+			<?php $this->load->view('result_textarea_buttons_view', array('result_title' => 'Result', 'download' => 'csvjson.json')); ?>
 		</div>
 	</div>
 	<br/>

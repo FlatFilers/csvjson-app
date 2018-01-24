@@ -1,5 +1,10 @@
 /**** Navigation Bar ****/
 
+h1.discrete {
+	font-size: 18px;
+	margin-top: 10px;
+}
+
 .navbar {
 	border-radius: 0;
 }
@@ -54,6 +59,15 @@
 
 .navbar-inverse .navbar-collapse {
 	border-color: #990000;
+}
+
+.popover {
+	max-width: 400px;
+}
+
+.bg-red {
+	background-color: #e51400;
+	padding: 5px;
 }
 
 @media (max-width: 767px) {

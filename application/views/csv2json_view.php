@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<h1 style="font-size: 18px; margin-top: 10px;">Online tool to convert your CSV or TSV formatted data to JSON.</h1>
+			<h1 class="discrete">Online tool to convert your CSV or TSV formatted data to JSON.</h1>
 			<p>1) Copy/paste or upload your Excel data (CSV or TSV) to convert it to JSON. 2) Set up options: parse numbers, transpose your data, or output an object instead of an array. 3) Convert and copy/paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
@@ -73,16 +73,7 @@ Nine Miles from the White City, 2013, -
 					</label>
 				</div>
 			</div>
-			<div class="form-group code-group">
-				<label>JSON</label>
-				<textarea id="json" class="form-control result save" rows="18"></textarea>
-			</div>
-			<a id="download" class="btn btn-primary" href="" download="csvjson.json" disabled="disabled" target="_self">
-				<i class="glyphicon glyphicon-download"></i> Download
-			</a>
-			<em>&nbsp;&nbsp;or Ctrl + A then Ctrl + C to copy to clipboard.</em>
-			<a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
-			<a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
+			<?php $this->load->view('result_textarea_buttons_view', array('result_title' => 'JSON', 'download' => 'csvjson.json')); ?>
 		</div>
 	</div>
 	<div class="row">

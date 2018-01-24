@@ -13,7 +13,7 @@ class Json2csv extends MY_Controller {
 		parent::__construct();
 		
 		$this->page = 'json2csv';
-		$this->title = 'JSON to CSV. Convert JSON to CSV, TSV or Excel.';
+		$this->title = 'JSON to CSV';
 		$this->description = 'Online tool for converting JSON to CSV or TSV. Convert JSON to Excel.';
 		$this->view = 'json2csv_view';
 	}
