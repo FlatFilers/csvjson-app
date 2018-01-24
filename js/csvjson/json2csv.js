@@ -27,6 +27,46 @@
 		  errorItemNotAnObject = 'Item in array is not an object: {0}',
       errorHelp = "\n\nOH NO! I don't know how to convert that. Help me understand what you want. Click on the button below to report a bug or suggestion.";
 
+  function flattenArray(array, ancestors) {
+    ancestors || (ancestors = []);
+
+    var rows = [];
+    for (var i = 0; i < array.length; i++) {
+      var o = array[i],
+          row = {},
+          orows = {},
+          count = 1;
+
+      if (o !== undefined && o !== null && (!_.isObject(o) || _.isArray(o)))
+        throw errorItemNotAnObject.replace('{0}', JSON.stringify(o)) + errorHelp;
+
+      var keys = _.keys(o);
+      for (var k = 0; k < keys.length; k++) {
+        var value = o[keys[k]],
+            keyChain = _.union(ancestors, [keys[k]]),
+            key = keyChain.join('.');
+        if (_.isArray(value)) {
+          orows[key] = flattenArray(value, keyChain);
+          count += orows[key].length;
+        } else {
+          row[key] = value;
+        } 
+      }
+
+      if (count == 1) {
+        rows.push(row);
+      } else {
+        var keys = _.keys(orows);
+        for (var k = 0; k < keys.length; k++) {
+          var key = keys[k];
+          for (var r = 0; r < orows[key].length; r++) {
+            rows.push(_.extend({}, row, orows[key][r]));
+          }
+        }
+      }
+    }
+    return rows;
+  }
 
 	function convert(json, options) {
 		options || (options = {});
@@ -39,39 +79,10 @@
 		if (!separator) throw errorMissingSeparator;
 
     var flatten = options.flatten || false;
+    if (flatten) data = flattenArray(data);
 
     var allKeys = [],
-    		allRows = [];
-
-    if (flatten) {
-      var merge = function(objects) {
-        var out = {};
-        for (var i = 0; i < objects.length; i++) {
-          for (var p in objects[i]) {
-            out[p] = objects[i][p];
-          }
-        }
-        return out;
-      }
-      var flatten = function(obj, name, stem) {
-        var out = {};
-        var newStem = (typeof stem !== 'undefined' && stem !== '') ? stem + '_' + name : name;
-
-        if (typeof obj !== 'object') {
-          out[newStem] = obj;
-          return out;
-        }
-
-        for (var p in obj) {
-          var prop = flatten(obj[p], p, newStem);
-          out = merge([out, prop]);
-        }
-
-        return out;
-      };
-      data = flatten(data);
-    }
-
+        allRows = [];
     for (var i = 0; i < data.length; i++) {
     	var o = data[i],
     			row = {};

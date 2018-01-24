@@ -90,11 +90,11 @@
 						<select id="separator" name="separator">
 							<option value="comma" selected="selected">Comma (CSV)</option>
 							<option value="tab">Tab (TSV)</option>
-							<option value="semiColon">Semi-colon (CSV for French locale)</option>
+							<option value="semiColon">Semi-colon (CSV French)</option>
 						</select>
 					</label>
           &nbsp;
-          <label class="inline" title="Flatten" style="display: none;">
+          <label class="inline" title="Flattens nested arrays of objects">
             <input type="checkbox" id="flatten" name="flatten" class="save" /> Flatten
           </label>
 				</div>
@@ -122,7 +122,7 @@
       <h4>About JSON to CSV</h4>
       <ul>
         <li>
-          JSON to CSV will convert an array of objects into a table. Nested arrays or objects will simply be stringified and copied as is in each cell.
+          JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by Rogerio Marques in <a href="https://github.com/martindrapeau/csvjson-app/issues/3" target="_blank">Github issue #3</a>.
         </li>
       </ul>
 			<h4>Change Log</h4>
