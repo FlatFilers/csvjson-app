@@ -1,10 +1,5 @@
 /**** Navigation Bar ****/
 
-h1.discrete {
-	font-size: 18px;
-	margin-top: 10px;
-}
-
 .navbar {
 	border-radius: 0;
 }
@@ -61,15 +56,6 @@ h1.discrete {
 	border-color: #990000;
 }
 
-.popover {
-	max-width: 400px;
-}
-
-.bg-red {
-	background-color: #e51400;
-	padding: 5px;
-}
-
 @media (max-width: 767px) {
 	.navbar > .container-fluid .navbar-header .navbar-nav {
 		display: inherit;
@@ -93,6 +79,20 @@ h1.discrete {
 }
 
 /**** Main ****/
+
+h1.discrete {
+	font-size: 18px;
+	margin-top: 10px;
+}
+
+.popover {
+	max-width: 400px;
+}
+
+.bg-red {
+	background-color: #e51400;
+	padding: 5px;
+}
 
 .container-fluid > .row {
 	margin: 0;

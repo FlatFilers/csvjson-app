@@ -1,12 +1,12 @@
 /* CSVJSON | (c) 2013 Martin Drapeau | https://github.com/martindrapeau/csvjson-app */
 // css/main.css
-h1.discrete{font-size:18px;margin-top:10px}.navbar{border-radius:0}.navbar-inverse{background-color:#e51400;border:0}.navbar-brand{float:left;padding:11px
+.navbar{border-radius:0}.navbar-inverse{background-color:#e51400;border:0}.navbar-brand{float:left;padding:11px
 10px 10px 0;font-size:26px;line-height:26px}.navbar-inverse .navbar-brand{color:#000;padding:0}.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus{color:#000;background-color:transparent}@media (min-width: 768px){.navbar > .container-fluid .navbar-header .navbar-nav{display:none}.navbar > .container-fluid .navbar-brand{margin-left:0}}.navbar-inverse .navbar-nav>li>a{color:#000}.navbar-inverse .navbar-nav > .active > a,
 .navbar-inverse .navbar-nav > .active > a:hover,
 .navbar-inverse .navbar-nav>.active>a:focus{color:#fff;background-color:#ba141a}.navbar-inverse .navbar-nav > li.disabled > a,
 .navbar-inverse .navbar-nav > li.disabled > a:hover,
-.navbar-inverse .navbar-nav>li.disabled>a:focus{color:#555}.navbar-inverse .navbar-collapse{border-color:#900}.popover{max-width:400px}.bg-red{background-color:#e51400;padding:5px}@media (max-width: 767px){.navbar > .container-fluid .navbar-header .navbar-nav{display:inherit;margin:0}.navbar > .container-fluid .navbar-header .navbar-left{float:left}.navbar > .container-fluid .navbar-header .navbar-right{float:right}.navbar > .container-fluid .navbar-header .navbar-nav
-a{padding:15px}.navbar > .container-fluid .navbar-header  .navbar-nav a.navbar-toggle-no-style{cursor:pointer}.navbar > .container-fluid .navbar-collapse>.navbar-nav.navbar-right{display:none}}.container-fluid>.row{margin:0}.description{margin-bottom:10px}.description
+.navbar-inverse .navbar-nav>li.disabled>a:focus{color:#555}.navbar-inverse .navbar-collapse{border-color:#900}@media (max-width: 767px){.navbar > .container-fluid .navbar-header .navbar-nav{display:inherit;margin:0}.navbar > .container-fluid .navbar-header .navbar-left{float:left}.navbar > .container-fluid .navbar-header .navbar-right{float:right}.navbar > .container-fluid .navbar-header .navbar-nav
+a{padding:15px}.navbar > .container-fluid .navbar-header  .navbar-nav a.navbar-toggle-no-style{cursor:pointer}.navbar > .container-fluid .navbar-collapse>.navbar-nav.navbar-right{display:none}}h1.discrete{font-size:18px;margin-top:10px}.popover{max-width:400px}.bg-red{background-color:#e51400;padding:5px}.container-fluid>.row{margin:0}.description{margin-bottom:10px}.description
 p{border-bottom:1px solid #f0f0f0;padding-bottom:5px}.more-bottom-margin{margin-bottom:20px}span.fileinput-button>label{font-weight:normal}.btn{border-radius:3px}.btn-primary{color:#fff;background-color:#ba141a;border-color:#ba141a}.btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active,
