@@ -89,12 +89,12 @@
           row[key] = JSON.stringify(value);
         }
         if (row[key].indexOf('"') !== -1 || row[key].indexOf(separator) !== -1)
-          row[key] = '"' + row[key].replace(/"/g, '\\"') + '"';
+          row[key] = '"' + row[key].replace(/"/g, '""') + '"';
     	}
     	allRows.push(row);
     }
 
-    var csv = allKeys.join(',')+'\n';
+    var csv = allKeys.join(separator)+'\n';
     for (var r = 0; r < allRows.length; r++) {
     	var row = allRows[r],
     			rowArray = [];
