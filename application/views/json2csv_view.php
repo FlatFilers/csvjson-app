@@ -93,6 +93,10 @@
 							<option value="semiColon">Semi-colon (CSV for French locale)</option>
 						</select>
 					</label>
+          &nbsp;
+          <label class="inline" title="Flatten" style="display: none;">
+            <input type="checkbox" id="flatten" name="flatten" class="save" /> Flatten
+          </label>
 				</div>
 			</div>
       <?php $this->load->view('result_textarea_buttons_view', array('result_title' => 'Result', 'download' => 'csvjson.csv')); ?>

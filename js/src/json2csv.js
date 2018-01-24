@@ -16,7 +16,8 @@ APP.json2csv = function() {
       $json = $('#json'),
   		$result = $('#result'),
   		$clear = $('#clear, a.clear'),
-  		$convert = $('#convert, a.convert');
+  		$convert = $('#convert, a.convert'),
+      $flatten = $('#flatten');
 	
 	$convert.click(function(e) {
 		e.preventDefault();
@@ -25,7 +26,8 @@ APP.json2csv = function() {
 		if (json.length == 0) err(errorEmpty);
 		
 		var options = {
-			separator: sepMap[$separator.find('option:selected').val()]
+			separator: sepMap[$separator.find('option:selected').val()],
+      flatten: $flatten.is(':checked')
 		};
 		
 		var result;
