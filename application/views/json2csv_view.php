@@ -125,8 +125,15 @@
           JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by <a href="https://github.com/rogeriomarques" target="_blank">Rogerio Marques</a> in <a href="https://github.com/martindrapeau/csvjson-app/issues/3" target="_blank">Github issue #3</a>.
         </li>
       </ul>
+      <h4>CSVJSON format variant</h4>
+      <ul>
+        <li>
+          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON values. This converter respects that format.
+        </li>
+      </ul>
 			<h4>Change Log</h4>
 			<ul>
+        <li><strong>Mar 31, 2018</strong> CSVJSON format variant support: ensure CSV values are JSON valid.</li>
 				<li><strong>Jan 24, 2018</strong> Initial release.</li>
 			</ul>
 			<?php $this->load->view('feedback'); ?>

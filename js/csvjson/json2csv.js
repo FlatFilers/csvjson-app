@@ -95,12 +95,12 @@
     		var value = o[key];
     		if (value === undefined && value === null) continue;
         if (_.isString(value)) {
-          row[key] = value;
+          row[key] = '"' + value.replace(/"/g, '""') + '"';
         } else {
           row[key] = JSON.stringify(value);
+          if (row[key].indexOf('"') !== -1 || row[key].indexOf(separator) !== -1)
+            row[key] = '"' + row[key].replace(/"/g, '""') + '"';
         }
-        if (row[key].indexOf('"') !== -1 || row[key].indexOf(separator) !== -1)
-          row[key] = '"' + row[key].replace(/"/g, '""') + '"';
     	}
     	allRows.push(row);
     }

@@ -60,6 +60,10 @@ Nine Miles from the White City, 2013, -
 						<input type="checkbox" id="parseNumbers" name="parseNumbers" class="save" checked="checked "/> Parse numbers
 					</label>
 					&nbsp;
+					<label class="inline" title="Check to parse potential values as JSON (numbers, null, false, true, [] and {}). Uncheck to keep original values as strings.">
+						<input type="checkbox" id="parseJSON" name="parseJSON" class="save" checked="checked "/> Parse JSON
+					</label>
+					&nbsp;
 					<label class="inline" title="Transpose the data beforehand.">
 						<input type="checkbox" id="transpose" name="transpose" class="save" /> Transpose
 					</label>
@@ -85,6 +89,9 @@ Nine Miles from the White City, 2013, -
 					Often used as an interchange data format to represent table records, one per line. CSV is plain text.
 				</li>
 				<li>
+					The CSV format is documented in an RFC memo <a href="https://tools.ietf.org/html/rfc4180" target="_blank">RFC-4180</a>. 
+				</li>
+				<li>
 					The first line is often the header, or column names. Each subsequent row is a record and should have the same number of fields.
 				</li>
 				<li>
@@ -102,8 +109,16 @@ Nine Miles from the White City, 2013, -
 					With CSVJSON you can output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
+			<h4>CSVJSON format variant</h4>
+			<ul>
+				<li>
+					CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant forces every CSV value be a valid JSON value. The format variant has the advantage that you can convert JSON to CSV and back to JSON without loss of data. Greatly adds operatability to data conversion.
+				</li>
+				<li>You can toggle that on through the <strong>parse JSON</strong> option (on by default).</li>
+			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Mar 31, 2018</strong> Improvement: Added option to parse JSON values to be compatible with CSVJSON format variant.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>
 				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>

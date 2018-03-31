@@ -14,6 +14,7 @@ APP.csv2json = function() {
   		$file = $('#fileupload'),
   		$separator = $('select[name=separator]'),
   		$parseNumbers = $('input[type=checkbox][name=parseNumbers]'),
+      $parseJSON = $('input[type=checkbox][name=parseJSON]'),
   		$transpose = $('input[type=checkbox][name=transpose]'),
   		$output = $('input[type=radio][name=output]'),
   		$csv = $('#csv'),
@@ -30,7 +31,8 @@ APP.csv2json = function() {
   			options = {
   				transpose: $transpose.is(':checked'),
   				hash: $output.filter(':checked').val() == 'hash',
-  				parseNumbers: $parseNumbers.is(':checked')
+  				parseNumbers: $parseNumbers.is(':checked'),
+          parseJSON: $parseJSON.is(':checked')
   			},
   			json;
 		if (separator != 'auto') options.separator = sepMap[separator];

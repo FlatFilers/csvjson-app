@@ -43,6 +43,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2018-03-31</h4>
+			<p>
+				Improvements to CSV converters to support CSVJSON format variant (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>).
+			</p>
 			<h4>2018-01-24</h4>
 			<p>Added a new converter: <a href="/json2csv">JSON to CSV</a>.</p>
 			<p>New button to report a bug or ask for improvements.</p>
