@@ -40,9 +40,7 @@
   // source: https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
   function CSVtoArray(text, delimiter) {
     delimiter || (delimiter = ',');
-    // convert two doublw quotes "" by escaped double quotes \".
-    text = text.replace(/(,|{\s)""(.*)""(\s*:)/g, '$1\\"$2\\"$3').replace(/(?<!,\s*)""(?!\s*,)/g, '\\"');
-
+    
     var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
     var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
     if (delimiter == ';') {
