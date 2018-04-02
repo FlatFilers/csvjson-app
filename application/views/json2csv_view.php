@@ -97,6 +97,10 @@
           <label class="inline" title="Flattens nested arrays of objects">
             <input type="checkbox" id="flatten" name="flatten" class="save" /> Flatten
           </label>
+          &nbsp;
+          <label class="inline" title="Output the CSVJSON variant format.">
+            <input type="checkbox" id="output_csvjson_variant" name="output_csvjson_variant" class="save" /> Output CSVJSON variant
+          </label>
 				</div>
 			</div>
       <?php $this->load->view('result_textarea_buttons_view', array('result_title' => 'Result', 'download' => 'csvjson.csv')); ?>
@@ -128,7 +132,7 @@
       <h4>CSVJSON format variant</h4>
       <ul>
         <li>
-          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON values. This converter respects that format.
+          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON values. Toggle the switch <strong>Output CSVJSON variant</strong> to output that format.
         </li>
       </ul>
 			<h4>Change Log</h4>

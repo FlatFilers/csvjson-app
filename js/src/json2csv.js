@@ -17,7 +17,8 @@ APP.json2csv = function() {
   		$result = $('#result'),
   		$clear = $('#clear, a.clear'),
   		$convert = $('#convert, a.convert'),
-      $flatten = $('#flatten');
+      $flatten = $('#flatten'),
+      $output_csvjson_variant = $('#output_csvjson_variant');
 	
 	$convert.click(function(e) {
 		e.preventDefault();
@@ -27,7 +28,8 @@ APP.json2csv = function() {
 		
 		var options = {
 			separator: sepMap[$separator.find('option:selected').val()],
-      flatten: $flatten.is(':checked')
+      flatten: $flatten.is(':checked'),
+      output_csvjson_variant: $output_csvjson_variant.is(':checked')
 		};
 		
 		var result;

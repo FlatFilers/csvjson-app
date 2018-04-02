@@ -103,22 +103,18 @@ Nine Miles from the White City, 2013, -
 					When data is copied from Excel for example, it is stored as TSV in the Clipboard.
 				</li>
 				<li>
+					With CSVJSON you can parse values as numbers or JSON. Turn on respective <strong>Parse Numbers</strong> and <strong>Parse JSON</strong> switches to convert valid numbers and JSON (null, false, true, [] and {}).
+				</li>
+				<li>
 					With CSVJSON you can transpose the csv before conversion. Rows become columns, and columns become rows.
 				</li>
 				<li>
 					With CSVJSON you can output a hash (or object) instead of an array. In that case, the hash key will be the first column.
 				</li>
 			</ul>
-			<h4>CSVJSON format variant</h4>
-			<ul>
-				<li>
-					CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant forces every CSV value be a valid JSON value. The format variant has the advantage that you can convert JSON to CSV and back to JSON without loss of data. Greatly adds operatability to data conversion.
-				</li>
-				<li>You can toggle that on through the <strong>parse JSON</strong> option (on by default).</li>
-			</ul>
 			<h4>Change Log</h4>
 			<ul>
-				<li><strong>Mar 31, 2018</strong> Improvement: Added option to parse JSON values to be compatible with CSVJSON format variant.</li>
+				<li><strong>Mar 31, 2018</strong> Improvement: Added option to parse JSON values.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>
 				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>

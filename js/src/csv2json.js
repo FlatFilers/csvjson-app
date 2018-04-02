@@ -38,7 +38,6 @@ APP.csv2json = function() {
 		if (separator != 'auto') options.separator = sepMap[separator];
 		
 		try {
-			console.log(options);
 			json = CSVJSON.csv2json(csv, options);
 		} catch(error) {
 			APP.reportError($result, error);

@@ -10,6 +10,8 @@
 	 *               For TSV use a tab (\t).
    *  - flatten: Boolean indicating whether to flatten nested arrays or not.
    *             Optional. Default false.
+   *  - output_csvjson_variant: Boolean indicating whether to output objects and
+   *             arrays as is as per the CSVJSON format variant. Default is false.
 	 *
 	 * Dependencies:
 	 *  - underscore (http://underscorejs.org/)
@@ -98,7 +100,7 @@
           row[key] = '"' + value.replace(/"/g, '\\"') + '"';
         } else {
           row[key] = JSON.stringify(value);
-          if (row[key].indexOf('"') !== -1 || row[key].indexOf(separator) !== -1)
+          if (!options.output_csvjson_variant && (_.isObject(value) || _.isArray(value)))
             row[key] = '"' + row[key].replace(/"/g, '\\"') + '"';
         }
     	}
