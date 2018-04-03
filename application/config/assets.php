@@ -75,7 +75,8 @@ $config['assets'] = array(
 			'js/csvjson/csv2json.js',
 			'js/csvjson/json2csv.js',
 			'js/csvjson/sql2json.js',
-			'js/csvjson/json_beautifier.js'
+			'js/csvjson/json_beautifier.js',
+			'js/csvjson/csvjson2json.js'
 		)
 	),
 	array(
@@ -87,6 +88,7 @@ $config['assets'] = array(
 			'js/src/json2csv.js',
 			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',
+			'js/src/csvjson2json.js',
 			'js/src/home.js',
 			'js/src/main.js'
 		),

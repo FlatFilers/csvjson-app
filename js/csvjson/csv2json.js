@@ -3,7 +3,7 @@
 	 *
 	 * CSVJSON.csv2json(csv, options)
 	 *
-	 * Converts CSV to JSON. Returns an object. Use JSON.stringify to conver to a string.
+	 * Converts CSV to JSON. Returns an object. Use JSON.stringify to convert to a string.
 	 *
 	 * Available options:
 	 *  - separator: Optional. Character which acts as separator. If omitted,
@@ -40,7 +40,7 @@
   // source: https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
   function CSVtoArray(text, delimiter) {
     delimiter || (delimiter = ',');
-    
+
     var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
     var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
     if (delimiter == ';') {
@@ -119,7 +119,7 @@
         json[hashKey] = row;
       else
         json.push(row);
-      }
+    }
 
     return json;
   };
