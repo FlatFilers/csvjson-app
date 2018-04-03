@@ -97,23 +97,28 @@
     		var value = o[key];
     		if (value === undefined && value === null) continue;
         if (_.isString(value)) {
-          row[key] = '"' + value.replace(/"/g, '""') + '"';
+          row[key] = '"' + value.replace(/"/g, options.output_csvjson_variant ? '\\"' : '""') + '"';
         } else {
           row[key] = JSON.stringify(value);
           if (!options.output_csvjson_variant && (_.isObject(value) || _.isArray(value)))
-            row[key] = '"' + row[key].replace(/"/g, '""') + '"';
+            row[key] = '"' + row[key].replace(/"/g, '\\"') + '"';
         }
     	}
     	allRows.push(row);
     }
 
-    var csv = allKeys.join(separator)+'\n';
+    keyValues = [];
+    for (var i = 0; i < allKeys.length; i++) {
+      keyValues.push('"' + allKeys[i].replace(/"/g, options.output_csvjson_variant ? '\\"' : '""') + '"');
+    }
+
+    var csv = keyValues.join(separator)+'\n';
     for (var r = 0; r < allRows.length; r++) {
     	var row = allRows[r],
     			rowArray = [];
     	for (var k = 0; k < allKeys.length; k++) {
     		var key = allKeys[k];
-    		rowArray.push(row[key] || '');
+    		rowArray.push(row[key] || (options.output_csvjson_variant ? 'null' : ''));
     	}
     	csv += rowArray.join(separator) + '\n';
     }
