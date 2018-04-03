@@ -27,7 +27,7 @@
 "null",null,"non null"
 "array of numbers",[1],[1,2]
 "simple object",{"a": 1},{"a":1, "b":2}
-"array mixed objects",[1,null,"ball"],[2,{"a": 10, "b": 20},"cube"]
+"array with mixed objects",[1,null,"ball"],[2,{"a": 10, "b": 20},"cube"]
 "string with quotes","a\"b","alert(\"Hi!\")"
 "string with bell&newlines","bell is \u0007","multi\nline\ntext"
 </textarea>
@@ -57,13 +57,16 @@
       <h4>About the CSVJSON format (variant of CSV)</h4>
       <ul>
         <li>
-          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is.
+          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant specifies that every CSV value must be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is.
         </li>
         <li>
           CSVJSON format variant is not valid CSV however every value is valid JSON. Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets <code>[]</code> and use <code>JSON.parse()</code> to convert to a JSON array.
         </li>
         <li>
           Dror Harari: <em>"The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ])."</em>
+        </li>
+        <li>
+          Learn more about the CSVJSON format by visiting the specification website: <a href="http://csvjson.org/" target="_blank">csvjson.org</a>.
         </li>
       </ul>
       <h4>Change Log</h4>

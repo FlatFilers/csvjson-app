@@ -3,7 +3,7 @@
    *
    * CSVJSON.csvjson2json(csv, options)
    *
-   * Converts CSVJSON format variant to JSON. Returns an object.
+   * Converts CSVJSON format variant (http://csvjson.org) to JSON. Returns an object.
    *
    * Available options:
    *  None
