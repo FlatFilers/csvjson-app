@@ -12,6 +12,7 @@ APP.csvjson2json = function() {
       $result = $('#result'),
       $clear = $('#clear, a.clear'),
       $convert = $('#convert, a.convert'),
+      $resultNote = $('span.result-note'),
       $minify = $('#minify');
   
   $convert.click(function(e) {
@@ -27,6 +28,8 @@ APP.csvjson2json = function() {
       APP.reportError($result, error);
       return false;
     }
+
+    $resultNote.text(options.noHeaderKeysUseIndex ? 'Some header values were not strings. Using column position as keys.' : '');
     
     var result = JSON.stringify(json, null, $minify.is(':checked') ? undefined : 2);
     $result.removeClass('error').val(result).change();

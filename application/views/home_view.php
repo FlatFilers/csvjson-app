@@ -4,19 +4,25 @@
 			<h4>Online tools to convert popular data formats. Persist your session for later, share with co-workers.</h4>
 		</div>
 	</div>
-	<br/>
 	<div class="row">
-		<div class="col-md-3">
+		<div class="col-sm-4">
 			<h2 class="text-center"><a href="/csv2json" class="btn btn-primary tool">CSV to JSON</a></h2>
 		</div>
-		<div class="col-md-3">
+		<div class="col-sm-4">
 			<h2 class="text-center"><a href="/json2csv" class="btn btn-primary tool">JSON to CSV</a></h2>
 		</div>
-		<div class="col-md-3">
-			<h2 class="text-center"><a href="/sql2json" class="btn btn-primary tool">SQL to JSON</a></h2>
-		</div>
-		<div class="col-md-3">
+		<div class="col-sm-4">
 			<h2 class="text-center"><a href="/json_beautifier" class="btn btn-primary tool">JSON Beautifier</a></h2>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<h4>More tools</h4>
+			<p>
+				<a href="/sql2json" class="btn btn-primary">SQL to JSON</a>
+				&nbsp;&nbsp;
+				<a href="/csvjson2json" class="btn btn-primary" title="Conversion of the CSVJSON format variant to JSON.">CSVJSON to JSON</a>
+				<p>
 		</div>
 	</div>
 	<br/>

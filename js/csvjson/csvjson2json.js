@@ -34,10 +34,18 @@
       a.push(line)
     }
 
-    var keys = a.shift();
+    var keys = a.shift(),
+        noHeaderKeysUseIndex = false,
+        indices = [];
     if (keys.length == 0) throw errorEmptyHeader;
     for (var i = 0; i < keys.length; i++) {
-      if (!_.isString(keys[i])) throw 'Header value is invalid. It must be a string.\n' + JSON.stringify(keys[i]);
+      if (!_.isString(keys[i])) noHeaderKeysUseIndex = true; //throw 'Header value is invalid. It must be a string.\n' + JSON.stringify(keys[i]);
+      indices.push(i);
+    }
+    if (noHeaderKeysUseIndex) {
+      a.unshift(keys);
+      keys = indices;
+      options.noHeaderKeysUseIndex = true;
     }
 
     var json = [];
