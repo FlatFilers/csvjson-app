@@ -71,6 +71,7 @@ $config['assets'] = array(
 		'output' => 'js/csvjson.min.js',
 		'files' => array(
 			'js/csvjson/json2-mod.js',
+			'js/csvjson/pegjs-csv-parser-mod.js',
 			'js/csvjson/jsonlint.js',
 			'js/csvjson/csv2json.js',
 			'js/csvjson/json2csv.js',

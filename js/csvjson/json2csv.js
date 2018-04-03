@@ -97,11 +97,11 @@
     		var value = o[key];
     		if (value === undefined && value === null) continue;
         if (_.isString(value)) {
-          row[key] = '"' + value.replace(/"/g, '\\"') + '"';
+          row[key] = '"' + value.replace(/"/g, '""') + '"';
         } else {
           row[key] = JSON.stringify(value);
           if (!options.output_csvjson_variant && (_.isObject(value) || _.isArray(value)))
-            row[key] = '"' + row[key].replace(/"/g, '\\"') + '"';
+            row[key] = '"' + row[key].replace(/"/g, '""') + '"';
         }
     	}
     	allRows.push(row);

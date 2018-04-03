@@ -26,47 +26,17 @@
       errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.",
       separators = [",", ";", "\t"];
 
+  // Picks the separator we find the most.
   function detectSeparator(csv) {
     var counts = {},
-    sepMax;
+        sepMax;
     _.each(separators, function(sep, i) {
       var re = new RegExp(sep, 'g');
       counts[sep] = (csv.match(re) || []).length;
       sepMax = !sepMax || counts[sep] > counts[sepMax] ? sep : sepMax;
     });
-    return sepMax ? sepMax : undefined;
+    return sepMax;
   }
-
-  // source: https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
-  function CSVtoArray(text, delimiter) {
-    delimiter || (delimiter = ',');
-
-    var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
-    var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
-    if (delimiter == ';') {
-      re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^;'"\s\\]*(?:\s+[^;'"\s\\]+)*)\s*(?:;\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^;'"\s\\]*(?:\s+[^;'"\s\\]+)*)\s*)*$/;
-      re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^;'"\s\\]*(?:\s+[^;'"\s\\]+)*))\s*(?:;|$)/g;
-    }
-    else if (delimiter == '\t') {
-      re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*(?:\t\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*)*$/;
-      re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*))\s*(?:\t|$)/g;
-    }
-
-    if (!re_valid.test(text)) return null;
-    var a = [];                     // Initialize array to receive values.
-    text.replace(re_value, // "Walk" the string using replace with callback.
-      function(m0, m1, m2, m3) {
-        // Remove backslash from \' in single quoted values.
-        if (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
-        // Remove backslash from \" in double quoted values.
-        else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"'));
-        else if (m3 !== undefined) a.push(m3);
-        return ''; // Return empty string.
-      });
-    // Handle special case of empty last value.
-    if (/,\s*$/.test(text)) a.push('');
-    return a;
-  };
 
   function convert(csv, options) {
     options || (options = {});
@@ -75,12 +45,14 @@
     var separator = options.separator || detectSeparator(csv);
     if (!separator) throw errorDetectingSeparator;
 
-    var lines = csv.split(/\r?\n/),
-        a = [];
-    for (var l = 0; l < lines.length; l++) {
-      var line = CSVtoArray(lines[l], options.separator);
-      if (line === null) throw errorNotWellFormed+'\n'+lines[l];
-      a.push(line)
+    var a = [];
+    try {
+      var a = csvParser.parse(csv);
+    } catch(error) {
+      var start = csv.lastIndexOf('\n', error.offset),
+          end = csv.indexOf('\n', error.offset),
+          line = csv.substring(start >= -1 ? start : 0, end > -1 ? end : csv.length);
+      throw error.message + ' On line ' + error.line + ' and column ' + error.column + '.\n' + line;
     }
 
 
