@@ -132,10 +132,13 @@
       <h4>CSVJSON format variant</h4>
       <ul>
         <li>
-          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is. Toggle the switch <strong>Output CSVJSON variant</strong> to output that format.
+          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is. Toggle the switch <em>Output CSVJSON variant</em> to output that format.
         </li>
         <li>
           CSVJSON format variant is not valid CSV however every value is valid JSON. Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets <code>[]</code> and use <code>JSON.parse()</code> to convert to a JSON array.
+        </li>
+        <li>
+          To convert from CSVJSON back to JSON, use the companion tool <a href="/csvjson2json">CSVJSON to JSON</a>.
         </li>
         <li>
             Dror Harari: <em>"The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ])."</em>

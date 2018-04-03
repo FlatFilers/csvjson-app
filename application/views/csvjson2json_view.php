@@ -63,6 +63,9 @@
           CSVJSON format variant is not valid CSV however every value is valid JSON. Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets <code>[]</code> and use <code>JSON.parse()</code> to convert to a JSON array.
         </li>
         <li>
+          To convert JSON back to CSVJSON format, use the companion tool <a href="/json2csv">JSON to CSV</a> and toogle the <em>Output CSVJSON variant</em> switch.
+        </li>
+        <li>
           Dror Harari: <em>"The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ])."</em>
         </li>
         <li>
