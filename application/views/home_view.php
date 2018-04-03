@@ -49,6 +49,10 @@
 	<div class="row">
 		<div class="col-md-6">
 			<h3>Change Log</h3>
+			<h4>2018-04-03</h4>
+			<p>
+				Added a new tool <a href="/csvjson2json">CSVJSON to JSON</a> to support conversion of the new <a href="http://csvjson.org/" target="_blank">CSVJSON format</a>, a CSV variant proposed by Dror Harari.
+			</p>
 			<h4>2018-03-31</h4>
 			<p>
 				Improvements to CSV converters to support CSVJSON format variant (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>).
