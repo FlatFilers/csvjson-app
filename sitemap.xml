@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
-		<loc>https://www.jsoncsv.com/</loc>
+		<loc>https://www.csvjson.com/</loc>
 		<changefreq>weekly</changefreq>
 		<priority>1.0</priority>
 	</url>
 	<url>
-		<loc>https://www.jsoncsv.com/csv2json</loc>
+		<loc>https://www.csvjson.com/csv2json</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
 	<url>
-		<loc>https://www.jsoncsv.com/json2csv</loc>
+		<loc>https://www.csvjson.com/json2csv</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
 	<url>
-		<loc>https://www.jsoncsv.com/sql2json</loc>
+		<loc>https://www.csvjson.com/sql2json</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
 	<url>
-		<loc>httsp://www.csvjson.com/json_beautifier</loc>
+		<loc>https://www.csvjson.com/json_beautifier</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
 	<url>
-		<loc>https://www.jsoncsv.com/csvjson2json</loc>
+		<loc>https://www.csvjson.com/csvjson2json</loc>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
