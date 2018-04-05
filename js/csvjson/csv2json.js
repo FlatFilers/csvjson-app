@@ -24,7 +24,12 @@
       errorNotWellFormed = "CSV is not well formed",
       errorEmpty = "Please upload a file or type in something.",
       errorEmptyHeader = "Could not detect header. Ensure first row cotains your column headers.",
-      separators = [",", ";", "\t"];
+      separators = [",", ";", "\t"],
+      pegjsSeparatorNames = {
+        ",": "comma",
+        ";": "semicolon",
+        "\t": "tab"
+      };
 
   // Picks the separator we find the most.
   function detectSeparator(csv) {
@@ -47,14 +52,13 @@
 
     var a = [];
     try {
-      var a = csvParser.parse(csv);
+      var a = csvParser.parse(csv, pegjsSeparatorNames[separator]);
     } catch(error) {
       var start = csv.lastIndexOf('\n', error.offset),
           end = csv.indexOf('\n', error.offset),
           line = csv.substring(start >= -1 ? start : 0, end > -1 ? end : csv.length);
       throw error.message + ' On line ' + error.line + ' and column ' + error.column + '.\n' + line;
     }
-
 
     if (options.transpose) a = _.zip.apply(_, a);
 
