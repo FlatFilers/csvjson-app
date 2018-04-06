@@ -56,24 +56,35 @@
     <div class="col-md-8">
       <h4>About the CSVJSON format (variant of CSV)</h4>
       <ul>
+        <li>CSVJSON is a CSV-like text format where each line is a JSON array without the surrounding brackets.</li>
+        <li>For data made of numbers and 'simple' strings, CSVJSON looks just like CSV.</li>
+        <li>Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets [] and use JSON.parse() to convert to a JSON array.</li>
+        <li>An explanation of CSVJSON and its benefits can be found at the specification website: <a href="http://csvjson.org" target="_blank">csvjson.org</a></li>
         <li>
-          CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant specifies that every CSV value must be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is.
+          CSVJSON is ideal as a common format for dumping database tables because:
+          <ol>
+            <li>Being based on UTF-8 it can reliably maintain text from different languages.</li>
+            <li>It has a standard concept of nulls.</li>
+            <li>It can deal with modern database features like objects and arrays.</li>
+            <li>Being based on JSON, there is large variety of high quality formatters and parsers in virtually every programming language.</li>
+          </ol>
         </li>
         <li>
-          CSVJSON format variant is not valid CSV however every value is valid JSON. Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets <code>[]</code> and use <code>JSON.parse()</code> to convert to a JSON array.
+          CSVJSON is more expressive than CSV (whose common use is documented by <a href="https://tools.ietf.org/html/rfc4180" tagrget="_blank">RFC-4180</a>. As a result, there are many cases where products and libraries that can read CSV would fail to read CSVJSON due, for example, to escaping rules and embedded objects. Given CSVJSON's simplicity and utility more tools and libraries will support it over time.
         </li>
         <li>
           To convert JSON back to CSVJSON format, use the companion tool <a href="/json2csv">JSON to CSV</a> and toogle the <em>Output CSVJSON variant</em> switch.
         </li>
-        <li>
-          Dror Harari: <em>"The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ])."</em>
-        </li>
-        <li>
-          Learn more about the CSVJSON format by visiting the specification website: <a href="http://csvjson.org/" target="_blank">csvjson.org</a>.
-        </li>
       </ul>
+      <blockquote>
+        <p>
+          The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ]).
+        </p>
+        <footer>Dror Harari, <em>author of the CSVJSON format</em></footer>
+      </blockquote>
       <h4>Change Log</h4>
       <ul>
+        <li><strong>Apr 6, 2016</strong> Bug fixes and help text improvements.</li>
         <li><strong>Apr 2, 2018</strong> First release.</li>
       </ul>
       <?php $this->load->view('feedback'); ?>

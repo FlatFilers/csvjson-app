@@ -110,6 +110,12 @@ h1.discrete {
 	padding-bottom: 5px;
 }
 
+blockquote,
+blockquote p {
+	font-size: 14px;
+	color: #666;
+}
+
 .more-bottom-margin {
 	margin-bottom: 20px;
 }

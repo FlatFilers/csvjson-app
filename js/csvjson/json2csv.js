@@ -98,10 +98,11 @@
     		if (value === undefined && value === null) continue;
         if (_.isString(value)) {
           row[key] = '"' + value.replace(/"/g, options.output_csvjson_variant ? '\\"' : '""') + '"';
+          if (options.output_csvjson_variant) row[key] = row[key].replace(/\n/g, '\\n');
         } else {
           row[key] = JSON.stringify(value);
           if (!options.output_csvjson_variant && (_.isObject(value) || _.isArray(value)))
-            row[key] = '"' + row[key].replace(/"/g, '\\"') + '"';
+            row[key] = '"' + row[key].replace(/"/g, '\\"').replace(/\n/g, '\\n') + '"';
         }
     	}
     	allRows.push(row);
