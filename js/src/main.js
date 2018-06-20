@@ -114,7 +114,7 @@ $(document).ready(function() {
 			});
 		},
 
-		bindDownload() {
+		bindDownload: function() {
 			var $textarea = $('textarea.result'),
 					$download = $('a#download');
 			$textarea.change(function() {
