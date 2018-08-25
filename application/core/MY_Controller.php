@@ -35,7 +35,7 @@ class MY_Controller extends CI_Controller {
 				$data_url = AWS_S3_URL.'data/'.$id;
 			} else {
 				// Fetch persisted data from disk
-				$filename = FCPATH."../data/$id";
+				$filename = FCPATH."data/$id";
 				if (!file_exists($filename)) {
 					show_404();
 					return;
@@ -80,7 +80,7 @@ class MY_Controller extends CI_Controller {
 			S3::putObject($data, AWS_S3_BUCKET, 'data/'.$id, S3::ACL_PUBLIC_READ, array(), array('Content-Type' => 'application/json'));
 		} else {
 			// Persist to disk
-			file_put_contents(FCPATH."../data/$id", $data);
+			file_put_contents(FCPATH."data/$id", $data);
 		}
 		ajaxReply($id);
 	}

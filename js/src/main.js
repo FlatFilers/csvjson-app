@@ -64,7 +64,7 @@ $(document).ready(function() {
 		// Returns the URL of the page, <domain>/<page>.
 		// Excludes any persisted id.
 		baseUrl: function() {
-			return window.location.protocol + '//' + window.location.hostname + '/' + APP.page;
+			return window.location.protocol + '//' + window.location.hostname + (window.location.port == 80 ? '' : (':' + window.location.port)) + '/' + APP.page;
 		},
 	
 		// Reports an error in the 'result' textarea
@@ -116,17 +116,26 @@ $(document).ready(function() {
 
 		bindDownload: function() {
 			var $textarea = $('textarea.result'),
-					$download = $('a#download');
+					$download = $('a#download'),
+					$label = $('a#download').next('em'),
+					nodata = 'No data to download. Convert first. ',
+					toolarge = 'Too large to download. Copy to clipboard instead. ',
+					copypaste = 'Ctrl + A then Ctrl + C to copy to clipboard. '
 			$textarea.change(function() {
 				var data = escape($textarea.val());
 				$download.attr('href', 'data:application/json;charset=utf-8,' + data);
 				$download.attr('title', 'Download result in csvjson.json');
+				$label.text(copypaste);
 				if (data && data.length < 65400) {
 					$download.removeAttr('disabled');
 				} else {
 					$download.attr('disabled', 'disabled');
-					$download.attr('title', 'Do data to download. Convert first.');
-					if (data.length) $download.attr('title', 'Too large to download. Copy to clipboard instead.')
+					$download.attr('title', nodata);
+					$label.text(nodata + copypaste)
+					if (data.length) {
+						$download.attr('title', toolarge);
+						$label.text(toolarge + copypaste);
+					}
 				}
 			});
 			$textarea.change();

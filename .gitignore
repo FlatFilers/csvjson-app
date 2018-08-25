@@ -8,3 +8,4 @@ application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
 /application/config/aws_s3.php
+/data
