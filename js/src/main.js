@@ -138,7 +138,9 @@ $(document).ready(function() {
 					}
 				}
 			});
-			$textarea.change();
+			_.defer(function() {
+				$textarea.change();
+			});
 		},
 		
 		// Sets which inputs will be persisted when saved as a permalink
