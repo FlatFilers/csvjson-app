@@ -89,6 +89,7 @@ $config['assets'] = array(
 			'js/src/json2csv.js',
 			'js/src/sql2json.js',
 			'js/src/json_beautifier.js',
+			'js/src/json_validator.js',
 			'js/src/csvjson2json.js',
 			'js/src/home.js',
 			'js/src/main.js'

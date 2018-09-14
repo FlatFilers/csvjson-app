@@ -5,21 +5,24 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-4">
-			<h2 class="text-center"><a href="/csv2json" class="btn btn-primary tool">CSV to JSON</a></h2>
+		<div class="col-sm-3">
+			<h2 class="text-center"><a href="/csv2json" class="btn btn-primary tool" title="Convert CSV or Excel to JSON.">CSV to JSON</a></h2>
 		</div>
-		<div class="col-sm-4">
-			<h2 class="text-center"><a href="/json2csv" class="btn btn-primary tool">JSON to CSV</a></h2>
+		<div class="col-sm-3">
+			<h2 class="text-center"><a href="/json2csv" class="btn btn-primary tool" title="Convert JSON to CSV format for Excel.">JSON to CSV</a></h2>
 		</div>
-		<div class="col-sm-4">
-			<h2 class="text-center"><a href="/json_beautifier" class="btn btn-primary tool">JSON Beautifier</a></h2>
+		<div class="col-sm-3">
+			<h2 class="text-center"><a href="/json_validator" class="btn btn-primary tool" title="Validate and format JSON.">JSON Validator</a></h2>
+		</div>
+		<div class="col-sm-3">
+			<h2 class="text-center"><a href="/json_beautifier" class="btn btn-primary tool" title="Format JSON to make it look awesome.">JSON Beautifier</a></h2>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-12">
 			<h4>More tools</h4>
 			<p>
-				<a href="/sql2json" class="btn btn-primary">SQL to JSON</a>
+				<a href="/sql2json" class="btn btn-primary" title="Convert an SQL export to JSON format.">SQL to JSON</a>
 				&nbsp;&nbsp;
 				<a href="/csvjson2json" class="btn btn-primary" title="Conversion of the CSVJSON format variant to JSON.">CSVJSON to JSON</a>
 				<p>
@@ -37,7 +40,7 @@
 					CSVJSON is a do-it-myself and more permanent solution. Its best feature? You can save your session for later, and share it with a co-worker.
 				</p>
 				<p>
-					If you find bugs or would like an improvement, please leave a comment below.
+					If you find bugs or would like an improvement, please leave a comment below or open an issue on <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">Github</a>.
 				</p>
 				<p>
 					I hope it can be useful to you. Happy conversions!

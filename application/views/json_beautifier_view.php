@@ -108,6 +108,7 @@
 				</li>
 				<li>CSVJON uses a <a href="https://github.com/martindrapeau/csvjson-app/blob/master/js/csvjson/json2-mod.js" target="_blank">modified version of JSON2</a> which adds formatting options to drop quotes on keys, and sepcify the quote type. Anyone is free to use and extend it by forking the <a href="https://github.com/martindrapeau/csvjson-app" target="_blank">CSVJSON Github repo</a>.</li>
 			</ul>
+			<br/>
 			<h4>Change Log</h4>
 			<ul>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
@@ -118,6 +119,7 @@
 				<li><strong>Jun 1, 2015</strong> Bug fix: proper support of commas inside quotes.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>
+			<br/>
 			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">

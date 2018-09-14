@@ -16,13 +16,13 @@ APP.json_beautifier = function() {
 			'..': '..'
 		};
 	
-	var $file = $('#fileupload'),
-		$json = $('#json'),
-		$result = $('#result'),
-		$resultNote = $('span.result-note'),
-		$clear = $('#clear, a.clear'),
-		$convert = $('#convert, a.convert');
-	
+	var $file = $('#fileupload');
+	var $json = $('#json');
+	var $result = $('#result');
+	var $resultNote = $('span.result-note');
+	var $clear = $('#clear, a.clear');
+	var $convert = $('#convert, a.convert');
+
 	$clear.click(function(e) {
 		$resultNote.empty();
 	});
@@ -32,7 +32,6 @@ APP.json_beautifier = function() {
 		$resultNote.empty();
 		
 		var json = _.trim($json.val());
-		if (json.length == 0) err(errorEmpty);
 		
 		var options = {
 			space: spaceMap[$('#space').val()],
@@ -56,6 +55,15 @@ APP.json_beautifier = function() {
 		$result.removeClass('error').val(result).change();
 		if (options.dropQuotesOnKeys || options.quoteType === 'single') $resultNote.text('Invalid JSON, but valid Javascript');
 	});
+
+	
+	if (localStorage.csvjsonSavedJSON) {
+		$json.val(localStorage.csvjsonSavedJSON);
+		delete localStorage.csvjsonSavedJSON;
+		_.defer(function() {
+			$convert.first().click();
+		});
+	}
 	
 	APP.start({
 		$convert: $convert,

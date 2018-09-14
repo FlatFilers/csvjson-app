@@ -26,7 +26,7 @@
 	background-color: transparent;
 }
 
-@media (min-width: 840px) {
+@media (min-width: 1024px) {
 	.navbar > .container-fluid .navbar-header .navbar-nav {
 		display: none;
 	}
@@ -56,7 +56,7 @@
 	border-color: #990000;
 }
 
-@media (max-width: 840px) {
+@media (max-width: 1024px) {
 	.navbar > .container-fluid .navbar-header .navbar-nav {
 		display: inherit;
 		margin: 0;
@@ -156,6 +156,16 @@ span.fileinput-button>label {
 	background-color: #f0f0f0;
 }
 
+.form-options {
+	border-radius: 4px;
+	padding: 6px 12px;
+	background-color: #f0f0f0;
+}
+
+.alert-default {
+	background-color: #f0f0f0;
+}
+
 label {
 	color: #333;
 }
@@ -208,7 +218,7 @@ a.convert:active {
 	opacity: 1.0;
 }
 
-a#issue {
+a#issue:not(.pull-right) {
 	margin-top: 10px;
 }
 
@@ -236,6 +246,17 @@ pre {
 	border-radius: 3px;
 }
 
+.CodeMirror {
+	background-color: #f0f0f0;
+	border-radius: 4px;
+}
+.CodeMirror-gutters {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+.CodeMirror .line-error {
+    background-color: #FBE3E4;
+}
 
 /**** About <tool> section ****/
 

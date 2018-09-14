@@ -21,6 +21,7 @@
 	 *
 	 */
 	
+  var errorEmpty = "Please upload a file or type in something.";
 	
 	// Recursively walk an object to convert strings that are numbers
 	// to pure integers or floats.

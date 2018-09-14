@@ -33,8 +33,8 @@ $(document).ready(function() {
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
 				if (!options.upload.url) throw "Invalid option 'upload'. Missing url.";
-				if (!options.upload.$textarea) throw "Invalid option 'upload'. Missing $textarea.";
-				APP.bindFileUploadToFillTextarea(options.upload.$file, options.upload.url, options.upload.$textarea);
+				if (!options.upload.$textarea && !options.upload.editor) throw "Invalid option 'upload'. Missing $textarea or editor.";
+				APP.bindFileUploadToFillTextarea(options.upload.$file, options.upload.url, options.upload.$textarea, options.upload.editor);
 			}
 			if (options.$convert) APP.bindConvert(options.$convert);
 			if (options.$clear) APP.bindClear(options.$clear);
@@ -90,11 +90,11 @@ $(document).ready(function() {
 			});
 		},
 		
-		// Binds the file upload button to dump in the content of the file
-		// in the textarea
-		bindFileUploadToFillTextarea: function($file, uploadUrl, $textarea) {
-			var $fileLabel = $file.siblings('label'),
-				fileLabelHtml = $fileLabel.html();
+		// Binds the file upload button to dump in the content of the file in the
+		// textarea or CodeMirror editor
+		bindFileUploadToFillTextarea: function($file, uploadUrl, $textarea, editor) {
+			var $fileLabel = $file.siblings('label');
+			var fileLabelHtml = $fileLabel.html();
 			
 			$file.fileupload({
 				url: uploadUrl,
@@ -105,7 +105,11 @@ $(document).ready(function() {
 				},
 				success: function(result) {
 					$fileLabel.html(fileLabelHtml);
-					$textarea.val(result).change();
+					if (editor) {
+						editor.setValue(result);
+					} else {
+						$textarea.val(result).change();
+					}
 				},
 				fail: function(e, data) {
 					$fileLabel.html(fileLabelHtml);
