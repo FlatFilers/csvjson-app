@@ -90,7 +90,7 @@
 		<footer class="navbar">
 			<div class="container-fluid">
 				<p>
-					&copy; 2014-2018 <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a> &nbsp;
+					&copy; 2014-2018 <a href="https://medium.com/@martindrapeau">Martin Drapeau</a> &nbsp;
 					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
 					<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github</a>
 				</p>
