@@ -1,4 +1,4 @@
-<div class="container-fluid home">
+<div class="container home">
 	<div class="row">
 		<div class="col-md-12">
 			<h4>Online tools to convert popular data formats. Persist your session for later, share with co-workers.</h4>
@@ -31,6 +31,24 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-12">
+			<h3>CSV and JSON Data Formats</h3>
+			<p>
+				CSV and JSON are ubiquitous data formats for the Internet age.
+			</p>
+			<p>
+				CSV or Comma Separated Values is widely used for tabular data and often associated to spreadsheet applications like Excel.
+				Many data reporting tool output to CSV format.
+				TSV or Tab Separated Values is a close brother used in Clipboards to copy and paste table data to/From Excel for example.
+				Find out more about CSV on the <a href="/csv2json">CSV to JSON page</a> by scrolling below the text areas.
+			</p>
+			<p>
+				JSON or JavaScript Object Notation was <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">specified by Douglas Crockford in the early 2000s</a>.
+				JSON has become the defacto computer format readable by humans to store structured data. From APIs to configuration files, JSON is now everywhere. Find out more about JSON on the <a href="/json_beautifier">JSON Beautifier page</a> by scrolling below the text areas.
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
 			<h3>About CSVJSON</h3>
 			<blockquote>
 				<p>
@@ -50,8 +68,12 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2018-09-13</h4>
+			<p>
+				Added a new tool <a href="/json_validator">JSON Validator</a> to validate and format JSON. Integrates a beautiful code editor (CodeMirror) with interactive JSON linting.
+			</p>
 			<h4>2018-04-03</h4>
 			<p>
 				Added a new tool <a href="/csvjson2json">CSVJSON to JSON</a> to support conversion of the new <a href="http://csvjson.org/" target="_blank">CSVJSON format</a>, a CSV variant proposed by Dror Harari.
@@ -124,30 +146,10 @@
 			<h3>Bugs and Feature Requests</h3>
 			<p>
 				<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github.</a>
-				Report bugs or ask for improvements either through
-				<a href="https://github.com/martindrapeau/csvjson-app/issues">Github issues</a>
-				or by leaving a Disqus comment.
+				Report bugs or ask for improvements through
+				<a href="https://github.com/martindrapeau/csvjson-app/issues">Github issues</a>.
 			</p>
 			<br/>
-		</div>
-		<div class="col-md-6">
-			<h3>Feedback</h3>
-			<div id="disqus_thread"></div>
-			<script>
-			var disqus_config = function () {
-				this.page.url = 'http://www.csv2json.com';
-				this.page.identifier = 'csv2json';
-			};
-			(function() { // DON'T EDIT BELOW THIS LINE
-				var d = document, s = d.createElement('script');
-
-				s.src = '//csv2json.disqus.com/embed.js';
-
-				s.setAttribute('data-timestamp', +new Date());
-				(d.head || d.body).appendChild(s);
-			})();
-			</script>
-			<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 		</div>
 	</div>
 	<br/>
