@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-    <meta http-equiv="Content-Security-Policy" content="default-src * filesystem: data: gap: http://www.google-analytics.com http://www.googletagmanager.com http://ssl.gstatic.com http://www.csvjson.com http://csvjson.s3.amazonaws.com http://csvjson.s3.us-east-2.amazonaws.com http://www.csvjson.com 'unsafe-eval' 'unsafe-inline'; media-src *; img-src * data:">
+    <meta http-equiv="Content-Security-Policy" content="default-src * filesystem: data: gap: http://www.google-analytics.com http://www.googletagmanager.com http://ssl.gstatic.com http://csvjson.s3.amazonaws.com http://csvjson.s3.us-east-2.amazonaws.com 'unsafe-eval' 'unsafe-inline'; media-src *; img-src * data:">
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon">
@@ -21,10 +21,9 @@
 			};
 		</script>
 		
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
-		
-		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js" type="text/javascript"></script>
+		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
 
 		<?php if ($page == 'json_validator'): ?>
@@ -65,7 +64,7 @@
 						</ul>
 					<?php endif; ?>
 					<ul class="nav navbar-nav navbar-left">
-						<li><a class="navbar-toggle-no-style" data-toggle="collapse" data-target=".navbar-collapse">More <span class="caret"></span></a></li>
+						<li><a class="navbar-toggle-no-style" data-toggle="collapse" data-target="#navbar-collapse">More <span class="caret"></span></a></li>
 					</ul>
 				</div>
 				<div class="collapse navbar-collapse" id="navbar-collapse">

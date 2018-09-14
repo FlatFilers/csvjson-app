@@ -83,6 +83,7 @@ APP.json_validator = function() {
     $convert: $convert,
     $clear: $clear,
     $saveElements: $('input.save, textarea.save, select.save'),
+    editor: editor,
     upload: {
       $file: $file,
       url: uploadUrl,

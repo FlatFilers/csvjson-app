@@ -20,10 +20,12 @@ $(document).ready(function() {
 		//  - $convert: Convert buttons to be bound.
 		//  - $clear: Clear buttons to be bound.
 		//  - $saveElements: Elements to persist when saving.
+		//  - editor: CodeMirror editor. Optional.
 		//  - upload: Hash of elements to handle upload. Must contain:
 		//    - $file: Upload button element
 		//    - url: Upload URL.
-		//    - $textarea: Element to drop the content in.
+		//    - $textarea: Element to drop the content in. Optional is editor is passed.
+		//    - editor: CodeMirror editor. Optional if $textarea is passed.
 		start: function(options) {
 			options || (options = {});
 			
@@ -51,10 +53,10 @@ $(document).ready(function() {
 				if (APP.data_url) {
 					$.getJSON(APP.data_url).done(function(data) {
 						APP.data = data;
-						APP.restore();
+						APP.restore(options.editor);
 					});
 				} else {
-					APP.restore();
+					APP.restore(options.editor);
 				}
 			} else {
 				APP.renderSave('active');
@@ -196,7 +198,8 @@ $(document).ready(function() {
 		},
 		
 		// Restore a saved session - revive inputs and textareas
-		restore: function() {
+		// If CodeMirror editor is passed, textarea.result's value will be stored in it
+		restore: function(editor) {
 			if (!APP.data) return;
 			
 			_.each(APP.data, function(value, id) {
@@ -206,7 +209,11 @@ $(document).ready(function() {
 				if ($el.is('input[type=radio], input[type=checkbox]')) {
 					if (value) $el.attr('checked', 'checked');
 				} else {
-					$el.val(value);
+					if ($el.is('textarea.result') && editor) {
+						editor.setValue(value);
+					} else {
+						$el.val(value);
+					}
 				}
 				$('textarea.result').change();
 			});
