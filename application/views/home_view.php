@@ -33,12 +33,12 @@
 		<div class="col-md-12">
 			<h3>CSV and JSON Data Formats</h3>
 			<p>
-				CSV and JSON are ubiquitous data formats for the Internet age.
+				CSV and JSON are <a href="https://medium.com/@martindrapeau/the-state-of-csv-and-json-d97d1486333">ubiquitous data formats</a> for the Internet age.
 			</p>
 			<p>
 				CSV or Comma Separated Values is widely used for tabular data and often associated to spreadsheet applications like Excel.
 				Many data reporting tool output to CSV format.
-				TSV or Tab Separated Values is a close brother used in Clipboards to copy and paste table data to/From Excel for example.
+				TSV or Tab Separated Values is a close brother used in Clipboards to copy and paste table data to/from Excel for example.
 				Find out more about CSV on the <a href="/csv2json">CSV to JSON page</a> by scrolling below the text areas.
 			</p>
 			<p>
