@@ -2,10 +2,11 @@ CSVJSON
 =======
 
 www.csvjson.com are online formatting and conversion tools that I use as a developer.
-- [CSV to JSON](http://www.csvjson.com/csv2json) : Convert CSV (Excel) to JSON format.
-- [JSON to CSV](http://www.csvjson.com/json2csv) : Convert JSON to CSV format (Excel).
-- [SQL to JSON](http://www.csvjson.com/sql2json) : Convert SQL (CREATE TABLE and INSERT INTO statements) to JSON format.
-- [JSON Beautifier](http://www.csvjson.com/json_beautifier) : Validate and format JSON. Convert it to Javascript code (drop quotes on keys).
+- [CSV to JSON](https://www.csvjson.com/csv2json) : Convert CSV (Excel) to JSON format.
+- [JSON to CSV](https://www.csvjson.com/json2csv) : Convert JSON to CSV format (Excel).
+- [SQL to JSON](https://www.csvjson.com/sql2json) : Convert SQL (CREATE TABLE and INSERT INTO statements) to JSON format.
+- [JSON Validator](https://csvjson.com/json_validator) : Cerifies that your JavaScript Object Notation adheres to the JSON specification.
+- [JSON Beautifier](https://www.csvjson.com/json_beautifier) : Format and make beautiful JSON. Convert it to Javascript code (drop quotes on keys).
 - More to come...
 
 CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
