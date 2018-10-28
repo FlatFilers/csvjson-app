@@ -45,17 +45,18 @@
                         it contains the characters used to indent at each level.
       
             dropQuotesOnKeys
-                  an optional parameter to drop quotes on keys, when possible.
-                  Useful to represent a Javascript object. Quotes will be
-                  dropped only if the key can be declared as a valid Javascript
-                  object. Do note that the output will not be valid JSON, but
-                              it will be valid Javascript.
+                        an optional parameter to specify the quote character.
+                        Specify either `double` for " or `single` for '.
+                        Defaults to double quote however you can overwrite with
+                        a single quote. Do note that the output will not be valid
+                        JSON, but it will be valid Javascript.
 
             quoteType
                         an optional parameter to specify the quote character.
+                        Use either `double` or `single`.
                         Defaults to double quote " however you can overwrite with
                         a single quote '. Do note that the output will not be valid
-                        JSON, but it will be valid Javascript.
+                        JSON is you use `single`, but it will be valid Javascript.
       
             This method produces a JSON text from a JavaScript value.
 
@@ -179,16 +180,10 @@
     test, toJSON, toString, valueOf
 */
 
-
-// Create a JSON object only if one does not already exist. We create the
-// methods in a closure to avoid creating global variables.
-
-if (typeof JSON2_mod !== 'object') {
-    JSON2_mod = {};
-}
-
 (function () {
     'use strict';
+
+    var JSON2_mod = {};
 
     function f(n) {
         // Format integers to have at least two digits.
@@ -520,4 +515,15 @@ if (typeof JSON2_mod !== 'object') {
             throw new SyntaxError('JSON.parse');
         };
     }
-}());
+
+    // CommonJS or Browser
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            exports = module.exports = JSON2_mod;
+        }
+        exports.JSON2_mod = JSON2_mod;
+    } else {
+        this.JSON2_mod = JSON2_mod;
+    }
+
+}.call(this));
