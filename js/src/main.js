@@ -6,7 +6,7 @@
 $(document).ready(function() {
 	
 	// Load Underscore String
-	_.mixin(_.str.exports());
+	_.mixin(s.exports());
 	
 	// Global Singleton object APP was created inline via PHP. It contains:
 	//   - page: The module name, and function name to load that module.

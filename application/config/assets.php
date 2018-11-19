@@ -50,6 +50,7 @@ $config['assets'] = array(
 		'type' => CSS,
 		'output' => 'css/csvjson.css',
 		'files' => array(
+			'css/backgrid.css',
 			'css/main.css'
 		),
 		'comment' => $comment
@@ -63,6 +64,8 @@ $config['assets'] = array(
 			'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
 			'js/3rd/underscore/underscore.js',
 			'js/3rd/underscore/underscore.string.js',
+			'js/3rd/backbone/backbone.js',
+			'js/3rd/backbone/backgrid.js',
 			'js/3rd/json/json2.js'
 		)
 	),
