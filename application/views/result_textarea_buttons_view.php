@@ -5,7 +5,7 @@
 <a id="download" class="btn btn-primary" href="" download="<?=$download?>" disabled="disabled" target="_self">
   <i class="glyphicon glyphicon-download"></i> Download
 </a>
-<em>&nbsp;&nbsp; or Ctrl + A then Ctrl + C to copy to clipboard.</em>
+<a id="copy" class="btn btn-primary" href="#" title="or Ctrl + A then Ctrl + C to copy to clipboard."><i class="glyphicon glyphicon-share"></i> Copy</a>
 <a class="convert" href="#" title="Convert"><i class="glyphicon glyphicon-chevron-right"></i></a>
 <a class="clear" href="#" title="Clear"><i class="glyphicon glyphicon-remove"></i></a>
 <br/>

@@ -31,6 +31,7 @@ $(document).ready(function() {
 			
 			// Bind elements
 			APP.bindDownload();
+      APP.bindCopy();
 			APP.bindIssue();
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
@@ -145,6 +146,16 @@ $(document).ready(function() {
 				}
 			});
 			$textarea.change();
+		},
+
+		bindCopy: function() {
+			var $textarea = $('textarea.result'),
+          $copy = $('a#copy');
+      $copy.on('click', function(e) {
+        e.preventDefault();
+        $textarea[0].select();
+        document.execCommand('copy');
+      });
 		},
 		
 		// Sets which inputs will be persisted when saved as a permalink

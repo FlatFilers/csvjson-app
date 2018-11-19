@@ -70,6 +70,10 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2018-11-18</h4>
+			<p>
+				Added a copy-to-clipboard button and upgraded underscore and backbone to latest versions.
+			</p>
 			<h4>2018-09-13</h4>
 			<p>
 				Added a new tool <a href="/json_validator">JSON Validator</a> to validate and format JSON. Integrates a beautiful code editor (CodeMirror) with interactive JSON linting.
