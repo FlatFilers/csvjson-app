@@ -94,6 +94,10 @@ $config['assets'] = array(
 			'js/src/json_beautifier.js',
 			'js/src/json_validator.js',
 			'js/src/csvjson2json.js',
+			'js/src/dataclean-input.js',
+			'js/src/dataclean-code.js',
+			'js/src/dataclean-output.js',
+			'js/src/dataclean.js',
 			'js/src/home.js',
 			'js/src/main.js'
 		),

@@ -1,7 +1,7 @@
 /*
- * CSVJSON Application - JSON Beautifier
+ * CSVJSON Application - JSON Validator
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2018 Martin Drapeau
  */
 APP.json_validator = function() {
 

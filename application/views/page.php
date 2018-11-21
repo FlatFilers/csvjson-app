@@ -22,16 +22,17 @@
 		</script>
 		
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js" type="text/javascript"></script>
-		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
 
-		<?php if ($page == 'json_validator'): ?>
+		<?php if ($page == 'json_validator' || $page == 'dataclean'): ?>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/codemirror.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/mode/javascript/javascript.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/addon/lint/lint.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/jshint/2.9.5/jshint.min.js" type="text/javascript"></script>
 			<script src="/js/3rd/codemirror/jsonlint.js" type="text/javascript"></script>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/addon/lint/javascript-lint.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/addon/lint/json-lint.min.js" type="text/javascript"></script>
 			<link href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/codemirror.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
 			<link href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/addon/lint/lint.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
@@ -57,24 +58,18 @@
 					</a>
 					<ul class="nav navbar-nav navbar-left">
 						<li class="active"><a href="/<?=$page?>"><?=$title?></a></li>
-					</ul>
-					<?php if ($page != 'home'): ?>
-						<ul class="nav navbar-nav navbar-right">
-							<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
-						</ul>
-					<?php endif; ?>
-					<ul class="nav navbar-nav navbar-left">
-						<li><a class="navbar-toggle-no-style" data-toggle="collapse" data-target="#navbar-collapse">More <span class="caret"></span></a></li>
-					</ul>
-				</div>
-				<div class="collapse navbar-collapse" id="navbar-collapse">
-					<ul class="nav navbar-nav navbar-left">
-						<li class="<?=$page == 'csv2json' ? 'active' : ''?>"><a href="/csv2json">CSV to JSON</a></li>
-						<li class="<?=$page == 'json2csv' ? 'active' : ''?>"><a href="/json2csv">JSON to CSV</a></li>
-						<li class="<?=$page == 'json_beautifier' ? 'active' : ''?>"><a href="/json_beautifier">JSON Beautifier</a></li>
-						<li class="<?=$page == 'json_validator' ? 'active' : ''?>"><a href="/json_validator">JSON Validator</a></li>
-						<li class="<?=$page == 'sql2json' ? 'active' : ''?>"><a href="/sql2json">SQL to JSON</a></li>
-						<li class="<?=$page == 'csvjson2json' ? 'active' : ''?>"><a href="/csvjson2json">CSVJSON to JSON</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="/csv2json">CSV to JSON</a></li>
+								<li><a href="/json2csv">JSON to CSV</a></li>
+								<li><a href="/json_beautifier">JSON Beautifier</a></li>
+								<li><a href="/json_validator">JSON Validator</a></li>
+								<li><a href="/sql2json">SQL to JSON</a></li>
+								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
+								<li><a href="/dataclean">Data Clean</a></li>
+							</ul>
+						</li>
 					</ul>
 					<?php if ($page != 'home'): ?>
 						<ul class="nav navbar-nav navbar-right">

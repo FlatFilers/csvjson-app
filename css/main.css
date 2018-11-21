@@ -26,13 +26,24 @@
 	background-color: transparent;
 }
 
-@media (min-width: 1024px) {
-	.navbar > .container-fluid .navbar-header .navbar-nav {
-		display: none;
-	}
-	.navbar > .container-fluid .navbar-brand {
-		margin-left: 0;
-	}
+.nav>li {
+	float: left!important;
+}
+.navbar-nav {
+	margin: 0!important;
+}
+.navbar-left {
+    float: left!important;
+}
+.navbar-right {
+    float: right!important;
+}
+.navbar-header {
+	float: none!important;
+}
+.navbar-nav>li>a {
+	padding-top: 15px!important;
+	padding-bottom: 15px!important;
 }
 
 .navbar-inverse .navbar-nav > li > a {
@@ -56,28 +67,31 @@
 	border-color: #990000;
 }
 
-@media (max-width: 1024px) {
-	.navbar > .container-fluid .navbar-header .navbar-nav {
-		display: inherit;
-		margin: 0;
-	}
-	.navbar > .container-fluid .navbar-header .navbar-left {
-		float: left;
-	}
-	.navbar > .container-fluid .navbar-header .navbar-right {
-		float: right;
-	}
-	.navbar > .container-fluid .navbar-header .navbar-nav a {
-		padding: 15px;
-	}
-	.navbar > .container-fluid .navbar-header  .navbar-nav a.navbar-toggle-no-style {
-		cursor: pointer;
-	}
-	.navbar > .container-fluid .navbar-collapse.collapse {
-    display: none !important;
-  }
-	.navbar > .container-fluid .navbar-collapse > .navbar-nav.navbar-right {
+@media (max-width: 500px) {
+	.navbar-brand {
 		display: none;
+	}
+}
+
+@media (max-width: 767px) {
+	.navbar-nav .open .dropdown-menu {
+		position: absolute;
+    	float: left;
+    	width: auto;
+    	margin-top: inherit;
+    	background-color: #fff;
+    	border: 1px solid #ccc;
+    	border: 1px solid rgba(0,0,0,0.15);
+    	-webkit-box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    	box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+	}
+	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+		color: #333;
+	}
+	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:hover,
+	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:focus {
+		color: #262626;
+		background-color: #f5f5f5;
 	}
 }
 
@@ -303,4 +317,30 @@ footer.navbar .container-fluid a:active {
 	font-weight: normal;
 	font-style: italic;
 	margin-left: 5px;
+}
+
+/* Spinner */
+.glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
 }

@@ -31,7 +31,7 @@ $(document).ready(function() {
 			
 			// Bind elements
 			APP.bindDownload();
-      APP.bindCopy();
+			APP.bindCopy();
 			APP.bindIssue();
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
@@ -123,11 +123,11 @@ $(document).ready(function() {
 
 		bindDownload: function() {
 			var $textarea = $('textarea.result'),
-					$download = $('a#download'),
-					$label = $('a#download').next('em'),
-					nodata = 'No data to download. Convert first. ',
-					toolarge = 'Too large to download. Copy to clipboard instead. ',
-					copypaste = 'Ctrl + A then Ctrl + C to copy to clipboard. '
+				$download = $('a#download'),
+				$label = $('a#download').next('em'),
+				nodata = 'No data to download. Convert first. ',
+				toolarge = 'Too large to download. Copy to clipboard instead. ',
+				copypaste = 'Ctrl + A then Ctrl + C to copy to clipboard. ';
 			$textarea.change(function() {
 				var data = escape($textarea.val());
 				$download.attr('href', 'data:application/json;charset=utf-8,' + data);
@@ -150,12 +150,12 @@ $(document).ready(function() {
 
 		bindCopy: function() {
 			var $textarea = $('textarea.result'),
-          $copy = $('a#copy');
-      $copy.on('click', function(e) {
-        e.preventDefault();
-        $textarea[0].select();
-        document.execCommand('copy');
-      });
+			$copy = $('a#copy');
+			$copy.on('click', function(e) {
+				e.preventDefault();
+				$textarea[0].select();
+				document.execCommand('copy');
+			});
 		},
 		
 		// Sets which inputs will be persisted when saved as a permalink
