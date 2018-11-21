@@ -67,7 +67,9 @@
 								<li><a href="/json_validator">JSON Validator</a></li>
 								<li><a href="/sql2json">SQL to JSON</a></li>
 								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
-								<li><a href="/dataclean">Data Clean</a></li>
+								<?php if (ENVIRONMENT != 'production'): ?>
+									<li><a href="/dataclean">Data Clean</a></li>
+								<?php endif; ?>
 							</ul>
 						</li>
 					</ul>
