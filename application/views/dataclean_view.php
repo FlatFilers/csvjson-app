@@ -18,6 +18,7 @@
 						<li role="presentation" class="active"><a href="#tab-input" role="tab" data-toggle="tab">Input</a></li>
 						<li role="presentation"><a href="#tab-code" role="tab" data-toggle="tab">Clean &amp; Transform</a></li>
 						<li role="presentation"><a href="#tab-output" role="tab" data-toggle="tab">Output</a></li>
+						<li role="presentation"><a href="#tab-help" role="tab" data-toggle="tab">Help</a></li>
 					</ul>
 				</small>
 			</h2>
@@ -26,6 +27,30 @@
 				<div role="tabpanel" class="tab-pane fade in active" id="tab-input"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-code"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-output"></div>
+				<div role="tabpanel" class="tab-pane fade" id="tab-help">
+					<h4>JavaScript Helper Functions</h4>
+					<p>
+						Libraries <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> and <a href="" target="_blank">Moment.js</a> are available when you write the <code>process</code> function.
+						Consult respective docs for usage.
+					</p>
+					<br/>
+
+					<h4>Hire me!</h4>
+					<p>
+						Want help to write the <code>process</code> function to clean and transform your data?
+						Email me and I'll be happy to write it for you for a fee.
+					</p>
+					<p>
+						<a class="btn btn-primary" href="mailto:martindrapeau@gmail.com&subject=dataclean"><i class="glyphicon glyphicon-envelope"></i> martindrapeau@gmail.com</a>
+					</p>
+					<br/>
+
+					<h4>BETA Software</h4>
+					<p>
+						Data Clean is new and still in BETA.
+						If you find bugs or have suggestions, please open a <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">GitHub issue</a>.
+					</p>
+				</div>
 			</div>
 
 		</div>

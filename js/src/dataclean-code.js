@@ -31,7 +31,7 @@ function process(input, columns) {
         <div class="col-md-6">
           <h4>
             <span>JavaScript</span>
-            <button class="btn btn-xs btn-success pull-right run">Run <em>(Ctrl + r)</em></button>
+            <button class="btn btn-xs btn-success pull-right run">Run <em>(Ctrl+R)</em></button>
             <button class="btn btn-xs btn-danger pull-right stop hidden"><i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Stop</button>
           </h4>
           <textarea class="code"><%=code%></textarea>
@@ -57,13 +57,17 @@ function process(input, columns) {
 
       this.listenTo(this.inputCollection, 'ready', this.run);
       this.listenTo(this.outputCollection, 'reset', this.render);
+
       $(document).find('a[role=tab][href=#tab-code]').on('shown.bs.tab', this.render.bind(this));
-      $(window).on('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && String.fromCharCode(event.which).toLowerCase() == 'r') {
-          e.preventDefault();
-          this.run();
-        }
-      }.bind(this));
+      $(window).on('keydown', this.onKeydownCtrlR.bind(this));
+    },
+    onKeydownCtrlR: function(e) {
+      if ($('#tab-code').is(':visible') &&
+          (e.ctrlKey || e.metaKey) &&
+          String.fromCharCode(event.which).toLowerCase() == 'r') {
+        e.preventDefault();
+        this.run();
+      }
     },
 
     // Eval safely using a web worker
@@ -77,6 +81,7 @@ function process(input, columns) {
 
       this.sandbox.addEventListener('message', function(e) {
         this.error = undefined;
+        for (var i = 0; i < e.data.length; i++) e.data[i].__Row = i;
         this.outputCollection.reset(e.data);
         this.stop();
       }.bind(this));
@@ -88,12 +93,13 @@ function process(input, columns) {
         this.stop();
       }.bind(this));
 
+      var input = this.inputCollection.reduce(function(l, m) {
+        if (!m.get('__Error')) l.push(_.omit(m.toJSON(), '__Error', '__Row'));
+        return l;
+      }, []);
+
       var code = (localStorage.DataCleanCode || defaultCode) +
-        '\nprocess(' +
-          JSON.stringify(this.inputCollection.toJSON()) +
-          ', ' +
-          JSON.stringify(Backbone.InputModel.getColumns()) +
-        ');';
+        '\nprocess(' + JSON.stringify(input) + ', ' + JSON.stringify(Backbone.InputModel.getColumns()) + ');';
       this.sandbox.postMessage(code);
     },
     stop: function() {
@@ -114,7 +120,7 @@ function process(input, columns) {
         var lineno = error.lineno - 1;
         if (lineno >= lineCount) lineno = 0;
 
-        var $marker = $('<div class="CodeMirror-lint-marker-error" data-toggle="tooltip" data-placement="right" title="' + error.message + '"></div>');
+        var $marker = $('<div class="CodeMirror-lint-marker-error" data-toggle="tooltip" data-placement="right" data-container="body" title="' + error.message + '"></div>');
 
         this.codeEditor.getDoc().setGutterMarker(lineno, 'worker-error', $marker[0]);
         $marker.tooltip();

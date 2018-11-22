@@ -14,8 +14,8 @@
     template: _.template(`
       <div class="row">
         <div class="col-md-3">
-          <h4>Instructions</h4>
           <p>Paste (Ctrl+v) your Excel or Google Sheets data here.</p>
+          <br/>
           <h4>Options</h4>
           <form>
             <div class="checkbox">

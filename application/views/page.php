@@ -68,7 +68,7 @@
 								<li><a href="/sql2json">SQL to JSON</a></li>
 								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
 								<?php if (ENVIRONMENT != 'production'): ?>
-									<li><a href="/dataclean">Data Clean</a></li>
+									<li><a href="/dataclean">Data Clean <sup>BETA</sup></a></li>
 								<?php endif; ?>
 							</ul>
 						</li>

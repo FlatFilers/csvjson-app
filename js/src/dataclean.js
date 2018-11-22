@@ -5,8 +5,8 @@
  */
 APP.dataclean = function() {
 
-  var inputCollection = new Backbone.InputCollection();
-  var outputCollection = new Backbone.OutputCollection();
+  var inputCollection = window.inputCollection = new Backbone.InputCollection();
+  var outputCollection = window.outputCollection = new Backbone.OutputCollection();
 
   new Backbone.InputView({
     el: $('#tab-input'),
