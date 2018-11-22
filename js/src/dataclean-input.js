@@ -14,7 +14,7 @@
     template: _.template(`
       <div class="row">
         <div class="col-md-3">
-          <p>Paste (Ctrl+v) your Excel or Google Sheets data here.</p>
+          <p><strong>Paste (Ctrl+v) your Excel or Google Sheets data here.</strong></p>
           <br/>
           <h4>Options</h4>
           <form>

@@ -28,14 +28,24 @@
 				<div role="tabpanel" class="tab-pane fade" id="tab-code"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-output"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-help">
-					<h4>JavaScript Helper Functions</h4>
+					<h4>How it Works</h4>
+					<p>
+						The JavaScript <code>process</code> function maps data from <em>Input</em> to <em>Output</em>.
+						Once written, you can reuse it on other data sets that uses the same logic for cleaning and transforming data.
+					</p>
+					<p>
+						Function <code>process</code> will be passed as arguments <code>input</code> and <code>columns</code>. The first is an array of objects, each representing a row of input data. The objects have as keys the column headers. Column headers are also passed in array <code>columns</code> for conveniance and lookup.
+					</p>
+					<br/>
+
+					<h4>Helpers</h4>
 					<p>
 						Libraries <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> and <a href="" target="_blank">Moment.js</a> are available when you write the <code>process</code> function.
 						Consult respective docs for usage.
 					</p>
 					<br/>
 
-					<h4>Hire me!</h4>
+					<h4>Hire Me!</h4>
 					<p>
 						Want help to write the <code>process</code> function to clean and transform your data?
 						Email me and I'll be happy to write it for you for a fee.

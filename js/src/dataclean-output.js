@@ -13,7 +13,7 @@
           <table class="table table-bordered backgrid"></table>
         </div>
         <div class="col-md-3">
-          <p>Download as CSV or copy data and paste back in Excel or Google Sheets.</p>
+          <p><strong>Download as CSV or copy data and paste back in Excel or Google Sheets.</strong></p>
           <br/>
           <div class="row">
             <div class="col-xs-9">
