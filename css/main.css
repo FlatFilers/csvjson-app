@@ -344,3 +344,12 @@ footer.navbar .container-fluid a:active {
         transform: rotate(359deg);
     }
 }
+
+/* Fast fade */
+ .fade {
+   opacity: 0;
+   -webkit-transition: opacity 0.05s linear;
+      -moz-transition: opacity 0.05s linear;
+       -ms-transition: opacity 0.05s linear;
+        -o-transition: opacity 0.05s linear;
+           transition: opacity 0.05s linear;

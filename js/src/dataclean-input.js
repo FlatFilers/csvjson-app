@@ -22,6 +22,13 @@
               <label class=""><input type="checkbox" name="autoDetectHeader" <%=autoDetectHeader ? 'checked' : ''%> /> Auto-detect column header as the first row with non-empty cells. Ignore previous rows.</label>
             </div>
           </form>
+          <br/>
+          <h4>Auto-save</h4>
+          <p>
+            Your input data and code is auto-saved to local storage.
+            Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
+          </p>
+          <br/>
         </div>
         <div class="col-md-9">
           <table class="table table-bordered backgrid"></table>
@@ -89,7 +96,7 @@
 
       _.each(lines, function(row, r) {
         var error;
-        if (options.autoDetectHeader && rowWithColumnHeaders && rowWithColumnHeaders >= r) {
+        if (options.autoDetectHeader && rowWithColumnHeaders !== undefined && rowWithColumnHeaders >= r) {
           error = 'Header row and previous rows will not be processed.';
         }
 

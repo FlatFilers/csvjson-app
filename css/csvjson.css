@@ -71,4 +71,4 @@ footer.navbar .container-fluid a:active{color:#333}.home
 p{font-size:16px}.form-group label
 small{font-weight:normal;font-style:italic;margin-left:5px}.glyphicon-spin{-webkit-animation:spin 1000ms infinite linear;animation:spin 1000ms infinite linear}@-webkit-keyframes
 spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}@keyframes
-spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}
+spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}.fade{opacity:0;-webkit-transition:opacity 0.05s linear;-moz-transition:opacity 0.05s linear;-ms-transition:opacity 0.05s linear;-o-transition:opacity 0.05s linear;transition:opacity 0.05s linear;

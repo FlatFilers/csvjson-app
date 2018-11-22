@@ -163,7 +163,8 @@ function process(input, columns) {
           mode: 'text/javascript',
           styleActiveLine: true,
           gutters: ['CodeMirror-lint-markers', 'worker-error'],
-          lint: true
+          lint: true,
+          indentUnit: 2
         });
         this.codeEditor.setSize('100%', '100%');
         this.codeEditor.on('change', function(editor) {
@@ -171,12 +172,14 @@ function process(input, columns) {
         });
 
         this.inputEditor = CodeMirror.fromTextArea(this.$('textarea.input')[0], {
-          mode: 'application/json'
+          mode: 'application/json',
+          indentUnit: 2
         });
         this.inputEditor.setSize('100%', '100%');
 
         this.outputEditor = CodeMirror.fromTextArea(this.$('textarea.output')[0], {
-          mode: 'application/json'
+          mode: 'application/json',
+          indentUnit: 2
         });
         this.outputEditor.setSize('100%', '100%');
 
