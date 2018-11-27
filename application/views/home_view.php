@@ -18,9 +18,10 @@
 			<h2 class="text-center"><a href="/json_beautifier" class="btn btn-primary tool" title="Format JSON to make it look awesome.">JSON Beautifier</a></h2>
 		</div>
 	</div>
+	<br/>
 	<div class="row">
 		<div class="col-md-12">
-			<h4>New tool! <small>Online tool to clean and transform Excel and Google Sheets data.</small></h4>
+			<h4>New! Online tool to clean and transform Excel and Google Sheets data.</h4>
 			<div class="row">
 				<div class="col-sm-3">
 					<p><a href="/dataclean" class="btn btn-primary tool" title="Online tool to clean and transform Excel and Google Sheets data.">Data Clean <sup>BETA</sup></a></p>
@@ -28,6 +29,7 @@
 			</div>
 		</div>
 	</div>
+	<br/>
 	<div class="row">
 		<div class="col-md-12">
 			<h4>More tools</h4>

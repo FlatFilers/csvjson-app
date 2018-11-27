@@ -16,9 +16,16 @@
               <h4 class="modal-title">Save & Share your Session</h4>
             </div>
             <div class="modal-body">
-              <p>Your session has been saved. Copy this URL to share with a colleague or save for later.</p>
+              <p class="status text-center"></p>
               <div class="form-group">
-                <input class="form-control" type="text" name="share-link" value="Some link" />
+                <div class="input-group">
+                  <input class="form-control" type="text" name="share-link" spellcheck="false" />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-block copy-to-clipboard" onclick="document.execCommand('copy');">
+                      <i class="glyphicon glyphicon-share"></i> Copy
+                    </button>
+                  </span>
+                </div>
               </div>
             </div>
             <div class="modal-footer">
@@ -40,12 +47,22 @@
     },
     onClick: function(e) {
       e.preventDefault();
-      if (this.$el.closest('li').hasClass('disabled')) return false;
-      //$('#share-modal').modal();
-      this.save();
+      $('#share-modal').modal();
+      if (this.isDirtyOnServer())
+        this.save();
+      else
+        this.renderModalState('saved');
+    },
+    isDirtyOnServer: function() {
+      var isClean = APP.id && APP.data &&
+        APP.id == this.store.id &&
+        APP.data.text == this.store.get('text') &&
+        APP.data.code == this.store.get('code') &&
+        _.isEqual(APP.data.options, this.store.get('options'));
+      return !isClean;
     },
     save: function() {
-      APP.renderSave('saving');
+      this.renderModalState('saving');
       this.store.save({date: (new Date()).toUTCString()}, {wait: true})
       .done(function() {
         var newUrl = APP.baseUrl() + '/' + this.store.id;
@@ -57,30 +74,42 @@
         }
         APP.id = this.store.id;
         APP.data = this.store.toJSON();
-        this.renderSaveLink();
+        this.renderModalState('saved');
       }.bind(this))
       .fail(function(xhr) {
         var error = xhr.responseText ? xhr.responseText : 'Unexpected error saving.';
-        APP.renderSave('error', error);
+        this.renderModalState('error', error);
       }.bind(this));
     },
-    renderSaveLink: function() {
-      if (APP.id && APP.data &&
-          APP.id == this.store.id &&
-          APP.data.text == this.store.get('text') &&
-          APP.data.code == this.store.get('code') &&
-          _.isEqual(APP.data.options, this.store.get('options'))) {
-        APP.renderSave('saved');
-      } else {
-        this.undelegateEvents();
-        APP.renderSave('active');
-        this.$el.unbind('click');
-        this.delegateEvents();
+    renderModalState: function(state, error) {
+      var $modal = $('#share-modal');
+      var $status = $modal.find('p.status');
+      var $inputGroup = $modal.find('.input-group');
+      var $input = $modal.find('input');
+      switch (state) {
+        case 'saved':
+          $status.html('Saved to server.<br/>Copy the URL to share, or bookmark this page to save for later.');
+          $inputGroup.show();
+          $input.val(window.location.href);
+          _.delay(function() {
+            $input[0].select();
+          }, 500);
+          break;
+        case 'saving':
+          $status.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Please wait while we save to server...');
+          $inputGroup.hide();
+          break;
+        case 'error':
+          $status.html(error ? error : 'An unexpected error while saving.');
+          $inputGroup.hide();
+          break;
       }
+      return this;
     },
     render: function() {
-      if ($('#share-modal').length == 0) $('body').append(this.modalTemplate({}));
-      this.renderSaveLink();
+      if ($('#share-modal').length == 0) {
+        $('body').append(this.modalTemplate({}));
+      }
       return this;
     }
   });

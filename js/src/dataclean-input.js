@@ -22,9 +22,19 @@
           <h4>Auto-save</h4>
           <p>
             Your input data and code is auto-saved to local storage.
+          </p>
+          <p>
             Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
           </p>
           <br/>
+          <p>
+            <a class="btn btn-sm btn-default text-danger clear-local-storage" href="#"><i class="glyphicon glyphicon-trash"></i> Clear local storage</a>
+            <br/>
+            <small>
+              <%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>
+            </small>
+          </p>
+
         </div>
         <div class="col-md-9">
           <table class="table table-bordered backgrid"></table>
@@ -32,17 +42,18 @@
       </div>
     `),
     events: {
-      'change input[type=checkbox]': 'onChangeOption'
+      'change input[type=checkbox]': 'onChangeOption',
+      'click a.clear-local-storage': 'onClickClear'
     },
     initialize: function(options) {
       this.store = options.store;
+      this.listenTo(this.store, 'change:id', this.render);
       $(document).on('paste', this.onPaste.bind(this));
       _.defer(function() {
         this.parsePastedText();
       }.bind(this));
     },
 
-    // Options
     onChangeOption: function(e) {
       var options = {
         autoDetectHeader: false
@@ -51,6 +62,11 @@
       if (form.autoDetectHeader) options.autoDetectHeader = true;
       this.store.set({options: options});
       this.parsePastedText();
+    },
+    onClickClear: function(e) {
+      e.preventDefault();
+      this.store.clearLocalStorage();
+      window.location.reload();
     },
 
     // Paste and parse
@@ -115,7 +131,9 @@
     },
 
     toRender: function() {
-      return this.store.get('options');
+      return _.extend({
+        id: this.store.id,
+      }, this.store.get('options'));
     },
     render: function() {
       var data = this.toRender();
