@@ -164,6 +164,11 @@ function process(input, columns) {
 
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<?php $this->load->view('carbonads'); ?>
+		</div>
+	</div>
 	<br/>
 	<br/>
 
