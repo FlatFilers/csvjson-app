@@ -246,7 +246,7 @@ $(document).ready(function() {
 					if ($save.hasClass('active')) return;
 					$save
 						.html('<i class="glyphicon glyphicon-link"></i> Save')
-						.attr('title', 'Save a permanent link to come back later, or to share with a friend.' + (APP.id ? ' Will overwrite your previous work.' : ''))
+						.attr('title', 'Save a permanent link to come back later, or to share with a colleague.' + (APP.id ? ' Will overwrite your previous work.' : ''))
 						.closest('li').removeClass('disabled');
 					break;
 				case 'saving':
