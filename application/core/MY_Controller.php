@@ -14,9 +14,11 @@ class MY_Controller extends CI_Controller {
 	public $title;
 	public $description;
 	public $view;
+	public $beta;
 	
 	public function __construct() {
 		parent::__construct();
+		$beta = false;
 	}
 	
 	// Remap controller to allow passing a parameter to index().
@@ -47,6 +49,7 @@ class MY_Controller extends CI_Controller {
 		$this->load->view('page', array(
 			'page' => $this->page,
 			'title' => $this->title,
+			'beta' => $this->beta,
 			'description' => $this->description,
 			'id' => $id,
 			'data' => $data,
@@ -82,6 +85,6 @@ class MY_Controller extends CI_Controller {
 			// Persist to disk
 			file_put_contents(FCPATH."data/$id", $data);
 		}
-		ajaxReply($id);
+		ajaxJsonReply(array('id' => $id));
 	}
 }

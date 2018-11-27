@@ -1,5 +1,5 @@
 /*
- * Backbone.OutputView
+ * CSVJSON Data Clean - Backbone.OutputView
  * 
  * Copyright (c) 2018 Martin Drapeau
  *
@@ -31,6 +31,7 @@
       'click a.download': 'onClickDownload'
     },
     initialize: function(options) {
+      this.store = options.store;
       $(document).find('a[role=tab][href=#tab-output]').on('shown.bs.tab', this.render.bind(this));
     },
     copy: function() {

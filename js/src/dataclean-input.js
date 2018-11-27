@@ -1,11 +1,7 @@
 /*
- * Backbone.InputView
+ * CSVJSON Data Clean - Backbone.InputView
  * 
  * Copyright (c) 2018 Martin Drapeau
- *
- * Persists to local storage:
- * - localStorage.DataCleanInputOptions
- * - localStorage.DataCleanInputText
  *
  */
 (function() {
@@ -39,6 +35,7 @@
       'change input[type=checkbox]': 'onChangeOption'
     },
     initialize: function(options) {
+      this.store = options.store;
       $(document).on('paste', this.onPaste.bind(this));
       _.defer(function() {
         this.parsePastedText();
@@ -52,24 +49,15 @@
       };
       var form = this.$('form').serializeObject();
       if (form.autoDetectHeader) options.autoDetectHeader = true;
-      localStorage.DataCleanInputOptions = JSON.stringify(options);
+      this.store.set({options: options});
       this.parsePastedText();
-    },
-    getOptions: function() {
-      var options = {
-        autoDetectHeader: false
-      };
-      try {
-        options = _.extend(options, JSON.parse(localStorage.DataCleanInputOptions));
-      } catch (err) {}
-      return options;
     },
 
     // Paste and parse
     parsePastedText: function() {
       this.collection.reset();
-      var options = this.getOptions();
-      var lines = (localStorage.DataCleanInputText || '').split('\r\n');
+      var options = this.store.get('options');
+      var lines = (this.store.get('text') || '').split('\r\n');
 
       // Determine the number of columns.
       // Optionally detect the column header: the first row with values in each column.
@@ -120,19 +108,14 @@
       if (!data) return;
 
       data.getAsString(function(text) {
-        localStorage.DataCleanInputText = text.trim('\r\n');
+        this.store.set({text: text.trim('\r\n')});
         this.parsePastedText();
       }.bind(this));
 
     },
 
-    buildOut: function() {
-      // TO DO...
-      console.log('buildOut');
-    },
-
     toRender: function() {
-      return this.getOptions();
+      return this.store.get('options');
     },
     render: function() {
       var data = this.toRender();

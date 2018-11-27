@@ -13,7 +13,8 @@ class Dataclean extends MY_Controller {
 		parent::__construct();
 		
 		$this->page = 'dataclean';
-		$this->title = 'Data Clean <sup>BETA</sup>';
+		$this->title = 'Data Clean';
+		$this->beta = true;
 		$this->description = 'Online tool to clean and transform Excel and Google Sheets data.';
 		$this->view = 'dataclean_view';
 	}

@@ -6,7 +6,7 @@
 				<li>1) Copy selected data from Excel or Google Sheets and paste here.</li>
 				<li>2) Adapt and run the JavaScript function to clean and transform.</li>
 				<li>3) Copy result data back to Excel or Google Sheets.</li>
-				<li>4) Save your session for later use.</li>
+				<li>4) Share with a colleague.</li>
 			</ol>
 		</div>
 	</div>
@@ -139,7 +139,7 @@ function process(input, columns) {
 							<h4>Data Confidentiality</h4>
 							<p>
 								Data you paste in Data Clean and code you write is kept on your computer in local storage.
-								It is not uploaded to our servers unless you decide to share with colleagues and use the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to save your session.
+								It is not uploaded to our servers unless you decide to share with colleagues and use the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to save your session in order to share with a colleague or save for later.
 							</p>
 							<br/>
 

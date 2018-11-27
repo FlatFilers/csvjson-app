@@ -33,6 +33,7 @@ $(document).ready(function() {
 			APP.bindDownload();
 			APP.bindCopy();
 			APP.bindIssue();
+			$('a.save-permalink').on('click', APP.onClickSave);
 			if (options.upload) {
 				if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
 				if (!options.upload.url) throw "Invalid option 'upload'. Missing url.";
@@ -168,8 +169,12 @@ $(document).ready(function() {
 		},
 		
 		// Create a permalink - save this page
-		save: function(e) {
-			if (e) e.preventDefault();
+		onClickSave: function(e) {
+			e.preventDefault();
+			if ($('a.save-permalink').closest('li').hasClass('disabled')) return false;
+			APP.save();
+		},
+		save: function() {
 			ga('send', 'event', '_trackEvent', APP.page, 'save');
 			
 			var url = APP.baseUrl() + '/save';
@@ -191,9 +196,9 @@ $(document).ready(function() {
 				data : JSON.stringify(data),
 				contentType : 'application/json'
 			})
-			.done(function(id) {
-				APP.id = id;
-				var newUrl = APP.baseUrl() + '/' + id;
+			.done(function(data) {
+				APP.id = data.id;
+				var newUrl = APP.baseUrl() + '/' + data.id;
 				if (window.location.href != newUrl) {
 					if (window.history && window.history.pushState)
 						window.history.pushState("", "", newUrl);
@@ -240,31 +245,23 @@ $(document).ready(function() {
 				case 'active':
 					if ($save.hasClass('active')) return;
 					$save
-						.unbind('click')
-						.click(APP.save)
 						.html('<i class="glyphicon glyphicon-link"></i> Save')
 						.attr('title', 'Save a permanent link to come back later, or to share with a friend.' + (APP.id ? ' Will overwrite your previous work.' : ''))
 						.closest('li').removeClass('disabled');
 					break;
 				case 'saving':
 					$save
-						.unbind('click')
-						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-arrow-down"></i> Save')
 						.attr('title', 'Please wait...')
 						.closest('li').addClass('disabled');
 				case 'saved':
 					$save
-						.unbind('click')
-						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-link"></i> Saved')
 						.attr('title', 'Copy the URL in the address bar to share, or bookmark it to save for later.')
 						.closest('li').addClass('disabled');
 					break;
 				case 'error':
 					$save
-						.unbind('click')
-						.click(function(e) {e.preventDefault(); return false;})
 						.html('<i class="glyphicon glyphicon-warning-sign"></i> Error saving')
 						.attr('title', error ? error : 'An unexpected error while saving.')
 						.closest('li').addClass('disabled');

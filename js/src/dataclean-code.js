@@ -1,29 +1,10 @@
 /*
- * Backbone.CodeView
+ * CSVJSON Data Clean - Backbone.CodeView
  * 
  * Copyright (c) 2018 Martin Drapeau
  *
- * Persists to local storage:
- * - localStorage.DataCleanCode
- *
  */
 (function() {
-
-  var defaultCode = `
-function process(input, columns) {
-  var output = [];
-  input.forEach(function(inRow, r) {
-    var outRow = {};
-    columns.forEach(function(col) {
-      var value = inRow[col];
-      // Processing here
-      outRow[col] = value;
-    });
-    output.push(outRow);
-  });
-  return output;
-}
-`;
 
   Backbone.CodeView = Backbone.View.extend({
     template: _.template(`
@@ -51,9 +32,11 @@ function process(input, columns) {
       'click button.stop': 'stop'
     },
     initialize: function(options) {
+      this.store = options.store;
       this.inputCollection = options.inputCollection;
       this.outputCollection = options.outputCollection;
       this.error = undefined;
+      this.workerErrors = [];
 
       this.listenTo(this.inputCollection, 'ready', this.run);
       this.listenTo(this.outputCollection, 'reset', this.render);
@@ -74,9 +57,9 @@ function process(input, columns) {
     run: function() {
       this.$('button.run').addClass('hidden');
       this.$('button.stop').removeClass('hidden');
-      this.clearWorkerErrors();
 
       // Create a web worker to eval the user code
+      this.workerErrors = [];
       this.sandbox = new Worker('/js/src/sandbox.js');
 
       this.sandbox.addEventListener('message', function(e) {
@@ -88,7 +71,7 @@ function process(input, columns) {
 
       this.sandbox.addEventListener('error', function(e) {
         this.error = e.message;
-        this.showWorkerErrors([{message: e.message, lineno: e.lineno}]);
+        this.workerErrors = [{message: e.message, lineno: e.lineno}];
         this.outputCollection.reset();
         this.stop();
       }.bind(this));
@@ -98,7 +81,7 @@ function process(input, columns) {
         return l;
       }, []);
 
-      var code = (localStorage.DataCleanCode || defaultCode) +
+      var code = this.store.get('code') +
         '\nprocess(' + JSON.stringify(input) + ', ' + JSON.stringify(Backbone.InputModel.getColumns()) + ');';
       this.sandbox.postMessage(code);
     },
@@ -106,25 +89,6 @@ function process(input, columns) {
       this.sandbox.terminate();
       this.$('button.stop').addClass('hidden');
       this.$('button.run').removeClass('hidden');
-    },
-    clearWorkerErrors: function() {
-      if (!this.codeEditor) return;
-      this.codeEditor.clearGutter('worker-error');
-    },
-    showWorkerErrors: function(errors) {
-      if (!this.codeEditor) return;
-      var lineCount = $(this.codeEditor.getWrapperElement()).find('.CodeMirror-code > div:last-child div.CodeMirror-gutter-elt').text();
-
-      for (var i = 0; i < errors.length; i++) {
-        var error = errors[i];
-        var lineno = error.lineno - 1;
-        if (lineno >= lineCount) lineno = 0;
-
-        var $marker = $('<div class="CodeMirror-lint-marker-error" data-toggle="tooltip" data-placement="right" data-container="body" title="' + error.message + '"></div>');
-
-        this.codeEditor.getDoc().setGutterMarker(lineno, 'worker-error', $marker[0]);
-        $marker.tooltip();
-      }
     },
 
     toRender: function() {
@@ -143,11 +107,27 @@ function process(input, columns) {
       }, []);
 
       return {
-        code: localStorage.DataCleanCode !== undefined ? localStorage.DataCleanCode : defaultCode,
+        code: this.store.get('code'),
         input: JSON2_mod.stringify(input, null, 2),
         output: JSON2_mod.stringify(output, null, 2),
         error: this.error
       };
+    },
+    renderWorkerErrors: function() {
+      if (!this.codeEditor || !this.$el.hasClass('active in')) return;
+      this.codeEditor.clearGutter('worker-error');
+      var lineCount = $(this.codeEditor.getWrapperElement()).find('.CodeMirror-code > div:last-child div.CodeMirror-gutter-elt').text();
+
+      for (var i = 0; i < this.workerErrors.length; i++) {
+        var error = this.workerErrors[i];
+        var lineno = error.lineno - 1;
+        if (lineno >= lineCount) lineno = 0;
+
+        var $marker = $('<div class="CodeMirror-lint-marker-error worker-error" data-toggle="tooltip" data-placement="right" data-container="body" title="' + error.message + '"></div>');
+
+        this.codeEditor.getDoc().setGutterMarker(lineno, 'worker-error', $marker[0]);
+        $marker.tooltip();
+      }
     },
     render: function() {
       if (!this.$el.hasClass('active in')) return this;
@@ -168,8 +148,8 @@ function process(input, columns) {
         });
         this.codeEditor.setSize('100%', '100%');
         this.codeEditor.on('change', function(editor) {
-          localStorage.DataCleanCode = editor.getDoc().getValue();
-        });
+          this.store.set({code: editor.getDoc().getValue()});
+        }.bind(this));
 
         this.inputEditor = CodeMirror.fromTextArea(this.$('textarea.input')[0], {
           mode: 'application/json',
@@ -192,6 +172,7 @@ function process(input, columns) {
       this.inputEditor.getDoc().setValue(data.input);
       this.outputEditor.getDoc().setValue(this.error || data.output);
       this.outputEditor.setOption('lineWrapping', !!this.error);
+      this.renderWorkerErrors();
 
       return this;
     }

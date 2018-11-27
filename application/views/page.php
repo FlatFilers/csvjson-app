@@ -57,7 +57,9 @@
 						<img src="/img/logo-text.png" alt="> CSVJSON" />
 					</a>
 					<ul class="nav navbar-nav navbar-left">
-						<li class="active"><a href="/<?=$page?>"><?=$title?></a></li>
+						<li class="active">
+							<a href="/<?=$page?>"><?=$title?><?=$beta ? ' <sup>BETA</sup>' : ''?></a>
+						</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More <span class="caret"></span></a>
 							<ul class="dropdown-menu">
@@ -67,15 +69,13 @@
 								<li><a href="/json_validator">JSON Validator</a></li>
 								<li><a href="/sql2json">SQL to JSON</a></li>
 								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
-								<?php if (ENVIRONMENT != 'production'): ?>
-									<li><a href="/dataclean">Data Clean <sup>BETA</sup></a></li>
-								<?php endif; ?>
+								<li><a href="/dataclean">Data Clean <sup>BETA</sup></a></li>
 							</ul>
 						</li>
 					</ul>
 					<?php if ($page != 'home'): ?>
 						<ul class="nav navbar-nav navbar-right">
-							<li><a href="#" class="save-permalink" title="Save a permanent link to come back later, or to share with a friend."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+							<li><a href="#" class="save-permalink" title="Save a permanent link to share with a colleague."><i class="glyphicon glyphicon-link"></i> Save</a></li>
 						</ul>
 					<?php endif; ?>
 				</div>

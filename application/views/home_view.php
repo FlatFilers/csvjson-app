@@ -20,6 +20,16 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
+			<h4>New tool! <small>Online tool to clean and transform Excel and Google Sheets data.</small></h4>
+			<div class="row">
+				<div class="col-sm-3">
+					<p><a href="/dataclean" class="btn btn-primary tool" title="Online tool to clean and transform Excel and Google Sheets data.">Data Clean <sup>BETA</sup></a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
 			<h4>More tools</h4>
 			<p>
 				<a href="/sql2json" class="btn btn-primary" title="Convert an SQL export to JSON format.">SQL to JSON</a>
