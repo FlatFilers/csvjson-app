@@ -11,34 +11,6 @@
  */
 (function() {
 
-  var defaultText = `Match\tDate\tResult\r\nTwins vs Yankees\t17-10-03\t4 - 8\r\nRockies vs Diamondbacks\t17-10-04\t8 - 11\r\nRed Sox vs Astros\t17-10-05\t2 - 8`;
-
-  var defaultCode = `
-function process(input, columns) {
-  var output = [];
-  input.forEach(function(inRow, r) {
-    var outRow = {};
-    
-    var teams = inRow.Match.split('vs');
-    outRow.Home = teams[0].trim();
-    outRow.Away = teams[1].trim();
-    
-    var date = moment(inRow.Date, 'YY-MM-DD');
-    outRow.Date = date.format('MMM Do YYYY');
-    
-    var scores = inRow.Result.split('-');
-    outRow['Home Score'] = parseInt(scores[0].trim(), 10);
-    outRow['Away Score'] = parseInt(scores[1].trim(), 10);
-    
-    outRow.Winner = outRow['Home Score'] > outRow['Away Score'] ? outRow.Home : outRow.Away;
-    if (outRow['Home Score'] == outRow['Away Score']) outRow.Winner = 'Tie';
-
-    output.push(outRow);
-  });
-  return output;
-}
-`;
-
   Backbone.DataStore = Backbone.Model.extend({
     defaults: {
       id: null,
@@ -46,8 +18,8 @@ function process(input, columns) {
       options: {
         autoDetectHeader: true
       },
-      text: defaultText,
-      code: defaultCode
+      text: `Match\tDate\tResult\r\nTwins vs Yankees\t17-10-03\t4 - 8\r\nRockies vs Diamondbacks\t17-10-04\t8 - 11\r\nRed Sox vs Astros\t17-10-05\t2 - 8`,
+      code: `function process(input, columns) {\r\n\tvar output = [];\r\n\tinput.forEach(function(inRow, r) {\r\n\t\tvar outRow = {};\r\n\t\t\r\n\t\tvar teams = inRow.Match.split('vs');\r\n\t\toutRow.Home = teams[0].trim();\r\n\t\toutRow.Away = teams[1].trim();\r\n\t\t\r\n\t\tvar date = moment(inRow.Date, 'YY-MM-DD');\r\n\t\toutRow.Date = date.format('MMM Do YYYY');\r\n\t\t\r\n\t\tvar scores = inRow.Result.split('-');\r\n\t\toutRow['Home Score'] = parseInt(scores[0].trim(), 10);\r\n\t\toutRow['Away Score'] = parseInt(scores[1].trim(), 10);\r\n\t\t\r\n\t\toutRow.Winner = outRow['Home Score'] > outRow['Away Score'] ? outRow.Home : outRow.Away;\r\n\t\tif (outRow['Home Score'] == outRow['Away Score']) outRow.Winner = 'Tie';\r\n\r\n\t\toutput.push(outRow);\r\n\t});\r\n\treturn output;\r\n}`
     },
     urlRoot: function() {
       return APP.baseUrl() + '/save';
