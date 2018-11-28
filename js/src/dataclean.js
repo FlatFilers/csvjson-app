@@ -6,32 +6,23 @@
 APP.dataclean = function() {
 
   function go() {
-    var inputCollection = new Backbone.InputCollection();
-    var outputCollection = new Backbone.OutputCollection();
-    var store = new Backbone.DataStore(_.extend({}, APP.data, {id: APP.id || null}));
+    var inputCollection = window.inputCollection = new Backbone.InputCollection();
+    var outputCollection = window.outputCollection = new Backbone.OutputCollection();
+    var store = window.store = new Backbone.DataStore(_.extend({}, APP.data, {id: APP.id || null}));
 
-    new Backbone.InputView({
-      el: $('#tab-input'),
-      collection: inputCollection,
-      store: store
-    }).render();
-
-    new Backbone.CodeView({
+    var codeView = new Backbone.CodeView({
       el: $('#tab-code'),
       inputCollection: inputCollection,
       outputCollection: outputCollection,
       store: store
     }).render();
 
-    new Backbone.OutputView({
-      el: $('#tab-output'),
-      collection: outputCollection,
-      store: store
-    }).render();
-
-    new Backbone.ShareView({
-      el: $('a.save-permalink'),
-      store: store
+    var dataView = new Backbone.DataView({
+      el: $('#tab-data'),
+      inputCollection: inputCollection,
+      outputCollection: outputCollection,
+      store: store,
+      codeView: codeView
     }).render();
   }
 
@@ -42,7 +33,7 @@ APP.dataclean = function() {
       go();
     });
   } else {
-    // No data or bootstrapped in already
+    // No data or bootstrapped in
     go();
   }
 

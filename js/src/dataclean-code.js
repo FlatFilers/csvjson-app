@@ -41,7 +41,8 @@
       this.listenTo(this.inputCollection, 'ready', this.run);
       this.listenTo(this.outputCollection, 'reset', this.render);
 
-      $(document).find('a[role=tab][href=#tab-code]').on('shown.bs.tab', this.render.bind(this));
+      this.$tab = $(document).find('a[role=tab][href=#tab-code]');
+      this.$tab.on('shown.bs.tab', this.render.bind(this));
       $(window).on('keydown', this.onKeydownCtrlR.bind(this));
     },
     onKeydownCtrlR: function(e) {
@@ -65,18 +66,18 @@
       this.sandbox.addEventListener('message', function(e) {
         this.error = undefined;
         for (var i = 0; i < e.data.length; i++) e.data[i].__Row = i;
-        this.outputCollection.reset(e.data);
+        this.outputCollection.fullCollection.reset(e.data);
         this.stop();
       }.bind(this));
 
       this.sandbox.addEventListener('error', function(e) {
         this.error = e.message;
         this.workerErrors = [{message: e.message, lineno: e.lineno}];
-        this.outputCollection.reset();
+        this.outputCollection.fullCollection.reset();
         this.stop();
       }.bind(this));
 
-      var input = this.inputCollection.reduce(function(l, m) {
+      var input = this.inputCollection.fullCollection.reduce(function(l, m) {
         if (!m.get('__Error')) l.push(_.omit(m.toJSON(), '__Error', '__Row'));
         return l;
       }, []);
@@ -93,7 +94,7 @@
 
     toRender: function() {
       var i = 0;
-      var input = this.inputCollection.reduce(function(l, m) {
+      var input = this.inputCollection.fullCollection.reduce(function(l, m) {
         if (!m.get('__Error')) {
           if (i < 2) l.push(_.omit(m.toJSON(), '__Row', '__Error'));
           i += 1;
@@ -101,7 +102,7 @@
         return l;
       }, []);
 
-      var output = this.outputCollection.reduce(function(l, m, i) {
+      var output = this.outputCollection.fullCollection.reduce(function(l, m, i) {
         if (i < 2) l.push(_.omit(m.toJSON(), '__Row'));
         return l;
       }, []);
@@ -130,6 +131,12 @@
       }
     },
     render: function() {
+      if (this.error) {
+        this.$tab.html('<small class="text-danger" title="' + this.error + '"><i class="glyphicon glyphicon-exclamation-sign"></i></small> Clean &amp; Transform');
+      } else {
+        this.$tab.html('Clean &amp; Transform');
+      }
+
       if (!this.$el.hasClass('active in')) return this;
 
       var data = this.toRender();

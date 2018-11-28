@@ -51,6 +51,7 @@ $config['assets'] = array(
 		'output' => 'css/csvjson.css',
 		'files' => array(
 			'css/backgrid.css',
+			'css/backgrid-paginator.css',
 			'css/main.css'
 		),
 		'comment' => $comment
@@ -66,6 +67,8 @@ $config['assets'] = array(
 			'js/3rd/underscore/underscore.string.js',
 			'js/3rd/backbone/backbone.js',
 			'js/3rd/backbone/backgrid.js',
+			'js/3rd/backbone/backbone.paginator.js',
+			'js/3rd/backbone/backgrid-paginator.js',
 			'js/3rd/json/json2.js'
 		)
 	),
@@ -95,9 +98,8 @@ $config['assets'] = array(
 			'js/src/json_validator.js',
 			'js/src/csvjson2json.js',
 			'js/src/dataclean-store.js',
-			'js/src/dataclean-input.js',
+			'js/src/dataclean-data.js',
 			'js/src/dataclean-code.js',
-			'js/src/dataclean-output.js',
 			'js/src/dataclean-share.js',
 			'js/src/dataclean.js',
 			'js/src/home.js',
