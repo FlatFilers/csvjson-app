@@ -13,7 +13,13 @@
           <h4>
             Input
             <small class="pull-right">
-              <button class="btn btn-default btn-xs text-danger clear-local-storage" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><i class="glyphicon glyphicon-trash"></i> Clear local storage</button>
+              <div class="form-inline">
+                <div class="form-group">
+                  <div class="checkbox" data-toggle="tooltip" data-placement="top" title="Auto-detect column header as the first row with non-empty cells. Ignore previous rows.">
+                    <label class=""><input type="checkbox" name="autoDetectHeader" <%=autoDetectHeader ? 'checked' : ''%> /> Auto-detect header</label>
+                  </div>
+                </div>
+              </div>
             </small>
           </h4>
           <table class="table table-bordered backgrid input"></table>
@@ -34,13 +40,6 @@
           <p>Then go to Clean &amp; Transform to modify the JavaScript <code>process</code> function.</p>
           <p>Come back afterwards to copy the output.</p>
           <br/>
-          <h4>Options</h4>
-          <form>
-            <div class="checkbox">
-              <label class=""><input type="checkbox" name="autoDetectHeader" <%=autoDetectHeader ? 'checked' : ''%> /> Auto-detect column header as the first row with non-empty cells. Ignore previous rows.</label>
-            </div>
-          </form>
-          <br/>
           <h4>Auto-save</h4>
           <p>
             Your input data and code is auto-saved to local storage.
@@ -48,11 +47,15 @@
           <p>
             Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
           </p>
+          <hr/>
+          <div class="form-group">
+            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><i class="glyphicon glyphicon-trash"></i> Clear local storage</button>
+          </div>
         </div>
       </div>
     `),
     events: {
-      'change input[type=checkbox]': 'onChangeOption',
+      'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
       'click button.clear-local-storage': 'onClickClear',
       'click button.copy': 'copy',
       'click a.download': 'onClickDownload'
@@ -72,12 +75,10 @@
       }.bind(this));
     },
 
-    onChangeOption: function(e) {
+    onChangeAutoDetectOption: function(e) {
       var options = {
-        autoDetectHeader: false
+        autoDetectHeader: this.$('input[name=autoDetectHeader]').is(':checked')
       };
-      var form = this.$('form').serializeObject();
-      if (form.autoDetectHeader) options.autoDetectHeader = true;
       this.store.set({options: options});
       this.parsePastedText();
     },
@@ -126,7 +127,7 @@
       _.each(lines, function(row, r) {
         var error;
         if (options.autoDetectHeader && rowWithColumnHeaders !== undefined && rowWithColumnHeaders >= r) {
-          error = 'Header row and previous rows will not be processed.';
+          error = 'Header row and previous rows will not be processed. To use index-based column headers instead, un-toggle the auto-detect header option.';
         }
 
         var model = new Backbone.InputModel({__Row: r, __Error: error});
@@ -164,6 +165,7 @@
       var data = this.toRender();
       this.$el.html(this.template(data));
 
+      this.$('[data-toggle="tooltip"]').tooltip();
 
       var inputColumns = [{
         name: '__Row',
@@ -295,7 +297,10 @@
       var value = this.model.get(columnName) + 1;
       this.$el.html(value);
       var error = this.model.get('__Error');
-      if (error) this.$el.append('&nbsp;<i class="glyphicon glyphicon-warning-sign text-danger" title="' + (error+'').replace(/"/g, "'") + '"></i>');
+      if (error) {
+        this.$el.append('&nbsp;<i class="glyphicon glyphicon-warning-sign text-danger" data-toggle="tooltip" data-placement="right" title="' + (error+'').replace(/"/g, "'") + '"></i>');
+        this.$('[data-toggle="tooltip"]').tooltip();
+      }
       this.delegateEvents();
       return this;
     }
@@ -317,23 +322,6 @@
       return this;
     }
   });
-
-  // Serialize a form into an object
-  $.fn.serializeObject = function() {
-    var o = {};
-    var a = this.serializeArray();
-    $.each(a, function() {
-      if (o[this.name] !== undefined) {
-        if (!o[this.name].push) {
-          o[this.name] = [o[this.name]];
-        }
-        o[this.name].push(this.value || '');
-      } else {
-        o[this.name] = this.value || '';
-      }
-    });
-    return o;
-  };
 
   $.fn.yes = function() {
     this.each(function() {
