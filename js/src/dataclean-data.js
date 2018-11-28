@@ -9,6 +9,25 @@
   Backbone.DataView = Backbone.View.extend({
     template: _.template(`
       <div class="row">
+        <div class="col-md-9">
+          <h4>
+            Input
+            <small class="pull-right">
+              <button class="btn btn-default btn-xs text-danger clear-local-storage" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><i class="glyphicon glyphicon-trash"></i> Clear local storage</button>
+            </small>
+          </h4>
+          <table class="table table-bordered backgrid input"></table>
+          <h4>
+            Output
+            <small class="pull-right">
+              <div class="btn-toolbar">
+                <a class="btn btn-primary btn-xs pull-right download" download="dataclean.csv" target="_self" title="Save as dataclean.csv"><i class="glyphicon glyphicon-download"></i> Download CSV</a>
+                <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i> Copy to clipboard</button>
+              </div>
+            </small>
+          </h4>
+          <table class="table table-bordered backgrid output"></table>
+        </div>
         <div class="col-md-3">
           <h4>Instructions</h4>
           <p><strong>Paste (Ctrl+v) your Excel or Google Sheets data here.</strong></p>
@@ -29,25 +48,6 @@
           <p>
             Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
           </p>
-        </div>
-        <div class="col-md-9">
-          <h4>
-            Input
-            <small class="pull-right">
-              <button class="btn btn-default btn-xs text-danger clear-local-storage" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><i class="glyphicon glyphicon-trash"></i> Clear local storage</button>
-            </small>
-          </h4>
-          <table class="table table-bordered backgrid input"></table>
-          <h4>
-            Output
-            <small class="pull-right">
-              <div class="btn-toolbar">
-                <a class="btn btn-primary btn-xs pull-right download" download="dataclean.csv" target="_self" title="Save as dataclean.csv"><i class="glyphicon glyphicon-download"></i> Download CSV</a>
-                <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i> Copy to clipboard</button>
-              </div>
-            </small>
-          </h4>
-          <table class="table table-bordered backgrid output"></table>
         </div>
       </div>
     `),
