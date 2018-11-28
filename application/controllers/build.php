@@ -92,7 +92,7 @@ class Build extends CI_Controller {
 				fclose($fid);
 				return FALSE;
 			}
-			fwrite($fid, "// $file\n");
+			fwrite($fid, "/* $file */\n");
 			fwrite($fid, $this->cssmin->minify($contents)."\n");
 		}
 		
