@@ -168,8 +168,7 @@ function process(input, columns) {
 Match	Date	Result
 Twins vs Yankees	17-10-03	4 - 8
 Rockies vs Diamondbacks	17-10-04	8 - 11
-Red Sox vs Astros	17-10-05	2 - 8
-</pre>
+Red Sox vs Astros	17-10-05	2 - 8</pre>
 <pre id="example-code" style="display:none;">
 function process(input, columns) {
   var output = [];
@@ -197,8 +196,7 @@ function process(input, columns) {
 </pre>
 <pre id="bare-data" style="display:none;">
 Column
-Copy and paste data here
-</pre>
+Copy and paste data here</pre>
 <pre id="bare-code" style="display:none;">
 function process(input, columns) {
 	var output = [];
