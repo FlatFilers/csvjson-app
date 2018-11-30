@@ -104,7 +104,7 @@
     parsePastedText: function() {
       this.inputCollection.fullCollection.reset();
       var options = this.store.get('options');
-      var lines = (this.store.get('text') || '').split('\r\n');
+      var lines = (this.store.get('text') || '').split('\n');
 
       // Determine the number of columns.
       // Optionally detect the column header: the first row with values in each column.
@@ -155,7 +155,7 @@
       if (!data) return;
 
       data.getAsString(function(text) {
-        this.store.set({text: text.trim('\r\n')});
+        this.store.set({text: text.replace(/\r/g, '').trim('\n')});
         this.parsePastedText();
       }.bind(this));
 
