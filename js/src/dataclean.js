@@ -26,6 +26,7 @@ APP.dataclean = function() {
     }).render();
   }
 
+  Backbone.DataStore.hydrateDefaults();
   if (localStorage.DataCleanShowCodePage) {
     delete localStorage.DataCleanShowCodePage;
     $('.nav-tabs a[href="#tab-code"]').tab('show');
