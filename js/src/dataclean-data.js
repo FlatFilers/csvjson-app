@@ -48,15 +48,17 @@
             Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
           </p>
           <hr/>
-          <div class="form-group">
-            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><i class="glyphicon glyphicon-trash"></i> Clear local storage</button>
+          <div class="btn-toolbar">
+            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><%= id ? 'Reset to server' : 'Reset to example.'%></button>
+            <button class="btn btn-default btn-xs text-danger clear-data-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
           </div>
         </div>
       </div>
     `),
     events: {
       'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
-      'click button.clear-local-storage': 'onClickClear',
+      'click button.clear-local-storage': 'onClickClearLocalStorage',
+      'click button.clear-data-code': 'onClickClearDataCode',
       'click button.copy': 'copy',
       'click a.download': 'onClickDownload'
     },
@@ -82,9 +84,12 @@
       this.store.set({options: options});
       this.parsePastedText();
     },
-    onClickClear: function(e) {
-      e.preventDefault();
+    onClickClearLocalStorage: function() {
       this.store.clearLocalStorage();
+      window.location.reload();
+    },
+    onClickClearDataCode: function() {
+      this.store.clearDataCode();
       window.location.reload();
     },
     copy: function() {

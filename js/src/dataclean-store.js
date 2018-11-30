@@ -11,6 +11,8 @@
  */
 (function() {
 
+  var bareCode = `function process(input, columns) {\r\n\tvar output = [];\r\n\tinput.forEach(function(inRow, r) {\r\n\t\t// Change this code\r\n\t\tvar outRow = inRow;\r\n\t\toutput.push(outRow);\r\n\t});\r\n\treturn output;\r\n}`
+
   Backbone.DataStore = Backbone.Model.extend({
     defaults: {
       id: null,
@@ -44,7 +46,6 @@
     },
     saveToLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
-      //console.log('saveToLocalStorage', {postfix: postfix}, this.changedAttributes());
       if (this.hasChanged('options'))
         localStorage['DataCleanInputOptions'+postfix] = JSON.stringify(this.get('options'));
       if (this.hasChanged('text'))
@@ -57,6 +58,12 @@
       delete localStorage['DataCleanInputOptions'+postfix];
       delete localStorage['DataCleanInputText'+postfix];
       delete localStorage['DataCleanCode'+postfix];
+    },
+    clearDataCode: function() {
+      var postfix = this.id ? ('_' + this.id) : '';
+      delete localStorage['DataCleanInputOptions'+postfix];
+      localStorage['DataCleanInputText'+postfix] = 'Column\r\nCopy and paste data here';
+      localStorage['DataCleanCode'+postfix] = bareCode;
     }
   });
 

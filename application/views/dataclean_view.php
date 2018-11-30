@@ -1,7 +1,8 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="description col-md-12">
+		<div class="col-md-12">
 			<h1 class="discrete">Online tool to clean and transform Excel and Google Sheets data.</h1>
+			<p>1) Copy (Ctrl+c) your data from Excel or Google Sheets. 2) Paste it on this page (Ctrl+v). 3) Adapt the JavaScript <code>process</code> function. 4) Copy/download the result.</p>
 		</div>
 	</div>
 	<div class="row">
@@ -28,7 +29,7 @@
 								Once written, you can reuse it on other data sets that uses the same logic for cleaning and transforming data.
 							</p>
 							<p>
-								Function <code>process</code> will be passed as arguments <code>input</code> and <code>columns</code>. The first is an array of objects, each representing a row of input data. The objects have as keys the column headers. Column headers are also passed in array <code>columns</code> for conveniance and lookup.
+								Function <code>process</code> will be passed as arguments <code>input</code> and <code>columns</code>. The first is an array of objects, each representing a row of input data. The objects have as keys the column headers. Column headers are also passed in array <code>columns</code> for convenience and lookup.
 							</p>
 							<br/>
 
