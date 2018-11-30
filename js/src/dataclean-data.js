@@ -19,6 +19,10 @@
                     <label class=""><input type="checkbox" name="autoDetectHeader" <%=autoDetectHeader ? 'checked' : ''%> /> Auto-detect header</label>
                   </div>
                 </div>
+                <div class="form-group">
+                  &nbsp;&nbsp;
+                  <button class="btn btn-default btn-xs text-danger clear-data" data-toggle="tooltip" data-placement="top" title="Clear input data to start from scratch.">Clear</button>
+                </div>
               </div>
             </small>
           </h4>
@@ -49,8 +53,8 @@
           </p>
           <hr/>
           <div class="btn-toolbar">
-            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts changes to the last version saved to the server.' : 'Resets to the original example.' %>"><%= id ? 'Reset to server' : 'Reset to example.'%></button>
-            <button class="btn btn-default btn-xs text-danger clear-data-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
+            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts data, options and code changes to the last version saved to the server.' : 'Resets data, options and code to the original example.' %>"><%= id ? 'Reset to server' : 'Reset to example.'%></button>
+            <button class="btn btn-default btn-xs text-danger clear-data-options-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
           </div>
         </div>
       </div>
@@ -58,7 +62,8 @@
     events: {
       'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
       'click button.clear-local-storage': 'onClickClearLocalStorage',
-      'click button.clear-data-code': 'onClickClearDataCode',
+      'click button.clear-data-options-code': 'onClickClearDataOptionsCode',
+      'click button.clear-data': 'onClickClearData',
       'click button.copy': 'copy',
       'click a.download': 'onClickDownload'
     },
@@ -88,8 +93,12 @@
       this.store.clearLocalStorage();
       window.location.reload();
     },
-    onClickClearDataCode: function() {
-      this.store.clearDataCode();
+    onClickClearDataOptionsCode: function() {
+      this.store.clearDataOptionsCode();
+      window.location.reload();
+    },
+    onClickClearData: function() {
+      this.store.clearData();
       window.location.reload();
     },
     copy: function() {

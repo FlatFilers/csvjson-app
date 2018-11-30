@@ -61,10 +61,18 @@
       delete localStorage['DataCleanInputText'+postfix];
       delete localStorage['DataCleanCode'+postfix];
     },
-    clearDataCode: function() {
+    clearDataOptionsCode: function() {
       var postfix = this.id ? ('_' + this.id) : '';
       delete localStorage['DataCleanInputOptions'+postfix];
       localStorage['DataCleanInputText'+postfix] = 'Column\r\nCopy and paste data here';
+      localStorage['DataCleanCode'+postfix] = bareCode;
+    },
+    clearData: function() {
+      var postfix = this.id ? ('_' + this.id) : '';
+      localStorage['DataCleanInputText'+postfix] = 'Column\r\nCopy and paste data here';
+    },
+    clearCode: function() {
+      var postfix = this.id ? ('_' + this.id) : '';
       localStorage['DataCleanCode'+postfix] = bareCode;
     }
   });

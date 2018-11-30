@@ -26,6 +26,11 @@ APP.dataclean = function() {
     }).render();
   }
 
+  if (localStorage.DataCleanShowCodePage) {
+    delete localStorage.DataCleanShowCodePage;
+    $('.nav-tabs a[href="#tab-code"]').tab('show');
+  }
+
   if (APP.id && APP.data_url) {
     // Load from CDN
     $.getJSON(APP.data_url).done(function(data) {

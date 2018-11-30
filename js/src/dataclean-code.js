@@ -12,8 +12,12 @@
         <div class="col-md-6">
           <h4>
             <span>JavaScript</span>
-            <button class="btn btn-xs btn-success pull-right run">Run <em>(Ctrl+R)</em></button>
-            <button class="btn btn-xs btn-danger pull-right stop hidden"><i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Stop</button>
+            <div class="form-inline pull-right">
+              <button class="btn btn-xs btn-success run">Run <em>(Ctrl+R)</em></button>
+              <button class="btn btn-xs btn-danger stop hidden"><i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Stop</button>
+              &nbsp;&nbsp;
+              <button class="btn btn-xs btn-default text-danger clear-code" data-toggle="tooltip" data-placement="top" title="Clear code to start from scratch.">Clear</button>
+            </div>
           </h4>
           <textarea class="code"><%=code%></textarea>
         </div>
@@ -29,7 +33,8 @@
     `),
     events: {
       'click button.run': 'run',
-      'click button.stop': 'stop'
+      'click button.stop': 'stop',
+      'click button.clear-code': 'onClickClearCode'
     },
     initialize: function(options) {
       this.store = options.store;
@@ -52,6 +57,11 @@
         e.preventDefault();
         this.run();
       }
+    },
+    onClickClearCode: function() {
+      this.store.clearCode();
+      localStorage.DataCleanShowCodePage = true;
+      window.location.reload();
     },
 
     // Eval safely using a web worker
@@ -144,6 +154,7 @@
       // Render DOM elements only once
       if (this.$el.is(':empty')) {
         this.$el.html(this.template(data));
+        this.$('[data-toggle="tooltip"]').tooltip();
 
         this.codeEditor = CodeMirror.fromTextArea(this.$('textarea.code')[0], {
           lineNumbers: true,
