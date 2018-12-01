@@ -119,34 +119,40 @@
       // Optionally detect the column header: the first row with values in each column.
       // Otherwise, use column positions.
       var columns = [];
+      var rows = [];
       var maxCols = 0;
       var rowWithColumnHeaders;
-      for (var r = 0; r < lines.length; r++) {
-        var items = lines[r].split('\t');
-        if (items.length > maxCols) maxCols = items.length;
-        if (options.autoDetectHeader && items.length == _.compact(items).length) {
+      lines.forEach(function(rowAsText, r) {
+        // Remove wrapping double quotes
+        var row = rowAsText.split('\t').map(function(colAsText) {
+          return colAsText.trim().replace(/^"(.*)"$/, '$1');
+        });
+        // Remove trailing empty cells
+        while (row.length && !row[row.length-1]) row.pop();
+        // First row with values throughout is the column header
+        if (options.autoDetectHeader && rowWithColumnHeaders === undefined && row.length == _.compact(row).length) {
           rowWithColumnHeaders = r;
-          break;
         }
-      }
+        if (row.length > maxCols) maxCols = row.length;
+        rows.push(row);
+      });
       if (!options.autoDetectHeader || rowWithColumnHeaders === undefined) {
         for (var i = 0; i < maxCols; i++) columns.push(i+'');
       } else {
-        var columns = _.map(lines[rowWithColumnHeaders].split('\t'), function(s) {
+        var columns = rows[rowWithColumnHeaders].map(function(s) {
           return s.trim();
         });
       }
       Backbone.InputModel.setColumns(columns);
 
-      _.each(lines, function(row, r) {
+      rows.forEach(function(row, r) {
         var error;
         if (options.autoDetectHeader && rowWithColumnHeaders !== undefined && rowWithColumnHeaders >= r) {
           error = 'Header row and previous rows will not be processed. To use index-based column headers instead, un-toggle the auto-detect header option.';
         }
 
         var model = new Backbone.InputModel({__Row: r, __Error: error});
-        _.each(row.split('\t'), function(cell, c) {
-          var value = cell.trim();
+        row.forEach(function(value, c) {
           var name = columns[c];
           model.set(name, value);
         }.bind(this));
