@@ -22,11 +22,11 @@
           <textarea class="code"><%=code%></textarea>
         </div>
         <div class="col-md-3">
-          <h4>Input <small>2 first rows</small></h4>
+          <h4>Input&nbsp;<small>2 first rows</small></h4>
           <textarea class="input"><%=input%></textarea>
         </div>
         <div class="col-md-3">
-          <h4>Output <small>2 first rows</small></h4>
+          <h4>Output&nbsp;<small>2 first rows</small></h4>
           <textarea class="output"><%=output%></textarea>
         </div>
       </div>
