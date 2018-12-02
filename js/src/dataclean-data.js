@@ -40,8 +40,8 @@
         </div>
         <div class="col-md-3">
           <h4>Instructions</h4>
-          <p><strong>Paste (Ctrl+v) your Excel or Google Sheets data here.</strong></p>
-          <p>Then go to Clean &amp; Transform to modify the JavaScript <code>process</code> function.</p>
+          <p><strong>Paste&nbsp;(Ctrl+v)&nbsp;your Excel or Google Sheets data here.</strong></p>
+          <p>Then go to Clean&nbsp;&amp;&nbsp;Transform to modify the JavaScript&nbsp;<code>process</code>&nbsp;function.</p>
           <p>Come back afterwards to copy the output.</p>
           <br/>
           <h4>Auto-save</h4>
@@ -49,7 +49,7 @@
             Your input data and code is auto-saved to local storage.
           </p>
           <p>
-            Click on the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to persist to server in order to share with colleagues.
+            Click on the&nbsp;<strong><i class="glyphicon glyphicon-link"></i>&nbsp;Save</strong>&nbsp;link to persist to server in order to share with colleagues.
           </p>
           <hr/>
           <div class="btn-toolbar">
