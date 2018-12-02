@@ -1,80 +1,80 @@
 /**** Navigation Bar ****/
 
-.navbar {
+header.navbar {
 	border-radius: 0;
 }
 
-.navbar-inverse {
+header.navbar-inverse {
 	background-color: #e51400;
 	border: 0;
 }
 
-.navbar-brand {
+header .navbar-brand {
 	float: left;
 	padding: 11px 10px 10px 0;
 	font-size: 26px;
 	line-height: 26px;
 }
 
-.navbar-inverse .navbar-brand {
+header.navbar-inverse .navbar-brand {
 	color: #000000;
 	padding: 0;
 }
 
-.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
+header.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
 	color: #000000;
 	background-color: transparent;
 }
 
-.nav>li {
+header .nav>li {
 	float: left!important;
 }
-.navbar-nav {
+header .navbar-nav {
 	margin: 0!important;
 }
-.navbar-left {
+header .navbar-left {
     float: left!important;
 }
-.navbar-right {
+header .navbar-right {
     float: right!important;
 }
-.navbar-header {
+header .navbar-header {
 	float: none!important;
 }
-.navbar-nav>li>a {
+header .navbar-nav>li>a {
 	padding-top: 15px!important;
 	padding-bottom: 15px!important;
 }
 
-.navbar-inverse .navbar-nav > li > a {
+header.navbar-inverse .navbar-nav > li > a {
 	color: #000000;
 }
 
-.navbar-inverse .navbar-nav > .active > a,
-.navbar-inverse .navbar-nav > .active > a:hover,
-.navbar-inverse .navbar-nav > .active > a:focus {
+header.navbar-inverse .navbar-nav > .active > a,
+header.navbar-inverse .navbar-nav > .active > a:hover,
+header.navbar-inverse .navbar-nav > .active > a:focus {
 	color: #ffffff;
 	background-color: #ba141a;
 }
 
-.navbar-inverse .navbar-nav > li.disabled > a,
-.navbar-inverse .navbar-nav > li.disabled > a:hover,
-.navbar-inverse .navbar-nav > li.disabled > a:focus {
+header.navbar-inverse .navbar-nav > li.disabled > a,
+header.navbar-inverse .navbar-nav > li.disabled > a:hover,
+header.navbar-inverse .navbar-nav > li.disabled > a:focus {
 	color: #555;
 }
 
-.navbar-inverse .navbar-collapse {
+header.navbar-inverse .navbar-collapse {
 	border-color: #990000;
 }
 
 @media (max-width: 500px) {
-	.navbar-brand {
+	header .navbar-brand {
 		display: none;
 	}
 }
 
 @media (max-width: 767px) {
-	.navbar-nav .open .dropdown-menu {
+	header .navbar-nav .open .dropdown-menu {
 		position: absolute;
     	float: left;
     	width: auto;
@@ -85,11 +85,11 @@
     	-webkit-box-shadow: 0 6px 12px rgba(0,0,0,0.175);
     	box-shadow: 0 6px 12px rgba(0,0,0,0.175);
 	}
-	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+	header.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
 		color: #333;
 	}
-	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:hover,
-	.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:focus {
+	header.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:hover,
+	header.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:focus {
 		color: #262626;
 		background-color: #f5f5f5;
 	}
