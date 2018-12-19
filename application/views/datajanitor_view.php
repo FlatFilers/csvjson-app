@@ -80,13 +80,16 @@ Column
 Copy and paste data here</pre>
 <pre id="bare-code" style="display:none;">
 function process(input, columns) {
-	var output = [];
-	input.forEach(function(inRow, r) {
-		// Change this code
-		var outRow = inRow;
-		output.push(outRow);
-	});
-	return output;
+  var output = [];
+  input.forEach(function(inRow, r) {
+    var outRow = {};
+
+    // Change this code
+    outRow = inRow;
+
+    output.push(outRow);
+  });
+  return output;
 }
 </pre>
 </div>

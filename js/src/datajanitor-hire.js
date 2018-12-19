@@ -77,7 +77,7 @@
             <% } %>
             <% if (state == 'saved') { %>
               <div class="alert alert-success">
-                <p><i class="glyphicon glyphicon-ok-circle"></i> Request saved and sent by email.</p>
+                <p><i class="glyphicon glyphicon-ok-circle"></i>&nbsp;Request saved and sent by email.</p>
               </div>
             <% } %>
           </div>
