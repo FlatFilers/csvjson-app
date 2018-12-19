@@ -1,5 +1,5 @@
 /*
- * CSVJSON Data Clean - Backbone.ShareView
+ * CSVJSON Data Janitor - Backbone.ShareView
  * 
  * Copyright (c) 2018 Martin Drapeau
  *

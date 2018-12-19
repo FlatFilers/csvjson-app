@@ -43,6 +43,6 @@ s.cleanDiacritics(' Élévation ').toLowerCase().trim() == 'elevation'; // true
 		<br/>
 	</div>
 	<div class="col-md-3">
-		<?php $this->load->view('dataclean_hire_view'); ?>
+		<?php $this->load->view('datajanitor_hire_view'); ?>
 	</div>
 </div>

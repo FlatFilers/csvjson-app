@@ -17,6 +17,10 @@ RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
 RewriteCond $0 !=img/favicon.ico
 RewriteRule ^([^/]+/)*favicon\.ico$ /img/favicon.ico [L]
 
+# Move /dataclean to /datajanitor
+RewriteRule ^dataclean/(.+) /datajanitor/$1 [R=301,L]
+RewriteRule ^dataclean$ /datajanitor [R=301,L]
+
 # Removes access to the system folder by users.
 RewriteCond %{REQUEST_URI} ^system.*
 RewriteRule ^(.*)$ /index.php/$1 [L]

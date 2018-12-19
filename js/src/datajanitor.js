@@ -1,9 +1,9 @@
 /*
- * CSVJSON Data Clean
+ * CSVJSON Data Janitor
  *
  * Copyright (c) 2018 Martin Drapeau
  */
-APP.dataclean = function() {
+APP.datajanitor = function() {
 
   function go() {
     var inputCollection = window.inputCollection = new Backbone.InputCollection();
@@ -24,11 +24,21 @@ APP.dataclean = function() {
       store: store,
       codeView: codeView
     }).render();
+
+    new Backbone.ShareView({
+      el: $('a.save-permalink').first(),
+      store: store
+    }).render();
+
+    new Backbone.HireView({
+      el: $('button.hire').first(),
+      store: store
+    }).render();
   }
 
   Backbone.DataStore.hydrateDefaults();
-  if (localStorage.DataCleanShowCodePage) {
-    delete localStorage.DataCleanShowCodePage;
+  if (localStorage.DataJanitorShowCodePage) {
+    delete localStorage.DataJanitorShowCodePage;
     $('.nav-tabs a[href="#tab-code"]').tab('show');
   }
 

@@ -1,8 +1,20 @@
 <div class="row">
 	<div class="col-md-9">
+		<h4>About</h4>
+		<p>
+			Are you having to constantly do data cleaning and transformation in Excel?
+			Are you repeating those steps over and over?
+			Don't you wish you could save those operations and use in other Excel files easily?
+		</p>
+		<p>
+			Data Janitor helps you automate and save data cleaning recipes right in your browser.
+			Data Janitor has tons of helpers to handle dates, strings and numbers.
+		</p>
+		<br/>
 		<h4>How it Works</h4>
 		<p>
-			On the Data tab you <a href="https://medium.com/@martindrapeau/data-imports-forget-upload-use-copy-and-paste-4567a7ad01e9" target="_blank">paste tab-separated-values (TSB) copied from Excel or Google Sheets</a>.
+			In Excel or Google Sheets copy an entire worksheet (Ctrl+c).
+			in Data Janitor on the Data tab <a href="https://medium.com/@martindrapeau/data-imports-forget-upload-use-copy-and-paste-4567a7ad01e9" target="_blank">paste (Ctrl+v)</a> that data.
 			The data gets converted to an array of hash objects, each representing a row.
 			The row objects will have as keys the column header names if you've toggle on the <em>auto-detect headers</em> option.
 			Otherwise the keys will be the column index starting at 0.
@@ -49,12 +61,14 @@
 		<br/>
 
 		<h4>Change Log</h4>
+		<p><strong>2018-12-19</strong></p>
+		<p>Added ability to save session and request service.</p>
 		<p><strong>2018-11-30</strong></p>
 		<p>Initial BETA release.</p>
 		<br/>
 	</div>
 
 	<div class="col-md-3">
-		<?php $this->load->view('dataclean_hire_view'); ?>
+		<?php $this->load->view('datajanitor_hire_view'); ?>
 	</div>
 </div>

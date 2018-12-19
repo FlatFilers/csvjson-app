@@ -1,5 +1,8 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+defined('DEFAULT_FROM_NAME') OR define('APP_NAME', 'CSVJSON');
+defined('DEFAULT_FROM_EMAIL') OR define('DEFAULT_FROM_EMAIL', 'info@csvjson.com');
+defined('DEFAULT_FROM_NAME') OR define('DEFAULT_FROM_NAME', APP_NAME);
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes

@@ -26,7 +26,7 @@
 		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8" />
 		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
 
-		<?php if ($page == 'json_validator' || $page == 'dataclean'): ?>
+		<?php if ($page == 'json_validator' || $page == 'datajanitor'): ?>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/codemirror.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/mode/javascript/javascript.min.js" type="text/javascript"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/addon/lint/lint.min.js" type="text/javascript"></script>
@@ -69,13 +69,15 @@
 								<li><a href="/json_validator">JSON Validator</a></li>
 								<li><a href="/sql2json">SQL to JSON</a></li>
 								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
-								<li><a href="/dataclean">Data Clean <sup>BETA</sup></a></li>
+								<li><a href="/datajanitor">Data Janitor <sup>BETA</sup></a></li>
 							</ul>
 						</li>
 					</ul>
 					<?php if ($page != 'home'): ?>
 						<ul class="nav navbar-nav navbar-right">
-							<li><a href="#" class="save-permalink" title="Save a permanent link to share with a colleague."><i class="glyphicon glyphicon-link"></i> Save</a></li>
+							<li>
+								<a href="#" class="save-permalink" title="Save a permanent link to share with a colleague."><i class="glyphicon glyphicon-link"></i> Save</a>
+							</li>
 						</ul>
 					<?php endif; ?>
 				</div>

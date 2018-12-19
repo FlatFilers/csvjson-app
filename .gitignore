@@ -9,3 +9,5 @@ application/logs/*
 !application/logs/.htaccess
 /application/config/aws_s3.php
 /data
+/application/config/development
+/application/config/production

@@ -1,8 +1,11 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-12">
-			<h1 class="discrete">Online tool to clean and transform Excel and Google Sheets data.</h1>
-			<p>1) Copy (Ctrl+c) your data from Excel or Google Sheets. 2) Paste it on this page (Ctrl+v). 3) Adapt the JavaScript <code>process</code> function. 4) Copy/download the result.</p>
+		<div class="col-md-9 col-sm-8">
+			<h1 class="discrete">Online tool for Excel and Google Sheets data cleaning and transformation.</h1>
+			<p>1) Copy (Ctrl+c) your data from Excel or Google Sheets. 2) Paste it on this page (Ctrl+v). 3) Adapt the JavaScript <code>process</code> function for data cleaning and transformation. 4) Copy/download the result.</p>
+		</div>
+		<div class="col-md-3 col-sm-4 text-right">
+			<button class="btn btn-primary hire hidden">Service Request</button>
 		</div>
 	</div>
 	<div class="row">
@@ -23,13 +26,13 @@
 				<div role="tabpanel" class="tab-pane fade in active" id="tab-data"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-code"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-help">
-					<?php $this->load->view('dataclean_help_view'); ?>
+					<?php $this->load->view('datajanitor_help_view'); ?>
 				</div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-example">
-					<?php $this->load->view('dataclean_example_view'); ?>
+					<?php $this->load->view('datajanitor_example_view'); ?>
 				</div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-tips">
-					<?php $this->load->view('dataclean_tips_view'); ?>
+					<?php $this->load->view('datajanitor_tips_view'); ?>
 				</div>
 			</div>
 

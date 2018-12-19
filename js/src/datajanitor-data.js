@@ -1,5 +1,5 @@
 /*
- * CSVJSON Data Clean - Backbone.DataView
+ * CSVJSON Data Janitor - Backbone.DataView
  * 
  * Copyright (c) 2018 Martin Drapeau
  *
@@ -31,7 +31,7 @@
             Output
             <small class="pull-right">
               <div class="btn-toolbar">
-                <a class="btn btn-primary btn-xs pull-right download" download="dataclean.csv" target="_self" title="Save as dataclean.csv"><i class="glyphicon glyphicon-download"></i> Download CSV</a>
+                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i> Download CSV</a>
                 <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i> Copy to clipboard</button>
               </div>
             </small>

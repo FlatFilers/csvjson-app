@@ -1,5 +1,5 @@
 /*
- * CSVJSON Data Clean - Backbone.CodeView
+ * CSVJSON Data Janitor - Backbone.CodeView
  * 
  * Copyright (c) 2018 Martin Drapeau
  *
@@ -60,7 +60,7 @@
     },
     onClickClearCode: function() {
       this.store.clearCode();
-      localStorage.DataCleanShowCodePage = true;
+      localStorage.DataJanitorShowCodePage = true;
       window.location.reload();
     },
 
