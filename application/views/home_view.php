@@ -21,10 +21,10 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-12">
-			<h4>New! Online tool to clean and transform Excel and Google Sheets data.</h4>
+			<h4>New! Online tool for Excel and Google Sheets data cleaning and transformation.</h4>
 			<div class="row">
 				<div class="col-sm-3">
-					<p><a href="/dataclean" class="btn btn-primary tool" title="Online tool to clean and transform Excel and Google Sheets data.">Data Clean <sup>BETA</sup></a></p>
+					<p><a href="/dataclean" class="btn btn-primary tool" title="Online tool for Excel and Google Sheets data cleaning and transformation.">Data Janitor <sup>BETA</sup></a></p>
 				</div>
 			</div>
 		</div>
