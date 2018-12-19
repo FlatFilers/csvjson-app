@@ -10,7 +10,17 @@ moment('lorem ipsum').isValid(); // false
 // Parse a known date format and convert to another format
 moment('09-12-24', 'YY-MM-DD').format('MMM Do YYYY'); // 'Dec 24th 2009'
 </pre>
-		<p>By default, the locale loaded is English <code>en</code>.</p>
+		<p>By default, the locale loaded is English <code>en</code>. You can use the <code>locale</code> method to switch to another language:</p>
+		<pre>
+// Change to French and parse a date
+moment.locale('fr'); // Returns 'fr'
+var d = moment('25 février 2018', 'DD MMM YYYY');
+d.isValid(); // true
+
+// Format in English
+d.locale('en');
+d.format('LL'); // February 25, 2018
+</pre>
 		<br/>
 
 		<h4>Handling strings</h4>
@@ -41,6 +51,38 @@ s.titlize('RED SOX vs ASTROS'); // 'Red Sox Vs Astros'
 s.cleanDiacritics(' Élévation ').toLowerCase().trim() == 'elevation'; // true
 </pre>
 		<br/>
+
+		<h4>Reordering columns</h4>
+		<p>Columns are ordered as you create them. For instance, consider this:</p>
+		<pre>
+// Input
+[{
+  "Last Name": "Doe",
+  "Dob": "25 March 2001",
+  "First Name": "John"
+}]
+
+// Process function
+function process(input, columns) {
+  var output = [];
+  input.forEach(function(inRow, r) {
+    var outRow = {};
+    outRow['First Name'] = inRow['First Name'];
+    outRow['Last Name'] = inRow['Last Name'];
+    outRow['Dob'] = inRow['Dob'];
+      
+    output.push(outRow);
+  });
+  return output;
+}
+
+// Output
+[{
+  "First Name": "John",
+  "Last Name": "Doe",
+  "Dob": "25 March 2001"
+}]
+</pre>
 	</div>
 	<div class="col-md-3">
 		<?php $this->load->view('datajanitor_hire_view'); ?>
