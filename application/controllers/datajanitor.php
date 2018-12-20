@@ -28,7 +28,8 @@ class Datajanitor extends MY_Controller {
       'id' => null,
       'data' => null,
       'data_url' => null,
-      'view' => 'datajanitor_help_view'
+      'view' => 'datajanitor_help_view',
+      'showSave' => false
     ));
   }
 
@@ -41,7 +42,8 @@ class Datajanitor extends MY_Controller {
       'id' => null,
       'data' => null,
       'data_url' => null,
-      'view' => 'datajanitor_example_view'
+      'view' => 'datajanitor_example_view',
+      'showSave' => false
     ));
   }
 
@@ -55,7 +57,8 @@ class Datajanitor extends MY_Controller {
       'data' => null,
       'data_url' => null,
       'view' => $this->view,
-      'view' => 'datajanitor_tips_view'
+      'view' => 'datajanitor_tips_view',
+      'showSave' => false
     ));
   }
 

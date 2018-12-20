@@ -15,10 +15,12 @@ class MY_Controller extends CI_Controller {
 	public $description;
 	public $view;
 	public $beta;
+	public $showSave;
 	
 	public function __construct() {
 		parent::__construct();
-		$beta = false;
+		$this->beta = false;
+		$this->showSave = true;
 	}
 	
 	// Remap controller to allow passing a parameter to index().
@@ -54,7 +56,8 @@ class MY_Controller extends CI_Controller {
 			'id' => $id,
 			'data' => $data,
 			'data_url' => $data_url,
-			'view' => $this->view
+			'view' => $this->view,
+			'showSave' => $this->showSave
 		));
 	}
 	

@@ -16,6 +16,7 @@ class Csvjson extends MY_Controller {
 		$this->title = 'CSVJSON';
 		$this->description = 'Online Conversion Tools for Developers. CSV, JSON, SQL and Javascript.';
 		$this->view = 'home_view';
+		$this->showSave = false;
 	}
 	
 }

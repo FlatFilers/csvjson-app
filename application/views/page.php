@@ -73,7 +73,7 @@
 							</ul>
 						</li>
 					</ul>
-					<?php if ($page != 'home'): ?>
+					<?php if ($showSave): ?>
 						<ul class="nav navbar-nav navbar-right">
 							<li>
 								<a href="#" class="save-permalink" title="Save a permanent link to share with a colleague."><i class="glyphicon glyphicon-link"></i> Save</a>
