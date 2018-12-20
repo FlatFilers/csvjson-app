@@ -16,7 +16,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-9 col-sm-8">
-			<h4>About</h4>
+			<h4>About Data Janitor</h4>
 			<p>
 				Are you having to constantly do data cleaning and transformation in Excel?
 				Are you repeating those steps over and over?

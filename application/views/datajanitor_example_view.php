@@ -16,7 +16,8 @@
 	</div>
 	<div class="row">
 		<div class="col-md-9 col-sm-8">
-			<p>Let's say we have a table of game matches. This is the input table.</p>
+			<h4>Sample Excel data to clean and transform</h4>
+			<p>Let's say we have a table of game matches copied and pasted from Excel. This is the input table.</p>
 			<table class="table table-bordered">
 				<thead>
 					<tr> <th>Match</th> <th>Date</th> <th>Result</th> </tr>
