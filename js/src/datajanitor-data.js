@@ -39,11 +39,6 @@
           <table class="table table-bordered backgrid output"></table>
         </div>
         <div class="col-md-3">
-          <h4>Instructions</h4>
-          <p><strong>Paste&nbsp;(Ctrl+v)&nbsp;your Excel or Google Sheets data here.</strong></p>
-          <p>Then go to Clean&nbsp;&amp;&nbsp;Transform to modify the JavaScript&nbsp;<code>process</code>&nbsp;function.</p>
-          <p>Come back afterwards to copy the output.</p>
-          <br/>
           <h4>Auto-save</h4>
           <p>
             Your input data and code is auto-saved to local storage.
