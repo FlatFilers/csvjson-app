@@ -97,6 +97,7 @@ $config['assets'] = array(
 			'js/src/json_beautifier.js',
 			'js/src/json_validator.js',
 			'js/src/csvjson2json.js',
+			'js/src/datajanitor-helpers.js',
 			'js/src/datajanitor-store.js',
 			'js/src/datajanitor-data.js',
 			'js/src/datajanitor-code.js',

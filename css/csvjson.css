@@ -81,4 +81,8 @@ footer.navbar .container-fluid a:active{color:#333}.home
 p{font-size:16px}.form-group label
 small{font-weight:normal;font-style:italic;margin-left:5px}.glyphicon-spin{-webkit-animation:spin 1000ms infinite linear;animation:spin 1000ms infinite linear}@-webkit-keyframes
 spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}@keyframes
-spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}.fade{opacity:0;-webkit-transition:opacity 0.05s linear;-moz-transition:opacity 0.05s linear;-ms-transition:opacity 0.05s linear;-o-transition:opacity 0.05s linear;transition:opacity 0.05s linear;
+spin{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}.fade{opacity:0;-webkit-transition:opacity 0.05s linear;-moz-transition:opacity 0.05s linear;-ms-transition:opacity 0.05s linear;-o-transition:opacity 0.05s linear;transition:opacity 0.05s linear}.notify{visibility:hidden;min-width:250px;margin-left: -125px;text-align:center;border-radius:2px;padding:16px;position:fixed;z-index:1;left:50%;bottom:30px}.notify.show{visibility:visible;-webkit-animation:fadein 0.5s, fadeout 0.5s 3.5s;animation:fadein 0.5s, fadeout 0.5s 3.5s}@-webkit-keyframes
+fadein{from{bottom:0;opacity:0}to{bottom:30px;opacity:1}}@keyframes
+fadein{from{bottom:0;opacity:0}to{bottom:30px;opacity:1}}@-webkit-keyframes
+fadeout{from{bottom:30px;opacity:1}to{bottom:0;opacity:0}}@keyframes
+fadeout{from{bottom:30px;opacity:1}to{bottom:0;opacity:0}}

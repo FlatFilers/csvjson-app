@@ -2,9 +2,7 @@
 	<h4>Hire CSVJSON!</h4>
 	<p class="hire-cta-message">
 		Want help to write the <code>process</code> function to clean and transform your data?
-		Send your request and we'll be happy to quote you.
+		Click on the <strong>Hire CSVJSON!</strong> button. We can help.
 	</p>
-	<br/>
-	<p><button class="btn btn-primary hire">Service Request</button></p>
 	<br/>
 </div>

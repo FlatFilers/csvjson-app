@@ -6,11 +6,6 @@
  */
 (function() {
 
-  function validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  }
-
   Backbone.RequestModel = Backbone.Model.extend({
     defaults: {
       state: null,
@@ -109,7 +104,7 @@
       var $form = this.$modal.find('form');
 
       var email = $form.find('input[name=email]').val();
-      if (!validateEmail(email)) {
+      if (!_.validateEmail(email)) {
         this.model.set({state: 'error', error: 'Missing or invalid email'});
         this.render();
         return;
@@ -193,8 +188,8 @@
       this.$modal.find('button.submit').on('click', this.onClickSubmit.bind(this));
 
       if (!data.isNew) {
-        $('p.hire-cta-message').text('Your request was received. You may update your request any time.')
-        $('button.hire.hidden').removeClass('hidden');
+        $('.hire-cta-message').text('You sent a service request');
+        $('button.hire').text('View/Modify Request');
       }
       
       return this;

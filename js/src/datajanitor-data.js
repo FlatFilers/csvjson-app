@@ -172,6 +172,7 @@
       data.getAsString(function(text) {
         this.store.set({text: text.replace(/\r/g, '').trim('\n')});
         this.parsePastedText();
+        _.notify(this.inputCollection.fullCollection.size() + ' rows of data pasted into Input table.', 'success');
       }.bind(this));
 
     },

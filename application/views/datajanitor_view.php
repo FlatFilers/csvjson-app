@@ -5,7 +5,8 @@
 			<p>1) Copy (Ctrl+c) your data from Excel or Google Sheets. 2) Paste it on this page (Ctrl+v). 3) Adapt the JavaScript <code>process</code> function for data cleaning and transformation. 4) Copy/download the result.</p>
 		</div>
 		<div class="col-md-3 col-sm-4 text-right">
-			<button class="btn btn-primary hire hidden">Service Request</button>
+			<span class="hire-cta-message">Need help cleaning data?</span><br/>
+			<button class="btn btn-primary hire">Hire CSVJSON!</button>
 		</div>
 	</div>
 	<div class="row">
@@ -15,9 +16,9 @@
 					<ul class="nav nav-tabs" role="tablist">
 						<li role="presentation" class="active"><a href="#tab-data" role="tab" data-toggle="tab">Data</a></li>
 						<li role="presentation"><a href="#tab-code" role="tab" data-toggle="tab">Clean &amp; Transform</a></li>
-						<li role="presentation" class="pull-right"><a href="#tab-tips" role="tab" data-toggle="tab">Tips</a></li>
-						<li role="presentation" class="pull-right"><a href="#tab-example" role="tab" data-toggle="tab">Example</a></li>
-						<li role="presentation" class="pull-right"><a href="#tab-help" role="tab" data-toggle="tab">Help</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/tips" target="_blank">Tips</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/example" target="_blank">Example</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/help" target="_blank">Help</a></li>
 					</ul>
 				</small>
 			</h2>
@@ -25,15 +26,6 @@
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane fade in active" id="tab-data"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-code"></div>
-				<div role="tabpanel" class="tab-pane fade" id="tab-help">
-					<?php $this->load->view('datajanitor_help_view'); ?>
-				</div>
-				<div role="tabpanel" class="tab-pane fade" id="tab-example">
-					<?php $this->load->view('datajanitor_example_view'); ?>
-				</div>
-				<div role="tabpanel" class="tab-pane fade" id="tab-tips">
-					<?php $this->load->view('datajanitor_tips_view'); ?>
-				</div>
 			</div>
 
 		</div>

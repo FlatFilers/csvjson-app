@@ -19,6 +19,46 @@ class Datajanitor extends MY_Controller {
 		$this->view = 'datajanitor_view';
 	}
 
+  public function help() {
+    $this->load->view('page', array(
+      'page' => $this->page,
+      'title' => $this->title,
+      'beta' => $this->beta,
+      'description' => $this->description,
+      'id' => null,
+      'data' => null,
+      'data_url' => null,
+      'view' => 'datajanitor_help_view'
+    ));
+  }
+
+  public function example() {
+    $this->load->view('page', array(
+      'page' => $this->page,
+      'title' => $this->title,
+      'beta' => $this->beta,
+      'description' => $this->description,
+      'id' => null,
+      'data' => null,
+      'data_url' => null,
+      'view' => 'datajanitor_example_view'
+    ));
+  }
+
+  public function tips() {
+    $this->load->view('page', array(
+      'page' => $this->page,
+      'title' => $this->title,
+      'beta' => $this->beta,
+      'description' => $this->description,
+      'id' => null,
+      'data' => null,
+      'data_url' => null,
+      'view' => $this->view,
+      'view' => 'datajanitor_tips_view'
+    ));
+  }
+
 	public function hire($id) {
     if ($_SERVER['REQUEST_METHOD'] != 'PUT') {
       httpResponseCode(405);
