@@ -19,21 +19,18 @@ class Datajanitor extends MY_Controller {
 		$this->view = 'datajanitor_view';
 	}
 
-  public function help() {
-    $this->load->view('page', array(
-      'page' => $this->page,
-      'title' => $this->title,
-      'beta' => $this->beta,
-      'description' => $this->description,
-      'id' => null,
-      'data' => null,
-      'data_url' => null,
-      'view' => 'datajanitor_help_view',
-      'showSave' => false
-    ));
-  }
+  public function docs($subView=null) {
+    $subViews = array(
+      'help' => 'Help',
+      'tips' => 'Tips',
+      'example-baseball-matches' => 'Baseball Matches',
+      'example-spacex-nasa-launches-iss' => 'SpaceX NASA Launches to ISS'
+    );
+    if (!array_key_exists($subView, $subViews)) {
+      httpResponseCode(404);
+      return;
+    }
 
-  public function example() {
     $this->load->view('page', array(
       'page' => $this->page,
       'title' => $this->title,
@@ -42,22 +39,9 @@ class Datajanitor extends MY_Controller {
       'id' => null,
       'data' => null,
       'data_url' => null,
-      'view' => 'datajanitor_example_view',
-      'showSave' => false
-    ));
-  }
-
-  public function tips() {
-    $this->load->view('page', array(
-      'page' => $this->page,
-      'title' => $this->title,
-      'beta' => $this->beta,
-      'description' => $this->description,
-      'id' => null,
-      'data' => null,
-      'data_url' => null,
-      'view' => $this->view,
-      'view' => 'datajanitor_tips_view',
+      'view' => 'datajanitor/docs_view',
+      'subView' => $subView,
+      'subViews' => $subViews,
       'showSave' => false
     ));
   }

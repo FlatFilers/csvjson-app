@@ -16,9 +16,9 @@
 					<ul class="nav nav-tabs" role="tablist">
 						<li role="presentation" class="active"><a href="#tab-data" role="tab" data-toggle="tab">Data</a></li>
 						<li role="presentation"><a href="#tab-code" role="tab" data-toggle="tab">Clean &amp; Transform</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/tips" target="_blank">Tips</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/example" target="_blank">Example</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/help" target="_blank">Help</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/tips" target="_blank">Tips</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/example-baseball-matches" target="_blank">Example</a></li>
+						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/help" target="_blank">Help</a></li>
 					</ul>
 				</small>
 			</h2>
