@@ -319,6 +319,17 @@ footer.navbar .container-fluid a:active {
 	margin-left: 5px;
 }
 
+/* Docs */
+.nav-pills>li>a {
+	border-left: 5px solid transparent;
+	border-radius: 0;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    border-left: 5px solid #e51400;
+    color: inherit;
+    background-color: inherit;
+}
+
 /* Spinner */
 .glyphicon-spin {
     -webkit-animation: spin 1000ms infinite linear;

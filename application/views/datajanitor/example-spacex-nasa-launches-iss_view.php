@@ -13,7 +13,7 @@
 </div>
 <br/>
 
-<p>Second step is to write the JavaScript function to transform that data. It is necessary to sort rows by launch date in order to calculate days elapsed. I wrote a special function <code>sortByDate</code> for sorting. It uses Underscore.js's <code>sortBy</code> to do that. The comparator function uses Moment.js's <code>unix</code> function to convert to a timestamp.</p>
+<p>Second step is to write the JavaScript function to transform that data. It is necessary to sort rows by launch date in order to calculate days elapsed. I wrote a special function <code>sortByDate</code> for sorting. It uses Underscore.js's <code>sortBy</code> to do that. The comparator function uses Moment.js's <code>unix</code> function to convert to a timestamp. Notice that only NASA launches are processed.</p>
 <pre>
 function sortByDate(list, column, descending) {
   return _.sortBy(list, function(o) {
