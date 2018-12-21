@@ -42,7 +42,7 @@ function process(input, columns) {
 }
 </pre>
 
-<p>And the final output:</p>
+<p>And the output. Notice we are missing flight 7. This relates to <a href="https://en.wikipedia.org/wiki/SpaceX_CRS-7" target="_blank">flight CRS-7</a>, where Falcon disintegrated 139 seconds into flight on June 28 2015.</p>
 <table class="table table-bordered backgrid output">
     <thead>
         <tr>
