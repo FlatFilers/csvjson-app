@@ -1,7 +1,7 @@
 <h2>SpaceX NASA Launches to the ISS</h2>
 <p class="lead">Data Janitor Example</p>
 <p>
-	SpaceX has its flight manifest directly on their website. The objective is to extract NASA launches to the International Space Station and determine the number of days between those launches.
+	SpaceX has its <a href="https://www.spacex.com/missions" target="_blank">flight manifest</a> directly on their website. The objective is to extract NASA launches to the International Space Station and determine the number of days between those launches.
 </p>
 <p>
   First step is to copy the data from the SpaceX Manifest web page, and paste it into Data Janitor.
