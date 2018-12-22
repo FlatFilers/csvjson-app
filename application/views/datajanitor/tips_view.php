@@ -1,4 +1,4 @@
-<h2>Cleaning Dates</h2>
+<h2>Cleaning dates</h2>
 <p><a href="https://momentjs.com/docs/#/parsing/" target="_blank">Moment.js</a> is available in global function <code>moment()</code> to help you parse and format dates.</p>
 <pre>
 // Parse a string as date and verify it's valid
@@ -81,3 +81,84 @@ function process(input, columns) {
   "Dob": "25 March 2001"
 }]
 </pre>
+<br/>
+
+<h2>Sorting rows</h2>
+<p>Assuming we have this input table:</p>
+<div class="row">
+  <div class="col-md-6 col-sm-10">
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Day of week</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>New Year's Day</td>
+          <td>Tuesday</td>
+          <td>January 1, 2019</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Good Friday</td>
+          <td>Friday</td>
+          <td>April 19, 2019</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Easter Monday</td>
+          <td>Monday</td>
+          <td>April 22, 2019</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Victoria Day/National Patriots Day</td>
+          <td>Monday</td>
+          <td>May 20, 2019</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Quebec national Holiday</td>
+          <td>Monday</td>
+          <td>June 24, 2019</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p>
+  Using Underscore.js's <a href="https://underscorejs.org/#sortBy" target="_blank">sortBy()</a> function to sort on a column.
+  <br/>
+  <em>Note: This will return a copy of the input array. Hence we need to reassign it.</em>
+</p>
+<pre>
+// Sort by Id in ascending order
+input = _.sortBy(input, 'Id');
+
+// Sort by Id in desceding order
+input = _.sortBy(input, function(o) {
+  return -o.Id;
+});
+
+// Sort by date
+input = _.sortBy(input, function(o) {
+  return moment(o.Date).unix();
+});
+</pre>
+
+<p>
+  To sort by name, alphanumerically, we may combine JavaScript's <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array.prototype.sort()</a> method with underscore.string's <a href="https://epeli.github.io/underscore.string/#naturalcmp-string1-string2-gt-number" target="_blank">naturalCmp(string1, string2)</a> function.
+  <br/>
+  <em>Note: In this case the array is sorted in place - no need to reassign it.</em>
+</p>
+<pre>
+input.sort(function(o1, o2) {
+  return s.naturalCmp(o1.Name, o2.Name);
+});
+</pre>
+<br/>
