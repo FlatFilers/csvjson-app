@@ -97,7 +97,7 @@ function process(input, columns) {
       <thead>
         <tr>
           <th>Id</th>
-          <th>Name</th>
+          <th>Holiday</th>
           <th>Day of week</th>
           <th>Date</th>
         </tr>
@@ -164,7 +164,7 @@ input = _.sortBy(input, function(o) {
 </p>
 <pre>
 input.sort(function(o1, o2) {
-  return s.naturalCmp(o1.Name, o2.Name);
+  return s.naturalCmp(o1.Holiday, o2.Holiday);
 });
 </pre>
 <br/>
