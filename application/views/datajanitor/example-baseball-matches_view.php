@@ -27,21 +27,21 @@
 <p><code>input</code></p>
 <pre>
 [
-	{
-		"Match": "Twins vs Yankees",
-		"Date": "17-10-03",
-		"Result": "4 - 8"
-	},
-	{
-		"Match": "Rockies vs Diamondbacks",
-		"Date": "17-10-04",
-		"Result": "8 - 11"
-	},
-	{
-		"Match": "Red Sox vs Astros",
-		"Date": "17-10-05",
-		"Result": "2 - 8"
-	}
+  {
+    "Match": "Twins vs Yankees",
+    "Date": "17-10-03",
+    "Result": "4 - 8"
+  },
+  {
+    "Match": "Rockies vs Diamondbacks",
+    "Date": "17-10-04",
+    "Result": "8 - 11"
+  },
+  {
+    "Match": "Red Sox vs Astros",
+    "Date": "17-10-05",
+    "Result": "2 - 8"
+  }
 ]
 </pre>
 <p><code>columns</code></p>
