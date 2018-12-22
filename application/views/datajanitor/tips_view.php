@@ -1,3 +1,9 @@
+<h1>Data Janitor Tips</h1>
+<p>
+  Libraries <a href="https://underscorejs.org/" target="_blank">Underscore.js</a>, <a href="https://epeli.github.io/underscore.string/" target="_blank">underscore.string</a> and <a href="https://momentjs.com/docs/#/parsing/" target="_blank">Moment.js</a> are loaded and available along with vanilla JavaScript to help you transform and clean data.
+</p>
+<br/>
+
 <h2>Cleaning dates</h2>
 <p><a href="https://momentjs.com/docs/#/parsing/" target="_blank">Moment.js</a> is available in global function <code>moment()</code> to help you parse and format dates.</p>
 <pre>
