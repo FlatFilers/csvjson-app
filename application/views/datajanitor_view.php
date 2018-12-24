@@ -67,9 +67,7 @@ function process(input, columns) {
   return output;
 }
 </pre>
-<pre id="bare-data" style="display:none;">
-Column
-Copy and paste data here</pre>
+<pre id="bare-data" style="display:none;"></pre>
 <pre id="bare-code" style="display:none;">
 function process(input, columns) {
   var output = [];

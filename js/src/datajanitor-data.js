@@ -108,7 +108,8 @@
     parsePastedText: function() {
       this.inputCollection.fullCollection.reset();
       var options = this.store.get('options');
-      var lines = (this.store.get('text') || '').split('\n');
+      var text = (this.store.get('text') || '').trim();
+      var lines = text ? text.split('\n') : [];
 
       // Determine the number of columns.
       // Optionally detect the column header: the first row with values in each column.
@@ -201,7 +202,8 @@
       new Backgrid.Grid({
         el: this.$('table.input'),
         collection: this.inputCollection,
-        columns: inputColumns
+        columns: inputColumns,
+        emptyText: 'Copy data from Excel or Google Sheets (Ctrl+c). Then paste it on this page to fill this table (Ctrl+v).'
       }).render();
 
       new Backgrid.Extension.Paginator({
