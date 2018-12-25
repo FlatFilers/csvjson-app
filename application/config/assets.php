@@ -99,6 +99,7 @@ $config['assets'] = array(
 			'js/src/csvjson2json.js',
 			'js/src/datajanitor-helpers.js',
 			'js/src/datajanitor-store.js',
+			'js/src/datajanitor-sessions.js',
 			'js/src/datajanitor-data.js',
 			'js/src/datajanitor-code.js',
 			'js/src/datajanitor-share.js',

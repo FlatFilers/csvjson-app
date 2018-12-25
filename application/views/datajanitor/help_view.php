@@ -59,6 +59,8 @@
 <br/>
 
 <h2>Change Log</h2>
+<p><strong>2018-12-25</strong></p>
+<p>Expose sessions in UI.</p>
 <p><strong>2018-12-19</strong></p>
 <p>Added ability to save session and request service.</p>
 <p><strong>2018-11-30</strong></p>

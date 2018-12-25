@@ -9,7 +9,7 @@
   Backbone.DataView = Backbone.View.extend({
     template: _.template(`
       <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-12">
           <h4>
             Input
             <small class="pull-right">
@@ -38,27 +38,10 @@
           </h4>
           <table class="table table-bordered backgrid output"></table>
         </div>
-        <div class="col-md-3">
-          <h4>Auto-save</h4>
-          <p>
-            Your input data and code is auto-saved to local storage.
-          </p>
-          <p>
-            Click on the&nbsp;<strong><i class="glyphicon glyphicon-link"></i>&nbsp;Save</strong>&nbsp;link to persist to server in order to share with colleagues.
-          </p>
-          <hr/>
-          <div class="btn-toolbar">
-            <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts data, options and code changes to the last version saved to the server.' : 'Resets data, options and code to the original example.' %>"><%= id ? 'Reset to server' : 'Reset to example.'%></button>
-            <button class="btn btn-default btn-xs text-danger clear-data-options-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
-          </div>
-        </div>
       </div>
     `),
     events: {
       'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
-      'click button.clear-local-storage': 'onClickClearLocalStorage',
-      'click button.clear-data-options-code': 'onClickClearDataOptionsCode',
-      'click button.clear-data': 'onClickClearData',
       'click button.copy': 'copy',
       'click a.download': 'onClickDownload'
     },
@@ -83,18 +66,6 @@
       };
       this.store.set({options: options});
       this.parsePastedText();
-    },
-    onClickClearLocalStorage: function() {
-      this.store.clearLocalStorage();
-      window.location.reload();
-    },
-    onClickClearDataOptionsCode: function() {
-      this.store.clearDataOptionsCode();
-      window.location.reload();
-    },
-    onClickClearData: function() {
-      this.store.clearData();
-      window.location.reload();
     },
     copy: function() {
       _.copyToClipboard(this.outputCollection.toCSV('\t'));

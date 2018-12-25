@@ -10,6 +10,11 @@ APP.datajanitor = function() {
     var outputCollection = window.outputCollection = new Backbone.OutputCollection();
     var store = window.store = new Backbone.DataStore(_.extend({}, APP.data, {id: APP.id || null}));
 
+    var sessionsView = new Backbone.SessionsView({
+      el: $('#sessions'),
+      store: store
+    }).render();
+
     var codeView = new Backbone.CodeView({
       el: $('#tab-code'),
       inputCollection: inputCollection,

@@ -97,6 +97,17 @@
     clearCode: function() {
       var postfix = this.id ? ('_' + this.id) : '';
       localStorage['DataJanitorCode'+postfix] = bareCode;
+    },
+    getSessions: function() {
+      var sessions = [];
+      var keys = _.keys(window.localStorage);
+      _.each(keys, function(key) {
+        var parts = key.split('_');
+        if (parts.length == 2 && parts[0] == 'DataJanitorCode') {
+          sessions.push(parts[1]);
+        }
+      });
+      return sessions;
     }
   }, {
     hydrateDefaults: function() {

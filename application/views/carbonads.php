@@ -4,7 +4,7 @@
   @media (min-width: 992px) {
     #carbonads {
       position: fixed;
-      right: 0;
+      <?=isset($positionLeft) && $positionLeft ? 'left' : 'right'?>: 0;
       bottom: 0;
       box-sizing: border-box;
       float: right;

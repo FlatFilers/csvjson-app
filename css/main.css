@@ -329,6 +329,11 @@ footer.navbar .container-fluid a:active {
     color: inherit;
     background-color: inherit;
 }
+.intro-section {
+	background-color: #f5f5f5;
+    margin-top: -20px;
+    padding: 20px;
+}
 
 /* Spinner */
 .glyphicon-spin {

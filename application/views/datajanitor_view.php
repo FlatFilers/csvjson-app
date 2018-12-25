@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid intro-section">
 	<div class="row">
 		<div class="col-md-9 col-sm-8">
 			<h1 class="discrete">Online tool for Excel and Google Sheets data cleaning and transformation.</h1>
@@ -9,30 +9,28 @@
 			<button class="btn btn-primary hire">Hire CSVJSON!</button>
 		</div>
 	</div>
+</div>
+<div class="container-fluid">
 	<div class="row">
-		<div class="col-md-12">
-			<h2>
-				<small>
-					<ul class="nav nav-tabs" role="tablist">
-						<li role="presentation" class="active"><a href="#tab-data" role="tab" data-toggle="tab">Data</a></li>
-						<li role="presentation"><a href="#tab-code" role="tab" data-toggle="tab">Clean &amp; Transform</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/tips" target="_blank">Tips</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/example-baseball-matches" target="_blank">Examples</a></li>
-						<li role="presentation" class="pull-right"><a href="/datajanitor/docs/help" target="_blank">Help</a></li>
-					</ul>
-				</small>
-			</h2>
-
+		<div id="sessions" class="col-md-2 col-sm-2"></div>
+		<div class="col-md-10 col-sm-10">
+			<br/>
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active"><a href="#tab-data" role="tab" data-toggle="tab">Data</a></li>
+				<li role="presentation"><a href="#tab-code" role="tab" data-toggle="tab">Clean &amp; Transform</a></li>
+				<li role="presentation" class="pull-right"><a href="/datajanitor/docs/tips" target="_blank">Tips</a></li>
+				<li role="presentation" class="pull-right"><a href="/datajanitor/docs/example-baseball-matches" target="_blank">Examples</a></li>
+				<li role="presentation" class="pull-right"><a href="/datajanitor/docs/help" target="_blank">Help</a></li>
+			</ul>
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane fade in active" id="tab-data"></div>
 				<div role="tabpanel" class="tab-pane fade" id="tab-code"></div>
 			</div>
-
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-			<?php $this->load->view('carbonads'); ?>
+			<?php $this->load->view('carbonads', array('positionLeft' => true)); ?>
 		</div>
 	</div>
 	<br/>
