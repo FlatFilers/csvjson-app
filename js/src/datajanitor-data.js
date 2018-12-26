@@ -31,8 +31,8 @@
             Output
             <small class="pull-right">
               <div class="btn-toolbar">
-                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i> Download CSV</a>
-                <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i> Copy to clipboard</button>
+                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
+                <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
               </div>
             </small>
           </h4>

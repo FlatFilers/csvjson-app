@@ -13,6 +13,7 @@ class Datajanitor extends MY_Controller {
 		parent::__construct();
 		
 		$this->page = 'datajanitor';
+    $this->tool = 'Data Janitor';
 		$this->title = 'Data Janitor';
 		$this->beta = true;
 		$this->description = 'Online tool to clean and transform Excel and Google Sheets data.';
@@ -31,11 +32,22 @@ class Datajanitor extends MY_Controller {
       return;
     }
 
+    $title = $this->title . (strpos($subView, 'example') === 0 ? ' Example: ' : ' ') . $subViews[$subView];
+
+    $descriptions = array(
+      'help' => 'Instructions using and background on CSVJSON Data Janitor',
+      'tips' => 'Programming tips on using CSVJSON Data Janitor',
+      'example-baseball-matches' => 'Example usage of CSVJSON Data Janitor. Parsing MLB matches.',
+      'example-spacex-nasa-launches-iss' => 'Example usage of CSVJSON Data Janitor. Parsing SpaceX launch manifest to extract missions to the International Space Station.'
+    );
+
     $this->load->view('page', array(
       'page' => $this->page,
-      'title' => $this->title,
+      'tool' => $this->tool,
+      'run' => false,
+      'title' => $title,
       'beta' => $this->beta,
-      'description' => $this->description,
+      'description' => $descriptions[$subView],
       'id' => null,
       'data' => null,
       'data_url' => null,

@@ -301,7 +301,9 @@ $(document).ready(function() {
 		
 	// Load the proper JS module for this page.
 	// Each module extended APP with a function of its page name.
-	var fn = APP[APP.page];
-	if (typeof(fn) !== 'function') throw "Module "+APP.page+" not found.";
-	APP[APP.page]();
+	if (APP.run) {
+		var fn = APP[APP.page];
+		if (typeof(fn) !== 'function') throw "Module "+APP.page+" not found.";
+		APP[APP.page]();
+	}
 });

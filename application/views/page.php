@@ -14,6 +14,7 @@
 		<script type="text/javascript">
 			window.APP = {
 				page: "<?=$page?>",
+				run: <?=$run ? 'true' : 'false'?>,
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
 				data: <?=$data ? $data : 'null'?>,
@@ -58,7 +59,7 @@
 					</a>
 					<ul class="nav navbar-nav navbar-left">
 						<li class="active">
-							<a href="/<?=$page?>"><?=$title?><?=$beta ? ' <sup>BETA</sup>' : ''?></a>
+							<a href="/<?=$page?>"><?=$tool?><?=$beta ? ' <sup>BETA</sup>' : ''?></a>
 						</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More <span class="caret"></span></a>

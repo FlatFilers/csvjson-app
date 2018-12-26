@@ -11,6 +11,8 @@
 class MY_Controller extends CI_Controller {
 	
 	public $page;
+	public $tool;
+	public $run;
 	public $title;
 	public $description;
 	public $view;
@@ -19,6 +21,7 @@ class MY_Controller extends CI_Controller {
 	
 	public function __construct() {
 		parent::__construct();
+		$this->run = true;
 		$this->beta = false;
 		$this->showSave = true;
 	}
@@ -50,6 +53,8 @@ class MY_Controller extends CI_Controller {
 		
 		$this->load->view('page', array(
 			'page' => $this->page,
+			'tool' => isset($this->tool) ? $this->tool : $this->title,
+			'run' => $this->run,
 			'title' => $this->title,
 			'beta' => $this->beta,
 			'description' => $this->description,
