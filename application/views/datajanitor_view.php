@@ -30,7 +30,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-			<?php $this->load->view('carbonads', array('positionLeft' => true)); ?>
+			<?php //$this->load->view('carbonads', array('positionLeft' => true)); ?>
 		</div>
 	</div>
 	<br/>
