@@ -10,9 +10,9 @@
     template: _.template(`
       <h3>Sessions</h3>
       <ul class="nav nav-pills nav-stacked">
-        <li class="<%=!id ? 'active' : ''%>" title="Saved to local storage"><a href="/datajanitor">Sandbox</a></li>
+        <li class="<%=!id ? 'active' : ''%>" title="Saved to local storage. Never sent to the server."><a href="/datajanitor">Sandbox</a></li>
         <% for (var i = 0; i < sessions.length; i++) { %>
-          <li class="<%=id == sessions[i] ? 'active' : ''%>" title="Saved to server"><a href="/datajanitor/<%=sessions[i]%>"><i class="glyphicon glyphicon-link"></i>&nbsp;<%=sessions[i].substr(0,8)%></a></li>
+          <li class="<%=id == sessions[i] ? 'active' : ''%>" title="Saved to server. Changes are saved to local storage until you click Save again."><a href="/datajanitor/<%=sessions[i]%>"><i class="glyphicon glyphicon-link"></i>&nbsp;<%=sessions[i].substr(0,8)%></a></li>
         <% } %>
       </ul>
       <br/>

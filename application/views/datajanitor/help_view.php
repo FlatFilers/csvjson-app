@@ -12,7 +12,7 @@
 <h2>How it Works</h2>
 <p>
 	In Excel or Google Sheets copy an entire worksheet (Ctrl+c).
-	in Data Janitor on the Data tab <a href="https://medium.com/@martindrapeau/data-imports-forget-upload-use-copy-and-paste-4567a7ad01e9" target="_blank">paste (Ctrl+v)</a> that data.
+	In Data Janitor on the Data tab <a href="https://medium.com/@martindrapeau/data-imports-forget-upload-use-copy-and-paste-4567a7ad01e9" target="_blank">paste (Ctrl+v)</a> that data.
 	The data gets converted to an array of hash objects, each representing a row.
 	The row objects will have as keys the column header names if you've toggle on the <em>auto-detect headers</em> option.
 	Otherwise the keys will be the column index starting at 0.

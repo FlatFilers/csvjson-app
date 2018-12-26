@@ -81,7 +81,28 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
+			<h3>Confidentiality</h3>
+			<p>
+				Any data pasted and converted on CSVJSON remains local on your computer.
+				Data is never sent to the server. Two exceptions are:
+			</p>
+			<ol>
+				<li>You upload a file. Data is sent to the server and downloaded back for use. The uploaded file gets deleted and is not tracked.</li>
+				<li>You <em>Save</em> a permalink to your session to share with co-workers. Your data gets persisted on the server. It can be deleted by clearing the data and saving again.</li>
+			</ol>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2018-12-26</h4>
+			<p>
+				Confidentiality statement and improvements on Data Janitor.
+			</p>
+			<h4>2018-12-01</h4>
+			<p>
+				Added a new tool <a href="/datajanitor">Data Janitor</a> to perform Excel and Google Sheets data cleaning and transformation.
+			</p>
 			<h4>2018-11-18</h4>
 			<p>
 				Added a copy-to-clipboard button and upgraded underscore and backbone to latest versions.
