@@ -21,6 +21,10 @@
                 </div>
                 <div class="form-group">
                   &nbsp;&nbsp;
+                  <button class="btn btn-default btn-xs pull-right copy-input"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+                </div>
+                <div class="form-group">
+                  &nbsp;&nbsp;
                   <button class="btn btn-default btn-xs text-danger clear-data" data-toggle="tooltip" data-placement="top" title="Clear input data to start from scratch.">Clear</button>
                 </div>
               </div>
@@ -32,7 +36,7 @@
             <small class="pull-right">
               <div class="btn-toolbar">
                 <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
-                <button class="btn btn-primary btn-xs pull-right copy"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+                <button class="btn btn-primary btn-xs pull-right copy-output"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
               </div>
             </small>
           </h4>
@@ -42,7 +46,8 @@
     `),
     events: {
       'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
-      'click button.copy': 'copy',
+      'click button.copy-input': 'copyInput',
+      'click button.copy-output': 'copyOutput',
       'click a.download': 'onClickDownload'
     },
     initialize: function(options) {
@@ -67,9 +72,13 @@
       this.store.set({options: options});
       this.parsePastedText();
     },
-    copy: function() {
+    copyInput: function() {
+      _.copyToClipboard(this.inputCollection.toCSV('\t'));
+      this.$('button.copy-input').yes();
+    },
+    copyOutput: function() {
       _.copyToClipboard(this.outputCollection.toCSV('\t'));
-      this.$('button.copy').yes();
+      this.$('button.copy-output').yes();
     },
     onClickDownload: function() {
       this.$('a.download').yes();
@@ -255,6 +264,14 @@
     mode: 'client',
     state: {
       pageSize: 5
+    },
+    toCSV: function(separator) {
+      if (this.fullCollection.size() == 0) return '';
+      var keys = _.without(this.fullCollection.first().keys(), '__Row', '__Error');
+      var data = this.fullCollection.map(function(model) {
+        return model.pick(keys);
+      });
+      return _.convert(data, separator);
     }
   });
 
