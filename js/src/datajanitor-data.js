@@ -116,9 +116,10 @@
         var error;
         if (options.autoDetectHeader && rowWithColumnHeaders !== undefined && rowWithColumnHeaders >= r) {
           error = 'Header row and previous rows will not be processed. To use index-based column headers instead, un-toggle the auto-detect header option.';
+          return true;
         }
 
-        var model = new Backbone.InputModel({__Row: r, __Error: error});
+        var model = new Backbone.InputModel({__Row: this.inputCollection.fullCollection.size(), __Error: error});
         row.forEach(function(value, c) {
           var name = columns[c];
           model.set(name, value);

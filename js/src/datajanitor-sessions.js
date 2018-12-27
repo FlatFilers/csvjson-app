@@ -17,9 +17,9 @@
       </ul>
       <br/>
       <div class="panel">
-        <p title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."><em>Current session is auto-saved&nbsp;<i class="glyphicon glyphicon-info-sign text-muted"></i></em></p>
+        <p><em>Current session is auto-saved&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
         <p>
-          <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="bottom" title="<%= id ? 'Reverts data, options and code changes to the last version saved to the server.' : 'Resets data, options and code to the original example.' %>"><%= id ? 'Reset session to server' : 'Reset sandbox to example'%></button>
+          <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="top" title="<%= id ? 'Reverts data, options and code changes to the last version saved to the server.' : 'Resets data, options and code to the original example.' %>"><%= id ? 'Reset session to server' : 'Reset sandbox to example'%></button>
         </p>
         <p>
           <button class="btn btn-default btn-xs text-danger clear-data-options-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
@@ -33,7 +33,6 @@
     },
     initialize: function(options) {
       this.store = options.store;
-
     },
     onClickClearLocalStorage: function() {
       this.store.clearLocalStorage();
@@ -56,6 +55,7 @@
     render: function() {
       var data = this.toRender();
       this.$el.html(this.template(data));
+      this.$('[data-toggle="tooltip"]').tooltip();
       return this;
     }
   });
