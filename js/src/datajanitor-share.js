@@ -22,7 +22,7 @@
                   <input class="form-control" type="text" name="share-link" spellcheck="false" />
                   <span class="input-group-btn">
                     <button class="btn btn-default btn-block copy-to-clipboard" onclick="document.execCommand('copy');">
-                      <i class="glyphicon glyphicon-share"></i> Copy
+                      <i class="glyphicon glyphicon-share"></i>&nbsp;Copy
                     </button>
                   </span>
                 </div>
@@ -40,6 +40,7 @@
     },
     initialize: function(options) {
       this.store = options.store;
+      this.sessionsView = options.sessionsView;
       this.listenTo(this.store, 'change:options change:text change:code', this.onChange);
     },
     onChange: function() {
@@ -66,15 +67,19 @@
       this.store.save({date: (new Date()).toUTCString()}, {wait: true})
       .done(function() {
         var newUrl = APP.baseUrl() + '/' + this.store.id;
+        APP.id = this.store.id;
+        APP.data = this.store.toJSON();
+        this.store.saveToLocalStorage();
+
         if (window.location.href != newUrl) {
           if (window.history && window.history.pushState)
             window.history.pushState("", "", newUrl);
           else
             window.location.href = newUrl;
         }
-        APP.id = this.store.id;
-        APP.data = this.store.toJSON();
+
         this.renderModalState('saved');
+        this.sessionsView.render();
       }.bind(this))
       .fail(function(xhr) {
         var error = xhr.responseText ? xhr.responseText : 'Unexpected error saving.';

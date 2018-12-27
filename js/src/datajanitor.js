@@ -30,9 +30,15 @@ APP.datajanitor = function() {
       codeView: codeView
     }).render();
 
+    /*var sessionView = new Backbone.SessionView({
+      el: $('#tab-session'),
+      store: store
+    }).render();*/
+
     new Backbone.ShareView({
       el: $('a.save-permalink').first(),
-      store: store
+      store: store,
+      sessionsView: sessionsView
     }).render();
 
     new Backbone.HireView({

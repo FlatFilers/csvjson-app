@@ -25,7 +25,7 @@
                 </div>
                 <div class="form-group">
                   &nbsp;&nbsp;
-                  <button class="btn btn-default btn-xs text-danger clear-data" data-toggle="tooltip" data-placement="top" title="Clear input data to start from scratch.">Clear</button>
+                  <button class="btn btn-default btn-xs text-danger clear-input" data-toggle="tooltip" data-placement="top" title="Clear input data to start from scratch.">Clear</button>
                 </div>
               </div>
             </small>
@@ -46,6 +46,7 @@
     `),
     events: {
       'change input[name=autoDetectHeader]': 'onChangeAutoDetectOption',
+      'click button.clear-input': 'clearInput',
       'click button.copy-input': 'copyInput',
       'click button.copy-output': 'copyOutput',
       'click a.download': 'onClickDownload'
@@ -64,13 +65,16 @@
         this.parsePastedText();
       }.bind(this));
     },
-
     onChangeAutoDetectOption: function(e) {
       var options = {
         autoDetectHeader: this.$('input[name=autoDetectHeader]').is(':checked')
       };
       this.store.set({options: options});
       this.parsePastedText();
+    },
+    clearInput: function() {
+      this.store.clearData();
+      window.location.reload();
     },
     copyInput: function() {
       _.copyToClipboard(this.inputCollection.toCSV('\t'));

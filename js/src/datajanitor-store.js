@@ -47,6 +47,24 @@
       migrateKey('DataCleanInputText'+postfix, 'DataJanitorInputText'+postfix);
       migrateKey('DataCleanCode'+postfix, 'DataJanitorCode'+postfix);
 
+      // TODO: remove after a while
+      function createSessions() {
+        var sessions = [];
+        try {
+          sessions = JSON.parse(window.localStorage.DataJanitorSessions);
+        } catch (err) {}
+
+        var keys = _.keys(window.localStorage);
+        _.each(keys, function(key) {
+          var parts = key.split('_');
+          if (parts.length == 2 && parts[0] == 'DataJanitorCode' && sessions.indexOf(parts[1]) === -1)
+            sessions.push(parts[1]);
+        });
+
+        window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
+      }
+      createSessions();
+
       if (localStorage['DataJanitorInputOptions'+postfix] !== undefined)
         try {
           data.options = JSON.parse(localStorage['DataJanitorInputOptions'+postfix]);
@@ -76,6 +94,14 @@
         localStorage['DataJanitorCode'+postfix] = this.get('code');
       if (this.hasChanged('request'))
         localStorage['DataJanitorRequest'+postfix] = JSON.stringify(this.get('request'));
+
+      if (this.id) {
+        var sessions = this.getSessions();
+        if (sessions.indexOf(this.id) === -1) {
+          sessions.push(this.id);
+          window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
+        }
+      }
     },
     clearLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
@@ -99,15 +125,7 @@
       localStorage['DataJanitorCode'+postfix] = bareCode;
     },
     getSessions: function() {
-      var sessions = [];
-      var keys = _.keys(window.localStorage);
-      _.each(keys, function(key) {
-        var parts = key.split('_');
-        if (parts.length == 2 && parts[0] == 'DataJanitorCode') {
-          sessions.push(parts[1]);
-        }
-      });
-      return sessions;
+      return JSON.parse(window.localStorage.DataJanitorSessions);
     }
   }, {
     hydrateDefaults: function() {
