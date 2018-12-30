@@ -41,6 +41,7 @@
     initialize: function(options) {
       this.store = options.store;
       this.sessionsView = options.sessionsView;
+      this.sessionsView.$('.save-session').on('click', this.onClick.bind(this));
       this.listenTo(this.store, 'change:options change:text change:code', this.onChange);
     },
     onChange: function() {

@@ -21,7 +21,7 @@
                 </div>
                 <div class="form-group">
                   &nbsp;&nbsp;
-                  <button class="btn btn-default btn-xs pull-right copy-input"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+                  <button class="btn btn-default btn-xs pull-right copy-input" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
                 </div>
                 <div class="form-group">
                   &nbsp;&nbsp;
@@ -35,8 +35,8 @@
             Output
             <small class="pull-right">
               <div class="btn-toolbar">
-                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
-                <button class="btn btn-primary btn-xs pull-right copy-output"><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
+                <button class="btn btn-primary btn-xs pull-right copy-output" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
               </div>
             </small>
           </h4>

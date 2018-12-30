@@ -10,41 +10,75 @@
     template: _.template(`
       <h3>Sessions</h3>
       <ul class="nav nav-pills nav-stacked">
-        <li class="<%=!id ? 'active' : ''%>" title="Saved to local storage. Never sent to the server."><a href="/datajanitor">Sandbox</a></li>
+        <li class="session clearfix <%=!id ? 'active' : ''%>">
+          <a class="pull-left" href="/datajanitor" title="Saved to local storage. Never sent to the server.">Sandbox</a>
+          <% if (!id) { %>
+            <div class="dropdown session-dropdown">
+              <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></button>
+              <ul class="dropdown-menu dropdown-menu-left">
+                <li><a href="#" class="clear-local-storage" title="Resets data, options and code to the original example.">Reset sandbox to example</a></li>
+                <li><a href="#" class="clear-data-options-code" title="Clear data and code to start from scratch.">Clear data and code</a>
+                <li role="separator" class="divider"></li>
+                <li><a href="#" class="save-session" title="Save a permalink to share with a colleague."><i class="glyphicon glyphicon-link"></i>&nbsp;Save</a></li>
+              </ul>
+            </div>
+          <% } %>
+        </li>
         <% for (var i = 0; i < sessions.length; i++) { %>
-          <li class="<%=id == sessions[i] ? 'active' : ''%>" title="Saved to server. Changes are saved to local storage until you click Save again."><a href="/datajanitor/<%=sessions[i]%>"><i class="glyphicon glyphicon-link"></i>&nbsp;<%=sessions[i].substr(0,8)%></a></li>
+          <li class="session <%=id == sessions[i] ? 'active' : ''%>">
+            <a class="pull-left" href="/datajanitor/<%=sessions[i]%>" title="Saved to server. Changes are saved to local storage until you click Save again.">
+              <i class="glyphicon glyphicon-link"></i>
+              &nbsp;
+              <%=sessions[i].substr(0,8)%>
+            </a>
+            <% if (sessions[i] == id) { %>
+              <div class="dropdown session-dropdown">
+                <button class="btn btn-default btn-xs pull-right" data-toggle="dropdown"><span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="#" class="clear-local-storage" title="Reverts data, options and code changes to the last version saved to the server.">Reset session to server</a></li>
+                  <li><a href="#" class="clear-data-options-code" title="Clear data and code to start from scratch.">Clear data and code</a>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#" class="save-session" title="Save changes to server"><i class="glyphicon glyphicon-link"></i>&nbsp;Save</a></li>
+                  <!--<li role="separator" class="divider"></li>
+                  <li><a href="#" class="delete-session text-danger" title="Permanently delete this session."><i class="glyphicon glyphicon-trash"></i>&nbsp;Delete</a></li>-->
+                </ul>
+              </div>
+            <% } %>
+          </li>
         <% } %>
       </ul>
       <br/>
       <div class="panel">
         <p><em>Current session is auto-saved&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
-        <p>
-          <button class="btn btn-default btn-xs text-danger clear-local-storage" data-toggle="tooltip" data-placement="top" title="<%= id ? 'Reverts data, options and code changes to the last version saved to the server.' : 'Resets data, options and code to the original example.' %>"><%= id ? 'Reset session to server' : 'Reset sandbox to example'%></button>
-        </p>
-        <p>
-          <button class="btn btn-default btn-xs text-danger clear-data-options-code" data-toggle="tooltip" data-placement="bottom" title="Clear data and code to start from scratch.">Clear data and code</button>
-        </p>
       </div>
     `),
     events: {
-      'click button.clear-local-storage': 'onClickClearLocalStorage',
-      'click button.clear-data-options-code': 'onClickClearDataOptionsCode',
-      'click button.clear-data': 'onClickClearData'
+      'click .clear-local-storage': 'onClickClearLocalStorage',
+      'click .clear-data-options-code': 'onClickClearDataOptionsCode',
+      'click .clear-data': 'onClickClearData',
+      'click .delete-session': 'onClickDeleteSession'
     },
     initialize: function(options) {
       this.store = options.store;
     },
-    onClickClearLocalStorage: function() {
+    onClickClearLocalStorage: function(e) {
+      e.preventDefault();
       this.store.clearLocalStorage();
       window.location.reload();
     },
-    onClickClearDataOptionsCode: function() {
+    onClickClearDataOptionsCode: function(e) {
+      e.preventDefault();
       this.store.clearDataOptionsCode();
       window.location.reload();
     },
-    onClickClearData: function() {
+    onClickClearData: function(e) {
+      e.preventDefault();
       this.store.clearData();
       window.location.reload();
+    },
+    onClickDeleteSession: function(e) {
+      e.preventDefault();
+
     },
     toRender: function() {
       return _.extend({

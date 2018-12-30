@@ -319,7 +319,7 @@ footer.navbar .container-fluid a:active {
 	margin-left: 5px;
 }
 
-/* Docs */
+/* Docs and Sessions */
 .nav-pills>li>a {
 	border-left: 5px solid transparent;
 	border-radius: 0;
@@ -333,6 +333,16 @@ footer.navbar .container-fluid a:active {
 	background-color: #f5f5f5;
     margin-top: -20px;
     padding: 20px;
+}
+.session-dropdown {
+	float: right;
+	padding-top: 8px;
+}
+.session-dropdown>button {
+	border-color: transparent;
+}
+.session-dropdown a.delete-session {
+	color: #a94442;
 }
 
 /* Spinner */
