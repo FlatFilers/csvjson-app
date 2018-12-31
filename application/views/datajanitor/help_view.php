@@ -59,6 +59,8 @@
 <br/>
 
 <h2>Change Log</h2>
+<p><strong>2018-12-31</strong></p>
+<p>Added ability to name saved sessions.</p>
 <p><strong>2018-12-25</strong></p>
 <p>Expose sessions in UI.</p>
 <p><strong>2018-12-19</strong></p>

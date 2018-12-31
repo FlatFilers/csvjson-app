@@ -335,6 +335,8 @@ footer.navbar .container-fluid a:active {
     padding: 20px;
 }
 .session-dropdown {
+	position: absolute;
+	right: 0;
 	float: right;
 	padding-top: 8px;
 }

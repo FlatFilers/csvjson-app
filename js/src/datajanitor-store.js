@@ -18,6 +18,7 @@
       id: null,
       date: null,
       options: {
+        name: null,
         autoDetectHeader: true
       },
       text: exampleText,
@@ -65,6 +66,17 @@
       }
       createSessions();
 
+      // TODO: remove after a while
+      function createSessionNames() {
+        var names = {};
+        try {
+          names = JSON.parse(window.localStorage.DataJanitorSessionNames);
+        } catch (err) {
+          window.localStorage.DataJanitorSessionNames = JSON.stringify(names);
+        }
+      }
+      createSessionNames();
+
       if (localStorage['DataJanitorInputOptions'+postfix] !== undefined)
         try {
           data.options = JSON.parse(localStorage['DataJanitorInputOptions'+postfix]);
@@ -83,6 +95,8 @@
 
       this.set(data);
       this.on('change', this.saveToLocalStorage);
+
+      this.maybeUpdateSessionName();
     },
     saveToLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
@@ -101,6 +115,7 @@
           sessions.push(this.id);
           window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
         }
+        this.maybeUpdateSessionName();
       }
     },
     clearLocalStorage: function() {
@@ -126,6 +141,21 @@
     },
     getSessions: function() {
       return JSON.parse(window.localStorage.DataJanitorSessions);
+    },
+    getSessionNames: function() {
+      return JSON.parse(window.localStorage.DataJanitorSessionNames);
+    },
+    maybeUpdateSessionName: function() {
+      var names = this.getSessionNames();
+      var name = this.get('options').name || undefined;
+      if (names[this.id] != name) {
+        if (!name) {
+          delete names[this.id];
+        } else {
+          names[this.id] = name;
+        }
+        window.localStorage.DataJanitorSessionNames = JSON.stringify(names);
+      }
     }
   }, {
     hydrateDefaults: function() {
