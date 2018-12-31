@@ -61,6 +61,7 @@
           if (parts.length == 2 && parts[0] == 'DataJanitorCode' && sessions.indexOf(parts[1]) === -1)
             sessions.push(parts[1]);
         });
+        if (this.id && sessions.indexOf(this.id) === -1) sessions.push(this.id);
 
         window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
       }
@@ -96,7 +97,7 @@
       this.set(data);
       this.on('change', this.saveToLocalStorage);
 
-      this.maybeUpdateSessionName();
+      this.maybeUpdateSessions();
     },
     saveToLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
@@ -109,14 +110,7 @@
       if (this.hasChanged('request'))
         localStorage['DataJanitorRequest'+postfix] = JSON.stringify(this.get('request'));
 
-      if (this.id) {
-        var sessions = this.getSessions();
-        if (sessions.indexOf(this.id) === -1) {
-          sessions.push(this.id);
-          window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
-        }
-        this.maybeUpdateSessionName();
-      }
+      if (this.id) this.maybeUpdateSessions();
     },
     clearLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
@@ -145,7 +139,13 @@
     getSessionNames: function() {
       return JSON.parse(window.localStorage.DataJanitorSessionNames);
     },
-    maybeUpdateSessionName: function() {
+    maybeUpdateSessions: function() {
+      var sessions = this.getSessions();
+      if (sessions.indexOf(this.id) === -1) {
+        sessions.push(this.id);
+        window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
+      }
+
       var names = this.getSessionNames();
       var name = this.get('options').name || undefined;
       if (names[this.id] != name) {
