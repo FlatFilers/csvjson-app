@@ -134,8 +134,13 @@
       e.preventDefault();
       $('#delete-modal').modal();
     },
+    onConfirm: function() {
+
+    },
     render: function() {
-      $('body').append(this.modalTemplate({}));
+      this.$modal = $(this.modalTemplate({}));
+      $('body').append(this.$modal);
+      this.$modal.on('click', '.confirm', this.onConfirm.bind(this));
       return this;
     }
   });

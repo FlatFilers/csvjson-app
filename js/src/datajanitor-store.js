@@ -141,7 +141,7 @@
     },
     maybeUpdateSessions: function() {
       var sessions = this.getSessions();
-      if (sessions.indexOf(this.id) === -1) {
+      if (this.id && sessions.indexOf(this.id) === -1) {
         sessions.push(this.id);
         window.localStorage.DataJanitorSessions = JSON.stringify(sessions);
       }
