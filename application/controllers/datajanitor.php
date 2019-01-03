@@ -91,4 +91,28 @@ class Datajanitor extends MY_Controller {
     ajaxJsonReply(array('id' => $id));
 	}
 
+  public function clone_example($name) {
+    $filename = FCPATH."application/views/datajanitor/example-$name.json";
+    if (!file_exists($filename)) {
+      show_404();
+      return;
+    }
+    $data = file_get_contents($filename);
+
+    $id = generateUniqueId();
+    $data = str_replace('{{ID}}', $id, $data);
+
+    if (defined('AWS_S3_URL')) {
+      // Persist to AWS S3
+      require_once(FCPATH.'application/libraries/s3.php');
+      S3::setAuth(AWS_S3_KEY, AWS_S3_SECRET, AWS_S3_REGION);
+      S3::putObject($data, AWS_S3_BUCKET, "data/$id", S3::ACL_PUBLIC_READ, array(), array('Content-Type' => 'application/json'));
+    } else {
+      // Persist to disk
+      file_put_contents(FCPATH."data/$id", $data);
+    }
+
+    redirect("/datajanitor/$id");
+  }
+
 }
