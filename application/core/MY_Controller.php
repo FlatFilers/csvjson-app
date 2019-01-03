@@ -39,7 +39,7 @@ class MY_Controller extends CI_Controller {
 		if ($id != NULL) {
 			if (defined('AWS_S3_URL')) {
 				// Client will fetch persisted data from AWS S3
-				$data_url = AWS_S3_URL."data/$id";
+				$data_url = AWS_S3_URL.'data/'.$id;
 			} else {
 				// Fetch persisted data from disk
 				$filename = FCPATH."data/$id";
@@ -88,43 +88,11 @@ class MY_Controller extends CI_Controller {
 			// Persist to AWS S3
 			require_once(FCPATH.'application/libraries/s3.php');
 			S3::setAuth(AWS_S3_KEY, AWS_S3_SECRET, AWS_S3_REGION);
-			S3::putObject($data, AWS_S3_BUCKET, "data/$id", S3::ACL_PUBLIC_READ, array(), array('Content-Type' => 'application/json'));
+			S3::putObject($data, AWS_S3_BUCKET, 'data/'.$id, S3::ACL_PUBLIC_READ, array(), array('Content-Type' => 'application/json'));
 		} else {
 			// Persist to disk
 			file_put_contents(FCPATH."data/$id", $data);
 		}
 		ajaxJsonReply(array('id' => $id));
 	}
-
-	public function clone($id) {
-		$data = NULL;
-		if (defined('AWS_S3_URL')) {
-			$data = file_get_contents(AWS_S3_URL."data/$id");
-			if ($data === FALSE) {
-				show_404();
-				return;
-			}
-		} else {
-			$filename = FCPATH."data/$id";
-			if (!file_exists($filename)) {
-				show_404();
-				return;
-			}
-			$data = file_get_contents($filename);
-		}
-
-		$newId = generateUniqueId();
-		if (defined('AWS_S3_URL')) {
-			// Persist to AWS S3
-			require_once(FCPATH.'application/libraries/s3.php');
-			S3::setAuth(AWS_S3_KEY, AWS_S3_SECRET, AWS_S3_REGION);
-			S3::putObject($data, AWS_S3_BUCKET, "data/$newId", S3::ACL_PUBLIC_READ, array(), array('Content-Type' => 'application/json'));
-		} else {
-			// Persist to disk
-			file_put_contents(FCPATH."data/$newId", $data);
-		}
-
-    	redirect("/datajanitor/$id");
-	}
-
 }
