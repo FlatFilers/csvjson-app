@@ -20,7 +20,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your CSV here</label>
-<textarea id="csv" class="form-control input save" rows="18">
+<textarea id="csv" class="form-control input save" rows="18" spellcheck="false">
 album, year, US_peak_chart_post
 The White Stripes, 1999, -
 De Stijl, 2000, -
