@@ -13,7 +13,7 @@
           <h4>
             <span>Input</span>
             &nbsp;&nbsp;
-            <small><%=inputRowCount%> rows</small>
+            <small><%=inputRowCount%>&nbsp;rows</small>
             <small class="pull-right">
               <div class="form-inline">
                 <div class="form-group">
@@ -36,7 +36,7 @@
           <h4>
             <span>Output</span>
             &nbsp;&nbsp;
-            <small><%=outputRowCount%> rows</small>
+            <small><%=outputRowCount%>&nbsp;rows</small>
             <small class="pull-right">
               <div class="btn-toolbar">
                 <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
