@@ -12,6 +12,7 @@
         <div class="col-md-12">
           <h4>
             <span>Input</span>
+            &nbsp;&nbsp;
             <small><%=inputRowCount%> rows</small>
             <small class="pull-right">
               <div class="form-inline">
@@ -34,6 +35,7 @@
           <table class="table table-bordered backgrid input"></table>
           <h4>
             <span>Output</span>
+            &nbsp;&nbsp;
             <small><%=outputRowCount%> rows</small>
             <small class="pull-right">
               <div class="btn-toolbar">
