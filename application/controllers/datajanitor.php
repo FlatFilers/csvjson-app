@@ -28,7 +28,7 @@ class Datajanitor extends MY_Controller {
       'example-spacex-nasa-launches-iss' => 'SpaceX NASA Launches to ISS'
     );
     if (!array_key_exists($subView, $subViews)) {
-      httpResponseCode(404);
+      set_status_header(404);
       return;
     }
 
@@ -60,7 +60,7 @@ class Datajanitor extends MY_Controller {
 
 	public function hire($id) {
     if ($_SERVER['REQUEST_METHOD'] != 'PUT') {
-      httpResponseCode(405);
+      set_status_header(405);
       return;
     }
 
@@ -113,6 +113,52 @@ class Datajanitor extends MY_Controller {
     }
 
     redirect("/datajanitor/$id");
+  }
+
+  public function session($id=null) {
+    switch ($_SERVER['REQUEST_METHOD']) {
+
+      case 'POST':
+        if ($id !== null) {
+          set_status_header(400);
+          return;
+        }
+        return $this->save($id);
+
+      case 'PUT':
+        if ($id === null) {
+          set_status_header(404);
+          return;
+        }
+        return $this->save($id);
+
+      case 'DELETE':
+        if ($id === null) {
+          set_status_header(404);
+          return;
+        }
+        return $this->delete($id);
+    }
+  }
+
+  private function delete($id) {
+    if (defined('AWS_S3_URL')) {
+      require_once(FCPATH.'application/libraries/s3.php');
+      S3::setAuth(AWS_S3_KEY, AWS_S3_SECRET, AWS_S3_REGION);
+      if (!S3::deleteObject(AWS_S3_BUCKET, "data/$id")) {
+        show_404();
+        return;
+      }
+    } else {
+      $filename = FCPATH."data/$id";
+      if (!file_exists($filename)) {
+        show_404();
+        return;
+      }
+      unlink($filename);
+    }
+
+    set_status_header(204);
   }
 
 }

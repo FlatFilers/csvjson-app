@@ -40,8 +40,8 @@
                   <li role="separator" class="divider"></li>
                   <li><a href="#" class="rename-session" title="Rename the session"><i class="glyphicon glyphicon-tag"></i>&nbsp;Rename</a></li>
                   <li><a href="#" class="save-session" title="Save changes to server"><i class="glyphicon glyphicon-link"></i>&nbsp;Save</a></li>
-                  <!--<li role="separator" class="divider"></li>
-                  <li><a href="#" class="delete-session text-danger" title="Permanently delete this session."><i class="glyphicon glyphicon-trash"></i>&nbsp;Delete</a></li>-->
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#" class="delete-session text-danger" title="Permanently delete this session."><i class="glyphicon glyphicon-trash"></i>&nbsp;Delete</a></li>
                 </ul>
               </div>
             <% } %>
@@ -135,7 +135,34 @@
       $('#delete-modal').modal();
     },
     onConfirm: function() {
-
+      this.renderModalState('deleting');
+      this.store.destroy({wait: true})
+      .done(function() {
+        this.renderModalState('deleted');
+        window.location.href = '/datajanitor';
+      }.bind(this))
+      .fail(function(xhr) {
+        var error = xhr.responseText ? xhr.responseText : 'Unexpected error saving.';
+        this.renderModalState('error', error);
+      }.bind(this));
+    },
+    renderModalState: function(state, error) {
+      var $status = this.$modal.find('p.status');
+      var $confirm = this.$modal.find('button.confirm');
+      switch (state) {
+        case 'deleted':
+          $status.html('Deleted from server.');
+          break;
+        case 'deleting':
+          $status.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Please wait while we remove from server...');
+          $confirm.attr('disabled', 'disabled');
+          break;
+        case 'error':
+          $status.html(error ? error : 'An unexpected error while saving.');
+          $confirm.attr('disabled', 'disabled');
+          break;
+      }
+      return this;
     },
     render: function() {
       this.$modal = $(this.modalTemplate({}));
@@ -190,7 +217,6 @@
       this.renderModalState('saving');
       this.store.save({options: options, date: (new Date()).toUTCString()}, {wait: true})
       .done(function() {
-        this.store.saveToLocalStorage();
         this.renderModalState('saved');
         this.sessionsView.render();
         this.$modal.modal('hide');

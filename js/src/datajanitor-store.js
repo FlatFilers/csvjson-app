@@ -32,7 +32,7 @@
       }
     },
     urlRoot: function() {
-      return APP.baseUrl() + '/save';
+      return APP.baseUrl() + '/session';
     },
     initialize: function(attrs, options) {
       var postfix = attrs && attrs.id ? ('_' + attrs.id) : '';
@@ -99,6 +99,17 @@
 
       this.maybeUpdateSessions();
     },
+    save: function() {
+      return Backbone.Model.prototype.save.apply(this, arguments).done(function() {
+        this.saveToLocalStorage();
+      }.bind(this));
+    },
+    destroy: function() {
+      return Backbone.Model.prototype.destroy.apply(this, arguments).done(function() {
+        this.clearLocalStorage();
+        this.removeFromSessions();
+      }.bind(this));
+    },
     saveToLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';
       if (this.hasChanged('options'))
@@ -138,6 +149,10 @@
     },
     getSessionNames: function() {
       return JSON.parse(window.localStorage.DataJanitorSessionNames);
+    },
+    removeFromSessions: function() {
+      if (!this.id) return;
+      window.localStorage.DataJanitorSessions = JSON.stringify(_.without(this.getSessions(), this.id));
     },
     maybeUpdateSessions: function() {
       var sessions = this.getSessions();

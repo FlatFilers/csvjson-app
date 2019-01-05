@@ -69,7 +69,7 @@ class MY_Controller extends CI_Controller {
 	public function upload() {
 		$result = uploadFileIsValid('file');
 		if ($result !== TRUE) {
-			header('HTTP/1.1 400 Bad Request', true, 400);
+			set_status_header(400);
 			log_message('error', $result);
 		}
 		
