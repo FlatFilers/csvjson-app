@@ -20,7 +20,7 @@
 			</div>
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
-				<textarea id="json" class="form-control input save" rows="18">[
+				<textarea id="json" class="form-control input save" rows="18" spellcheck="false">[
   {
     "album": "The White Stripes",
     "year": 1999,

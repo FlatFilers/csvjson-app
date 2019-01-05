@@ -21,7 +21,7 @@
 			<div class="form-group code-group">
 				<label>Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
-				<textarea id="json" class="form-control input save" rows="18"><?=$default?></textarea>
+				<textarea id="json" class="form-control input save" rows="18" spellcheck="false"><?=$default?></textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action">
 				<i class="glyphicon glyphicon-chevron-right"></i> Beautify

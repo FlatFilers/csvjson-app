@@ -20,7 +20,7 @@
       </div>
       <div class="form-group code-group">
         <label>Or paste your CSVJSON here</label>
-<textarea id="csv" class="form-control input save" rows="18">
+<textarea id="csv" class="form-control input save" rows="18" spellcheck="false">
 "index","value1","value2"
 "number",1,2
 "boolean",false,true

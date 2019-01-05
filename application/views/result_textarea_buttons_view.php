@@ -1,6 +1,6 @@
 <div class="form-group code-group">
   <label><?=$result_title?></label> <span class="result-note"></span>
-  <textarea id="result" class="form-control result save" rows="18"></textarea>
+  <textarea id="result" class="form-control result save" rows="18" spellcheck="false"></textarea>
 </div>
 <a id="download" class="btn btn-primary" href="" download="<?=$download?>" disabled="disabled" target="_self">
   <i class="glyphicon glyphicon-download"></i> Download
