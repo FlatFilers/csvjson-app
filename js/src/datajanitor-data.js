@@ -11,7 +11,8 @@
       <div class="row">
         <div class="col-md-12">
           <h4>
-            Input
+            <span>Input</span>
+            <small><%=inputRowCount%> rows</small>
             <small class="pull-right">
               <div class="form-inline">
                 <div class="form-group">
@@ -32,7 +33,8 @@
           </h4>
           <table class="table table-bordered backgrid input"></table>
           <h4>
-            Output
+            <span>Output</span>
+            <small><%=outputRowCount%> rows</small>
             <small class="pull-right">
               <div class="btn-toolbar">
                 <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
@@ -161,6 +163,8 @@
     toRender: function() {
       return _.extend({
         id: this.store.id,
+        inputRowCount: this.inputCollection.fullCollection.size(),
+        outputRowCount: this.outputCollection.fullCollection.size()
       }, this.store.get('options'));
     },
     render: function() {
