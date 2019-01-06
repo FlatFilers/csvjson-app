@@ -21,13 +21,29 @@
                     <label class=""><input type="checkbox" name="autoDetectHeader" <%=autoDetectHeader ? 'checked' : ''%> /> Auto-detect header</label>
                   </div>
                 </div>
+                &nbsp;&nbsp;
                 <div class="form-group">
-                  &nbsp;&nbsp;
-                  <button class="btn btn-default btn-xs pull-right copy-input" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
-                </div>
-                <div class="form-group">
-                  &nbsp;&nbsp;
                   <button class="btn btn-default btn-xs text-danger clear-input" data-toggle="tooltip" data-placement="top" title="Clear input data to start from scratch.">Clear</button>
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                  <button class="btn btn-default btn-xs copy-input" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+                </div>
+                &nbsp;&nbsp;
+                <div class="dropdown pull-right">
+                  <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="size"><%=inputPageSize%></span>
+                    &nbsp;
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-header">Page size</li>
+                    <li><a href="#" class="input table-page-size" data-value="5">5 rows</a></li>
+                    <li><a href="#" class="input table-page-size" data-value="10">10 rows</a></li>
+                    <li><a href="#" class="input table-page-size" data-value="25">25 rows</a></li>
+                    <li><a href="#" class="input table-page-size" data-value="50">50 rows</a></li>
+                    <li><a href="#" class="input table-page-size" data-value="100">100 rows</a></li>
+                  </ul>
                 </div>
               </div>
             </small>
@@ -38,9 +54,24 @@
             &nbsp;&nbsp;
             <small><%=outputRowCount%>&nbsp;rows</small>
             <small class="pull-right">
-              <div class="btn-toolbar">
-                <a class="btn btn-primary btn-xs pull-right download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
-                <button class="btn btn-primary btn-xs pull-right copy-output" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+              <a class="btn btn-primary btn-xs download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
+              &nbsp;&nbsp;
+              <button class="btn btn-primary btn-xs copy-output" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
+              &nbsp;&nbsp;
+              <div class="dropdown pull-right">
+                <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" role="button">
+                  <span class="size"><%=outputPageSize%></span>
+                  &nbsp;
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li class="dropdown-header">Page size</li>
+                  <li><a href="#" class="output table-page-size" data-value="5">5 rows</a></li>
+                  <li><a href="#" class="output table-page-size" data-value="10">10 rows</a></li>
+                  <li><a href="#" class="output table-page-size" data-value="25">25 rows</a></li>
+                  <li><a href="#" class="output table-page-size" data-value="50">50 rows</a></li>
+                  <li><a href="#" class="output table-page-size" data-value="100">100 rows</a></li>
+                </ul>
               </div>
             </small>
           </h4>
@@ -53,13 +84,18 @@
       'click button.clear-input': 'clearInput',
       'click button.copy-input': 'copyInput',
       'click button.copy-output': 'copyOutput',
-      'click a.download': 'onClickDownload'
+      'click a.download': 'onClickDownload',
+      'click .table-page-size': 'onClickTablePageSize'
     },
     initialize: function(options) {
       this.store = options.store;
       this.inputCollection = options.inputCollection;
       this.outputCollection = options.outputCollection;
       this.codeView = options.codeView;
+
+      var storeOptions = this.store.get('options');
+      this.inputCollection.setPageSize(storeOptions.inputPageSize);
+      this.outputCollection.setPageSize(storeOptions.outputPageSize);
 
       this.listenTo(this.store, 'change:id', this.render);
       this.listenTo(this.outputCollection, 'reset', this.render);
@@ -69,10 +105,30 @@
         this.parsePastedText();
       }.bind(this));
     },
+    onClickTablePageSize: function(e) {
+      e.preventDefault();
+      var $a = $(e.currentTarget);
+      var size = parseInt($a.data('value'), 10);
+
+      var option = 'inputPageSize';
+      var collection = this.inputCollection;
+      if ($a.hasClass('output')) {
+        option = 'outputPageSize';
+        collection = this.outputCollection;
+      }
+
+      $a.closest('ul.dropdown-menu').siblings('button.dropdown-toggle').find('.size').text(size);
+
+      var options = _.extend({}, this.store.get('options'));
+      options[option] = size;
+      this.store.set({options: options});
+
+      collection.setPageSize(size);
+    },
     onChangeAutoDetectOption: function(e) {
-      var options = {
+      var options = _.extend({}, this.store.get('options'), {
         autoDetectHeader: this.$('input[name=autoDetectHeader]').is(':checked')
-      };
+      });
       this.store.set({options: options});
       this.parsePastedText();
     },

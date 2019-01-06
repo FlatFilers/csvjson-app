@@ -19,7 +19,9 @@
       date: null,
       options: {
         name: null,
-        autoDetectHeader: true
+        autoDetectHeader: true,
+        inputPageSize: 5,
+        outputPageSize: 5
       },
       text: exampleText,
       code: exampleCode,
@@ -95,6 +97,16 @@
         } catch (err) {}
 
       this.set(data);
+
+      // TODO: remove after a while
+      function createPageSizeOptions() {
+        this.set({options: _.extend({
+          inputPageSize: Backbone.DataStore.prototype.defaults.options.inputPageSize,
+          outputPageSize: Backbone.DataStore.prototype.defaults.options.outputPageSize
+        }, this.get('options'))});
+      }
+      createPageSizeOptions.apply(this);
+
       this.on('change', this.saveToLocalStorage);
 
       this.maybeUpdateSessions();
