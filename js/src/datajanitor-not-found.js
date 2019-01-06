@@ -11,8 +11,8 @@
       <div class="row">
         <div class="col-md-12 text-center">
           <h1>404 Not Found</h1>
-          <p class="lead">Oh no! Could not find that session.</p>
-          <p class="lead">Jump to your <a href="/datajanitor">Sandbox</a>.</p>
+          <p class="lead">Oh no!&nbsp;Could not find that session.</p>
+          <p class="lead">Jump to your&nbsp;<a href="/datajanitor">Sandbox</a>.</p>
           <% if (sessions.length) { %>
             <p>Or to an existing session:</p>
             <ul class="nav nav-pills nav-stacked">
