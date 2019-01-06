@@ -105,6 +105,7 @@ $config['assets'] = array(
 			'js/src/datajanitor-session.js',
 			'js/src/datajanitor-share.js',
 			'js/src/datajanitor-hire.js',
+			'js/src/datajanitor-not-found.js',
 			'js/src/datajanitor.js',
 			'js/src/home.js',
 			'js/src/main.js'

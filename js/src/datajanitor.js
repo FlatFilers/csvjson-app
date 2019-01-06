@@ -47,6 +47,14 @@ APP.datajanitor = function() {
     }).render();
   }
 
+  function goNotFound() {
+    var store = window.store = new Backbone.DataStore({id: null});
+    new Backbone.NotFoundView({
+      el: $('.container-fluid.main-section'),
+      store: store
+    }).render();
+  }
+
   Backbone.DataStore.hydrateDefaults();
   if (localStorage.DataJanitorShowCodePage) {
     delete localStorage.DataJanitorShowCodePage;
@@ -55,9 +63,13 @@ APP.datajanitor = function() {
 
   if (APP.id && APP.data_url) {
     // Load from CDN
-    $.getJSON(APP.data_url).done(function(data) {
+    $.getJSON(APP.data_url)
+    .done(function(data) {
       APP.data = data;
       go();
+    })
+    .fail(function() {
+      goNotFound();
     });
   } else {
     // No data or bootstrapped in
