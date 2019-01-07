@@ -105,6 +105,8 @@
         this.parsePastedText();
       }.bind(this));
     },
+    // TODO: This method should trigger a render. Currently it doesn't
+    // and the update is done manually. Change that.
     onClickTablePageSize: function(e) {
       e.preventDefault();
       var $a = $(e.currentTarget);
@@ -387,6 +389,8 @@
       var rawValue = this.model.get(columnName);
       var formattedValue = this.formatter.fromRaw(rawValue, this.model);
       this.$el.html(formattedValue);
+      if (formattedValue && formattedValue.length && formattedValue.length > 20)
+        this.$el.attr('title', formattedValue);
       if (this.model.errorModel) {
         var error = this.model.errorModel.get(columnName);
         if (error) this.$el.prepend('<i class="fa fa-fw fa-warning text-danger" title="' + (error+'').replace(/"/g, "'") + '"></i>&nbsp;');

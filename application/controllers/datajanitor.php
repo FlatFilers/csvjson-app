@@ -161,4 +161,27 @@ class Datajanitor extends MY_Controller {
     set_status_header(204);
   }
 
+  public function published($id) {
+    $data = NULL;
+    $data_url = NULL;
+    if (defined('AWS_S3_URL')) {
+      // Client will fetch persisted data from AWS S3
+      $data_url = AWS_S3_URL.'data/'.$id;
+    } else {
+      // Fetch persisted data from disk
+      $filename = FCPATH."data/$id";
+      if (!file_exists($filename)) {
+        show_404();
+        return;
+      }
+      $data = file_get_contents($filename);
+    }
+    
+    $this->load->view('datajanitor/published_page', array(
+      'id' => $id,
+      'data' => $data,
+      'data_url' => $data_url
+    ));
+  }
+
 }
