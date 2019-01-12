@@ -25,7 +25,11 @@
           <h4>
             Input
             &nbsp;
-            <small class="form form-inline pull-right input-start"></small>
+            <small class="form form-inline pull-right input-start">
+              row
+              <% var max = inputRowCount > 2 ? inputRowCount-2 : 0;%>
+              <input name="codeInputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=inputRowStart%>" />
+            </small>
           </h4>
           <textarea class="input"><%=input%></textarea>
         </div>
@@ -33,21 +37,15 @@
           <h4>
             Output
             &nbsp;
-            <small class="form form-inline pull-right output-start"></small>
+            <small class="form form-inline pull-right output-start">
+              row
+              <% var max = outputRowCount > 2 ? outputRowCount-2 : 0;%>
+              <input name="codeOutputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=outputRowStart%>" />
+            </small>
           </h4>
           <textarea class="output"><%=output%></textarea>
         </div>
       </div>
-    `),
-    inputRowStartTemplate: _.template(`
-      row
-      <% var max = inputRowCount > 2 ? inputRowCount-2 : 0;%>
-      <input name="codeInputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=inputRowStart%>" />
-    `),
-    outputRowStartTemplate: _.template(`
-      row
-      <% var max = outputRowCount > 2 ? outputRowCount-2 : 0;%>
-      <input name="codeOutputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=outputRowStart%>" />
     `),
     events: {
       'click button.run': 'run',
@@ -112,7 +110,6 @@
       }.bind(this));
 
       this.sandbox.addEventListener('error', function(e) {
-        console.log('worker error', e);
         this.error = e.message;
         this.workerErrors = [{message: e.message, lineno: e.lineno}];
         this.outputCollection.fullCollection.reset();
@@ -173,6 +170,24 @@
         output: JSON2_mod.stringify(this.getOutputRowsToDisplay(), null, 2),
         error: this.error
       };
+    },
+    renderInputOutputRows: function(data) {
+      if (!this.codeEditor || !this.$el.hasClass('active in')) return;
+      data || (data = this.toRender());
+
+      this.inputEditor.getDoc().setValue(data.input);
+      this.outputEditor.getDoc().setValue(this.error || data.output);
+      this.outputEditor.setOption('lineWrapping', !!this.error);
+
+      var $inputInput = this.$('input[name=codeInputRowStart]');
+      var inputMax = data.inputRowCount > 2 ? data.inputRowCount-2 : 0;
+      if ($inputInput.val() != data.inputRowStart) $inputInput.val(data.inputRowStart);
+      if ($inputInput.attr('max') != inputMax) $inputInput.attr('max', inputMax);
+
+      var $outputInput = this.$('input[name=codeOutputRowStart]');
+      var outputMax = data.outputRowCount > 2 ? data.outputRowCount-2 : 0;
+      if ($outputInput.val() != data.outputRowStart) $outputInput.val(data.outputRowStart);
+      if ($outputInput.attr('max') != outputMax) $outputInput.attr('max', outputMax);
     },
     renderWorkerErrors: function() {
       if (!this.codeEditor || !this.$el.hasClass('active in')) return;
@@ -237,11 +252,7 @@
       }
 
       // Update existing elements
-      this.$('.input-start.form').html(this.inputRowStartTemplate(data));
-      this.inputEditor.getDoc().setValue(data.input);
-      this.$('.output-start.form').html(this.outputRowStartTemplate(data));
-      this.outputEditor.getDoc().setValue(this.error || data.output);
-      this.outputEditor.setOption('lineWrapping', !!this.error);
+      this.renderInputOutputRows();
       this.renderWorkerErrors();
 
       return this;
