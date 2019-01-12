@@ -25,8 +25,9 @@
           <h4>
             Input
             &nbsp;
+            <small class="input-row-count"><%=inputRowCount%></small>
             <small class="form form-inline pull-right input-start">
-              row
+              #&nbsp;
               <% var max = inputRowCount > 2 ? inputRowCount-2 : 0;%>
               <input name="codeInputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=inputRowStart%>" />
             </small>
@@ -37,8 +38,9 @@
           <h4>
             Output
             &nbsp;
+            <small class="output-row-count"><%=outputRowCount || ''%></small>
             <small class="form form-inline pull-right output-start">
-              row
+              #&nbsp;
               <% var max = outputRowCount > 2 ? outputRowCount-2 : 0;%>
               <input name="codeOutputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=outputRowStart%>" />
             </small>
@@ -183,11 +185,13 @@
       var inputMax = data.inputRowCount > 2 ? data.inputRowCount-2 : 0;
       if ($inputInput.val() != data.inputRowStart) $inputInput.val(data.inputRowStart);
       if ($inputInput.attr('max') != inputMax) $inputInput.attr('max', inputMax);
+      this.$('.input-row-count').text(data.inputRowCount ? data.inputRowCount + ' rows' : '');
 
       var $outputInput = this.$('input[name=codeOutputRowStart]');
       var outputMax = data.outputRowCount > 2 ? data.outputRowCount-2 : 0;
       if ($outputInput.val() != data.outputRowStart) $outputInput.val(data.outputRowStart);
       if ($outputInput.attr('max') != outputMax) $outputInput.attr('max', outputMax);
+      this.$('.output-row-count').text(data.outputRowCount ? data.outputRowCount + ' rows' : '');
     },
     renderWorkerErrors: function() {
       if (!this.codeEditor || !this.$el.hasClass('active in')) return;
