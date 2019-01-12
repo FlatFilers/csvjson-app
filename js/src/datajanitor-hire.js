@@ -104,7 +104,7 @@
       var $form = this.$modal.find('form');
 
       var email = $form.find('input[name=email]').val();
-      if (!_.validateEmail(email)) {
+      if (!_.isEmail(email)) {
         this.model.set({state: 'error', error: 'Missing or invalid email'});
         this.render();
         return;

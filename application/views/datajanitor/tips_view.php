@@ -27,6 +27,14 @@ d.format('LL'); // February 25, 2018
 </pre>
 <br/>
 
+<h2>Validating emails</h2>
+<p>I provide a helper method <code>_.isEmail(email)</code> that you can call to check if an email is valid.</p>
+<pre>
+_.isEmail('jean françois@example.com') // false
+_.isEmail('martindrapeau@gmail.com') // true
+</pre>
+<br/>
+
 <h2>Handling strings</h2>
 <p>Lots can be done with vanilla JavaScript</p>
 <pre>
@@ -167,4 +175,24 @@ input.sort(function(o1, o2) {
   return s.naturalCmp(o1.Holiday, o2.Holiday);
 });
 </pre>
+<br/>
+
+<h2>Throwing errors</h2>
+<p>
+  If you encounter unfixable data, you can stop processing by throwing an error.
+  For example, if an email is bad:
+</p>
+<pre>
+if (!_.isEmail(inRow.Email)) throw 'Not an email ' + inRow.Email + ' on row ' + (r+1);
+</pre>
+<p class="text-center">
+  <img class="img-responsive" src="https://s3.us-east-2.amazonaws.com/csvjson/images/data-janitor-throw.png" alt="Data Janitor trow an error" />
+</p>
+<p>
+  <em>Note 1: I recommended to be very strict at first. As you clean the data, handle each edge case iteratively.</em>
+</p>
+<p>
+  <em>Note 2: It is useful to pass the erroneous email and the row in the message to help you pinpoint the source.</em>
+</p>
+<br/>
 <br/>

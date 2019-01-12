@@ -15,7 +15,7 @@ APP.datajanitor = function() {
       store: store
     }).render();
 
-    var codeView = new Backbone.CodeView({
+    var codeView = window.codeView = new Backbone.CodeView({
       el: $('#tab-code'),
       inputCollection: inputCollection,
       outputCollection: outputCollection,
