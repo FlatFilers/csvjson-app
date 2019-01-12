@@ -25,7 +25,8 @@ class Datajanitor extends MY_Controller {
       'help' => 'Help',
       'tips' => 'Tips',
       'example-baseball-matches' => 'Baseball Matches',
-      'example-spacex-nasa-launches-iss' => 'SpaceX NASA Launches to ISS'
+      'example-spacex-nasa-launches-iss' => 'SpaceX NASA Launches to ISS',
+      'example-players' => 'Import Contacts into a CRM',
     );
     if (!array_key_exists($subView, $subViews)) {
       set_status_header(404);
@@ -38,7 +39,8 @@ class Datajanitor extends MY_Controller {
       'help' => 'Instructions using and background on CSVJSON Data Janitor',
       'tips' => 'Programming tips on using CSVJSON Data Janitor',
       'example-baseball-matches' => 'Example usage of CSVJSON Data Janitor. Parsing MLB matches.',
-      'example-spacex-nasa-launches-iss' => 'Example usage of CSVJSON Data Janitor. Parsing SpaceX launch manifest to extract missions to the International Space Station.'
+      'example-spacex-nasa-launches-iss' => 'Example usage of CSVJSON Data Janitor. Parsing SpaceX launch manifest to extract missions to the International Space Station.',
+      'example-players' => 'Example usage of CSVJSON Data Janitor. Converting a list of contacts for import into another CRM.'
     );
 
     $this->load->view('page', array(

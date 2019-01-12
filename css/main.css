@@ -272,6 +272,14 @@ pre {
     background-color: #FBE3E4;
 }
 
+input.row-start {
+	background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 2px;
+    height: 23px;
+    font-size: 12px;
+}
+
 /**** About <tool> section ****/
 
 .about ul li {

@@ -22,19 +22,38 @@
           <textarea class="code"><%=code%></textarea>
         </div>
         <div class="col-md-3">
-          <h4>Input&nbsp;<small>2 first rows</small></h4>
+          <h4>
+            Input
+            &nbsp;
+            <small class="form form-inline pull-right input-start"></small>
+          </h4>
           <textarea class="input"><%=input%></textarea>
         </div>
         <div class="col-md-3">
-          <h4>Output&nbsp;<small>2 first rows</small></h4>
+          <h4>
+            Output
+            &nbsp;
+            <small class="form form-inline pull-right output-start"></small>
+          </h4>
           <textarea class="output"><%=output%></textarea>
         </div>
       </div>
     `),
+    inputRowStartTemplate: _.template(`
+      row
+      <% var max = inputRowCount > 2 ? inputRowCount-2 : 0;%>
+      <input name="codeInputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=inputRowStart%>" />
+    `),
+    outputRowStartTemplate: _.template(`
+      row
+      <% var max = outputRowCount > 2 ? outputRowCount-2 : 0;%>
+      <input name="codeOutputRowStart" class="form-control row-start" type="number" min="0" max="<%=max%>" placeholder="0 to <%=max%>" value="<%=outputRowStart%>" />
+    `),
     events: {
       'click button.run': 'run',
       'click button.stop': 'stop',
-      'click button.clear-code': 'onClickClearCode'
+      'click button.clear-code': 'onClickClearCode',
+      'change input.row-start': 'onChangeRowStart'
     },
     initialize: function(options) {
       this.store = options.store;
@@ -62,6 +81,18 @@
       this.store.clearCode();
       localStorage.DataJanitorShowCodePage = true;
       window.location.reload();
+    },
+    onChangeRowStart: function(e) {
+      var $input = $(e.currentTarget);
+      var start = parseInt($input.val(), 10);
+      if (isNaN(start)) start = 0;
+      var name = $input.attr('name');
+
+      var options = _.clone(this.store.get('options'));
+      options[name] = start;
+      this.store.set({options: options});
+
+      this.render();
     },
 
     // Eval safely using a web worker
@@ -103,25 +134,43 @@
       this.$('button.run').removeClass('hidden');
     },
 
-    toRender: function() {
+    getInputStartRow: function() {
+      var options = this.store.get('options');
+      return Math.max(0, Math.min(this.inputCollection.fullCollection.size()-2, options.codeInputRowStart || 0));
+    },
+    getInputRowsToDisplay: function() {
+      var inputRowStart = this.getInputStartRow();
       var i = 0;
       var input = this.inputCollection.fullCollection.reduce(function(l, m) {
         if (!m.get('__Error')) {
-          if (i < 2) l.push(_.omit(m.toJSON(), '__Row', '__Error'));
+          if (i >= inputRowStart && l.length < 2) l.push(_.omit(m.toJSON(), '__Row', '__Error'));
           i += 1;
         }
         return l;
       }, []);
-
+      return input;
+    },
+    getOutputStartRow: function() {
+      var options = this.store.get('options');
+      return Math.max(0, Math.min(this.outputCollection.fullCollection.size()-2, options.codeOutputRowStart || 0));
+    },
+    getOutputRowsToDisplay: function() {
+      var outputRowStart = this.getOutputStartRow();
       var output = this.outputCollection.fullCollection.reduce(function(l, m, i) {
-        if (i < 2) l.push(_.omit(m.toJSON(), '__Row'));
+        if (i >= outputRowStart && l.length < 2) l.push(_.omit(m.toJSON(), '__Row'));
         return l;
       }, []);
-
+      return output
+    },
+    toRender: function() {
       return {
         code: this.store.get('code'),
-        input: JSON2_mod.stringify(input, null, 2),
-        output: JSON2_mod.stringify(output, null, 2),
+        inputRowStart: this.getInputStartRow(),
+        outputRowStart: this.getOutputStartRow(),
+        inputRowCount: this.inputCollection.fullCollection.size(),
+        outputRowCount: this.outputCollection.fullCollection.size(),
+        input: JSON2_mod.stringify(this.getInputRowsToDisplay(), null, 2),
+        output: JSON2_mod.stringify(this.getOutputRowsToDisplay(), null, 2),
         error: this.error
       };
     },
@@ -188,7 +237,9 @@
       }
 
       // Update existing elements
+      this.$('.input-start.form').html(this.inputRowStartTemplate(data));
       this.inputEditor.getDoc().setValue(data.input);
+      this.$('.output-start.form').html(this.outputRowStartTemplate(data));
       this.outputEditor.getDoc().setValue(this.error || data.output);
       this.outputEditor.setOption('lineWrapping', !!this.error);
       this.renderWorkerErrors();

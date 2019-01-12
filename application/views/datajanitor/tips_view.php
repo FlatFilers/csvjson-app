@@ -2,6 +2,9 @@
 <p>
   Libraries <a href="https://underscorejs.org/" target="_blank">Underscore.js</a>, <a href="https://epeli.github.io/underscore.string/" target="_blank">underscore.string</a> and <a href="https://momentjs.com/docs/#/parsing/" target="_blank">Moment.js</a> are loaded and available along with vanilla JavaScript to help you transform and clean data.
 </p>
+<p>
+  In addition, you can validate an email with <code>_.isEmail(email)</code>. It will return <code>true</code> or <code>false</code>.
+</p>
 <br/>
 
 <h2>Cleaning dates</h2>
@@ -28,7 +31,7 @@ d.format('LL'); // February 25, 2018
 <br/>
 
 <h2>Validating emails</h2>
-<p>I provide a helper method <code>_.isEmail(email)</code> that you can call to check if an email is valid.</p>
+<p>Use <code>_.isEmail(email)</code> to check if an email is valid.</p>
 <pre>
 _.isEmail('jean françois@example.com') // false
 _.isEmail('martindrapeau@gmail.com') // true
@@ -183,16 +186,10 @@ input.sort(function(o1, o2) {
   For example, if an email is bad:
 </p>
 <pre>
-if (!_.isEmail(inRow.Email)) throw 'Not an email ' + inRow.Email + ' on row ' + (r+1);
+if (!_.isEmail(inRow.Email)) throw 'Not an email ' + inRow.Email + ' on row ' + r;
 </pre>
 <p class="text-center">
   <img class="img-responsive" src="https://s3.us-east-2.amazonaws.com/csvjson/images/data-janitor-throw.png" alt="Data Janitor trow an error" />
-</p>
-<p>
-  <em>Note 1: I recommended to be very strict at first. As you clean the data, handle each edge case iteratively.</em>
-</p>
-<p>
-  <em>Note 2: It is useful to pass the erroneous email and the row in the message to help you pinpoint the source.</em>
 </p>
 <br/>
 <br/>

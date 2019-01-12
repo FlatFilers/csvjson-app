@@ -21,7 +21,9 @@
         name: null,
         autoDetectHeader: true,
         inputPageSize: 5,
-        outputPageSize: 5
+        outputPageSize: 5,
+        codeInputRowStart: 0,
+        codeOutputRowStart: 0
       },
       text: exampleText,
       code: exampleCode,
@@ -99,13 +101,15 @@
       this.set(data);
 
       // TODO: remove after a while
-      function createPageSizeOptions() {
+      function createMissingOptions() {
         this.set({options: _.extend({
           inputPageSize: Backbone.DataStore.prototype.defaults.options.inputPageSize,
-          outputPageSize: Backbone.DataStore.prototype.defaults.options.outputPageSize
+          outputPageSize: Backbone.DataStore.prototype.defaults.options.outputPageSize,
+          codeInputRowStart: Backbone.DataStore.prototype.defaults.options.codeInputRowStart,
+          codeOutputRowStart: Backbone.DataStore.prototype.defaults.options.codeOutputRowStart
         }, this.get('options'))});
       }
-      createPageSizeOptions.apply(this);
+      createMissingOptions.apply(this);
 
       this.on('change', this.saveToLocalStorage);
 

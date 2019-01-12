@@ -32,10 +32,8 @@
 <h2>Helpers</h2>
 <p>
 	Libraries <a href="https://underscorejs.org/" target="_blank">Underscore.js</a>, <a href="https://epeli.github.io/underscore.string/" target="_blank">underscore.string</a> and <a href="https://momentjs.com/docs/#/parsing/" target="_blank">Moment.js</a> are available when you write the <code>process</code> function.
-	Checkout the Tips tab for common cleaning patterns.
-</p>
-<p>
 	In addition, you can validate an email with <code>_.isEmail(email)</code>. It will return <code>true</code> or <code>false</code>.
+	Checkout the <a href="/datajanitor/docs/tips">Tips section</a> for common cleaning patterns.
 </p>
 <br/>
 
