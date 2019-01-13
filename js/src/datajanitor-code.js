@@ -203,7 +203,7 @@
         var lineno = error.lineno - 1;
         if (lineno >= lineCount) lineno = 0;
 
-        var $marker = $('<div class="CodeMirror-lint-marker-error worker-error" data-toggle="tooltip" data-placement="right" data-container="body" title="' + error.message + '"></div>');
+        var $marker = $('<div class="CodeMirror-lint-marker-error worker-error" data-toggle="tooltip" data-placement="auto left" data-container="body" title="' + error.message + '"></div>');
 
         this.codeEditor.getDoc().setGutterMarker(lineno, 'worker-error', $marker[0]);
         $marker.tooltip();
