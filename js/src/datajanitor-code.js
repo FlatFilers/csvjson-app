@@ -72,7 +72,7 @@
     onKeydownCtrlR: function(e) {
       if ($('#tab-code').is(':visible') &&
           (e.ctrlKey || e.metaKey) &&
-          String.fromCharCode(event.which).toLowerCase() == 'r') {
+          String.fromCharCode(e.which).toLowerCase() == 'r') {
         e.preventDefault();
         this.run();
       }
