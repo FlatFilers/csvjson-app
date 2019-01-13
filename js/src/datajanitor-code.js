@@ -102,7 +102,7 @@
 
       // Create a web worker to eval the user code
       this.workerErrors = [];
-      this.sandbox = new Worker('/js/src/sandbox.js');
+      this.sandbox = new Worker('/js/src/sandbox.js?v=' + APP.version);
 
       this.sandbox.addEventListener('message', function(e) {
         this.error = undefined;
