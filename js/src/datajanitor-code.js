@@ -112,7 +112,7 @@
       }.bind(this));
 
       this.sandbox.addEventListener('error', function(e) {
-        console.log('worker error', e);
+        //console.log('worker error', e);
         this.error = e.message;
         this.workerErrors = [{message: e.message, lineno: e.lineno}];
         this.outputCollection.fullCollection.reset();
