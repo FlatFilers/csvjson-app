@@ -100,7 +100,7 @@
     run: function() {
       this.$('button.run').addClass('hidden');
       this.$('button.stop').removeClass('hidden');
-      
+
       this.isDirty = false;
       this.renderDirty();
 
@@ -180,7 +180,7 @@
       };
     },
     renderDirty: function() {
-      this.$('.warning').html(this.isDirty ? 'Pending changes&nbsp;<i class="glyphicon glyphicon-arrow-right"></i>' : '');
+      this.$('.warning').html(this.isDirty ? 'Pending changes&nbsp;<i class="glyphicon glyphicon-arrow-right"></i>&nbsp;' : '');
     },
     renderInputOutputRows: function(data) {
       if (!this.codeEditor || !this.$el.hasClass('active in')) return;

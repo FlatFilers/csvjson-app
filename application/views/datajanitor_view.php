@@ -2,7 +2,7 @@
 	<div class="row">
 		<div class="col-md-9 col-sm-8">
 			<h1 class="discrete">Online tool for Excel and Google Sheets data cleaning and transformation.</h1>
-			<p>1) <strong>Copy</strong> (Ctrl+c) your data from Excel or Google Sheets and <strong>paste</strong> it on this page (Ctrl+v). 2) Click on <strong>Clean &amp; Transform</strong> to adapt the JavaScript <code>process</code> function. 3) <strong>Copy/download</strong> the output.</p>
+			<p>1) <strong>Copy (Ctrl+c)</strong> your data from Excel or Google Sheets and <strong>paste (Ctrl+v)</strong> it on this page. 2) Click on <strong>Clean &amp; Transform</strong> to adapt the JavaScript <code>process</code> function. 3) <strong>Copy/download</strong> the output.</p>
 		</div>
 		<div class="col-md-3 col-sm-4 text-right">
 			<span class="hire-cta-message">Need help cleaning data?</span><br/>
