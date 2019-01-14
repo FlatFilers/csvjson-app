@@ -13,9 +13,10 @@
           <h4>
             <span>JavaScript</span>
             <div class="form-inline pull-right">
-              <button class="btn btn-xs btn-success run">Run <em>(Ctrl+R)</em></button>
+              <small class="warning text-danger"></small>
+              <button class="btn btn-xs btn-success run">Run <em>(Ctrl+r)</em></button>
               <button class="btn btn-xs btn-danger stop hidden"><i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Stop</button>
-              &nbsp;&nbsp;
+              <small>&nbsp;&nbsp;</small>
               <button class="btn btn-xs btn-default text-danger clear-code" data-toggle="tooltip" data-placement="top" title="Clear code to start from scratch.">Clear</button>
             </div>
           </h4>
@@ -99,6 +100,9 @@
     run: function() {
       this.$('button.run').addClass('hidden');
       this.$('button.stop').removeClass('hidden');
+      
+      this.isDirty = false;
+      this.renderDirty();
 
       // Create a web worker to eval the user code
       this.workerErrors = [];
@@ -164,6 +168,7 @@
     },
     toRender: function() {
       return {
+        isDirty: this.isDirty,
         code: this.store.get('code'),
         inputRowStart: this.getInputStartRow(),
         outputRowStart: this.getOutputStartRow(),
@@ -173,6 +178,9 @@
         output: JSON2_mod.stringify(this.getOutputRowsToDisplay(), null, 2),
         error: this.error
       };
+    },
+    renderDirty: function() {
+      this.$('.warning').html(this.isDirty ? 'Pending changes&nbsp;<i class="glyphicon glyphicon-arrow-right"></i>' : '');
     },
     renderInputOutputRows: function(data) {
       if (!this.codeEditor || !this.$el.hasClass('active in')) return;
@@ -237,6 +245,8 @@
         this.codeEditor.setSize('100%', '100%');
         this.codeEditor.on('change', function(editor) {
           this.store.set({code: editor.getDoc().getValue()});
+          this.isDirty = true;
+          this.renderDirty();
         }.bind(this));
 
         this.inputEditor = CodeMirror.fromTextArea(this.$('textarea.input')[0], {
@@ -259,6 +269,7 @@
       // Update existing elements
       this.renderInputOutputRows();
       this.renderWorkerErrors();
+      this.renderDirty();
 
       return this;
     }
