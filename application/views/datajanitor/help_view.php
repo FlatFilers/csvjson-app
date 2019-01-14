@@ -39,8 +39,17 @@
 
 <h2>Data Confidentiality</h2>
 <p>
-	Data you paste in Data Clean and code you write is kept on your computer in local storage.
-	It is not uploaded to our servers unless you decide to share with colleagues and use the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to save your session in order to share with a colleague or save for later.
+	Data you paste and code your write in the <strong>Sandbox session</strong> is kept on your computer; in the browser's local storage.
+	It is not uploaded to the server.
+</p>
+<p>
+	Use the <strong><i class="glyphicon glyphicon-link"></i> Save</strong> link to save your session to the server.
+	You can share the link to that session with co-workers or bookmark it for later.
+</p>
+<p>
+	You can delete a saved session from the server at any time.
+	This will not delete all data from computers of people you have shared it with.
+	You will need to ask them to delete the saved session as well.
 </p>
 <br/>
 
