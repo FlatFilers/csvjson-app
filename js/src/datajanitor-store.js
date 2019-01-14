@@ -117,7 +117,8 @@
     },
     save: function() {
       return Backbone.Model.prototype.save.apply(this, arguments).done(function() {
-        this.saveToLocalStorage();
+        this.clearLocalStorage();
+        this.maybeUpdateSessions();
       }.bind(this));
     },
     destroy: function() {
@@ -125,6 +126,14 @@
         this.clearLocalStorage();
         this.removeFromSessions();
       }.bind(this));
+    },
+    isLocalStorageDifferentThanServer: function() {
+      if (!this.id) return true;
+      var postfix = '_' + this.id;
+      return (localStorage['DataJanitorInputOptions'+postfix] ||
+        localStorage['DataJanitorInputText'+postfix] ||
+        localStorage['DataJanitorCode'+postfix] ||
+        localStorage['DataJanitorRequest'+postfix]);
     },
     saveToLocalStorage: function() {
       var postfix = this.id ? ('_' + this.id) : '';

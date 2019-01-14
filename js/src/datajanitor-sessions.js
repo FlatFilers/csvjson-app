@@ -50,16 +50,26 @@
       </ul>
       <br/>
       <div class="panel">
-        <p><em>Current session is auto-saved&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
+      <% if (!id) { %>
+        <p><em>Sandbox session is auto-saved on your computer. Never sent to server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
+      <% } else { %>
+        <% if (isDirty) { %>
+          <p><em>Local copy different than on server. Click <i class="glyphicon glyphicon-link"></i>&nbsp;Save to update on server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Changes were auto-saved to local storage. However they differ from the version on the server."></i></em></p>
+        <% } else { %>
+          <p><em>Current session is saved on server.</em></p>
+        <% } %>
+      <% } %>
       </div>
     `),
     events: {
       'click .clear-local-storage': 'onClickClearLocalStorage',
       'click .clear-data-options-code': 'onClickClearDataOptionsCode',
-      'click .clear-data': 'onClickClearData'
+      'click .clear-data': 'onClickClearData',
+      'click .save-session': 'onSaveSession'
     },
     initialize: function(options) {
       this.store = options.store;
+      this.listenTo(this.store, 'change', this.render);
     },
     onClickClearLocalStorage: function(e) {
       e.preventDefault();
@@ -76,11 +86,15 @@
       this.store.clearData();
       window.location.reload();
     },
+    onSaveSession: function(e) {
+      this.trigger('save', e);
+    },
     toRender: function() {
       return _.extend({
         id: this.store.id,
         sessions: this.store.getSessions(),
-        names: this.store.getSessionNames()
+        names: this.store.getSessionNames(),
+        isDirty: this.store.isLocalStorageDifferentThanServer()
       }, this.store.get('options'));
     },
     render: function() {
