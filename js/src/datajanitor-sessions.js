@@ -51,10 +51,10 @@
       <br/>
       <div class="panel">
       <% if (!id) { %>
-        <p><em>Sandbox session is auto-saved on your computer. Never sent to server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
+        <p><em>Sandbox session is auto-saved on your computer.&nbsp;Never sent to server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Your input data and code is auto-saved to local storage. Click on the Save link to persist to server in order to share with colleagues."></i></em></p>
       <% } else { %>
         <% if (isDirty) { %>
-          <p><em>Local copy different than on server. Click <i class="glyphicon glyphicon-link"></i>&nbsp;Save to update on server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Changes were auto-saved to local storage. However they differ from the version on the server."></i></em></p>
+          <p><em>Local copy different than on server.&nbsp;Click&nbsp;<i class="glyphicon glyphicon-link"></i>&nbsp;Save to update on server.&nbsp;<i class="glyphicon glyphicon-info-sign text-muted" data-toggle="tooltip" data-placement="bottom" title="Changes were auto-saved to local storage. However they differ from the version on the server."></i></em></p>
         <% } else { %>
           <p><em>Current session is saved on server.</em></p>
         <% } %>
