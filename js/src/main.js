@@ -133,7 +133,7 @@ $(document).ready(function() {
           copypaste = 'Ctrl + A then Ctrl + C to copy to clipboard. ';
       $download.attr('download', filename);
       $textarea.change(function() {
-        data = 'data:' + mimeType + ';charset=utf-8,' + escape($textarea.val());
+        data = $textarea.val();
         $download.attr('title', 'Download result in ' + filename);
         $label.text(copypaste);
         if (data) {
@@ -148,7 +148,7 @@ $(document).ready(function() {
       $download.click(function(e) {
         if ($download.attr('disabled')) return;
         e.preventDefault();
-        download(data, $download.attr('download'), mimeType);
+        download(new Blob([data]), $download.attr('download'), mimeType);
       });
     },
 
