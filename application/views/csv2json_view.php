@@ -114,6 +114,7 @@ Nine Miles from the White City, 2013, -
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Jan 26, 2019</strong> Improvement: Removed 65k limit on download button.</li>
 				<li><strong>Mar 31, 2018</strong> Improvement: Added option to parse JSON values.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>

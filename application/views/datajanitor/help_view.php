@@ -69,12 +69,14 @@
 <br/>
 
 <h2>Change Log</h2>
-<p><strong>2018-12-31</strong></p>
+<p><strong>Jan 26, 2019</strong></p>
+<p>Removed 65k limit on download button.</p>
+<p><strong>Dec 31 2018</strong></p>
 <p>Added ability to name saved sessions.</p>
-<p><strong>2018-12-25</strong></p>
+<p><strong>Dec 25 2018</strong></p>
 <p>Expose sessions in UI.</p>
-<p><strong>2018-12-19</strong></p>
+<p><strong>Dec 19 2018</strong></p>
 <p>Added ability to save session and request service.</p>
-<p><strong>2018-11-30</strong></p>
+<p><strong>Nov 11 2018</strong></p>
 <p>Initial BETA release.</p>
 <br/>

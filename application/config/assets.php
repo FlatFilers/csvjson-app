@@ -63,6 +63,7 @@ $config['assets'] = array(
 			'js/3rd/jQuery-File-Upload/js/vendor/jquery.ui.widget.js',
 			'js/3rd/jQuery-File-Upload/js/jquery.iframe-transport.js',
 			'js/3rd/jQuery-File-Upload/js/jquery.fileupload.js',
+			'js/3rd/download/download.js',
 			'js/3rd/underscore/underscore.js',
 			'js/3rd/underscore/underscore.string.js',
 			'js/3rd/backbone/backbone.js',

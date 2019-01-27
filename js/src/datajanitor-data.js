@@ -54,7 +54,7 @@
             &nbsp;&nbsp;
             <small><%=outputRowCount%>&nbsp;rows</small>
             <small class="pull-right">
-              <a class="btn btn-primary btn-xs download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top"  title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
+              <a class="btn btn-primary btn-xs download" download="datajanitor.csv" target="_self" data-toggle="tooltip" data-placement="top" title="Save as datajanitor.csv"><i class="glyphicon glyphicon-download"></i>&nbsp;Download CSV</a>
               &nbsp;&nbsp;
               <button class="btn btn-primary btn-xs copy-output" data-toggle="tooltip" data-placement="top" title="Copy table data so you can pasted in Excel or Google Sheets."><i class="glyphicon glyphicon-share"></i>&nbsp;Copy to clipboard</button>
               &nbsp;&nbsp;
@@ -146,8 +146,12 @@
       _.copyToClipboard(this.outputCollection.toCSV('\t'));
       this.$('button.copy-output').yes();
     },
-    onClickDownload: function() {
-      this.$('a.download').yes();
+    onClickDownload: function(e) {
+      var $download = this.$('a.download');
+      if ($download.attr('disabled')) return;
+      var data = 'data:application/json;charset=utf-8,' + this.outputCollection.toCSV(',');
+      $download.yes();
+      download(data, $download.attr('download'), 'application/json');
     },
 
     // Paste and parse
@@ -291,13 +295,7 @@
       }
 
       var $download = this.$('a.download');
-      var csv = escape(this.outputCollection.toCSV(','));
-      $download.attr('href', 'data:application/json;charset=utf-8,' + csv);
-      if (csv && csv.length > 65400) {
-        $download
-          .attr('disabled', true)
-          .attr('title', 'Too large to download. Copy to clipboard instead.');
-      } else if (csv.length == 0) {
+      if (this.outputCollection.size() == 0) {
         $download.attr('disabled', true);
         $download.attr('title', 'No data to download. Convert first.');
       }

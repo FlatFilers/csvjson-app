@@ -146,6 +146,7 @@
       </ul>
 			<h4>Change Log</h4>
 			<ul>
+        <li><strong>Jan 26, 2019</strong> Removed 65k limit on download button. Also fixed mime type.</li>
         <li><strong>Mar 31, 2018</strong> CSVJSON format variant support: ensure CSV values are JSON valid.</li>
 				<li><strong>Jan 24, 2018</strong> Initial release.</li>
 			</ul>

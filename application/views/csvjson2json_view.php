@@ -84,6 +84,7 @@
       </blockquote>
       <h4>Change Log</h4>
       <ul>
+        <li><strong>Jan 26, 2019</strong> Improvement: Removed 65k limit on download button.</li>
         <li><strong>Apr 6, 2016</strong> Bug fixes and help text improvements.</li>
         <li><strong>Apr 2, 2018</strong> First release.</li>
       </ul>
