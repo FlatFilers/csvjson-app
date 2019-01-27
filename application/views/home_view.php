@@ -97,7 +97,7 @@
 			<h3>Change Log</h3>
 			<h4>2019-01-26</h4>
 			<p>
-				Improvement: Removed 65k limit on download button.</li>
+				Improvement: Removed 64k limit on download button.</li>
 			</p>
 			<h4>2018-12-26</h4>
 			<p>
