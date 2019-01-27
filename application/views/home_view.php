@@ -21,10 +21,13 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-12">
-			<h4>New! Online tool for Excel and Google Sheets data cleaning and transformation.</h4>
+			<h4>New! Online tools for Excel and Google Sheets data cleaning and transformation and image clipping.</h4>
 			<div class="row">
 				<div class="col-sm-3">
 					<p><a href="/datajanitor" class="btn btn-primary tool" title="Online tool for Excel and Google Sheets data cleaning and transformation.">Data Janitor <sup>BETA</sup></a></p>
+				</div>
+				<div class="col-sm-3">
+					<p><a href="https://clippaint.com" class="btn btn-primary tool" title="Online tool to copy, paste, clip and resize images.">Clip Paint <sup>BETA</sup></a></p>
 				</div>
 			</div>
 		</div>
