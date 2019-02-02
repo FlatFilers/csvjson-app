@@ -13,8 +13,7 @@
    *               Detects numbers, null, false, true, [] and {}.
 	 *
 	 * Dependencies: 
-	 *  - underscore (http://underscorejs.org/)
-	 *  - underscore.string (https://github.com/epeli/underscore.string)
+	 *  - pegjs-csv-parser: https://gist.github.com/trevordixon/3362830
 	 *
 	 * Copyright (c) 2014 Martin Drapeau
 	 *
@@ -35,12 +34,26 @@
   function detectSeparator(csv) {
     var counts = {},
         sepMax;
-    _.each(separators, function(sep, i) {
+    separators.forEach(function(sep, i) {
       var re = new RegExp(sep, 'g');
       counts[sep] = (csv.match(re) || []).length;
       sepMax = !sepMax || counts[sep] > counts[sepMax] ? sep : sepMax;
     });
     return sepMax;
+  }
+
+  // Source: https://stackoverflow.com/questions/4856717/javascript-equivalent-of-pythons-zip-function
+  function zip() {
+    var args = [].slice.call(arguments);
+    var longest = args.reduce(function(a,b) {
+      return a.length>b.length ? a : b;
+    }, []);
+
+    return longest.map(function(_,i) {
+      return args.map(function(array) {
+        return array[i];
+      });
+    });
   }
 
   function convert(csv, options) {
@@ -60,12 +73,12 @@
       throw error.message + ' On line ' + error.line + ' and column ' + error.column + '.\n' + line;
     }
 
-    if (options.transpose) a = _.zip.apply(_, a);
+    if (options.transpose) a = zip.apply(this, a);
 
     var keys = a.shift();
     if (keys.length == 0) throw errorEmptyHeader;
-    keys = _.map(keys, function(key) {
-      return _(key).chain().trim().trim('"').value();
+    keys = keys.map(function(key) {
+      return key.trim().replace(/(^")|("$)/g, '');
     });
 
     var	json = options.hash ? {} : [];
@@ -73,8 +86,8 @@
       var row = {},
       hashKey;
       for (var i = 0; i < keys.length; i++) {
-        var value = _(a[l][i]).chain().trim().trim('"').value(),
-            number = value === "" ? NaN : value - 0;
+        var value = (a[l][i]||'').trim().replace(/(^")|("$)/g, '');
+        var number = value === "" ? NaN : value - 0;
         if (options.hash && i == 0) {
           hashKey = value;
         }
