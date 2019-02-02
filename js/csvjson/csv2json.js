@@ -11,6 +11,11 @@
    *  - parseNumbers: Optional. Will attempt to convert a value to a number, if possible.
    *  - parseJSON: Optional. Will attempt to conter a value to a valid JSON value if possible.
    *               Detects numbers, null, false, true, [] and {}.
+   *  - transpose: Optional. Will pivot the table. Default is false.
+   *  - hash: Optional. Will use the first column as a key and return a hash instead of
+   *               an array of objects. Default is false.
+   *  - minify: Optional. If set to true, will compact the JSON and not beautify it.
+   *               Default is false.
 	 *
 	 * Dependencies: 
 	 *  - pegjs-csv-parser: https://gist.github.com/trevordixon/3362830
