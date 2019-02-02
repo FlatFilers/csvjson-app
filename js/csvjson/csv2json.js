@@ -1,6 +1,11 @@
 (function() {
   /**
    *
+   * Node:
+   * const csv2json = require('./csv2json.js');
+   * csv2json(csv, options)
+   *
+   * Browser:
    * CSVJSON.csv2json(csv, options)
    *
    * Converts CSV to JSON. Returns an object. Use JSON.stringify to convert to a string.
@@ -9,15 +14,13 @@
    *  - separator: Optional. Character which acts as separator. If omitted,
    *               will attempt to detect comma (,), semi-colon (;) or tab (\t).
    *  - parseNumbers: Optional. Will attempt to convert a value to a number, if possible.
-   *  - parseJSON: Optional. Will attempt to conter a value to a valid JSON value if possible.
+   *  - parseJSON: Optional. Will attempt to convert a value to a valid JSON value if possible.
    *               Detects numbers, null, false, true, [] and {}.
    *  - transpose: Optional. Will pivot the table. Default is false.
    *  - hash: Optional. Will use the first column as a key and return a hash instead of
    *               an array of objects. Default is false.
-   *  - minify: Optional. If set to true, will compact the JSON and not beautify it.
-   *               Default is false.
    *
-   * Copyright (c) 2014 Martin Drapeau
+   * Copyright (c) 2014-2019 Martin Drapeau
    *
    */
 
