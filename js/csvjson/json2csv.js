@@ -149,7 +149,15 @@
     return csv;
 	}
 	
-	this.CSVJSON || (this.CSVJSON = {});
-	this.CSVJSON.json2csv = convert;
-	
+  // CommonJS or Browser
+  if (typeof exports !== 'undefined') {
+      if (typeof module !== 'undefined' && module.exports) {
+          exports = module.exports = convert;
+      }
+      exports.json2csv = convert;
+  } else {
+    this.CSVJSON || (this.CSVJSON = {});
+    this.CSVJSON.json2csv = convert;
+  }
+
 }).call(this);
