@@ -99,7 +99,7 @@
     if (!isObject(data)) throw errorNotAnArray;
     if (!Array.isArray(data)) data = [data];
 		
-    var separator = options.separator;
+    var separator = options.separator || ',';
 		if (!separator) throw errorMissingSeparator;
 
     var flatten = options.flatten || false;
@@ -143,7 +143,7 @@
     		var key = allKeys[k];
     		rowArray.push(row[key] || (options.output_csvjson_variant ? 'null' : ''));
     	}
-    	csv += rowArray.join(separator) + '\n';
+    	csv += rowArray.join(separator) + (r < allRows.length-1 ? '\n' : '');
     }
     
     return csv;
