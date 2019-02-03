@@ -35,13 +35,15 @@
       output_csvjson_variant: $output_csvjson_variant.is(':checked')
     };
     
-    var data, result;
+    var data;
     try {
-      var data = jsonlint.parse(json);
+      data = jsonlint.parse(json);
     } catch (error) {
       APP.reportError($result, "Invalid JSON.\n\n" + error);
       return false;
     }
+
+    var result;
     try {
       result = CSVJSON.json2csv(data, options);
     } catch (error) {

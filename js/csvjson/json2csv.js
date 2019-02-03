@@ -1,7 +1,7 @@
 (function() {
 	/**
 	 *
-	 * CSVJSON.json2csv(json, options)
+	 * CSVJSON.json2csv(data, options)
 	 *
 	 * Converts JSON to CSV
 	 *
