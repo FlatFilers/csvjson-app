@@ -100,7 +100,11 @@
 			<h3>Change Log</h3>
 			<h4>2019-02-02</h4>
 			<p>
-				Function <code>csv2json</code> now available as an <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package</a>.
+				Function <code>json2csv</code> now available as a <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package</a>.
+			</p>
+			<h4>2019-02-02</h4>
+			<p>
+				Function <code>csv2json</code> now available as a <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package</a>.
 			</p>
 			<h4>2019-01-26</h4>
 			<p>

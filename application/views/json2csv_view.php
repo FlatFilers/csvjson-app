@@ -108,6 +108,9 @@
 	</div>
 	<div class="row">
 		<div class="col-md-8">
+      <h4>Node.js</h4>
+      <p>This function is available as a <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package</a>.</p>
+
 			<h4>About CSV, TSV and Excel</h4>
 			<ul>
 				<li>
@@ -146,6 +149,7 @@
       </ul>
 			<h4>Change Log</h4>
 			<ul>
+        <li><strong>Feb 3, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package json2csv</a>.</li>
         <li><strong>Jan 26, 2019</strong> Removed 64k limit on download button. Also fixed mime type.</li>
         <li><strong>Mar 31, 2018</strong> CSVJSON format variant support: ensure CSV values are JSON valid.</li>
 				<li><strong>Jan 24, 2018</strong> Initial release.</li>
