@@ -24,19 +24,28 @@
     e.preventDefault();
     
     var json = _.trim($json.val());
-    if (json.length == 0) err(errorEmpty);
-    
+    if (json.length == 0) {
+      APP.reportError($result, 'Please upload a file or type in something.');
+      return false;
+    }
+
     var options = {
       separator: sepMap[$separator.find('option:selected').val()],
       flatten: $flatten.is(':checked'),
       output_csvjson_variant: $output_csvjson_variant.is(':checked')
     };
     
-    var result;
+    var data, result;
     try {
-      result = CSVJSON.json2csv(json, options);
+      var data = jsonlint.parse(json);
     } catch (error) {
-      APP.reportError($result, error);
+      APP.reportError($result, "Invalid JSON.\n\n" + error);
+      return false;
+    }
+    try {
+      result = CSVJSON.json2csv(data, options);
+    } catch (error) {
+      APP.reportError($result, error + "\n\nOH NO! I don't know how to convert that. Help me understand what you want. Click on the button below to report a bug or suggestion.");
       return false;
     }
     
