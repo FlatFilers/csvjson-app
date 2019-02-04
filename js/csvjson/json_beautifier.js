@@ -3,13 +3,24 @@
    *
    * CSVJSON.json_beautifier(object, options)
    *
-   * Validates and formats JSON. Returns a JSON string.
+   * Parses, validates, beautifies and formats JSON. Returns a JSON string.
    *
    * Available options:
-   *  - space: 
-   *  - dropQuotesOnKeys: 
-   *  - dropQuotesOnNumbers: 
-   *  - inlineShortArrays: 
+   *  - space: The number of spaces to indent. Default is 2.
+   *  - quoteType: You can change double quotes to single quotes (') if you
+   *           like to. Will make for invalid JSON but valid Javascript.
+   *           Default is (").
+   *  - dropQuotesOnKeys: JSON wraps keys with double quotes by default.
+   *           Javascript doesn't need them though. Set to true to drop them.
+   *           Will make for invalid JSON but valid Javascript. Default is false.
+   *  - dropQuotesOnNumbers: Set to true to parse number values and drop quotes
+   *           around them. Default is false.
+   *  - inlineShortArrays: Set to true to collpase arrays inline if less than 80
+   *           characters. Default is `false`.
+   *  - inlineShortArraysDepth: If you turned on the above option, your can limit
+   *           the nesting depth. Default is 1.
+   *  - minify: Set to `true` to simply compact the JSON. Removes indentations and
+   *           new lines. Default is `false`.
    *
    * Dependencies:
    *  - json2-mod.js https://github.com/martindrapeau/json2-mod
@@ -98,12 +109,15 @@
   };
 
   // CommonJS or Browser
+  var JSON2_mod;
   if (typeof exports !== 'undefined') {
       if (typeof module !== 'undefined' && module.exports) {
           exports = module.exports = convert;
       }
+      JSON2_mod = require('json2-mod');
       exports.json_beautifier = convert;
   } else {
+    JSON2_mod = window.JSON2_mod;
     this.CSVJSON || (this.CSVJSON = {});
     this.CSVJSON.json_beautifier = convert;
   }

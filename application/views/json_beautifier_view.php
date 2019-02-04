@@ -88,6 +88,8 @@
 	<br/>
 	<div class="row">
 		<div class="col-md-8 about">
+			<h4>Node.js</h4>
+			<p>This function is available as a <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package</a>.</p>
 			<h4>About JSON</h4>
 			<ul>
 				<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <a href="http://www.json.org" target="_blank">www.json.org</a>.</li>
@@ -111,6 +113,7 @@
 			<br/>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Feb 3, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package json_beautifier</a>.</li>
 				<li><strong>Jan 26, 2019</strong> Improvement: Removed 64k limit on download button.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
 				<li><strong>Oct 7, 2017</strong> Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/martindrapeau/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></li>
