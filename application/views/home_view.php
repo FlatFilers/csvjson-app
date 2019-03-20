@@ -98,6 +98,10 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2019-03-20</h4>
+			<p>
+				<a href="/csv2json">CSV to JSON</a> bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/martindrapeau/csvjson-app/issues/71">GitHub issue #71</a>. Thanks to <a href="https://github.com/SummerSun">Summer</a> for reporting.
+			</p>
 			<h4>2019-02-03</h4>
 			<p>
 				Function <code>json2csv</code> now available as a <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package</a>.

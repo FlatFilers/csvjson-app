@@ -61,6 +61,27 @@
     });
   }
 
+  function uniquify(keys) {
+    var counts = {};
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (counts[key] === undefined) {
+        counts[key] = 0;
+      } else {
+        counts[key]++;
+      }
+    }
+
+    var result = [];
+    for (var i = keys.length-1; i >= 0; i--) {
+      var key = keys[i];
+      if (counts[key] > 0) key = key + '__' + counts[key]--;
+      result.unshift(key);
+    }
+
+    return result;
+  }
+
   function convert(csv, options) {
     options || (options = {});
     if (csv.length == 0) throw errorEmpty;
@@ -85,6 +106,8 @@
     keys = keys.map(function(key) {
       return key.trim().replace(/(^")|("$)/g, '');
     });
+
+    keys = uniquify(keys);
 
     var	json = options.hash ? {} : [];
     for (var l = 0; l < a.length; l++) {
