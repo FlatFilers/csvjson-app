@@ -98,6 +98,12 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2019-06-06</h4>
+			<p>
+				Fixed bug where uploading a file went to the result box instead of the json box.
+				<a href="https://github.com/martindrapeau/csvjson-app/issues/75">GitHub issue #75</a>.
+				Thanks to <a href="https://github.com/ejaustin">Emily</a> fo reporting.
+			</p>
 			<h4>2019-03-20</h4>
 			<p>
 				<a href="/csv2json">CSV to JSON</a> bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/martindrapeau/csvjson-app/issues/71">GitHub issue #71</a>. Thanks to <a href="https://github.com/SummerSun">Summer</a> for reporting.

@@ -63,7 +63,7 @@
     upload: {
       $file: $file,
       url: uploadUrl,
-      $textarea: $result
+      $textarea: $json
     }
   });
 };
