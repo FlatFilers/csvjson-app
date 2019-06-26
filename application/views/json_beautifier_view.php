@@ -63,7 +63,7 @@
 						</select>
 					</label>
 					&nbsp;
-					<label class="inline" title="Collpase arrays inline if less than 80 characters. You can limit the nesting depth where it applies.">
+					<label class="inline" title="Collpase arrays inline if less than the width in characters of the textarea. You can limit the nesting depth where it applies.">
 						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />
 						Inline short arrays
 						<select id="inline-short-arrays-depth" name="inline-short-arrays-depth" class="save">
@@ -113,6 +113,7 @@
 			<br/>
 			<h4>Change Log</h4>
 			<ul>
+				<li><strong>Jun 25, 2019</strong> Adjustable width for inling short arrays. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/76">issue #76</a>.</li>
 				<li><strong>Feb 3, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package json_beautifier</a>.</li>
 				<li><strong>Jan 26, 2019</strong> Improvement: Removed 64k limit on download button.</li>
 				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>

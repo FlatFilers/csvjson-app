@@ -98,11 +98,16 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2019-06-25</h4>
+			<p>
+				JSON Beautifier improvement. Variable width when inlining short arrays. For fix <a href="https://github.com/martindrapeau/csvjson-app/issues/76">GitHub issue #76</a>.
+				Thanks to <a href="https://github.com/galileo-pkm">galileo-pkm</a> for reporting.
+			</p>
 			<h4>2019-06-06</h4>
 			<p>
 				Fixed bug where uploading a file went to the result box instead of the json box.
 				<a href="https://github.com/martindrapeau/csvjson-app/issues/75">GitHub issue #75</a>.
-				Thanks to <a href="https://github.com/ejaustin">Emily</a> fo reporting.
+				Thanks to <a href="https://github.com/ejaustin">Emily</a> for reporting.
 			</p>
 			<h4>2019-03-20</h4>
 			<p>
