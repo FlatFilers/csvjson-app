@@ -57,7 +57,7 @@
   function inlineShortArraysInResult(result, width) {
     width || (width = 80);
     if (typeof width != 'number' || width < 20) {
-      throw "Invalid width '" + width + "'. Expecting an integer equal or larger than 20."
+      throw "Invalid width '" + width + "'. Expecting number equal or larger than 20."
     }
     var list = result.split('\n'),
         i = 0,
