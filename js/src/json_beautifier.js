@@ -38,10 +38,11 @@
       quoteType: $('#quote-type').val(),
       dropQuotesOnKeys: $('#drop-quotes-on-keys').is(':checked'),
       dropQuotesOnNumbers: $('#drop-quotes-on-numbers').is(':checked'),
-      inlineShortArrays: $('#inline-short-arrays').is(':checked'),
+      inlineShortArrays: $('#inline-short-arrays').is(':checked') ? Math.ceil(Math.max($result.width()/9, 20)) : false,
       inlineShortArraysDepth: parseInt($('#inline-short-arrays-depth').val(), 10),
       minify: $('#minify').is(':checked')
     };
+    if (options.inlineShortArrays) console.log('inlineShortArrays', options.inlineShortArrays);
     
     var data;
     try {

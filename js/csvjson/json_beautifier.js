@@ -16,7 +16,8 @@
    *  - dropQuotesOnNumbers: Set to true to parse number values and drop quotes
    *           around them. Default is false.
    *  - inlineShortArrays: Set to true to collpase arrays inline if less than 80
-   *           characters. Default is `false`.
+   *           characters. You can also set to an arbitrary number such as 160 to
+   *           change the width. Default is `false`.
    *  - inlineShortArraysDepth: If you turned on the above option, your can limit
    *           the nesting depth. Default is 1.
    *  - minify: Set to `true` to simply compact the JSON. Removes indentations and
@@ -51,8 +52,13 @@
     return o && typeof o == 'object';
   }
   
-  // Collapses arrays inline when they fit inside 80 characters (including indentation).
-  function inlineShortArraysInResult(result) {
+  // Collapses arrays inline when they fit inside the specified width 
+  // in characters (including indentation).
+  function inlineShortArraysInResult(result, width) {
+    width || (width = 80);
+    if (typeof width != 'number' || width < 20) {
+      throw "Invalid width '" + width + "'. Expecting an integer equal or larger than 20."
+    }
     var list = result.split('\n'),
         i = 0,
         start = null,
@@ -67,7 +73,7 @@
       } else if (endMatch && !startMatch && start) {
         content.push((list[i]||'').trim());
         var inline = content.join(' ');
-        if (inline.length < 80) {
+        if (inline.length < width) {
           list.splice(start, i-start+1, inline);
           i = start;
         }
@@ -94,11 +100,12 @@
     
     var result = JSON2_mod.stringify(object, null, minify ? undefined : space, dropQuotesOnKeys, quoteType);
     if (inlineShortArrays && !minify) {
-      var newResult = inlineShortArraysInResult(result);
+      var width = typeof inlineShortArrays == 'number' ? inlineShortArrays : 80;
+      var newResult = inlineShortArraysInResult(result, width);
       if (inlineShortArraysDepth > 1) {
         for (var i = 1; i < inlineShortArraysDepth; i++) {
           result = newResult;
-          newResult = inlineShortArraysInResult(result);
+          newResult = inlineShortArraysInResult(result, width);
           if (newResult == result) break;
         }
       }
