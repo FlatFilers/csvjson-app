@@ -148,7 +148,7 @@ $(document).ready(function() {
       $download.click(function(e) {
         if ($download.attr('disabled')) return;
         e.preventDefault();
-        download(new Blob([data]), $download.attr('download'), mimeType);
+        download(new Blob(["\uFEFF"+data]), $download.attr('download'), mimeType);
       });
     },
 
