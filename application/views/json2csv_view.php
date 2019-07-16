@@ -149,6 +149,7 @@
       </ul>
 			<h4>Change Log</h4>
 			<ul>
+        <li><strong>Jul 15, 2019</strong> Fixed bug where BOM was missing causing the lost of accented characters in Excel. <a href="https://github.com/martindrapeau/csvjson-app/issues/78">GitHub issue #78</a>.</li></li>
         <li><strong>June 6, 2019</strong> Fixed bug where uploading a file went to the result box instead of the json box. <a href="https://github.com/martindrapeau/csvjson-app/issues/75">GitHub issue #75</a>.</li>
         <li><strong>Feb 3, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package json2csv</a>.</li>
         <li><strong>Jan 26, 2019</strong> Removed 64k limit on download button. Also fixed mime type.</li>

@@ -98,6 +98,12 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2019-07-15</h4>
+			<p>
+				JSON 2 CSV bug fix. BOM was missing causing the lost of accented characters in Excel.
+				Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/78">GitHub issue #78</a>.</li>
+				Thanks to <a href="https://github.com/elbaza1">EL BAZA</a> for reporting.
+			</p>
 			<h4>2019-06-25</h4>
 			<p>
 				JSON Beautifier improvement. Variable width when inlining short arrays. For fix <a href="https://github.com/martindrapeau/csvjson-app/issues/76">GitHub issue #76</a>.
