@@ -148,7 +148,7 @@ $(document).ready(function() {
       $download.click(function(e) {
         if ($download.attr('disabled')) return;
         e.preventDefault();
-        download(new Blob(["\uFEFF"+data]), $download.attr('download'), mimeType);
+        download(new Blob([(filename.indexOf('.csv') >= 0 ? "\uFEFF" : '') + data]), $download.attr('download'), mimeType);
       });
     },
 
