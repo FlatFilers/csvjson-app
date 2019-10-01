@@ -90,12 +90,8 @@
 			</p>
 			<blockquote>
 				<p>
-					Are you a developer tasked with parsing CSV? Integrate <a href="https://flatfile.io/">Faltfile</a> in your project today and save tons of time to focus on the real things.
+					Are you a developer tasked with parsing CSV files? Embed all the functionality of CSVJSON into any web application with Flatfile. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
 				</p>
-				<p>
-					Flatfile is the seamless way to import, clean, & consolidate customer data for developers.
-				</p>
-				<p><small>David, CEO of Flatfile</small></p>
 			</blockquote>
 		</div>
 	</div>
