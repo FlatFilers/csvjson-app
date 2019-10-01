@@ -94,7 +94,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 		</div>
 		<div class="col-md-4">
 			<?php
-				$this->load->view('carbonads');
+				//$this->load->view('carbonads');
 				//$this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom");
 			?>
 		</div>

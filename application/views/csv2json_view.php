@@ -83,7 +83,14 @@ Nine Miles from the White City, 2013, -
 	<div class="row">
 		<div class="col-md-8">
 			<h4>Node.js</h4>
-			<p>This function is available as a <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package</a>.</p>
+			<p>
+				This function is available as a <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package</a>.
+			</p>
+
+			<h4>Uploading multiple CSVs?</h4>
+			<p>
+				Embed all the functionality of CSVJSON in any web application with <a href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile">Flatfile</a>, and more. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
+			</p>
 
 			<h4>About CSV</h4>
 			<ul>
@@ -134,7 +141,7 @@ Nine Miles from the White City, 2013, -
 		</div>
 		<div class="col-md-4">
 			<?php
-				$this->load->view('carbonads');
+				//$this->load->view('carbonads');
 				//$this->load->view(rand(1,2) == 1 ? "ludo" : "miamboom");
 			?>
 		</div>

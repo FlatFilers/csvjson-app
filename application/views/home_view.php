@@ -78,7 +78,24 @@
 				<p>
 					I hope it can be useful to you. Happy conversions!
 				</p>
-				<p>--Martin</p>
+				<p><small>Martin</small></p>
+			</blockquote>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<h3>About Flatfile</h3>
+			<p>
+				<a href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile">Flatfile</a> is proud to sponsor CSVJSON.
+			</p>
+			<blockquote>
+				<p>
+					Are you a developer tasked with parsing CSV? Integrate <a href="https://flatfile.io/">Faltfile</a> in your project today and save tons of time to focus on the real things.
+				</p>
+				<p>
+					Flatfile is the seamless way to import, clean, & consolidate customer data for developers.
+				</p>
+				<p><small>David, CEO of Flatfile</small></p>
 			</blockquote>
 		</div>
 	</div>
@@ -98,6 +115,10 @@
 	<div class="row">
 		<div class="col-md-12">
 			<h3>Change Log</h3>
+			<h4>2019-10-01</h4>
+			<p>
+				Integrated design for sponsorship by <a href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-Changelog&utm">Flatfile</a>.
+			</p>
 			<h4>2019-07-15</h4>
 			<p>
 				JSON 2 CSV bug fix. BOM was missing causing the lost of accented characters in Excel.

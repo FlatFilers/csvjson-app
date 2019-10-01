@@ -1,0 +1,823 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"inl",
+				"inline-block\tdisplay"
+			],
+			[
+				"inv",
+				"invalidCells"
+			],
+			[
+				"re",
+				"recipients"
+			],
+			[
+				"rec",
+				"recipient"
+			],
+			[
+				"inva",
+				"invalides"
+			],
+			[
+				"des",
+				"destinataires"
+			],
+			[
+				"destina",
+				"destinataire"
+			],
+			[
+				"rei",
+				"recipientsFields"
+			],
+			[
+				"reci",
+				"recipients"
+			],
+			[
+				"array_ke",
+				"array_key_exists"
+			],
+			[
+				"filt",
+				"filteredParticipants"
+			],
+			[
+				"parti",
+				"participants"
+			],
+			[
+				"load",
+				"loadActivities"
+			],
+			[
+				"act",
+				"activity_ids"
+			],
+			[
+				"sub",
+				"subcategory_ids"
+			],
+			[
+				"fil",
+				"filterParticipants"
+			],
+			[
+				"sele",
+				"selectedProgramId"
+			],
+			[
+				"prog",
+				"program_id"
+			],
+			[
+				"age",
+				"ageMax"
+			],
+			[
+				"ageM",
+				"ageMax"
+			],
+			[
+				"loadPr",
+				"loadParticipants"
+			],
+			[
+				"amilia",
+				"amilia_live_list"
+			],
+			[
+				"int",
+				"integer"
+			],
+			[
+				"ami",
+				"amilia_live_list"
+			],
+			[
+				"Can",
+				"canFilter"
+			],
+			[
+				"cat",
+				"category_ids"
+			],
+			[
+				"repi",
+				"recipientFilter"
+			],
+			[
+				"gen",
+				"genderFilter"
+			],
+			[
+				"ag",
+				"ageMax"
+			],
+			[
+				"tree",
+				"treeSelection"
+			],
+			[
+				"Amilia",
+				"AmiliaLiveList"
+			],
+			[
+				"Ami",
+				"AmiliaLiveList"
+			],
+			[
+				"Re",
+				"RecipientsList"
+			],
+			[
+				"import_",
+				"import_from_amilia_about"
+			],
+			[
+				"import",
+				"importLabel"
+			],
+			[
+				"SubCategor",
+				"SubCategoryId"
+			],
+			[
+				"tre",
+				"treeSelection"
+			],
+			[
+				"part",
+				"participantsEmptyText"
+			],
+			[
+				"on",
+				"onTreeSelection"
+			],
+			[
+				"activi",
+				"activités"
+			],
+			[
+				"compon",
+				"components"
+			],
+			[
+				"org",
+				"organization"
+			],
+			[
+				"for",
+				"foreach\tforeach …"
+			],
+			[
+				"orga",
+				"organizations"
+			],
+			[
+				"ke",
+				"array_keys"
+			],
+			[
+				"Amili",
+				"AmiliaController"
+			],
+			[
+				"map",
+				"mapAmiliaOrganization"
+			],
+			[
+				"amili",
+				"amiliaOrganistions"
+			],
+			[
+				"or",
+				"organisation"
+			],
+			[
+				"creat",
+				"create_an_organization"
+			],
+			[
+				"Create",
+				"CreateRecipientListRequest"
+			],
+			[
+				"uns",
+				"unsignedInteger"
+			],
+			[
+				"Rec",
+				"RecipientList"
+			],
+			[
+				"te",
+				"textarea\tTag"
+			],
+			[
+				"user",
+				"userRepository"
+			],
+			[
+				"mo",
+				"mobile_confirmation_code"
+			],
+			[
+				"mob",
+				"mobile_confirmed"
+			],
+			[
+				"mobile",
+				"mobile_confirmation_code"
+			],
+			[
+				"pr",
+				"programNames"
+			],
+			[
+				"programCh",
+				"programChartOptions"
+			],
+			[
+				"progr",
+				"programChartData"
+			],
+			[
+				"pro",
+				"programNams"
+			],
+			[
+				"a",
+				"axios"
+			],
+			[
+				"dai",
+				"dailyRevenueMap"
+			],
+			[
+				"in",
+				"invoices"
+			],
+			[
+				"I",
+				"IiType"
+			],
+			[
+				"c",
+				"color"
+			],
+			[
+				"text",
+				"textStyle"
+			],
+			[
+				"am",
+				"amilia_organizations"
+			],
+			[
+				"amilia_",
+				"amilia_organization"
+			],
+			[
+				"Org",
+				"Organization"
+			],
+			[
+				"req",
+				"request"
+			],
+			[
+				"time",
+				"timezone"
+			],
+			[
+				"tim",
+				"timezone"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "css/main.css",
+			"settings":
+			{
+				"buffer_size": 7841,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "application/views/page.php",
+			"settings":
+			{
+				"buffer_size": 5744,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "application/views/home_view.php",
+			"settings":
+			{
+				"buffer_size": 11582,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "application/views/csv2json_view.php",
+			"settings":
+			{
+				"buffer_size": 7432,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"reind",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"rei",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"package",
+				"Package Control: Install Package"
+			],
+			[
+				"package control dis",
+				"Package Control: Discover Packages"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"package contro",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Preferences: Browse Packages"
+			],
+			[
+				"Package Contro",
+				"Install Package Control"
+			],
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/projects/csvjson",
+		"/C/projects/csvjson/application",
+		"/C/projects/csvjson/application/views",
+		"/C/projects/csvjson/css"
+	],
+	"file_history":
+	[
+		"/C/projects/csvjson/application/views/csv2json_view.php",
+		"/C/projects/csvjson/application/views/csvjson2json_view.php",
+		"/C/projects/csvjson/application/views/home_view.php",
+		"/C/projects/csvjson/application/views/sql2json_view.php",
+		"/C/projects/csvjson/application/views/json_validator_view.php",
+		"/C/projects/csvjson/application/views/json2csv_view.php",
+		"/C/projects/csvjson/application/views/json_beautifier_view.php",
+		"/C/Users/marti/Documents/Jobs/GRICS.md",
+		"/C/Users/marti/AppData/Roaming/Sublime Text 3/Packages/Xdebug Client/Xdebug.sublime-settings",
+		"/C/projects/activitysms/resources/lang/en/strings.php",
+		"/C/projects/activitysms/resources/lang/fr/strings.php",
+		"/C/projects/activitysms/resources/views/backend/includes/sidebar.blade.php",
+		"/C/projects/activitysms/activitysms.sublime-project",
+		"/C/xampp/php/php.ini",
+		"/C/projects/activitysms/database/seeds/Auth/UserTableSeeder.php",
+		"/C/projects/activitysms/resources/lang/fr/vue-js.php",
+		"/C/projects/activitysms/resources/lang/en/vue-js.php",
+		"/C/projects/activitysms/resources/views/frontend/list/show.blade.php",
+		"/C/projects/csvjson/js/csvjson/csv2json.js",
+		"/C/projects/activitysms/resources/views/frontend/org/edit.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/list/create.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/org/create.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/list/edit.blade.php",
+		"/C/projects/activitysms/app/Models/Organization.php",
+		"/C/projects/webapp/app/Models/Organization.php",
+		"/C/projects/activitysms/resources/js/frontend/components/AmiliaImportLiveListComponent.vue",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/RecipientList/UpdateRecipientCsvListRequest.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/User/RecipientListController.php",
+		"/C/projects/activitysms/resources/js/frontend/app.js",
+		"/C/projects/activitysms/app/Models/RecipientList.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/RecipientList/AmiliaLiveListRequest.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/RecipientList/UpdateRecipientListRequest.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/RecipientList/UpdateRecipientListCsvRequest.php",
+		"/C/projects/activitysms/app/Repositories/Frontend/RecipientListRepository.php",
+		"/C/projects/activitysms/app/Models/Amilia/AmiliaLiveList.php",
+		"/C/projects/activitysms/resources/views/frontend/list/table.blade.php",
+		"/C/projects/activitysms/routes/frontend/home.php",
+		"/C/projects/activitysms/database/migrations/2019_09_26_130337_add_csv_to_recipient_lists_table.php",
+		"/C/projects/activitysms/database/migrations/2019_09_26_074222_add_participant_count_to_amilia_live_list_table.php",
+		"/C/projects/activitysms/database/migrations/2019_09_26_074222_add_participant_count_to_amilia_list_list_table.php",
+		"/C/projects/activitysms/resources/sass/frontend/_variables.scss",
+		"/C/projects/activitysms/resources/sass/frontend/pages/_dashboard.scss",
+		"/C/projects/activitysms/resources/views/frontend/user/dashboard.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/layouts/site.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/index.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/user/account/tabs/profile.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/includes/nav.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/org/show.blade.php",
+		"/C/projects/activitysms/public/img/backend/brand/logo.svg",
+		"/C/projects/activitysms/public/img/backend/brand/logo-border.svg",
+		"/C/projects/activitysms/resources/sass/backend/_variables.scss",
+		"/C/projects/activitysms/resources/views/backend/includes/header.blade.php",
+		"/C/projects/activitysms/public/img/backend/brand/logo-border-gray.svg",
+		"/C/Users/marti/Downloads/_variables (2).scss",
+		"/C/projects/activitysms/app/Models/Amilia/AmiliaProgram.php",
+		"/C/Users/marti/Downloads/_variables.scss",
+		"/C/Users/marti/Downloads/_variables (1).scss",
+		"/C/projects/activitysms/database/migrations/2019_09_24_151903_create_amilia_live_lists_table.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/User/OrganizationController.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/RecipientList/CreateRecipientListRequest.php",
+		"/C/projects/activitysms/database/migrations/2019_09_24_132535_alter_recipient_lists_table.php",
+		"/C/Users/marti/Documents/stuff-perso.txt",
+		"/C/projects/activitysms/.env",
+		"/C/projects/activitysms/.env.example",
+		"/C/xampp/apache/conf/httpd.conf",
+		"/C/xampp/apache/conf/extra/httpd-vhosts.conf",
+		"/C/projects/activitysms/node_modules/@jest/console/build/NullConsole.js",
+		"/C/projects/activitysms/resources/sass/frontend/app.scss",
+		"/C/projects/activitysms/app/Repositories/Frontend/OrganizationRepository.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/Organization/UpdateOrganizationRequest.php",
+		"/C/projects/activitysms/resources/js/frontend/components/RecipientsTableComponent.vue",
+		"/C/projects/solution-stat/resources/views/frontend/user/organization.blade.php",
+		"/C/projects/myfirstsite/resources/views/organizations/show.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/list/orgtitle.blade.php",
+		"/C/projects/activitysms/routes/backend/admin.php",
+		"/C/projects/activitysms/app/Models/Amilia/AmiliaOrganization.php",
+		"/C/projects/activitysms/app/Http/Controllers/Backend/Auth/Amilia/AmiliaController.php",
+		"/C/projects/activitysms/resources/views/backend/amilia/index.blade.php",
+		"/C/projects/activitysms/resources/views/backend/amilia/show.blade.php",
+		"/C/projects/activitysms/database/migrations/2019_09_22_052242_create_amilia_programs_table.php",
+		"/C/projects/activitysms/routes/breadcrumbs/backend/backend.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/ContactController.php",
+		"/C/projects/activitysms/resources/lang/en/labels.php",
+		"/C/projects/activitysms/app/Repositories/AmiliaRepository.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/User/ProfileController.php",
+		"/C/projects/activitysms/database/migrations/2019_09_20_193620_create_amilia_organizations_table.php",
+		"/C/projects/activitysms/resources/lang/fr/menus.php",
+		"/C/projects/activitysms/resources/lang/en/menus.php",
+		"/C/Users/marti/Documents/white-stripes-albums.csv",
+		"/C/projects/activitysms/resources/views/frontend/user/account/tabs/mobile.blade.php",
+		"/C/projects/activitysms/database/migrations/2019_09_20_101924_add_soft_deletes.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/User/UpdatePasswordRequest.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/User/UpdateProfileRequest.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/Organization/CreateOrganizationRequest.php",
+		"/C/projects/activitysms/resources/lang/fr/exceptions.php",
+		"/C/projects/activitysms/resources/lang/en/exceptions.php",
+		"/C/projects/activitysms/app/Repositories/Frontend/Auth/UserRepository.php",
+		"/C/Users/marti/Documents/contact-out.md",
+		"/C/projects/myfirstsite/app/Http/Controllers/OrganizationsController.php",
+		"/C/projects/activitysms/resources/lang/fr/validation.php",
+		"/C/projects/activitysms/resources/lang/en/validation.php",
+		"/C/projects/activitysms/resources/views/frontend/organization/show.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/organization/create.blade.php",
+		"/C/xampp/apache/logs/error.log",
+		"/c/xampp/php/logs/php_error_log",
+		"/C/projects/activitysms/resources/views/frontend/user/side-bar.blade.php",
+		"/C/projects/activitysms/resources/views/frontend/user/adhoc-sms.blade.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/User/SmsController.php",
+		"/C/xampp/apache/logs/access.log",
+		"/C/projects/myfirstsite/resources/views/organizations/create.blade.php",
+		"/C/projects/activitysms/app/Models/Recipient.php",
+		"/C/projects/activitysms/app/Http/Controllers/Frontend/User/DashboardController.php",
+		"/C/projects/activitysms/app/Http/Requests/Frontend/List/CreateRecipientListRequest.php",
+		"/C/projects/activitysms/resources/lang/fr/navs.php",
+		"/C/projects/activitysms/resources/lang/en/navs.php",
+		"/C/projects/activitysms/resources/views/frontend/user/list.blade.php",
+		"/C/projects/activitysms/database/migrations/2019_09_18_152115_create_recipients_table.php",
+		"/C/Users/marti/Documents/duncan-brainstorm.md",
+		"/C/projects/activitysms/database/migrations/2019_09_18_150452_create_recipient_lists_table.php",
+		"/C/projects/activitysms/database/migrations/2019_09_18_145724_create_lists_table.php",
+		"/C/projects/aws-ses-forwarder/index.js",
+		"/C/Users/marti/Downloads/AMAZON_SES_SETUP_NOTIFICATION",
+		"/C/Users/marti/Downloads/v3p6bv7r2h0vkoekmd5l24dp1nmbguk83duevk81",
+		"/C/Users/marti/.ssh/id_rsa.pub",
+		"/C/projects/activitysms/readme.md",
+		"/C/projects/csvjson/application/config/config.php",
+		"/C/projects/activitysms/config/services.php",
+		"/D/projects/EasyPHP/profnote/application/config/development/email.php"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 102.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"logo.png",
+			"carbon",
+			"#ba141a",
+			"e51400",
+			"home"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "css/main.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7841,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								297,
+								297
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 162.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "application/views/page.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5744,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4825,
+								4825
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1736.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "application/views/home_view.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11582,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "application/views/csv2json_view.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7432,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3962,
+								3962
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1728.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 39.3333333333
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.xdebug":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "csvjson.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"usersee",
+				"database\\seeds\\Auth\\UserTableSeeder.php"
+			],
+			[
+				"userseed",
+				"database\\seeds\\Auth\\UserTableSeeder.php"
+			],
+			[
+				"seedus",
+				"database\\seeds\\Auth\\UserTableSeeder.php"
+			],
+			[
+				"functions.php",
+				"vendor\\guzzlehttp\\guzzle\\src\\functions.php"
+			],
+			[
+				"org",
+				"app\\Models\\Organization.php"
+			],
+			[
+				"baseus",
+				"webapp\\app\\Models\\Auth\\BaseUser.php"
+			],
+			[
+				"usertab",
+				"webapp\\database\\seeds\\Auth\\UserTableSeeder.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"C:\\Program Files\\Sublime Text 3\\solution-stat.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 307.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

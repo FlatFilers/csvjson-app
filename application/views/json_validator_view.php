@@ -99,7 +99,7 @@
       <?php $this->load->view('feedback'); ?>
     </div>
     <div class="col-md-4">
-      <?php $this->load->view('carbonads'); ?>
+      <?php //$this->load->view('carbonads'); ?>
     </div>
   </div>
 </div>

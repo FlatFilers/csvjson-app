@@ -51,16 +51,18 @@
 		</script>
 	</head>
 	<body>
-		<header class="navbar navbar-inverse" role="banner">
+		<header class="navbar" role="banner">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<a class="navbar-brand" href="/" title="csvjson.com - Online Conversion Tools">
-						<img src="/img/logo-text.png" alt="> CSVJSON" />
+					<a class="navbar-brand" href="/" title="csvjson.com - Online Conversion Tools, sponsored by Flatfile">
+						<img src="/img/logo-sponsor-flatfile.svg" alt="> CSVJSON sponsored by Flatfile" />
 					</a>
 					<ul class="nav navbar-nav navbar-left">
-						<li class="active">
-							<a href="/<?=$page?>"><?=$tool?><?=$beta ? ' <sup>BETA</sup>' : ''?></a>
-						</li>
+						<?php if ($page != 'home'): ?>
+							<li class="active">
+								<a href="/<?=$page?>"><?=$tool?><?=$beta ? ' <sup>BETA</sup>' : ''?></a>
+							</li>
+						<?php endif; ?>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
 							<ul class="dropdown-menu">
@@ -72,6 +74,23 @@
 								<li><a href="/csvjson2json">CSVJSON to JSON</a></li>
 								<li><a href="/datajanitor">Data Janitor <sup>BETA</sup></a></li>
 							</ul>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right flatfile-banner">
+						<li>
+							<a href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Banner&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Top-Banner&utm_term=Home-Top-Right-Banner&utm_content=CSV-Importer" title="The seamless way to import, clean, & consolidate customer data">
+								<span class="image-wrapper">
+									<img src="/img/flatfile-logomark.svg" alt="Flatfile logo" />
+								</span>
+								<span class="text">
+									<span class="text-row">
+										<strong>CSV Importer</strong> • <span class="secondary">Install in minutes</span>
+									</span>
+									<span class="text-row">
+										Works with React, Angular, Vue and more...
+									</span>
+								<span>
+							</a>
 						</li>
 					</ul>
 					<?php if ($showSave): ?>

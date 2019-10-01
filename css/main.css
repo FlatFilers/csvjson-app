@@ -1,3 +1,38 @@
+/**** flatfile.io general ****/
+a {
+	color: #327AB7;
+}
+
+.flatfile-banner>li>a {
+	display: table;
+	padding: 5px;
+	line-height: 14px;
+	font-size: 12px;
+	color: #2e3440;
+}
+.flatfile-banner>li>a .image-wrapper {
+	display: table-cell;
+	height: 40px;
+	padding: 2px;
+}
+.flatfile-banner>li>a .image-wrapper img {
+	height: 100%;
+	background-color: #794cff;
+	border-radius: 5px;
+	padding: 6px;
+}
+.flatfile-banner>li>a .text {
+	padding-left: 5px;
+	display: table-cell;
+	vertical-align: middle;
+}
+.flatfile-banner>li>a .text-row {
+	display: block;
+}
+.flatfile-banner>li>a .text-row .secondary {
+	color: #5b6f7f;
+}
+
 /**** Navigation Bar ****/
 
 header.navbar {
@@ -5,20 +40,24 @@ header.navbar {
 }
 
 header.navbar-inverse {
-	background-color: #e51400;
+	background-color: #794cff; /*#e51400;*/
 	border: 0;
 }
 
 header .navbar-brand {
+	padding: 0;
 	float: left;
-	padding: 11px 10px 10px 0;
 	font-size: 26px;
 	line-height: 26px;
 }
 
+header .navbar-brand img {
+	height: 48px;
+	padding: 6px;
+}
+
 header.navbar-inverse .navbar-brand {
 	color: #000000;
-	padding: 0;
 }
 
 header.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
@@ -41,7 +80,7 @@ header .navbar-right {
 header .navbar-header {
 	float: none!important;
 }
-header .navbar-nav>li>a {
+header .navbar-nav:not(.flatfile-banner)>li>a {
 	padding-top: 15px!important;
 	padding-bottom: 15px!important;
 }
@@ -54,7 +93,7 @@ header.navbar-inverse .navbar-nav > .active > a,
 header.navbar-inverse .navbar-nav > .active > a:hover,
 header.navbar-inverse .navbar-nav > .active > a:focus {
 	color: #ffffff;
-	background-color: #ba141a;
+	background-color: #794cff; /*#ba141a;*/
 }
 
 header.navbar-inverse .navbar-nav > li.disabled > a,
@@ -144,8 +183,8 @@ span.fileinput-button>label {
 
 .btn-primary {
 	color: #ffffff;
-	background-color: #ba141a;
-	border-color: #ba141a;
+	background-color: #794cff; /*#ba141a;*/
+	border-color: #794cff; /*#ba141a;*/
 }
 
 .btn-primary:hover,
@@ -154,14 +193,14 @@ span.fileinput-button>label {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
 	color: #ffffff;
-	background-color: #e51400;
-	border-color: #e51400;
+	background-color: #794cff; /*#e51400;*/
+	border-color: #794cff; /*#e51400; */
 }
 
 .btn-primary.disabled,
 .btn-primary[disabled] {
-	background-color:#e51400;
-	border-color:#e51400;
+	background-color: #794cff; /*#e51400;*/
+	border-color: #794cff; /*#e51400;*/
 }
 
 .form-control {
@@ -212,7 +251,7 @@ a.clear {
 
 a.clear:hover,
 a.clear:active {
-	color: #ba141a;
+	color: #794cff; /*#ba141a;*/
 	opacity: 1.0;
 }
 
@@ -333,7 +372,7 @@ footer.navbar .container-fluid a:active {
 	border-radius: 0;
 }
 .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
-    border-left: 5px solid #e51400;
+    border-left: 5px solid #794cff; /*#e51400;*/
     color: inherit;
     background-color: inherit;
 }
