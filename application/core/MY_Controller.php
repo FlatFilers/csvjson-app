@@ -85,7 +85,7 @@ class MY_Controller extends CI_Controller {
 		$data = file_get_contents("php://input");
 
 		try {
-			$this->instrumentCsv($data);
+			//$this->instrumentCsv($data);
 		} catch(\Exception $error) {}
 
 		if (defined('AWS_S3_URL')) {
@@ -116,6 +116,7 @@ class MY_Controller extends CI_Controller {
 		$columns = trim($rows[0]);
 		if (empty($columns)) return;
 
+		$this->load->database();
 		$this->db->insert('csv', [
 			'columns' => $columns,
 			'num_rows' => count($rows)-1
