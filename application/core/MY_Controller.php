@@ -85,7 +85,7 @@ class MY_Controller extends CI_Controller {
 		$data = file_get_contents("php://input");
 
 		try {
-			//$this->instrumentCsv($data);
+			$this->instrumentCsv($data);
 		} catch(\Exception $error) {}
 
 		if (defined('AWS_S3_URL')) {
