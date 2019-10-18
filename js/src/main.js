@@ -80,7 +80,7 @@ $(document).ready(function() {
     bindClear: function($clear) {
       $clear.click(function(e) {
         e.preventDefault();
-        ga('send', 'event', '_trackEvent', APP.page, 'clear');
+        //ga('send', 'event', '_trackEvent', APP.page, 'clear');
         $('textarea.input, textarea.result').val('').removeClass('error').change();
         APP.renderSave('active');
         return false;
@@ -89,7 +89,7 @@ $(document).ready(function() {
     
     bindConvert: function($convert) {
       $convert.click(function(e) {
-        ga('send', 'event', '_trackEvent', APP.page, 'convert');
+        //ga('send', 'event', '_trackEvent', APP.page, 'convert');
         APP.renderSave('active');
       });
     },
@@ -178,7 +178,7 @@ $(document).ready(function() {
       APP.save();
     },
     save: function() {
-      ga('send', 'event', '_trackEvent', APP.page, 'save');
+      //ga('send', 'event', '_trackEvent', APP.page, 'save');
       
       var url = APP.baseUrl() + '/save';
       if (APP.id) url += '/' + APP.id;
