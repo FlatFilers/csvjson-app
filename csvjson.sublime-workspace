@@ -316,7 +316,7 @@
 			"file": "application/views/page.php",
 			"settings":
 			{
-				"buffer_size": 6190,
+				"buffer_size": 6200,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -631,15 +631,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6190,
+						"buffer_size": 6200,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3160,
-								3160
+								2738,
+								2738
 							]
 						],
 						"settings":
@@ -648,7 +648,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 918.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
