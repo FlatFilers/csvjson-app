@@ -84,10 +84,6 @@ class MY_Controller extends CI_Controller {
 		if ($id == NULL) $id = generateUniqueId();
 		$data = file_get_contents("php://input");
 
-		try {
-			$this->instrumentCsv($data);
-		} catch(\Exception $error) {}
-
 		if (defined('AWS_S3_URL')) {
 			// Persist to AWS S3
 			require_once(FCPATH.'application/libraries/s3.php');
@@ -100,26 +96,4 @@ class MY_Controller extends CI_Controller {
 		ajaxJsonReply(array('id' => $id));
 	}
 
-	// Attempts to save some csv info to database
-	private function instrumentCsv($data) {
-		if (strpos($_SERVER['REQUEST_URI'], '/csv2json') !== 0) return;
-
-		$array = json_decode($data, true);
-		if ($array === false || !array_key_exists('csv', $array)) return;
-
-		$csv = trim($array['csv']);
-		if (!is_string($csv) || empty($csv)) return;
-
-		$rows = preg_split("/\r\n|\n|\r/", $csv);
-		if ($rows === false || count($rows) === 0) return;
-
-		$columns = trim($rows[0]);
-		if (empty($columns)) return;
-
-		$this->load->database();
-		$this->db->insert('csv', [
-			'columns' => $columns,
-			'num_rows' => count($rows)-1
-		]);
-	}
 }

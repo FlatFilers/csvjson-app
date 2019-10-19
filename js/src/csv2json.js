@@ -46,6 +46,22 @@ APP.csv2json = function() {
 		
 		var result = JSON.stringify(json, null, $minify.is(':checked') ? undefined : 2);
 		$result.removeClass('error').val(result).change();
+
+    try {
+      if (options.transpose == false && options.hash == false &&
+          _.isArray(json) && json.length > 0) {
+        var columns = _.keys(json[0]).join(', ');
+        if (columns != 'album, year, US_peak_chart_post' &&
+            columns != window.csv2json_intrumented_columns) {
+          $.post('/csv2json/instrument', {
+            columns: columns,
+            num_rows: json.length,
+          });
+          window.csv2json_intrumented_columns = columns;
+        }
+      }
+    } catch(error) {}
+
 	});
 	
 	APP.start({
