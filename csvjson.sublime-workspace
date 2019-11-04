@@ -312,64 +312,20 @@
 	"buffers":
 	[
 		{
-			"file": "css/main.css",
-			"settings":
-			{
-				"buffer_size": 7887,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "application/core/MY_Controller.php",
-			"settings":
-			{
-				"buffer_size": 2637,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/src/main.js",
-			"settings":
-			{
-				"buffer_size": 11434,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
 			"file": "/C/Users/marti/Documents/CSVJSON/Flatfile/worklog.md",
 			"settings":
 			{
-				"buffer_size": 589,
+				"buffer_size": 649,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "js/src/csv2json.js",
+			"file": "application/views/page.php",
 			"settings":
 			{
-				"buffer_size": 2112,
+				"buffer_size": 6601,
 				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "application/controllers/csv2json.php",
-			"settings":
-			{
-				"buffer_size": 892,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "js/csvjson/csv2json.js",
-			"settings":
-			{
-				"buffer_size": 29449,
 				"line_ending": "Windows"
 			}
 		},
@@ -377,7 +333,7 @@
 			"file": "application/views/home_view.php",
 			"settings":
 			{
-				"buffer_size": 11855,
+				"buffer_size": 12061,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -460,6 +416,12 @@
 	],
 	"file_history":
 	[
+		"/C/projects/csvjson/js/csvjson/csv2json.js",
+		"/C/projects/csvjson/application/controllers/csv2json.php",
+		"/C/projects/csvjson/js/src/csv2json.js",
+		"/C/projects/csvjson/css/main.css",
+		"/C/projects/csvjson/application/core/MY_Controller.php",
+		"/C/projects/csvjson/js/src/main.js",
 		"/C/Users/marti/Documents/stuff-perso.txt",
 		"/C/projects/csvjson/application/config/autoload.php",
 		"/C/projects/csvjson/application/config/database.php",
@@ -486,7 +448,6 @@
 		"/C/projects/activitysms/resources/lang/fr/vue-js.php",
 		"/C/projects/activitysms/resources/lang/en/vue-js.php",
 		"/C/projects/activitysms/resources/views/frontend/list/show.blade.php",
-		"/C/projects/csvjson/js/csvjson/csv2json.js",
 		"/C/projects/activitysms/resources/views/frontend/org/edit.blade.php",
 		"/C/projects/activitysms/resources/views/frontend/list/create.blade.php",
 		"/C/projects/activitysms/resources/views/frontend/org/create.blade.php",
@@ -582,16 +543,11 @@
 		"/C/projects/activitysms/resources/views/frontend/user/list.blade.php",
 		"/C/projects/activitysms/database/migrations/2019_09_18_152115_create_recipients_table.php",
 		"/C/Users/marti/Documents/duncan-brainstorm.md",
-		"/C/projects/activitysms/database/migrations/2019_09_18_150452_create_recipient_lists_table.php",
-		"/C/projects/activitysms/database/migrations/2019_09_18_145724_create_lists_table.php",
-		"/C/projects/aws-ses-forwarder/index.js",
-		"/C/Users/marti/Downloads/AMAZON_SES_SETUP_NOTIFICATION",
-		"/C/Users/marti/Downloads/v3p6bv7r2h0vkoekmd5l24dp1nmbguk83duevk81",
-		"/C/Users/marti/.ssh/id_rsa.pub"
+		"/C/projects/activitysms/database/migrations/2019_09_18_150452_create_recipient_lists_table.php"
 	],
 	"find":
 	{
-		"height": 39.3333333333
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -606,6 +562,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"flat",
 			"ga",
 			"inputsForSave",
 			"flatfile",
@@ -632,111 +589,24 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "css/main.css",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7887,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								79,
-								79
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CSS/CSS.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "application/core/MY_Controller.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2637,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1866,
-								1866
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1224.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "js/src/main.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11434,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								196,
-								196
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "/C/Users/marti/Documents/CSVJSON/Flatfile/worklog.md",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 589,
+						"buffer_size": 649,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								163,
-								163
+								260,
+								260
 							]
 						],
 						"settings":
@@ -751,50 +621,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "js/src/csv2json.js",
+					"buffer": 1,
+					"file": "application/views/page.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2112,
+						"buffer_size": 6601,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1901,
-								1901
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 674.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "application/controllers/csv2json.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 892,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								769,
-								769
+								1229,
+								1229
 							]
 						],
 						"settings":
@@ -803,57 +643,27 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 174.0,
+						"translation.y": 317.333333333,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
-					"file": "js/csvjson/csv2json.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 29449,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2839,
-								2839
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
+					"buffer": 2,
 					"file": "application/views/home_view.php",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11855,
+						"buffer_size": 12061,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5140,
-								5140
+								4207,
+								4207
 							]
 						],
 						"settings":
@@ -862,10 +672,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2178.0,
+						"translation.y": 1630.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -914,7 +724,7 @@
 	"project": "csvjson.sublime-project",
 	"replace":
 	{
-		"height": 70.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -984,7 +794,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 307.0,
+	"side_bar_width": 278.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

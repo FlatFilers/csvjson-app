@@ -84,7 +84,7 @@
 					</ul>
 					<ul class="nav navbar-nav navbar-right flatfile-banner">
 						<li>
-							<a
+							<a target="_blank"
 								href="<?=$page == 'csv2json' ? 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Converter-Page-Top-Banner&utm_term=Converter-Page-Top-Right-Banner&utm_content=CSV-Importer' : 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Home-Top-Right-Banner-Promo&utm_term=Home-Top-Right-Banner&utm_content=CSV-Importer'?>"
 								title="The seamless way to import, clean, & consolidate customer data" onclick="APP.captureOutboundLink(event)">
 								<span class="image-wrapper">

@@ -89,7 +89,7 @@ Nine Miles from the White City, 2013, -
 
 			<h4>Uploading multiple CSVs?</h4>
 			<p>
-				Embed all the functionality of CSVJSON in any web application with <a href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile">Flatfile</a>, and more. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
+				Embed all the functionality of CSVJSON in any web application with <a target="_blank" href="https://flatfile.io/?utm_source=CSVJSON-Sponsorship&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile">Flatfile</a>, and more. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
 			</p>
 
 			<h4>About CSV</h4>
