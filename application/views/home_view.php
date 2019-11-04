@@ -86,7 +86,7 @@
 		<div class="col-md-12">
 			<h3>About Flatfile</h3>
 			<p>
-				<a target="_blank" href="https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile" onclick="APP.captureOutboundLink(event)">Flatfile</a> is proud to sponsor CSVJSON.
+				<a href="https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile" onclick="APP.captureOutboundLink(event)">Flatfile</a> is proud to sponsor CSVJSON.
 			</p>
 			<blockquote>
 				<p>
