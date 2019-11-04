@@ -21,7 +21,8 @@
 				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>,
 				captureOutboundLink: function(event) {
 					var url = event.currentTarget.getAttribute('href');
-					ga('send', 'event', 'outbound', 'click', url, {
+					tracker = ga.getAll()[0];
+					tracker.send('event', 'outbound', 'click', url, {
 						'transport': 'beacon',
 						'hitCallback': function(){document.location = url;}
 					});
