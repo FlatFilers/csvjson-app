@@ -1,8 +1,8 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="description col-md-12">
-			<h1 class="discrete">Convert your SQL table or database export to JSON or Javascript.</h1>
-			<p>1) Copy/paste or upload your SQL export to convert it. 2) Convert to JSON or Javascript (one variable is created per table). 3) Copy and paste back to your computer. 4) Save your result for later or for sharing.</p>
+			<h1 class="discrete">Convert your SQL table or database export to JSON or JavaScript.</h1>
+			<p>1) Copy/paste or upload your SQL export to convert it. 2) Convert to JSON or JavaScript (one variable is created per table). 3) Copy and paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
 	
@@ -62,7 +62,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 				<label>Output format</label>
 				<div class="form-control options">
 					<label class="radio-inline"><input type="radio" id="json" name="format" class="save" value="json" checked="checked" />JSON</label>
-					<label class="radio-inline"><input type="radio" id="javascript" name="format" class="save" value="javascript" />Javascript</label>
+					<label class="radio-inline"><input type="radio" id="javascript" name="format" class="save" value="javascript" />JavaScript</label>
 					&nbsp;
 					<label class="inline" title="Minify or compact result by removing spaces and new lines.">
 						<input type="checkbox" id="minify" name="minify" class="save" /> Minify

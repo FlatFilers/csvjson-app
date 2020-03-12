@@ -6,7 +6,7 @@ www.csvjson.com are online formatting and conversion tools that I use as a devel
 - [JSON to CSV](https://www.csvjson.com/json2csv): Convert JSON to CSV format (Excel).
 - [SQL to JSON](https://www.csvjson.com/sql2json): Convert SQL (CREATE TABLE and INSERT INTO statements) to JSON format.
 - [JSON Validator](https://csvjson.com/json_validator): Cerifies that your JavaScript Object Notation adheres to the JSON specification.
-- [JSON Beautifier](https://www.csvjson.com/json_beautifier): Format and make beautiful JSON. Convert it to Javascript code (drop quotes on keys).
+- [JSON Beautifier](https://www.csvjson.com/json_beautifier): Format and make beautiful JSON. Convert it to JavaScript code (drop quotes on keys).
 - [Data Janitor](https://www.csvjson.com/datajanitor): Online tool for Excel and Google Sheets data cleaning and transformation using user-written JavaScript.
 - More to come...
 
@@ -44,18 +44,18 @@ To add a new tool, best to look at an existing example. For example csv2json. Fo
 
 1.  Create a controller (under application/controllers/). Must inherit MY_Controller.
 2.  Create a view (under application/views/).
-3.  Create the conversion Javascript file (under js/src/csvjson). This file will contain your new conversion function on the CSVJSON global.
-3.  Create the UI Javascript file (under js/src/). This will drive the UI, and call your conversion function to do the work.
+3.  Create the conversion JavaScript file (under js/src/csvjson). This file will contain your new conversion function on the CSVJSON global.
+3.  Create the UI JavaScript file (under js/src/). This will drive the UI, and call your conversion function to do the work.
 4.  Create a CSS file (under css) or you can put your CSS directly inside css/main.css.
-5.  Update `$config['assets']` located in the `application/config/assets.php` file and add reference to your Javascript and optionally CSS files.
+5.  Update `$config['assets']` located in the `application/config/assets.php` file and add reference to your JavaScript and optionally CSS files.
 
-You are then ready to code. In development (ENVIRONMENT=development), your Javascript and CSS files get loaded.
+You are then ready to code. In development (ENVIRONMENT=development), your JavaScript and CSS files get loaded.
 
 
 Deploy for production
 ---------------------
 
-To deploy for production, you must perform a build. Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. Javascript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
+To deploy for production, you must perform a build. Bundles are compiled in the Build controller (`application/controllers/build.php`). To perform a build, simply call the controller. JavaScript bundles get built - minified and concatenated. For example, if you are developing under `localhost`, you would type in a browser
 ```
 http://localhost/build
 ```
@@ -76,7 +76,7 @@ Directory Structure
   --src
 --css
 ```
-Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party Javascript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified Javascript files are directly under `js`.
+Directories `application` and `system` are those defined by CodeIgniter. Assets are located under `js` and `css` folders. 3rd party JavaScript libraries are under `js/3rd` and application source code (the stuff you write) is under `js/src`. Bundled/minified JavaScript files are directly under `js`.
 
 
 AWS S3
@@ -100,10 +100,10 @@ FAQ
 ===
 
 Q: What if I fund a bug or would like to propose an enhancement? <br/>
-A: Report it via [Github issues](https://github.com/martindrapeau/csvjson-app/issues).
+A: Report it via [GitHub issues](https://github.com/martindrapeau/csvjson-app/issues).
 
 Q: What performs minification? <br/>
-A: Javascript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
+A: JavaScript minification is done with a PHP implmentation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.
 
 Q: Does bundling and minification support CSS pre-processing like SASS, LESS or Stylus? <br/>
 A: No. Feel free to fork and add it. Would be nice.

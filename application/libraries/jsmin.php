@@ -66,9 +66,9 @@ class JSMin {
     protected $output      = '';
     
     /**
-     * Minify Javascript
+     * Minify JavaScript
      *
-     * @param string $js Javascript to be minified
+     * @param string $js JavaScript to be minified
      * @return string
      */
     public static function minify($js)

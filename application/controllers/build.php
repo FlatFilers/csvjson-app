@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
- * Javascript and CSS Bundling and Minification.
+ * JavaScript and CSS Bundling and Minification.
  *
  * Copyright (c) 2014 Martin Drapeau
  *
@@ -20,7 +20,7 @@ class Build extends CI_Controller {
 	}
 	
 	public function index() {
-		echo "Minifying Javascript Files...<br/>";
+		echo "Minifying JavaScript Files...<br/>";
 	
 		// Increase the version number by 0.001
 		$old_version = file_get_contents(VERSION_FILE);

@@ -49,14 +49,14 @@
                         Specify either `double` for " or `single` for '.
                         Defaults to double quote however you can overwrite with
                         a single quote. Do note that the output will not be valid
-                        JSON, but it will be valid Javascript.
+                        JSON, but it will be valid JavaScript.
 
             quoteType
                         an optional parameter to specify the quote character.
                         Use either `double` or `single`.
                         Defaults to double quote " however you can overwrite with
                         a single quote '. Do note that the output will not be valid
-                        JSON is you use `single`, but it will be valid Javascript.
+                        JSON is you use `single`, but it will be valid JavaScript.
       
             This method produces a JSON text from a JavaScript value.
 
@@ -251,7 +251,7 @@
         }) + surroundingQuote : surroundingQuote + string + surroundingQuote;
     }
   
-// Conditionally quote a key if it cannot be a Javascript variable
+// Conditionally quote a key if it cannot be a JavaScript variable
   function condQuoteKey(string, quoteType) {
     return keyable.test(string) ? string : quote(string, quoteType);
   }

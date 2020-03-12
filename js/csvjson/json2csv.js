@@ -19,7 +19,7 @@
 
 	var errorMissingSeparator = 'Missing separator option.',
 		  errorEmpty = 'JSON is empty.',
-		  errorEmptyHeader = 'Could not detect header. Ensure first row cotains your column headers.',
+		  errorEmptyHeader = 'Could not detect header. Ensure first row contains your column headers.',
 		  errorNotAnArray = 'Your JSON must be an array or an object.',
 		  errorItemNotAnObject = 'Item in array is not an object: {0}';
 
