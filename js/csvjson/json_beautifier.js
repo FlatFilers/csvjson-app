@@ -8,11 +8,11 @@
    * Available options:
    *  - space: The number of spaces to indent. Default is 2.
    *  - quoteType: You can change double quotes to single quotes (') if you
-   *           like to. Will make for invalid JSON but valid Javascript.
+   *           like to. Will make for invalid JSON but valid JavaScript.
    *           Default is (").
    *  - dropQuotesOnKeys: JSON wraps keys with double quotes by default.
-   *           Javascript doesn't need them though. Set to true to drop them.
-   *           Will make for invalid JSON but valid Javascript. Default is false.
+   *           JavaScript doesn't need them though. Set to true to drop them.
+   *           Will make for invalid JSON but valid JavaScript. Default is false.
    *  - dropQuotesOnNumbers: Set to true to parse number values and drop quotes
    *           around them. Default is false.
    *  - inlineShortArrays: Set to true to collpase arrays inline if less than 80

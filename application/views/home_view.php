@@ -73,7 +73,7 @@
 					CSVJSON is a do-it-myself and more permanent solution. Its best feature? You can save your session for later, and share it with a co-worker.
 				</p>
 				<p>
-					If you find bugs or would like an improvement, please leave a comment below or open an issue on <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">Github</a>.
+					If you find bugs or would like an improvement, please leave a comment below or open an issue on <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">GitHub</a>.
 				</p>
 				<p>
 					I hope it can be useful to you. Happy conversions!
@@ -224,7 +224,7 @@
 			</p>
 			<h4>2016-03-19</h4>
 			<p>
-				Make the Github repository public again. Re-opened to community.
+				Make the GitHub repository public again. Re-opened to community.
 			</p>
 			<h4>2015-11-25</h4>
 			<p>
@@ -237,9 +237,9 @@
 			<br/>
 			<h3>Bugs and Feature Requests</h3>
 			<p>
-				<a href="https://github.com/martindrapeau/csvjson-app">Code available on Github.</a>
+				<a href="https://github.com/martindrapeau/csvjson-app">Code available on GitHub.</a>
 				Report bugs or ask for improvements through
-				<a href="https://github.com/martindrapeau/csvjson-app/issues">Github issues</a>.
+				<a href="https://github.com/martindrapeau/csvjson-app/issues">GitHub issues</a>.
 			</p>
 			<br/>
 		</div>

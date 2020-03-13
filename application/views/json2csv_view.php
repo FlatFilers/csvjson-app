@@ -129,7 +129,7 @@
       <h4>About JSON to CSV</h4>
       <ul>
         <li>
-          JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by <a href="https://github.com/rogeriomarques" target="_blank">Rogerio Marques</a> in <a href="https://github.com/martindrapeau/csvjson-app/issues/3" target="_blank">Github issue #3</a>.
+          JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by <a href="https://github.com/rogeriomarques" target="_blank">Rogerio Marques</a> in <a href="https://github.com/martindrapeau/csvjson-app/issues/3" target="_blank">GitHub issue #3</a>.
         </li>
       </ul>
       <h4>CSVJSON format variant</h4>
