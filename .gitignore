@@ -7,7 +7,7 @@ application/cache/*
 application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
-/application/config/aws_s3.php
+# /application/config/aws_s3.php
 /data
 /application/config/development
 /application/config/production

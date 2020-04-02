@@ -18,7 +18,7 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-if (strpos($_SERVER['SERVER_NAME'], "csvjson.com") !== FALSE) {
+if (strpos($_SERVER['SERVER_NAME'], $_ENV['DOMAIN_NAME']) !== FALSE) {
 	define('ENVIRONMENT', 'production');
 } else {
 	define('ENVIRONMENT', 'development');
@@ -39,7 +39,7 @@ if (defined('ENVIRONMENT'))
 		case 'development':
 			error_reporting(E_ALL);
 		break;
-	
+
 		case 'testing':
 		case 'production':
 			error_reporting(0);
