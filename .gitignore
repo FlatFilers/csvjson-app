@@ -10,4 +10,4 @@ application/logs/*
 # /application/config/aws_s3.php
 /data
 /application/config/development
-/application/config/production
+# /application/config/production
