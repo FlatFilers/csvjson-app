@@ -2,7 +2,7 @@
 
 // this class is adapted from system/libraries/Log.php
 /**
- * CodeIgniter
+ * CodeIgniter+
  *
  * An open source application development framework for PHP 5.1.6 or newer
  *
@@ -27,7 +27,7 @@
  * @author      EllisLab Dev Team
  * @link        http://codeigniter.com/user_guide/general/errors.html
  */
-class MY_Log extends CI_Log {
+class MY_Log {
 
     protected $_threshold   = 1;
     protected $_date_fmt    = 'Y-m-d H:i:s';
