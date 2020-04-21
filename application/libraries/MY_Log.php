@@ -40,16 +40,18 @@ class MY_Log extends CI_Log {
     {
 
         parent::__construct();
-        $config =& get_config();
+        if(getenv('IS_HEROKU') !== false) {
+            $config =& get_config();
 
-        if (is_numeric($config['log_threshold']))
-        {
-            $this->_threshold = $config['log_threshold'];
-        }
+            if (is_numeric($config['log_threshold']))
+            {
+                $this->_threshold = $config['log_threshold'];
+            }
 
-        if ($config['log_date_format'] != '')
-        {
-            $this->_date_fmt = $config['log_date_format'];
+            if ($config['log_date_format'] != '')
+            {
+                $this->_date_fmt = $config['log_date_format'];
+            }
         }
     }
 
@@ -67,16 +69,20 @@ class MY_Log extends CI_Log {
      */
     public function write_log($level = 'error', $msg, $php_error = FALSE)
     {
-        $level = strtoupper($level);
+        if(getenv('IS_HEROKU') !== false) {
+            $level = strtoupper($level);
 
-        if ( ! isset($this->_levels[$level]) OR ($this->_levels[$level] > $this->_threshold))
-        {
-            return FALSE;
+            if ( ! isset($this->_levels[$level]) OR ($this->_levels[$level] > $this->_threshold))
+            {
+                return FALSE;
+            }
+
+            file_put_contents('php://stderr', $level.' '.(($level == 'INFO') ? ' -' : '-').' '.date($this->_date_fmt). ' --> '.$msg."\n");
+
+            return TRUE;
+        } else {
+            parent::write_log($level, $msg, $php_error);
         }
-
-        file_put_contents('php://stderr', $level.' '.(($level == 'INFO') ? ' -' : '-').' '.date($this->_date_fmt). ' --> '.$msg."\n");
-
-        return TRUE;
     }
 
 }
