@@ -40,7 +40,6 @@ class MY_Log extends CI_Log {
     {
 
         parent::__construct();
-        error_log('HELLO FROM MY_LOG!');
         $config =& get_config();
 
         if (is_numeric($config['log_threshold']))
@@ -68,7 +67,6 @@ class MY_Log extends CI_Log {
      */
     public function write_log($level = 'error', $msg, $php_error = FALSE)
     {
-        error_log('WRITE LOG!');
         $level = strtoupper($level);
 
         if ( ! isset($this->_levels[$level]) OR ($this->_levels[$level] > $this->_threshold))
