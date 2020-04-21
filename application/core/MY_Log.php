@@ -27,7 +27,7 @@
  * @author      EllisLab Dev Team
  * @link        http://codeigniter.com/user_guide/general/errors.html
  */
-class MY_Log {
+class MY_Log extends CI_Log {
 
     protected $_threshold   = 1;
     protected $_date_fmt    = 'Y-m-d H:i:s';
@@ -38,6 +38,8 @@ class MY_Log {
      */
     public function __construct()
     {
+
+        parent::__construct();
         error_log('HELLO FROM MY_LOG!');
         $config =& get_config();
 
