@@ -20,15 +20,6 @@
 				data: <?=$data ? $data : 'null'?>,
 				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>
 			};
-
-			var flatfileLinks = $('a[href*="flatfile.io"]');
-
-			flatfileLinks.each(function(){
-				var bareURL = $(this).attr('href')
-				$(this).attr('href', bareURL + '&ajs_event=came_from_csvjson&ajs_prop_ccf_id=' + window.analytics.user().anonymousId())
-			})
-
-			analytics.trackLink(flatfileLinks, 'Clicked Flatfile Link');
 		</script>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
@@ -55,6 +46,17 @@
 				analytics.load("mVmXAtABgYVqPdbXw1a4Y19vcesa1cec");
 				analytics.page();
 			}}();
+
+			analytics.ready(function(){
+				var flatfileLinks = $('a[href*="flatfile.io"]');
+
+				flatfileLinks.each(function(){
+					var bareURL = $(this).attr('href')
+					$(this).attr('href', bareURL + '&ajs_event=came_from_csvjson&ajs_prop_ccf_id=' + window.analytics.user().anonymousId())
+				})
+
+				analytics.trackLink(flatfileLinks, 'Clicked Flatfile Link');
+			})
 	</script>
 	</head>
 	<body>
