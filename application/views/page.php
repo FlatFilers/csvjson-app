@@ -18,16 +18,10 @@
 				version: <?=VERSION?>,
 				id: <?=$id ? '"'.$id.'"' : 'null'?>,
 				data: <?=$data ? $data : 'null'?>,
-				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>,
-				captureOutboundLink: function(event) {
-					var url = event.currentTarget.getAttribute('href');
-					tracker = ga.getAll()[0];
-					tracker.send('event', 'outbound', 'click', url, {
-						'transport': 'beacon',
-						'hitCallback': function(){document.location = url;}
-					});
-				}
+				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>
 			};
+
+			analytics.trackLink($('a[href*=flatfile.io]'), 'Clicked Flatfile Link');
 		</script>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
@@ -85,7 +79,7 @@
 					<ul class="nav navbar-nav navbar-right flatfile-banner">
 						<li>
 							<a href="<?=$page == 'csv2json' ? 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Converter-Page-Top-Banner&utm_term=Converter-Page-Top-Right-Banner&utm_content=CSV-Importer' : 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Home-Top-Right-Banner-Promo&utm_term=Home-Top-Right-Banner&utm_content=CSV-Importer'?>"
-								title="The seamless way to import, clean, & consolidate customer data" onclick="APP.captureOutboundLink(event)">
+								title="The seamless way to import, clean, & consolidate customer data">
 								<span class="image-wrapper">
 									<img src="/img/flatfile-logomark.svg" alt="Flatfile logo" />
 								</span>
