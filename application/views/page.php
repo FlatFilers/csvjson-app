@@ -21,7 +21,14 @@
 				data_url: <?=$data_url ? '"'.$data_url.'"' : 'null'?>
 			};
 
-			analytics.trackLink($('a[href*=flatfile.io]'), 'Clicked Flatfile Link');
+			var flatfileLinks = $('a[href*="flatfile.io"]');
+
+			flatfileLinks.each(function(){
+				var bareURL = $(this).attr('href')
+				$(this).attr('href', bareURL + '&ajs_event=came_from_csvjson&ajs_prop_ccf_id=' + window.analytics.user().anonymousId())
+			})
+
+			analytics.trackLink(flatfileLinks, 'Clicked Flatfile Link');
 		</script>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
