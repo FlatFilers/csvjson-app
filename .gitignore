@@ -11,3 +11,5 @@ application/logs/*
 /data
 /application/config/development
 # /application/config/production
+
+/vendor/
