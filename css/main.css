@@ -1,6 +1,14 @@
 /**** flatfile.io general ****/
 a {
-	color: #327AB7;
+	color: #3B2FC9;
+}
+
+body {
+    font-family: proxima-nova, "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #090B2B;
+    background-color: #F6F8FC;
 }
 
 .flatfile-banner>li>a {
@@ -17,7 +25,7 @@ a {
 }
 .flatfile-banner>li>a .image-wrapper img {
 	height: 100%;
-	background-color: #794cff;
+	background-color: #F6F8FC;
 	border-radius: 5px;
 	padding: 6px;
 }
@@ -40,7 +48,7 @@ header.navbar {
 }
 
 header.navbar-inverse {
-	background-color: #794cff; /*#e51400;*/
+	background-color: #3B2FC9; /*#e51400;*/
 	border: 0;
 }
 
@@ -93,7 +101,7 @@ header.navbar-inverse .navbar-nav > .active > a,
 header.navbar-inverse .navbar-nav > .active > a:hover,
 header.navbar-inverse .navbar-nav > .active > a:focus {
 	color: #ffffff;
-	background-color: #794cff; /*#ba141a;*/
+	background-color: #3B2FC9; /*#ba141a;*/
 }
 
 header.navbar-inverse .navbar-nav > li.disabled > a,
@@ -182,9 +190,9 @@ span.fileinput-button>label {
 }
 
 .btn-primary {
-	color: #ffffff;
-	background-color: #794cff; /*#ba141a;*/
-	border-color: #794cff; /*#ba141a;*/
+	color: #fff;
+	background-color: #3B2FC9; /*#ba141a;*/
+	border-color: #3B2FC9; /*#ba141a;*/
 }
 
 .btn-primary:hover,
@@ -193,14 +201,14 @@ span.fileinput-button>label {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
 	color: #ffffff;
-	background-color: #794cff; /*#e51400;*/
-	border-color: #794cff; /*#e51400; */
+	background-color: #3B2FC9; /*#e51400;*/
+	border-color: #3B2FC9; /*#e51400; */
 }
 
 .btn-primary.disabled,
 .btn-primary[disabled] {
-	background-color: #794cff; /*#e51400;*/
-	border-color: #794cff; /*#e51400;*/
+	background-color: #3B2FC9; /*#e51400;*/
+	border-color: #3B2FC9; /*#e51400;*/
 }
 
 .form-control {
@@ -251,7 +259,7 @@ a.clear {
 
 a.clear:hover,
 a.clear:active {
-	color: #794cff; /*#ba141a;*/
+	color: #3B2FC9; /*#ba141a;*/
 	opacity: 1.0;
 }
 
@@ -349,11 +357,11 @@ footer.navbar .container-fluid a:active {
 /*** Home page ***/
 
 .home .tool {
-	padding: 16px 24px;
-	font-size: 24px;
-	line-height: 1.33;
-	border-radius: 6px;
-	width: 100%;
+    padding: 16px 24px;
+    font-size: 24px;
+    line-height: 1.33;
+    border-radius: 4px;
+    width: 100%;
 }
 
 .home blockquote p {
@@ -372,7 +380,7 @@ footer.navbar .container-fluid a:active {
 	border-radius: 0;
 }
 .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
-    border-left: 5px solid #794cff; /*#e51400;*/
+    border-left: 5px solid #3B2FC9; /*#e51400;*/
     color: inherit;
     background-color: inherit;
 }
