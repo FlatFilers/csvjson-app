@@ -86,7 +86,7 @@
 		<div class="col-md-12">
 			<h3>About Flatfile</h3>
 			<p>
-				<a href="https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-About&utm_term=Text-Link&utm_content=About-Flatfile">Flatfile</a> is proud to sponsor CSVJSON.
+				<a href="https://flatfile.io/get-started?utm_source=csvjson-site&utm_medium=header&utm_content=<id>&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a> is proud to sponsor CSVJSON.
 			</p>
 			<blockquote>
 				<p>
@@ -114,7 +114,7 @@
 			<h3>Change Log</h3>
 			<h4>2019-10-01</h4>
 			<p>
-				Integrated design for sponsorship by <a href="https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Text-Link&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Text-Link-Changelog&utm_term=Text-Link&utm_content=Changelog">Flatfile</a>.
+				Integrated design for sponsorship by <a href="https://flatfile.io/get-started?utm_source=csvjson-site&utm_medium=header&utm_content=<id>&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a>.
 			</p>
 			<h4>2019-07-15</h4>
 			<p>

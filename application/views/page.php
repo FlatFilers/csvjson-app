@@ -87,7 +87,7 @@
 					</ul>
 					<ul class="nav navbar-nav navbar-right flatfile-banner">
 						<li>
-							<a href="<?=$page == 'csv2json' ? 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Converter-Page-Top-Banner&utm_term=Converter-Page-Top-Right-Banner&utm_content=CSV-Importer' : 'https://try.flatfile.io/csv-importer-for-web-apps?utm_source=CSVJSON-Sponsorship-November-2019&utm_medium=Banner-Promo&utm_campaign=CSVJSON-Sponsorship-Q4-2019-Home-Top-Right-Banner-Promo&utm_term=Home-Top-Right-Banner&utm_content=CSV-Importer'?>"
+							<a href="<?=$page == 'csv2json' ? 'https://flatfile.io/get-started?utm_source=csvjson-site&utm_medium=header&utm_content=<id>&utm_campaign=q1-2022-csvjson-redesign' : 'https://flatfile.io/get-started?utm_source=csvjson-site&utm_medium=header&utm_content=<id>&utm_campaign=q1-2022-csvjson-redesign'?>"
 								title="The seamless way to import, clean, & consolidate customer data">
 								<span class="image-wrapper">
 									<img src="/img/flatfile-jewel.svg" alt="Flatfile logo" />
