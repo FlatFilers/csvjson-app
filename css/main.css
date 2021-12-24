@@ -186,7 +186,7 @@ span.fileinput-button>label {
 }
 
 .btn {
-	border-radius: 3px;
+	border-radius: 0.275em;
 }
 
 .btn-primary {
@@ -201,8 +201,14 @@ span.fileinput-button>label {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
 	color: #ffffff;
-	background-color: #3B2FC9; /*#e51400;*/
+	box-shadow: rgb(0 0 0 / 11%) 0px 0.2px 0.5px -2px, 
+		rgb(0 0 0 / 16%) 0px 0.4px 1.3px -2px, 
+		rgb(0 0 0 / 20%) 0px 0.9px 2.7px -2px, 
+		rgb(0 0 0 / 24%) 0px 1.8px 5.5px -2px, 
+		rgb(0 0 0 / 35%) 0px 5px 15px -2px;
+	background-color: rgb(70, 58, 209); /*#e51400;*/
 	border-color: #3B2FC9; /*#e51400; */
+	transform: translateY(-1px) scale(1.001);
 }
 
 .btn-primary.disabled,
