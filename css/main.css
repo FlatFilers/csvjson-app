@@ -3,6 +3,14 @@ a {
 	color: #3B2FC9;
 }
 
+body {
+    font-family: proxima-nova, "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #090B2B;
+    background-color: #F6F8FC;
+}
+
 .flatfile-banner>li>a {
 	display: table;
 	padding: 5px;

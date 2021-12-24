@@ -54,7 +54,7 @@ ul{display:inline-block;margin:5px
 .backgrid-paginator ul > .disabled > a,
 .backgrid-paginator ul>.disabled>a:hover{color:#999;cursor:default}
 /* css/main.css */
-a{color:#3B2FC9}.flatfile-banner>li>a{display:table;padding:5px;line-height:14px;font-size:12px;color:#2e3440}.flatfile-banner>li>a .image-wrapper{display:table-cell;height:40px;padding:2px}.flatfile-banner>li>a .image-wrapper
+a{color:#3B2FC9}body{font-family:proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#090B2B;background-color:#F6F8FC}.flatfile-banner>li>a{display:table;padding:5px;line-height:14px;font-size:12px;color:#2e3440}.flatfile-banner>li>a .image-wrapper{display:table-cell;height:40px;padding:2px}.flatfile-banner>li>a .image-wrapper
 img{height:100%;background-color:#F6F8FC;border-radius:5px;padding:6px}.flatfile-banner>li>a
 .text{padding-left:5px;display:table-cell;vertical-align:middle}.flatfile-banner>li>a .text-row{display:block}.flatfile-banner>li>a .text-row
 .secondary{color:#5b6f7f}header.navbar{border-radius:0}header.navbar-inverse{background-color:#3B2FC9;border:0}header .navbar-brand{padding:0;float:left;font-size:26px;line-height:26px}header .navbar-brand
