@@ -13,3 +13,4 @@ application/logs/*
 # /application/config/production
 
 /vendor/
+.env
