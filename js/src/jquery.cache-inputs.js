@@ -10,7 +10,7 @@
  *  - ignoreOnStart: Boolean to indicate whether or not to restore state
  *         upon page load. Defaults to true.
  *
- * Author: Martin Drapeau
+ * Author: Flatfile
  *
  * Greatly inspired from Johnathan Schnittger's write in a blog post.
  * Original source: http://www.developerdrive.com/2013/08/jquery-plugin-for-caching-forms-using-html5-local-storage/
@@ -27,40 +27,40 @@
 			].join(', '),
 			ignoreOnStart: false
 		}, options);
-        
+
         function on_change(event) {
             var $input = $(event.target),
 				key = settings.key,
 				name = $input.attr('name'),
 				data = JSON.parse(localStorage[key]);
-			
+
             if ($input.attr('type') == 'checkbox') {
                 data[name] = $input.is(':checked');
             } else {
                 data[name] = $input.val();
             }
-            
+
             localStorage[key] = JSON.stringify(data);
         }
-        
-        return this.each(function() {    
+
+        return this.each(function() {
             var $el = $(this),
 				selector = settings.selector;
-            
+
             if (typeof(Storage) !== "undefined") {
                 var key = settings.key;
-                
+
                 var data = false;
                 if (localStorage[key]) {
                     data = JSON.parse(localStorage[key]);
                 }
-                
+
                 if (!data) {
                     localStorage[key] = JSON.stringify({});
                     data = JSON.parse(localStorage[key]);
                 }
                 $el.find(selector).change(on_change);
-                
+
 				if (!settings.ignoreOnStart)
 					$el.find(selector).each(function() {
 						if ($(this).attr('type') != 'submit') {
@@ -85,8 +85,8 @@
 							}
 						}
 					});
-                
+
             }
         });
-    };     
+    };
 }(jQuery));

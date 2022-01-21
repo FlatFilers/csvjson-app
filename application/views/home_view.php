@@ -78,7 +78,7 @@
 				<p>
 					I hope it can be useful to you. Happy conversions!
 				</p>
-				<p><small>Martin</small></p>
+				<p><small>Flatfile</small></p>
 			</blockquote>
 		</div>
 	</div>

@@ -13,7 +13,7 @@
    *  - output_csvjson_variant: Boolean indicating whether to output objects and
    *             arrays as is as per the CSVJSON format variant. Default is false.
 	 *
-	 * Copyright (c) 2018-2019 Martin Drapeau
+	 * Copyright (c) 2022 Flatfile
 	 *
 	 */
 
@@ -66,7 +66,7 @@
           count += orows[key].length;
         } else {
           row[key] = value;
-        } 
+        }
       }
 
       if (count == 1) {
@@ -95,10 +95,10 @@
 
 	function convert(data, options) {
 		options || (options = {});
-		
+
     if (!isObject(data)) throw errorNotAnArray;
     if (!Array.isArray(data)) data = [data];
-		
+
     var separator = options.separator || ',';
 		if (!separator) throw errorMissingSeparator;
 
@@ -145,10 +145,10 @@
     	}
     	csv += rowArray.join(separator) + (r < allRows.length-1 ? '\n' : '');
     }
-    
+
     return csv;
 	}
-	
+
   // CommonJS or Browser
   if (typeof exports !== 'undefined') {
       if (typeof module !== 'undefined' && module.exports) {
