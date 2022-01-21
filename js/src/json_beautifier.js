@@ -1,7 +1,7 @@
 /*
  * CSVJSON Application - JSON Beautifier
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  */
  APP.json_beautifier = function() {
 

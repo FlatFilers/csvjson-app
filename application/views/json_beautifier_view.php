@@ -108,18 +108,18 @@
 					</ul>
 					To support older browsers, use <a href="https://github.com/douglascrockford/JSON-js" target="_blank">JSON2</a> written by Douglas Crockford as polyfill.
 				</li>
-				<li>CSVJON uses a <a href="https://github.com/martindrapeau/csvjson-app/blob/master/js/csvjson/json2-mod.js" target="_blank">modified version of JSON2</a> which adds formatting options to drop quotes on keys, and sepcify the quote type. Anyone is free to use and extend it by forking the <a href="https://github.com/martindrapeau/csvjson-app" target="_blank">CSVJSON GitHub repo</a>.</li>
+				<li>CSVJON uses a <a href="https://github.com/FlatFilers/csvjson-app/blob/master/js/csvjson/json2-mod.js" target="_blank">modified version of JSON2</a> which adds formatting options to drop quotes on keys, and sepcify the quote type. Anyone is free to use and extend it by forking the <a href="https://github.com/FlatFilers/csvjson-app" target="_blank">CSVJSON GitHub repo</a>.</li>
 			</ul>
 			<br/>
 			<h4>Change Log</h4>
 			<ul>
-				<li><strong>Jun 25, 2019</strong> Adjustable width for inling short arrays. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/76">issue #76</a>.</li>
+				<li><strong>Jun 25, 2019</strong> Adjustable width for inling short arrays. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/76">issue #76</a>.</li>
 				<li><strong>Feb 3, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package json_beautifier</a>.</li>
 				<li><strong>Jan 26, 2019</strong> Improvement: Removed 64k limit on download button.</li>
-				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
-				<li><strong>Oct 7, 2017</strong> Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/martindrapeau/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></li>
-				<li><strong>Sep 27, 2016</strong> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub issue #12</a></li>
-				<li><strong>Aug 22, 2016</strong> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9" target="_blank">GitHub issue #9</a></li>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></li>
+				<li><strong>Oct 7, 2017</strong> Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/FlatFilers/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></li>
+				<li><strong>Sep 27, 2016</strong> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/FlatFilers/csvjson-app/issues/12" target="_blank">GitHub issue #12</a></li>
+				<li><strong>Aug 22, 2016</strong> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/FlatFilers/csvjson-app/issues/9" target="_blank">GitHub issue #9</a></li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>
 				<li><strong>Jun 1, 2015</strong> Bug fix: proper support of commas inside quotes.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>

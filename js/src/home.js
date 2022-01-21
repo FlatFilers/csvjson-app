@@ -1,6 +1,6 @@
 /*
  * CSVJSON Application - Home Page
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  */
 APP.home = function() {};

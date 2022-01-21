@@ -122,8 +122,8 @@
 			<div class="container-fluid">
 				<p>
 					&copy; 2014-2019 <a href="https://medium.com/@martindrapeau">Martin Drapeau</a> &nbsp;
-					<a href="https://github.com/martindrapeau/csvjson-app/issues">Report an issue</a> &nbsp;
-					<a href="https://github.com/martindrapeau/csvjson-app">Code available on GitHub</a>
+					<a href="https://github.com/FlatFilers/csvjson-app/issues">Report an issue</a> &nbsp;
+					<a href="https://github.com/FlatFilers/csvjson-app">Code available on GitHub</a>
 				</p>
 			</div>
 		</footer>

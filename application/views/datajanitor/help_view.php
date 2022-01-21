@@ -64,7 +64,7 @@
 <h2>BETA Software</h2>
 <p>
 	Data Clean is new and still in BETA.
-	If you find bugs or have suggestions, please open a <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">GitHub issue</a>.
+	If you find bugs or have suggestions, please open a <a href="https://github.com/FlatFilers/csvjson-app/issues" target="_blank">GitHub issue</a>.
 </p>
 <br/>
 

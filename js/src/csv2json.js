@@ -1,7 +1,7 @@
 /*
  * CSVJSON Application - CSV to JSON
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  */
 APP.csv2json = function() {
 	

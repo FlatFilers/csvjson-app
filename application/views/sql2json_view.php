@@ -82,12 +82,12 @@ INSERT INTO `continents` VALUES ('??', NULL);
 			<h4>Change Log</h4>
 			<ul>
 				<li><strong>Jan 26, 2019</strong> Improvement: Removed 64k limit on download button.</li>
-				<li><strong>Jan 8, 2018</strong> Support escaped quotes: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.</li>
+				<li><strong>Jan 8, 2018</strong> Support escaped quotes: <a href="https://github.com/FlatFilers/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.</li>
 				<li><strong>Dec 18, 2017</strong> Bug fix: Convert a <code>NULL</code> value to <code>null</code>.</li>
-				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
-				<li><strong>Dec 13, 2017</strong> Parsing bug fix not to split when detecting a comma in a string value: GitHub Issues <a href="https://github.com/martindrapeau/csvjson-app/issues/17" target="_blank">#17</a> and <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">#25</a>. Thank you <a href="https://github.com/Idafe" target="_blank">Idafe</a> and <a href="https://github.com/jdserato" target="_blank">Jay Vince Serato</a> for reporting the issue.</li>
-				<li><strong>Sep 4, 2017</strong> Parsing bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.</li>
-				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></li>
+				<li><strong>Dec 13, 2017</strong> Parsing bug fix not to split when detecting a comma in a string value: GitHub Issues <a href="https://github.com/FlatFilers/csvjson-app/issues/17" target="_blank">#17</a> and <a href="https://github.com/FlatFilers/csvjson-app/issues/25" target="_blank">#25</a>. Thank you <a href="https://github.com/Idafe" target="_blank">Idafe</a> and <a href="https://github.com/jdserato" target="_blank">Jay Vince Serato</a> for reporting the issue.</li>
+				<li><strong>Sep 4, 2017</strong> Parsing bug fix: <a href="https://github.com/FlatFilers/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.</li>
+				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/FlatFilers/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>
 			<?php $this->load->view('feedback'); ?>

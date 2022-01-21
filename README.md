@@ -12,7 +12,7 @@ www.csvjson.com are online formatting and conversion tools that I use as a devel
 
 CSVJSON is built using PHP CodeIgniter, Bootstrap 3.0, Underscore, JSON, jsonlint, and other goodies.
 
-Forking welcome: https://github.com/martindrapeau/csvjson-app
+Forking welcome: https://github.com/FlatFilers/csvjson-app
 
 ## Installation
 
@@ -78,7 +78,7 @@ Directories `application` and `system` are those defined by CodeIgniter. Assets 
 ## AWS S3
 
 Saved sessions are stored in Amazon Web Services Simple Storage.
-The following config file must exist, but never be committed and versioned in Git 
+The following config file must exist, but never be committed and versioned in Git
 application/config/aws_s3.php
 
 ```php
@@ -96,7 +96,7 @@ $config['aws_s3'] = array('supported' => defined('AWS_S3_URL'));
 ## FAQ
 
 Q: What if I fund a bug or would like to propose an enhancement? <br/>
-A: Report it via [GitHub issues](https://github.com/martindrapeau/csvjson-app/issues).
+A: Report it via [GitHub issues](https://github.com/FlatFilers/csvjson-app/issues).
 
 Q: What performs minification? <br/>
 A: JavaScript minification is done with a PHP implementation of Douglas Crockford's JSMin. See `application/libraries/jsmin.php` for details. CSS minification comes from http://code.google.com/p/minify/. See `application/libraries/cssmin.php`.

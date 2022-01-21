@@ -3,7 +3,7 @@
 /*
  * CSV to JSON Controller
  *
- * Copyright (c) 2018 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  */
 

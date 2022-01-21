@@ -12,7 +12,7 @@
    *  - underscore (http://underscorejs.org/)
    *  - underscore.string (https://github.com/epeli/underscore.string)
    *
-   * Copyright (c) 2018 Martin Drapeau
+   * Copyright (c) 2022 Flatfile
    *
    */
 
