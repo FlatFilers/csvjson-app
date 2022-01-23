@@ -121,7 +121,7 @@
 		<footer class="navbar">
 			<div class="container-fluid">
 				<p>
-					&copy; 2014-2019 <a href="https://medium.com/@martindrapeau">Martin Drapeau</a> &nbsp;
+					&copy; <?php echo date("Y"); ?> <a href="https://flatfile.com?utm_source=csvjson-footer&utm_medium=header&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a> &nbsp;
 					<a href="https://github.com/FlatFilers/csvjson-app/issues">Report an issue</a> &nbsp;
 					<a href="https://github.com/FlatFilers/csvjson-app">Code available on GitHub</a>
 				</p>
