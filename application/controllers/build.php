@@ -3,7 +3,7 @@
 /*
  * JavaScript and CSS Bundling and Minification.
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  * Call this to build and minify your assets.
  * Uses the Assets configuration (config/assets.php).
@@ -12,16 +12,16 @@
  */
 
 class Build extends CI_Controller {
-	
+
 	public function __construct() {
 		parent::__construct();
 		if (ENVIRONMENT == 'production') show_404();
 		//$this->output->enable_profiler(TRUE);
 	}
-	
+
 	public function index() {
 		echo "Minifying JavaScript Files...<br/>";
-	
+
 		// Increase the version number by 0.001
 		$old_version = file_get_contents(VERSION_FILE);
 		if ($old_version === FALSE) {
@@ -36,7 +36,7 @@ class Build extends CI_Controller {
 		}
 		echo "Version: $new_version<br/>";
 		flush();
-		
+
 		// Create our bundle files
 		foreach ($this->config->item('assets') as $bundle) {
 			if ($bundle['type'] == JAVASCRIPT) {
@@ -54,14 +54,14 @@ class Build extends CI_Controller {
 			echo $bundle['output']." ".$result." bytes<br/>";
 		}
 	}
-	
+
 	private function buildJS($output_file, $files, $comment=NULL) {
 		$this->load->library('jsmin');
-		
+
 		$fid = fopen(FCPATH.$output_file, 'w');
-		
+
 		if ($comment) fwrite($fid, "/* $comment */\n");
-		
+
 		foreach ($files as $file) {
 			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
@@ -72,19 +72,19 @@ class Build extends CI_Controller {
 			fwrite($fid, "// $file\n");
 			fwrite($fid, $this->jsmin->minify($contents)."\n");
 		}
-		
+
 		fclose($fid);
-		
+
 		return filesize(FCPATH.$output_file);
 	}
-	
+
 	private function buildCSS($output_file, $files, $comment=NULL) {
 		$this->load->library('cssmin');
-		
+
 		$fid = fopen(FCPATH.$output_file, 'w');
-		
+
 		if ($comment) fwrite($fid, "/* $comment */\n");
-		
+
 		foreach ($files as $file) {
 			$contents = file_get_contents(FCPATH.$file);
 			if ($contents === FALSE) {
@@ -95,9 +95,9 @@ class Build extends CI_Controller {
 			fwrite($fid, "/* $file */\n");
 			fwrite($fid, $this->cssmin->minify($contents)."\n");
 		}
-		
+
 		fclose($fid);
-		
+
 		return filesize(FCPATH.$output_file);
 	}
 }

@@ -4,7 +4,7 @@
  * CSVJSON base controller. Every tool controller inherits from this one.
  * Uses helpers in application/helpers/csvjson_helper.php.
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  */
 

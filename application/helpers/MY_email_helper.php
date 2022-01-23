@@ -22,7 +22,7 @@ if (!function_exists('buildEmailBody')) {
 
 if (!function_exists('buildEmailBodyWithSignature')) {
   function buildEmailBodyWithSignature($parts, $preview=NULL, $unsubscribe=FALSE) {
-    $parts[] = array('type' => 'text', 'text' => 'Martin Drapeau<br/><a href="mailto:martindrapeau@gmail.com">martindrapeau@gmail.com</a>');
+    $parts[] = array('type' => 'text', 'text' => 'Flatfile<br/><a href="mailto:hello@flatfile.com">hello@flatfile.com</a>');
     return buildEmailBody($parts, $preview, $unsubscribe);
   }
 }

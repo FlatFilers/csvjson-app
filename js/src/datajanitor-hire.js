@@ -1,7 +1,7 @@
 /*
  * CSVJSON Data Janitor - Backbone.HireView
  * 
- * Copyright (c) 2018 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  */
 (function() {

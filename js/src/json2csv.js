@@ -1,7 +1,7 @@
 /*
  * CSVJSON Application - JSON to CSV
  *
- * Copyright (c) 2016 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  */
  APP.json2csv = function() {
 
@@ -19,10 +19,10 @@
   $convert = $('#convert, a.convert'),
   $flatten = $('#flatten'),
   $output_csvjson_variant = $('#output_csvjson_variant');
-  
+
   $convert.click(function(e) {
     e.preventDefault();
-    
+
     var json = _.trim($json.val());
     if (json.length == 0) {
       APP.reportError($result, 'Please upload a file or type in something.');
@@ -34,7 +34,7 @@
       flatten: $flatten.is(':checked'),
       output_csvjson_variant: $output_csvjson_variant.is(':checked')
     };
-    
+
     var data;
     try {
       data = jsonlint.parse(json);
@@ -50,10 +50,10 @@
       APP.reportError($result, error + "\n\nOH NO! I don't know how to convert that. Help me understand what you want. Click on the button below to report a bug or suggestion.");
       return false;
     }
-    
+
     $result.removeClass('error').val(result).change();
   });
-  
+
   APP.start({
     $convert: $convert,
     downloadFilename: 'csvjson.csv',

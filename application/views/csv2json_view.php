@@ -124,12 +124,12 @@ Nine Miles from the White City, 2013, -
 			</ul>
 			<h4>Change Log</h4>
 			<ul>
-				<li><strong>Mar 20, 2019</strong> Bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/martindrapeau/csvjson-app/issues/71">GitHub issue #71</a>.</li>
-				<li><strong>Feb 2, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package csv2json</a>. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/70">GitHub issue #70</a>.</li>
+				<li><strong>Mar 20, 2019</strong> Bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/FlatFilers/csvjson-app/issues/71">GitHub issue #71</a>.</li>
+				<li><strong>Feb 2, 2019</strong> Refactored and published <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package csv2json</a>. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/70">GitHub issue #70</a>.</li>
 				<li><strong>Jan 26, 2019</strong> Improvement: Removed 64k limit on download button. Also fixed issue #68 'Cannot work functional with special letters'.</li>
 				<li><strong>Mar 31, 2018</strong> Improvement: Added option to parse JSON values.</li>
-				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/martindrapeau/csvjson-app/issues/21">GitHub issue #21</a></li>
-				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/martindrapeau/csvjson-app/issues/13">GitHub issue #13</a></li>
+				<li><strong>Dec 18, 2017</strong> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></li>
+				<li><strong>Oct 7, 2016</strong> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/FlatFilers/csvjson-app/issues/13">GitHub issue #13</a></li>
 				<li><strong>Jul 09, 2016</strong> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</li>
 				<li><strong>Jun 20, 2016</strong> Bug fix: strings containing quotes and commas were prematurely cut.</li>
 				<li><strong>Dec 30, 2015</strong> Bug fix: drop quotes on keys of nested objects.</li>

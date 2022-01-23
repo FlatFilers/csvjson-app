@@ -26,10 +26,10 @@
    * Dependencies:
    *  - json2-mod.js https://github.com/martindrapeau/json2-mod
    *
-   * Copyright (c) 2014-2019 Martin Drapeau
+   * Copyright (c) 2022 Flatfile
    *
    */
-  
+
   // Recursively walk an object to convert strings that are numbers
   // to pure integers or floats.
   function walkObjectAndDropQuotesOnNumbers(object) {
@@ -51,8 +51,8 @@
   function isObject(o) {
     return o && typeof o == 'object';
   }
-  
-  // Collapses arrays inline when they fit inside the specified width 
+
+  // Collapses arrays inline when they fit inside the specified width
   // in characters (including indentation).
   function inlineShortArraysInResult(result, width) {
     width || (width = 80);
@@ -86,7 +86,7 @@
     }
     return list.join('\n');
   }
-  
+
   function convert(object, options) {
     var space = options.space || 2,
         dropQuotesOnKeys = options.dropQuotesOnKeys || false,
@@ -97,7 +97,7 @@
         minify = options.minify || false;
 
     if (dropQuotesOnNumbers) walkObjectAndDropQuotesOnNumbers(object);
-    
+
     var result = JSON2_mod.stringify(object, null, minify ? undefined : space, dropQuotesOnKeys, quoteType);
     if (inlineShortArrays && !minify) {
       var width = typeof inlineShortArrays == 'number' ? inlineShortArrays : 80;
@@ -111,7 +111,7 @@
       }
       result = newResult;
     }
-    
+
     return result;
   };
 
@@ -128,5 +128,5 @@
     this.CSVJSON || (this.CSVJSON = {});
     this.CSVJSON.json_beautifier = convert;
   }
-  
+
 }).call(this);

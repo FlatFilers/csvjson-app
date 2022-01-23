@@ -73,12 +73,12 @@
 					CSVJSON is a do-it-myself and more permanent solution. Its best feature? You can save your session for later, and share it with a co-worker.
 				</p>
 				<p>
-					If you find bugs or would like an improvement, please leave a comment below or open an issue on <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">GitHub</a>.
+					If you find bugs or would like an improvement, please leave a comment below or open an issue on <a href="https://github.com/FlatFilers/csvjson-app/issues" target="_blank">GitHub</a>.
 				</p>
 				<p>
 					I hope it can be useful to you. Happy conversions!
 				</p>
-				<p><small>Martin</small></p>
+				<p><small>Flatfile</small></p>
 			</blockquote>
 		</div>
 	</div>
@@ -119,23 +119,23 @@
 			<h4>2019-07-15</h4>
 			<p>
 				JSON 2 CSV bug fix. BOM was missing causing the lost of accented characters in Excel.
-				Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/78">GitHub issue #78</a>.</li>
+				Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/78">GitHub issue #78</a>.</li>
 				Thanks to <a href="https://github.com/elbaza1">EL BAZA</a> for reporting.
 			</p>
 			<h4>2019-06-25</h4>
 			<p>
-				JSON Beautifier improvement. Variable width when inlining short arrays. For fix <a href="https://github.com/martindrapeau/csvjson-app/issues/76">GitHub issue #76</a>.
+				JSON Beautifier improvement. Variable width when inlining short arrays. For fix <a href="https://github.com/FlatFilers/csvjson-app/issues/76">GitHub issue #76</a>.
 				Thanks to <a href="https://github.com/galileo-pkm">galileo-pkm</a> for reporting.
 			</p>
 			<h4>2019-06-06</h4>
 			<p>
 				Fixed bug where uploading a file went to the result box instead of the json box.
-				<a href="https://github.com/martindrapeau/csvjson-app/issues/75">GitHub issue #75</a>.
+				<a href="https://github.com/FlatFilers/csvjson-app/issues/75">GitHub issue #75</a>.
 				Thanks to <a href="https://github.com/ejaustin">Emily</a> for reporting.
 			</p>
 			<h4>2019-03-20</h4>
 			<p>
-				<a href="/csv2json">CSV to JSON</a> bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/martindrapeau/csvjson-app/issues/71">GitHub issue #71</a>. Thanks to <a href="https://github.com/SummerSun">Summer</a> for reporting.
+				<a href="/csv2json">CSV to JSON</a> bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/FlatFilers/csvjson-app/issues/71">GitHub issue #71</a>. Thanks to <a href="https://github.com/SummerSun">Summer</a> for reporting.
 			</p>
 			<h4>2019-02-03</h4>
 			<p>
@@ -179,40 +179,40 @@
 			<p>New button to report a bug or ask for improvements.</p>
 			<h4>2018-01-08</h4>
 			<p>
-				Support escaped quotes in <a href="/sql2json">SQL to JSON</a>: <a href="https://github.com/martindrapeau/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.
+				Support escaped quotes in <a href="/sql2json">SQL to JSON</a>: <a href="https://github.com/FlatFilers/csvjson-app/issues/26">GitHub issue #26</a>. Thank you <a href="https://github.com/lbottoni" target="_blank">lbottoni</a> for reporting.
 			</p>
 			<h4>2017-12-18</h4>
 			<p>SQL to JSON parsing bug fix. Convert <code>NULL</code> to <code>null</code>.</p>
 			<p>
-				Added a minify option to compact JSON by removing spaces and new lines. Fix for <a href="https://github.com/martindrapeau/csvjson-app/issues/21" target="_blank">GitHub Issue #21</a>. Thank you <a href="https://github.com/myatmins" target="_blank">Myat Min Soe</a> for requesting this feature.
+				Added a minify option to compact JSON by removing spaces and new lines. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/21" target="_blank">GitHub Issue #21</a>. Thank you <a href="https://github.com/myatmins" target="_blank">Myat Min Soe</a> for requesting this feature.
 			</p>
 			<h4>2017-12-13</h4>
 			<p>
-				SQL to JSON parsing bug fix. Do not split when detecting a comma in a string value: <a href="https://github.com/martindrapeau/csvjson-app/issues/25" target="_blank">GitHub Issue #25</a>.
+				SQL to JSON parsing bug fix. Do not split when detecting a comma in a string value: <a href="https://github.com/FlatFilers/csvjson-app/issues/25" target="_blank">GitHub Issue #25</a>.
 			</p>
 			<h4>2017-10-07</h4>
 			<p>
-				<a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/martindrapeau/csvjson-app/issues/23" target="_blank">GitHub issue #23</a>
+				<a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/FlatFilers/csvjson-app/issues/23" target="_blank">GitHub issue #23</a>
 			</p>
 			<h4>2017-09-04</h4>
 			<p>
-				SQL to JSON parsing bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.
+				SQL to JSON parsing bug fix: <a href="https://github.com/FlatFilers/csvjson-app/issues/22" target="_blank">GitHub Issue #22</a>.
 			</p>
 			<h4>2016-09-27</h4>
 			<p>
-				CSV to JSON improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/13" target="_blank">GitHub Issue #13</a> - Added option to parse number values or not to retain original number formatting.
+				CSV to JSON improvement: <a href="https://github.com/FlatFilers/csvjson-app/issues/13" target="_blank">GitHub Issue #13</a> - Added option to parse number values or not to retain original number formatting.
 			</p>
 			<h4>2016-09-27</h4>
 			<p>
-				JSON Beautifier bug fix and improvement: <a href="https://github.com/martindrapeau/csvjson-app/issues/12" target="_blank">GitHub Issue #12</a> - Inline short arrays bug fix and improvement. Added nesting depth option.
+				JSON Beautifier bug fix and improvement: <a href="https://github.com/FlatFilers/csvjson-app/issues/12" target="_blank">GitHub Issue #12</a> - Inline short arrays bug fix and improvement. Added nesting depth option.
 			</p>
 			<h4>2016-08-29</h4>
 			<p>
-				SQL to JSON bug fix: <a href="https://github.com/martindrapeau/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.
+				SQL to JSON bug fix: <a href="https://github.com/FlatFilers/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.
 			</p>
 			<h4>2016-08-22</h4>
 			<p>
-				JSON Beautifier bug fix: Inline short arrays was not working properly. <a href="https://github.com/martindrapeau/csvjson-app/issues/9">GitHub issue #9</a>
+				JSON Beautifier bug fix: Inline short arrays was not working properly. <a href="https://github.com/FlatFilers/csvjson-app/issues/9">GitHub issue #9</a>
 			</p>
 			<h4>2016-07-09</h4>
 			<p>
@@ -237,9 +237,9 @@
 			<br/>
 			<h3>Bugs and Feature Requests</h3>
 			<p>
-				<a href="https://github.com/martindrapeau/csvjson-app">Code available on GitHub.</a>
+				<a href="https://github.com/FlatFilers/csvjson-app">Code available on GitHub.</a>
 				Report bugs or ask for improvements through
-				<a href="https://github.com/martindrapeau/csvjson-app/issues">GitHub issues</a>.
+				<a href="https://github.com/FlatFilers/csvjson-app/issues">GitHub issues</a>.
 			</p>
 			<br/>
 		</div>

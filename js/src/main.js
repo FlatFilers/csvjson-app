@@ -1,7 +1,7 @@
 /*
  * CSVJSON Application - Main file - where everything starts
  *
- * Copyright (c) 2014 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  */
 $(document).ready(function() {
   
@@ -276,8 +276,8 @@ $(document).ready(function() {
       var $issue = $('a#issue'),
           template = _.template([
             '<p>1. Save your test case (click on <span class="link-color"><i class="glyphicon glyphicon-link"></i> Save</span> in navbar). Copy the URL to the clipboard.</p>',
-            '<p>2. <a href="https://github.com/martindrapeau/csvjson-app/issues" target="_blank">Consult issues on GitHub.</a> If you find an existing issue matching yours, please comment and paste the URL of your test case.</p>',
-            '<p>3. If you do not find an existing issue, create one by clicking on this button: <a id="github-issue" class="btn btn-xs btn-primary" href="https://github.com/martindrapeau/csvjson-app/issues/new?body=<%=encodeURIComponent(url)%>" target="_blank">Create an issue in GitHub</a></p>'
+            '<p>2. <a href="https://github.com/FlatFilers/csvjson-app/issues" target="_blank">Consult issues on GitHub.</a> If you find an existing issue matching yours, please comment and paste the URL of your test case.</p>',
+            '<p>3. If you do not find an existing issue, create one by clicking on this button: <a id="github-issue" class="btn btn-xs btn-primary" href="https://github.com/FlatFilers/csvjson-app/issues/new?body=<%=encodeURIComponent(url)%>" target="_blank">Create an issue in GitHub</a></p>'
           ].join(' '));
       $issue.click(function(e) {
         e.preventDefault();

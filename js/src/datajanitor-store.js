@@ -1,7 +1,7 @@
 /*
  * CSVJSON Data Janitor - Backbone.DataStore
  * 
- * Copyright (c) 2018 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  * Persists to local storage:
  * - localStorage.DataJanitorInputOptions

@@ -34,7 +34,7 @@ d.format('LL'); // February 25, 2018
 <p>Use <code>_.isEmail(email)</code> to check if an email is valid.</p>
 <pre>
 _.isEmail('jean françois@example.com') // false
-_.isEmail('martindrapeau@gmail.com') // true
+_.isEmail('hello@flatfile.com') // true
 </pre>
 <br/>
 
@@ -85,7 +85,7 @@ function process(input, columns) {
     outRow['First Name'] = inRow['First Name'];
     outRow['Last Name'] = inRow['Last Name'];
     outRow['Dob'] = inRow['Dob'];
-      
+
     output.push(outRow);
   });
   return output;

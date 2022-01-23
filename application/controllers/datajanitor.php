@@ -3,15 +3,15 @@
 /*
  * CSV to JSON Controller
  *
- * Copyright (c) 2018 Martin Drapeau
+ * Copyright (c) 2022 Flatfile
  *
  */
 
 class Datajanitor extends MY_Controller {
-	
+
 	public function __construct() {
 		parent::__construct();
-		
+
 		$this->page = 'datajanitor';
     $this->tool = 'Data Janitor';
 		$this->title = 'Data Janitor';
@@ -82,8 +82,8 @@ class Datajanitor extends MY_Controller {
 
     $this->email->set_mailtype('html');
     $this->email->from(DEFAULT_FROM_EMAIL, DEFAULT_FROM_NAME);
-    $this->email->reply_to('martindrapeau@gmail.com', 'Martin Drapeau');
-    $this->email->to(array($arguments['email'], 'martindrapeau@gmail.com'));
+    $this->email->reply_to('hello@flatfile.com', 'Flatfile');
+    $this->email->to(array($arguments['email'], 'hello@flatfile.com'));
     $this->email->subject($subject);
     $this->email->message($body);
     $result = $this->email->send();
@@ -178,7 +178,7 @@ class Datajanitor extends MY_Controller {
       }
       $data = file_get_contents($filename);
     }
-    
+
     $this->load->view('datajanitor/published_page', array(
       'id' => $id,
       'data' => $data,

@@ -27,7 +27,7 @@
 | generated. FCPATH will be prefixed. For example js/myapp.min.js or
 | js/jquery.js.
 |
-| Copyright (c) 2014 Martin Drapeau
+| Copyright (c) 2022 Flatfile
 |
 */
 
@@ -42,7 +42,7 @@ define('JAVASCRIPT', 'javascript');
 define('CSS', 'css');
 
 // Our copyright comment to include in our bundles
-$comment = 'CSVJSON | (c) 2013 Martin Drapeau | https://github.com/martindrapeau/csvjson-app';
+$comment = 'CSVJSON | (c) 2022 Flatfile | https://github.com/FlatFilers/csvjson-app';
 
 // Asset bundles
 $config['assets'] = array(
