@@ -1,11 +1,11 @@
-<div class="container-fluid">
+<div class="container px-4 py-5">
 	<div class="row">
 		<div class="description col-md-12">
 			<h1 class="discrete">Convert your SQL table or database export to JSON or JavaScript.</h1>
 			<p>1) Copy/paste or upload your SQL export to convert it. 2) Convert to JSON or JavaScript (one variable is created per table). 3) Copy and paste back to your computer. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
@@ -22,10 +22,10 @@
 				<label>Or paste your SQL here</label>
 <textarea id="sql" class="form-control input save" rows="18">
 /**
- * Continents 
+ * Continents
  */
 SET FOREIGN_KEY_CHECKS=0;
- 
+
 -- ----------------------------
 -- Table structure for `continents`
 -- ----------------------------
@@ -35,7 +35,7 @@ CREATE TABLE `continents` (
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
- 
+
 -- ----------------------------
 -- Records of continents
 -- ----------------------------
@@ -56,7 +56,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 				<i class="glyphicon glyphicon-remove"></i> Clear
 			</button>
 		</div>
-		
+
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Output format</label>
@@ -90,7 +90,6 @@ INSERT INTO `continents` VALUES ('??', NULL);
 				<li><strong>Sep 29, 2016</strong> Bug fix <a href="https://github.com/FlatFilers/csvjson-app/issues/11" target="_blank">GitHub Issue #11</a> - support multile values in single-line INSERT INTO statement.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>
-			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php

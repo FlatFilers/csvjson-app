@@ -1,18 +1,18 @@
-<div class="container-fluid">
+<div class="container px-4 py-5">
 	<div class="row">
 		<div class="description col-md-12">
-			<h1 class="discrete">Online tool to convert your CSV or TSV formatted data to JSON.</h1>
-			<p>1) Copy/paste or upload your Excel data (CSV or TSV) to convert it to JSON. 2) Set up options: parse numbers, transpose your data, or output an object instead of an array. 3) Convert and copy/paste back to your computer. 4) Save your result for later or for sharing.</p>
+			<h1 class="text-primary fw-bold">CSV or TSV > JSON</h1>
+			<p>To get started, upload or paste your data from Excel (saved as CSV or TSV).
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
 				<label>Upload a CSV file</label>
 				<span class="btn btn-default fileinput-button form-control">
 					<label>
-						<i class="glyphicon glyphicon-plus"></i>
+						<i class="bi bi-upload"></i>
 						<span>Select a file...</span>
 					</label>
 					<input id="fileupload" type="file" name="file" />
@@ -35,13 +35,13 @@ Nine Miles from the White City, 2013, -
 </textarea>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary">
-				<i class="glyphicon glyphicon-chevron-right"></i> Convert
+				<i class="bi bi-chevron-right"></i> Convert
 			</button>
-			<button id="clear" type="submit" class="btn">
-				<i class="glyphicon glyphicon-remove"></i> Clear
+			<button id="clear" type="submit" class="btn btn-light">
+				<i class="bi bi-backspace"></i> Clear
 			</button>
 		</div>
-		
+
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Options <small>Hover on option for help</small></label>
@@ -99,7 +99,7 @@ Nine Miles from the White City, 2013, -
 					Often used as an interchange data format to represent table records, one per line. CSV is plain text.
 				</li>
 				<li>
-					The CSV format is documented in an RFC memo <a href="https://tools.ietf.org/html/rfc4180" target="_blank">RFC-4180</a>. 
+					The CSV format is documented in an RFC memo <a href="https://tools.ietf.org/html/rfc4180" target="_blank">RFC-4180</a>.
 				</li>
 				<li>
 					The first line is often the header, or column names. Each subsequent row is a record and should have the same number of fields.
@@ -137,7 +137,6 @@ Nine Miles from the White City, 2013, -
 				<li><strong>Jan 30, 2014</strong> Bug fix: Pasting Excel data into Textarea would cause an upload.</li>
 				<li><strong>Jan 12, 2014</strong> Initial release.</li>
 			</ul>
-			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php

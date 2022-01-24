@@ -1,11 +1,11 @@
-<div class="container-fluid">
+<div class="container px-4 py-5">
   <div class="row">
     <div class="description col-md-12">
       <h1 class="discrete">Online tool to convert your CSVJSON formatted data to JSON.</h1>
       <p>1) Copy/paste or upload your CSVJSON data to convert it to JSON. 2) Convert and copy/paste back to your computer. 3) Save your result for later or for sharing.</p>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col-md-5 more-bottom-margin">
       <div class="form-group">
@@ -39,7 +39,7 @@
         <i class="glyphicon glyphicon-remove"></i> Clear
       </button>
     </div>
-    
+
     <div class="col-md-7 more-bottom-margin">
       <div class="form-group">
         <label>Options <small>Hover on option for help</small></label>
@@ -88,7 +88,6 @@
         <li><strong>Apr 6, 2016</strong> Bug fixes and help text improvements.</li>
         <li><strong>Apr 2, 2018</strong> First release.</li>
       </ul>
-      <?php $this->load->view('feedback'); ?>
     </div>
     <div class="col-md-4">
       <?php

@@ -1,11 +1,11 @@
-<div class="container-fluid">
+<div class="container px-4 py-5">
 	<div class="row">
 		<div class="description col-md-12">
       <h1 class="discrete">Convert your JSON to CSV or TSV formatted data. </h1>
 			<p>1) Copy/paste or upload your JSON to convert it. 2) Choose your separator. 3) For Excel, convert to TSV then copy and paste into Excel. 4) Save your result for later or for sharing.</p>
 		</div>
 	</div>
-	
+
 	<div class="row">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="form-group">
@@ -80,7 +80,7 @@
 				<i class="glyphicon glyphicon-remove"></i> Clear
 			</button>
 		</div>
-		
+
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Options <small>Hover on option for help</small></label>
@@ -156,7 +156,6 @@
         <li><strong>Mar 31, 2018</strong> CSVJSON format variant support: ensure CSV values are JSON valid.</li>
 				<li><strong>Jan 24, 2018</strong> Initial release.</li>
 			</ul>
-			<?php $this->load->view('feedback'); ?>
 		</div>
 		<div class="col-md-4">
 			<?php

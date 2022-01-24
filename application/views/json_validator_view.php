@@ -1,11 +1,11 @@
-<div class="container">
+<div class="container px-4 py-5">
   <div class="row">
     <div class="description col-md-12">
       <h1 class="discrete">Online tool for validating and formatting your JSON.</h1>
       <p>1) Copy/paste or upload your JSON. 2) Validate and format your JSON. 3) Save your result for later or for sharing.</p>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col-sm-12">
       <div class="form-group">
@@ -96,7 +96,6 @@
         <li><strong>Sep 12, 2018</strong> Newly added.</li>
       </ul>
       <br/>
-      <?php $this->load->view('feedback'); ?>
     </div>
     <div class="col-md-4">
       <?php //$this->load->view('carbonads'); ?>

@@ -1,4 +1,4 @@
-<div class="container-fluid intro-section">
+<div class="container px-4 py-5">
 	<div class="row">
 		<div class="col-md-9 col-sm-8">
 			<h1 class="discrete">Online tool for Excel and Google Sheets data cleaning and transformation.</h1>
@@ -47,18 +47,18 @@ function process(input, columns) {
   var output = [];
   input.forEach(function(inRow, r) {
     var outRow = {};
-    
+
     var teams = inRow.Match.split('vs');
     outRow.Home = teams[0].trim();
     outRow.Away = teams[1].trim();
-    
+
     var date = moment(inRow.Date, 'YY-MM-DD');
     outRow.Date = date.format('MMM Do YYYY');
-    
+
     var scores = inRow.Result.split('-');
     outRow['Home Score'] = parseInt(scores[0].trim(), 10);
     outRow['Away Score'] = parseInt(scores[1].trim(), 10);
-    
+
     outRow.Winner = outRow['Home Score'] > outRow['Away Score'] ? outRow.Home : outRow.Away;
     if (outRow['Home Score'] == outRow['Away Score']) outRow.Winner = 'Tie';
 
