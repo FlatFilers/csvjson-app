@@ -76,14 +76,14 @@
 									<li><a class="dropdown-item" href="/json_validator">JSON Validator</a></li>
 									<li><a class="dropdown-item" href="/json_beautifier">JSON Beautifier</a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjsonutm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
+									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
 							</div>
 							<?php if ($showSave): ?>
 										<a href="#" class="btn btn-primary" title="Save a permanent link to share with a colleague."><i class="bi bi-save"></i> Save</a>&nbsp;&nbsp;
 							<?php endif; ?>
 
-							<a class="btn btn-light" href="https://flatfile.com/get-started?utm_source=csvjsonutm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+							<a class="btn btn-light" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
 								<img src="img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
 								<b>Turnkey CSV Importer</b> &bull; <small>Installs in minutes</small>
 							</a>
@@ -99,13 +99,13 @@
 					<img src="img/logo.svg" width="140">
         </a>
         <ul class="list-unstyled small text-muted">
-          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjsonutm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
+          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
         </ul>
       </div>
       <div class="col-6 col-lg-3 mb-3">
         <h5>Convert</h5>
         <ul class="list-unstyled">
-          <li class="mb-2"><a href="/csv2json">CSV to Json</a></li>
+          <li class="mb-2"><a href="/csv2json">CSV to JSON</a></li>
           <li class="mb-2"><a href="/json2csv">JSON to CSV</a></li>
 					<li class="mb-2"><a href="/sql2json">SQL to JSON</a></li>
 					<li class="mb-2"><a href="/csvjson2json">CSVJSON to JSON</a></li>
@@ -124,9 +124,9 @@
         <ul class="list-unstyled">
 					<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/">Github</a></li>
 					<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues?q=is%3Aissue+is%3Aclosed">Change Log</a></li>
-          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues">Issues</a></li>
+          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues/new">Issues</a></li>
           <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app#readme">Docs</a></li>
-          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjsonutm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
+          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
         </ul>
       </div>
     </div>
