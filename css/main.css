@@ -32,6 +32,7 @@ a {
 	margin-right: 5px;
 }
 
+
 .btn-primary {
     color: #fff;
     background-color: var(--bs-primary);
@@ -40,6 +41,14 @@ a {
 
 .bg-dark {
 	background-color: var(--bs-dark)!important;
+}
+
+.text-primary {
+  color: var(--bs-primary)!important;
+}
+
+.form-control {
+  background-color: var(--bs-light)!important;
 }
 
 .text-secondary {
