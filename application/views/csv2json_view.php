@@ -38,6 +38,7 @@ Nine Miles from the White City, 2013, -
 
 		<div class="col-md-7 more-bottom-margin">
 			<div class="mb-4">
+				<label class="form-label">Upload a CSV file</label>
 				<div class="form-check-inline">
 					<label class="form-label me-2 save" title="Choose your separator">
 						<div class="mb-2">Separator</div>

@@ -1,25 +1,19 @@
 <div class="container px-4 py-5">
   <div class="row">
     <div class="description col-md-12">
-      <h1 class="discrete">Online tool to convert your CSVJSON formatted data to JSON.</h1>
-      <p>1) Copy/paste or upload your CSVJSON data to convert it to JSON. 2) Convert and copy/paste back to your computer. 3) Save your result for later or for sharing.</p>
+      <h1 class="text-primary fw-bold">CSVJSON <small class="bi bi-chevron-right"></small>CSV</h1>
+			<p>To get started, upload or paste your JSON data.
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-5 more-bottom-margin">
-      <div class="form-group">
-        <label>Upload a CSVJSON file</label>
-        <span class="btn btn-default fileinput-button form-control">
-          <label>
-            <i class="glyphicon glyphicon-plus"></i>
-            <span>Select a file...</span>
-          </label>
-          <input id="fileupload" type="file" name="file" />
-        </span>
+      <div class="mb-5">
+        <label class="form-label">Upload a CSVJSON file</label>
+          <input id="fileupload" type="file" name="file" class="form-control"/>
       </div>
-      <div class="form-group code-group">
-        <label>Or paste your CSVJSON here</label>
+      <div class="mb-3">
+        <label class="form-label">Or paste your CSVJSON here</label>
 <textarea id="csv" class="form-control input save" rows="18" spellcheck="false">
 "index","value1","value2"
 "number",1,2
@@ -33,19 +27,19 @@
 </textarea>
       </div>
       <button id="convert" type="submit" class="btn btn-primary">
-        <i class="glyphicon glyphicon-chevron-right"></i> Convert
+        	<i class="bi bi-chevron-right"></i> Convert
       </button>
-      <button id="clear" type="submit" class="btn">
-        <i class="glyphicon glyphicon-remove"></i> Clear
+      <button id="clear" type="submit" class="btn btn-light">
+        <i class="bi bi-backspace"></i> Clear
       </button>
     </div>
 
     <div class="col-md-7 more-bottom-margin">
-      <div class="form-group">
-        <label>Options <small>Hover on option for help</small></label>
-        <div class="form-control options">
-          <label class="inline" title="Minify or compact result by removing spaces and new lines.">
-            <input type="checkbox" id="minify" name="minify" class="save" /> Minify
+      <div class="mb-5">
+        <div class="mb-2">Options</div>
+        <div class="form-check-inline">
+          <label class="form-label mb-3 mt-2" title="Minify or compact result by removing spaces and new lines.">
+            <input type="checkbox" id="minify" name="minify" class="form-check-input save" /> Minify
           </label>
         </div>
       </div>

@@ -73,8 +73,12 @@
 									<li><a class="dropdown-item active" href="/" aria-current="page">Home</a></li>
 									<li><a class="dropdown-item" href="/csv2json">CSV to JSON</a></li>
 									<li><a class="dropdown-item" href="/json2csv">JSON to CSV</a></li>
+									<li><a class="dropdown-item" href="/sql2json">SQL to JSON</a></li>
+									<li><a class="dropdown-item" href="/csvjson2json">CSVJSON to JSON</a></li>
+									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="/json_validator">JSON Validator</a></li>
 									<li><a class="dropdown-item" href="/json_beautifier">JSON Beautifier</a></li>
+									<li><a class="dropdown-item" href="/datajanitor">JSON Beautifier</a></li>
 									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
@@ -116,7 +120,7 @@
         <ul class="list-unstyled">
           <li class="mb-2"><a href="/json_validator">JSON Validator</a></li>
           <li class="mb-2"><a href="/json_beautifier">JSON Beautifier</a></li>
-					<li class="mb-2"><a href="/csvjson2json">Data Janitor</a></li>
+					<li class="mb-2"><a href="/datajanitor">Data Janitor</a></li>
 				</ul>
       </div>
       <div class="col-6 col-lg-3 mb-3">
