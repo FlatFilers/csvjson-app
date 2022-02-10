@@ -38,7 +38,6 @@ Nine Miles from the White City, 2013, -
 
 		<div class="col-md-7 more-bottom-margin">
 			<div class="mb-4">
-				<label class="form-label">Upload a CSV file</label>
 				<div class="form-check-inline">
 					<label class="form-label me-2 save" title="Choose your separator">
 						<div class="mb-2">Separator</div>
@@ -124,7 +123,7 @@ Nine Miles from the White City, 2013, -
 							When data is copied from Excel for example, it is stored as TSV in the Clipboard.
 						</p>
 						<li>
-							With CSVJSON you can parse values as numbers or JSON. Turn on respective <strong>Parse Numbers</strong><p> and <strong>Parse JSON</strong><p> switches to convert valid numbers and JSON (null, false, true, [] and {}).
+							With CSVJSON you can parse values as numbers or JSON. Turn on respective <strong>Parse Numbers</strong> and <strong>Parse JSON</strong> switches to convert valid numbers and JSON (null, false, true, [] and {}).
 						</p>
 						<li>
 							With CSVJSON you can transpose the csv before conversion. Rows become columns, and columns become rows.
