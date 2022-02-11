@@ -34,15 +34,19 @@
 		<div class="col-md-7 more-bottom-margin">
 			<div class="form-group">
 				<label>Options <small>Hover on option for help</small></label>
-				<div class="form-control">
+				<div class="form-check-inline">
 					<label class="inline">No quotes:</label>
+					<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="save" />
 					<label class="inline" title="JSON wraps keys with double quotes by default. JavaScript doesn't need them though. Check this box to drop them. Will make for invalid JSON but valid JavaScript.">
-						<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="save" /> on keys
+						 on keys
 					</label>
+				</div>
+				<div class="form-check-inline">
 					<label class="inline" title="Check this box to parse number values and drop quotes around them.">
 						<input type="checkbox" id="drop-quotes-on-numbers" name="drop-quotes-on-numbers" class="save" /> on numbers
 					</label>
-					&nbsp;
+				</div>
+				<div class="form-check-inline">
 					<label class="inline" title="Indentation preference.">
 						Indent
 						<select id="space" name="space" class="save">
@@ -55,6 +59,8 @@
 							<option value="..">..</option>
 						</select>
 					</label>
+				</div>
+				<div class="form-check-inline">
 					<label class="inline" title="Quote type around values">
 						Quotes
 						<select id="quote-type" name="quote-type" class="save">
@@ -62,7 +68,8 @@
 							<option value="double" selected="selected">Double</option>
 						</select>
 					</label>
-					&nbsp;
+				</div>
+				<div class="form-check-inline">
 					<label class="inline" title="Collpase arrays inline if less than the width in characters of the textarea. You can limit the nesting depth where it applies.">
 						<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="save" />
 						Inline short arrays
@@ -75,7 +82,8 @@
 						</select>
 						level deep
 					</label>
-					&nbsp;
+				</div>
+				<div class="form-check-inline">
 					<label class="inline" title="Minify or compact result by removing spaces and new lines. Warning: this overrides other options.">
 						<input type="checkbox" id="minify" name="minify" class="save" /> Minify
 					</label>

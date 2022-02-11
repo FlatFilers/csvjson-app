@@ -78,13 +78,13 @@
 									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="/json_validator">JSON Validator</a></li>
 									<li><a class="dropdown-item" href="/json_beautifier">JSON Beautifier</a></li>
-									<li><a class="dropdown-item" href="/datajanitor">JSON Beautifier</a></li>
+									<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>
 									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
 							</div>
 							<?php if ($showSave): ?>
-										<a href="#" class="btn btn-primary" title="Save a permanent link to share with a colleague."><i class="bi bi-save"></i> Save</a>&nbsp;&nbsp;
+										<a href="#" class="btn btn-primary me-4" title="Save a permanent link to share with a colleague."><i class="bi bi-save"></i> Save</a>
 							<?php endif; ?>
 
 							<a class="btn btn-light" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">

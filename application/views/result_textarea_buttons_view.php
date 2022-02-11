@@ -1,5 +1,5 @@
-<div class="form-group code-group mb-3">
-  <label><?=$result_title?></label> <span class="result-note"></span>
+<div class="mb-3">
+  <label class="form-label"><?=$result_title?></label> <span class="result-note"></span>
   <textarea id="result" class="form-control result save" rows="18" spellcheck="false"></textarea>
 </div>
 <a id="download" class="btn btn-primary" href="" download="<?=$download?>" disabled="disabled" target="_self">

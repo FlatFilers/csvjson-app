@@ -6,7 +6,7 @@
 		</div>
 	</div>
 
-	<div class="row">
+	<div class="row gx-5">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="mb-5">
 			<label class="form-label">Upload a JSON file</label>
@@ -76,7 +76,7 @@
 		</div>
 
 		<div class="col-md-7 more-bottom-margin">
-			<div class="mb-5">
+			<div class="mb-4 pb-3">
 				<div class="form-check-inline">
 					<label class="form-label me-2 save" title="Choose your separator">
 						<div class="mb-2">Separator</div>
@@ -86,11 +86,17 @@
 							<option value="semiColon">Semi-colon (CSV French)</option>
 						</select>
 					</label>
-          <label class="form-check-label me-2" title="Flattens nested arrays of objects">
-            <input type="checkbox" id="flatten" name="flatten" class="form-check-input save" /> Flatten
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="flatten" name="flatten" class="form-check-input save" />
+          <label class="form-check-label" title="Flattens nested arrays of objects">
+             Flatten
           </label>
-          <label class="form-check-label me-2" title="Output the CSVJSON variant format. If checked, will not wrap values that are arrays or objects with double quotes.">
-            <input type="checkbox" id="output_csvjson_variant" name="output_csvjson_variant" class="form-check-input save" /> Output CSVJSON variant
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="output_csvjson_variant" name="output_csvjson_variant" class="form-check-input save" />
+          <label class="form-check-label" title="Output the CSVJSON variant format. If checked, will not wrap values that are arrays or objects with double quotes.">
+             Output CSVJSON variant
           </label>
 				</div>
 			</div>
@@ -127,6 +133,9 @@
 						This function is available as a <a href="https://www.npmjs.com/package/csvjson-json2csv" target="_blank">npm package</a>.
 					</li>
 					<li>
+						JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by <a href="https://github.com/rogeriomarques" target="_blank">Rogerio Marques</a> in <a href="https://github.com/FlatFilers/csvjson-app/issues/3" target="_blank">GitHub issue #3</a>.
+					</li>
+					<li>
 						CSV stands for <a href="http://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">Comma Separated Values</a>.
 						Often used as an interchange data format to represent table records, one per line. CSV is plain text.
 					</li>
@@ -138,27 +147,18 @@
 						In French, Excel will expect a semi-colons <code>;</code> instead of a comma <code>,</code>.
 						Make sure to pick that option if you are going to import the CSV file in Excel.
 					</li>
-				</ul>
-				<h4>About JSON to CSV</h4>
-				<ul>
-					<li>
-						JSON to CSV will convert an array of objects into a table. By default, nested arrays or objects will simply be stringified and copied as is in each cell. Alternatively, you can flatten nested arrays of objects as requested by <a href="https://github.com/rogeriomarques" target="_blank">Rogerio Marques</a> in <a href="https://github.com/FlatFilers/csvjson-app/issues/3" target="_blank">GitHub issue #3</a>.
-					</li>
-				</ul>
-				<h4>CSVJSON format variant</h4>
-				<ul>
 					<li>
 						CSV values are plain text strings. Dror Harari proposed a variant called CSVJSON (<a href="http://csvjson.org/" target="_blank">csvjson.org</a>). The variant proposes that every CSV value be a valid JSON value. More specifically, objects and arrays would not be wrapped in double quotes but output as is. Toggle the switch <em>Output CSVJSON variant</em> to output that format.
-					</p>
+					</li>
 					<li>
 						CSVJSON format variant is not valid CSV however every value is valid JSON. Parsing CSVJSON is done by processing one line at a time. Wrap a line with square brackets <code>[]</code> and use <code>JSON.parse()</code> to convert to a JSON array.
-					</p>
+					</li>
 					<li>
 						To convert from CSVJSON back to JSON, use the companion tool <a href="/csvjson2json">CSVJSON to JSON</a>.
-					</p>
+					</li>
 					<li>
 							Dror Harari: <em>"The reason why I came up with CSVJSON was not to allow embedding of JSON objects in a CSV line, that's a nice benefit but my main reason was to have the very well defined encoding semantics of JSON (as per json.org) be used to describe CSV lines (just taking out the [ and ])."</em>
-					</p>
+					</li>
 				</ul>
 				<p>
 					<a class="btn btn-light" data-bs-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseExample">

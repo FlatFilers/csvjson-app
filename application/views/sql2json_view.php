@@ -6,7 +6,7 @@
 			</div>
 	</div>
 
-	<div class="row">
+	<div class="row gx-5">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="mb-5">
 				<label class="form-label">Upload a SQL file</label>
@@ -52,12 +52,19 @@ INSERT INTO `continents` VALUES ('??', NULL);
 		</div>
 
 		<div class="col-md-7 more-bottom-margin">
-			<div class="mb-5">
+			<div class="mb-5 pb-2">
+				<div class="mb-2">Options</div>
+				<div class="form-check-inline pt-1">
+					<label class="form-check-label me-2">Output format: </label>
+					<input type="radio" id="json" name="format" class="form-check-input save" value="json" checked="checked" />
+					<label class="form-check-label">JSON</label>
+				</div>
 				<div class="form-check-inline">
-					<label class="form-radio-label me-2">Output format</label>
-					<label class="form-radio-label me-2"><input type="radio" id="json" name="format" class="form-radio-input save" value="json" checked="checked" />JSON</label>
-					<label class="form-radio-label me-2"><input type="radio" id="javascript" name="format" class="save" value="javascript" />JavaScript</label>
-					<label class="form-check-label me-2" title="Minify or compact result by removing spaces and new lines.">
+					<input type="radio" id="javascript" name="format" class="form-check-input save" value="javascript" />
+					<label class="form-check-label">JavaScript</label>
+				</div>
+				<div class="form-check-inline">
+					<label class="form-check-label" title="Minify or compact result by removing spaces and new lines.">
 						<input type="checkbox" id="minify" name="minify" class="form-check-input save" /> Minify
 					</label>
 				</div>

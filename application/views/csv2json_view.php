@@ -6,7 +6,7 @@
 		</div>
 	</div>
 
-	<div class="row">
+	<div class="row gx-5">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="mb-5">
 				<label class="form-label">Upload a CSV file</label>
@@ -37,7 +37,7 @@ Nine Miles from the White City, 2013, -
 		</div>
 
 		<div class="col-md-7 more-bottom-margin">
-			<div class="mb-4">
+			<div class="mb-3">
 				<div class="form-check-inline">
 					<label class="form-label me-2 save" title="Choose your separator">
 						<div class="mb-2">Separator</div>
@@ -48,26 +48,43 @@ Nine Miles from the White City, 2013, -
 							<option value="tab">Tab</option>
 						</select>
 					</label>
-					<label class="form-check-label me-2" title="Check to parse numbers (i.e. '7e2' would become 700). Uncheck to keep original formatted numbers as strings.">
-						<input type="checkbox" id="parseNumbers" name="parseNumbers" class="form-check-input save" checked="checked "/> Parse numbers
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="parseNumbers" name="parseNumbers" class="form-check-input save" checked="checked "/>
+					<label class="form-check-label" title="Check to parse numbers (i.e. '7e2' would become 700). Uncheck to keep original formatted numbers as strings.">
+						 Parse numbers
 					</label>
-					<label class="form-check-label me-2" title="Check to parse potential values as JSON (numbers, null, false, true, [] and {}). Uncheck to keep original values as strings.">
-						<input type="checkbox" id="parseJSON" name="parseJSON" class="form-check-input save" checked="checked "/> Parse JSON
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="parseJSON" name="parseJSON" class="form-check-input save" checked="checked "/>
+					<label class="form-check-label" title="Check to parse potential values as JSON (numbers, null, false, true, [] and {}). Uncheck to keep original values as strings.">
+						 Parse JSON
 					</label>
-					<label class="form-check-label me-2" title="Transpose the data beforehand.">
-						<input type="checkbox" id="transpose" name="transpose" class="form-check-input save" /> Transpose
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="transpose" name="transpose" class="form-check-input save" />
+					<label class="form-check-label" title="Transpose the data beforehand.">
+						 Transpose
 					</label>
+				</div>
 					<br/>
+				<div class="form-check-inline">
 					<label class="form-check-label me-2">Output:</label>
-					<label class="form-check-label me-2" title="Output an array of objects.">
-						<input type="radio" id="output-array" name="output" class="form-check-input save" value="array" checked="checked" />
+					<input type="radio" id="output-array" name="output" class="form-check-input save" value="array" checked="checked" />
+					<label class="form-check-label" title="Output an array of objects.">
 						Array
 					</label>
-					<label class="form-check-label me-2" title="Output an object instead of an array. First column is used as hash key.">
-						<input type="radio" id="output-hash" name="output" class="form-check-input save" value="hash" />Hash
+				</div>
+				<div class="form-check-inline">
+					<input type="radio" id="output-hash" name="output" class="form-check-input save" value="hash" />
+					<label class="form-check-label" title="Output an object instead of an array. First column is used as hash key.">
+						Hash
 					</label>
-					<label class="form-check-label me-2" title="Minify or compact result by removing spaces and new lines.">
-						<input type="checkbox" id="minify" name="minify" class="form-check-input save" /> Minify
+				</div>
+				<div class="form-check-inline">
+					<input type="checkbox" id="minify" name="minify" class="form-check-input save" />
+					<label class="form-check-label" title="Minify or compact result by removing spaces and new lines.">
+						 Minify
 					</label>
 				</div>
 			</div>
@@ -104,39 +121,40 @@ Nine Miles from the White City, 2013, -
 					<ul>
 						<li>
 							This function is available as a <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package</a>
+						</li>
 						<li>
 							CSV stands for <a href="http://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">Comma Separated Values</a>.
 							Often used as an interchange data format to represent table records, one per line. CSV is plain text.
-						</p>
+						</li>
 						<li>
 							The CSV format is documented in an RFC memo <a href="https://tools.ietf.org/html/rfc4180" target="_blank">RFC-4180</a>.
-						</p>
+						</li>
 						<li>
 							The first line is often the header, or column names. Each subsequent row is a record and should have the same number of fields.
-						</p>
+						</li>
 						<li>
 							Fields containing the separator character, line breaks and double-quotes must be enclosed inside double quotes <code>"</code>.
-						</p>
+						</li>
 						<li>
 							Other separator are often used like tabs <code>\t</code>or semi-colons <code>;</code>.
 							TSV or Tab Separated Values is used to store table data in Clipboards.
 							When data is copied from Excel for example, it is stored as TSV in the Clipboard.
-						</p>
+						</li>
 						<li>
 							With CSVJSON you can parse values as numbers or JSON. Turn on respective <strong>Parse Numbers</strong> and <strong>Parse JSON</strong> switches to convert valid numbers and JSON (null, false, true, [] and {}).
-						</p>
+						</li>
 						<li>
 							With CSVJSON you can transpose the csv before conversion. Rows become columns, and columns become rows.
-						</p>
+						</li>
 						<li>
 							With CSVJSON you can output a hash (or object) instead of an array. In that case, the hash key will be the first column.
-						</p>
+						</li>
 					</ul>
-				<p>
-					<a class="btn btn-light" data-bs-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseExample">
-						View Change Log
-					</a>
-				</p>
+					<p>
+						<a class="btn btn-light" data-bs-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseExample">
+							View Change Log
+						</a>
+					</p>
       </div>
     </div>
 

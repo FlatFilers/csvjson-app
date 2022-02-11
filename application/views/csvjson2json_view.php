@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row gx-5">
     <div class="col-md-5 more-bottom-margin">
       <div class="mb-5">
         <label class="form-label">Upload a CSVJSON file</label>
@@ -34,12 +34,13 @@
       </button>
     </div>
 
-    <div class="col-md-7 more-bottom-margin">
-      <div class="mb-5">
+    <div class="col-md-7">
+      <div class="mb-5 pb-2">
         <div class="mb-2">Options</div>
-        <div class="form-check-inline">
-          <label class="form-label mb-3 mt-2" title="Minify or compact result by removing spaces and new lines.">
-            <input type="checkbox" id="minify" name="minify" class="form-check-input save" /> Minify
+        <div class="form-check-inline pt-1">
+          <input type="checkbox" id="minify" name="minify" class="form-check-input save" />
+          <label class="form-check-label" title="Minify or compact result by removing spaces and new lines.">
+             Minify
           </label>
         </div>
       </div>
