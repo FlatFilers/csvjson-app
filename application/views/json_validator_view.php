@@ -6,44 +6,85 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-sm-12">
+
+  <div class="row gx-5">
+    <div class="col-md-5">
       <div class="mb-5">
         <label class="form-label">Upload a file</label>
           <input id="fileupload" type="file" name="file" class="form-control"/>
       </div>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="col-sm-12">
       <div class="mb-3">
         <label class="form-label">Or paste your JSON here</label>
-        <textarea id="result" class="form-control result save" rows="14" placeholder="Paste your JSON here"></textarea>
+<textarea id="result" class="form-control result save" rows="14" placeholder="Paste your JSON here" spellcheck="false">[
+{
+"album": "The White Stripes",
+"year": 1999,
+"US_peak_chart_post": "-"
+},
+{
+"album": "De Stijl",
+"year": 2000,
+"US_peak_chart_post": "-"
+},
+{
+"album": "White Blood Cells",
+"year": 2001,
+"US_peak_chart_post": 61
+},
+{
+"album": "Elephant",
+"year": 2003,
+"US_peak_chart_post": 6
+},
+{
+"album": "Get Behind Me Satan",
+"year": 2005,
+"US_peak_chart_post": 3
+},
+{
+"album": "Icky Thump",
+"year": 2007,
+"US_peak_chart_post": 2
+},
+{
+"album": "Under Great White Northern Lights",
+"year": 2010,
+"US_peak_chart_post": 11
+},
+{
+"album": "Live in Mississippi",
+"year": 2011,
+"US_peak_chart_post": "-"
+},
+{
+"album": "Live at the Gold Dollar",
+"year": 2012,
+"US_peak_chart_post": "-"
+},
+{
+"album": "Nine Miles from the White City",
+"year": 2013,
+"US_peak_chart_post": "-"
+}
+]</textarea>
       </div>
-    </div>
 
-  </div>
 
-  <div class="row">
-    <div class="col-sm-12">
       <div class="clearfix more-bottom-margin">
         <button id="convert" type="submit" class="btn btn-primary action">
           <i class="bi bi-chevron-right"></i> Format
         </button>
-        <button id="clear" type="submit" class="btn">
+        <button id="clear" type="submit" class="btn btn-light">
           <i class="bi bi-backspace"></i> Clear
         </button>
-        <a id="issue" class="btn btn-default pull-right" href="#" tabindex="0" role="button" data-toggle="popover" title= "Found an issue? Want an improvement?">Bug or suggestion?</a>
       </div>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="col-sm-12">
+    </div>
+    <div class="col-md-7">
       <div class="form-group">
-        <label>Result</label>
-        <div id="status" class="alert alert-default"></div>
+        <label class="form-label">Result</label>
+        <div id="status" class="alert alert-default m-t-2"></div>
       </div>
     </div>
   </div>
