@@ -21,7 +21,7 @@
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center py-4">
 				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_validator" title="Validate and format your JSON.">JSON Validator</a>
 				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_beautifier" title="Validate, format and beautify your JSON.">JSON Beautifier</a>
-				<a href="/csvjson2json" class="btn btn-outline-primary btn-sm px-4 me-sm-3" title="Excel and Google Sheets data cleaning and transformation.">Data Janitor <small>BETA</small></a>
+				<a href="/datajanitor" class="btn btn-outline-primary btn-sm px-4 me-sm-3" title="Excel and Google Sheets data cleaning and transformation.">Data Janitor <small>BETA</small></a>
 			</div>
 		</div>
 	</div>
