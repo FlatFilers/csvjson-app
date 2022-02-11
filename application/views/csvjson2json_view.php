@@ -50,7 +50,7 @@
 
 <div class="container px-4 py-5" id="about-flatfile">
 
-  <h2 class="pb-2 border-bottom">Needing more?</h2>
+  <h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
     <div class="col d-flex align-items-start">

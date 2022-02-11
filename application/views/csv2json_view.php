@@ -78,21 +78,21 @@ Nine Miles from the White City, 2013, -
 
 
 
-			<div class="container px-4 py-5" id="about-flatfile">
+<div class="container px-4 py-5" id="about-flatfile">
 
-			  <h2 class="pb-2 border-bottom">Uploading multiple CSVs?</h2>
+	<h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
-				<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
-			    <div class="col d-flex align-items-start">
-			      <div>
-							<p>
-								Embed all the functionality of csv<strong>json</strong> in any web application with <a href="https://flatfile.com/get-started?utm_source=csvjson-tools&amp;utm_medium=header&amp;utm_campaign=q1-2022-csvjson-redesign&amp;ajs_event=came_from_csvjson&amp;ajs_prop_ccf_id=b8cdef6a-602c-4993-890c-752924b5ac2a&amp;__hstc=191284213.17efec156b05b5f65379d478482fed10.1642435230343.1643637413336.1644345002104.7&amp;__hssc=191284213.2.1644345002104&amp;__hsfp=668737353">Flatfile</a>. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
-							</p>
-						</div>
-					</div>
-				</div>
-
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	  <div class="col d-flex align-items-start">
+	    <div>
+				<p>
+					Embed all the functionality of csv<strong>json</strong> in any web application with <a href="https://flatfile.com/get-started?utm_source=csvjson-tools&amp;utm_medium=header&amp;utm_campaign=q1-2022-csvjson-redesign&amp;ajs_event=came_from_csvjson&amp;ajs_prop_ccf_id=b8cdef6a-602c-4993-890c-752924b5ac2a&amp;__hstc=191284213.17efec156b05b5f65379d478482fed10.1642435230343.1643637413336.1644345002104.7&amp;__hssc=191284213.2.1644345002104&amp;__hsfp=668737353">Flatfile</a>. Auto-match columns, validate data fields, and provide an intuitive CSV import experience.
+				</p>
 			</div>
+		</div>
+	</div>
+
+</div>
 
 <div class="container px-4 py-5" id="about-csvjson">
 
