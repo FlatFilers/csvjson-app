@@ -80,7 +80,7 @@
 									<li><a class="dropdown-item" href="/json_beautifier">JSON Beautifier</a></li>
 									<!--<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>-->
 									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
+									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjson&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
 							</div>
 							<?php if ($showSave): ?>

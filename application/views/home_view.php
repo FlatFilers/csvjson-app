@@ -97,7 +97,7 @@
 							</p>
 							<h5>2019-10-01</h5>
 							<p>
-								Integrated design for sponsorship by <a href="https://flatfile.com/get-started?utm_source=csvjson-home&utm_medium=csvjsov_body&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a>.
+								Integrated design for sponsorship by <a href="https://flatfile.com/get-started?utm_source=csvjson-home&utm_medium=csvjson_body&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a>.
 							</p>
 							<h5>2019-07-15</h5>
 							<p>
