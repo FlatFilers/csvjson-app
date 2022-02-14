@@ -1,7 +1,7 @@
 <div class="container px-4 py-5">
   <div class="row">
     <div class="description col-md-12">
-      <h1 class="text-primary fw-bold">CSVJSON <small class="bi bi-chevron-right"></small>CSV</h1>
+      <h1 class="text-primary fw-bold">CSVJSON <small class="bi bi-chevron-right"></small>JSON</h1>
 			<p>To get started, upload or paste your JSON data.
     </div>
   </div>
