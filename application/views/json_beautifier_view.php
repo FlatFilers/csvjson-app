@@ -15,7 +15,7 @@
 				<label class="form-label">Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
 				<div class="mb-3">
-					<textarea id="json" class="form-control input save" rows="18" spellcheck="false"><?=$default?></textarea>
+					<textarea id="json" class="form-control input save" rows="18" placeholder="Paste your JSON here" spellcheck="false"><?=$default?></textarea>
 				</div>
 			</div>
 			<button id="convert" type="submit" class="btn btn-primary action mb-2 me-2">
