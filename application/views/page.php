@@ -85,7 +85,7 @@
 							</div>
 
 							<a class="btn btn-light d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
-								<img src="./img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
+								<img src="img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
 								<b>Turnkey CSV Importer</b> &bull; <small>Installs in minutes</small>
 							</a>
 			</div>
