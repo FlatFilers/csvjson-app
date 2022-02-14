@@ -4,10 +4,10 @@
  * Copyright (c) 2022 Flatfile
  */
 $(document).ready(function() {
-  
+
   // Load Underscore String
   _.mixin(s.exports());
-  
+
   // Global Singleton object APP was created inline via PHP. It contains:
   //   - page: The module name, and function name to load that module.
   //   - version: APP application version.
@@ -15,7 +15,7 @@ $(document).ready(function() {
   //   - data: If persisted, the data fetched from the server.
   // Here we extend it with helper functions and load the module for this page.
   _.extend(APP, {
-    
+
     // To be called by the module passing:
     //  - $convert: Convert buttons to be bound.
     //  - $clear: Clear buttons to be bound.
@@ -28,11 +28,10 @@ $(document).ready(function() {
     //    - editor: CodeMirror editor. Optional if $textarea is passed.
     start: function(options) {
       options || (options = {});
-      
+
       // Bind elements
       APP.bindDownload(options.downloadFilename, options.downloadMimeType);
       APP.bindCopy();
-      APP.bindIssue();
       $('a.save-permalink').on('click', APP.onClickSave);
       if (options.upload) {
         if (!options.upload.$file) throw "Invalid option 'upload'. Missing $file.";
@@ -49,8 +48,8 @@ $(document).ready(function() {
         key: APP.page,
         ignoreOnStart: !!APP.id
       });
-      
-      // Restore if parmalink, or bind save
+
+      // Restore if permalink, or bind save
       if (APP.id) {
         if (APP.data_url) {
           $.getJSON(APP.data_url).done(function(data) {
@@ -64,18 +63,18 @@ $(document).ready(function() {
         APP.renderSave('active');
       }
     },
-    
+
     // Returns the URL of the page, <domain>/<page>.
     // Excludes any persisted id.
     baseUrl: function() {
       return window.location.protocol + '//' + window.location.hostname + (window.location.port == 80 ? '' : (':' + window.location.port)) + '/' + APP.page;
     },
-  
+
     // Reports an error in the 'result' textarea
     reportError: function($textarea, error) {
       $textarea.addClass('error').val(error);
     },
-    
+
     // Binds the clear button to clear textareas
     bindClear: function($clear) {
       $clear.click(function(e) {
@@ -86,20 +85,20 @@ $(document).ready(function() {
         return false;
       });
     },
-    
+
     bindConvert: function($convert) {
       $convert.click(function(e) {
         //ga('send', 'event', '_trackEvent', APP.page, 'convert');
         APP.renderSave('active');
       });
     },
-    
+
     // Binds the file upload button to dump in the content of the file in the
     // textarea or CodeMirror editor
     bindFileUploadToFillTextarea: function($file, uploadUrl, $textarea, editor) {
       var $fileLabel = $file.siblings('label');
       var fileLabelHtml = $fileLabel.html();
-      
+
       $file.fileupload({
         url: uploadUrl,
         pasteZone: null,
@@ -161,7 +160,7 @@ $(document).ready(function() {
         document.execCommand('copy');
       });
     },
-    
+
     // Sets which inputs will be persisted when saved as a permalink
     $inputsForSave: [],
     setInputsForSave: function($inputs) {
@@ -170,7 +169,7 @@ $(document).ready(function() {
         APP.renderSave('active');
       });
     },
-    
+
     // Create a permalink - save this page
     onClickSave: function(e) {
       e.preventDefault();
@@ -179,10 +178,10 @@ $(document).ready(function() {
     },
     save: function() {
       //ga('send', 'event', '_trackEvent', APP.page, 'save');
-      
+
       var url = APP.baseUrl() + '/save';
       if (APP.id) url += '/' + APP.id;
-      
+
       var data = {};
       APP.$inputsForSave.each(function() {
         var $el = $(this),
@@ -190,9 +189,9 @@ $(document).ready(function() {
           value = $el.is('input[type=radio], input[type=checkbox]') ? $el.is(':checked') : $el.val();
         data[id] = value;
       });
-      
+
       APP.renderSave('saving');
-      
+
       // Send as JSON. Expect the id on success.
       return $.ajax(url, {
         type : 'POST',
@@ -215,16 +214,16 @@ $(document).ready(function() {
         APP.renderSave('error', error);
       });
     },
-    
+
     // Restore a saved session - revive inputs and textareas
     // If CodeMirror editor is passed, textarea.result's value will be stored in it
     restore: function(editor) {
       if (!APP.data) return;
-      
+
       _.each(APP.data, function(value, id) {
         var $el = $('#' + id);
         if (!$el.length) return true;
-        
+
         if ($el.is('input[type=radio], input[type=checkbox]')) {
           if (value) $el.attr('checked', 'checked');
         } else {
@@ -236,14 +235,14 @@ $(document).ready(function() {
         }
         $('textarea.result').change();
       });
-      
+
       APP.renderSave('saved');
     },
-    
+
     // Render the Save link and bind proper action
     renderSave: function(state, error) {
       var $save = $('a.save-permalink');
-      
+
       switch (state) {
         case 'active':
           if ($save.hasClass('active')) return;
@@ -270,25 +269,6 @@ $(document).ready(function() {
             .closest('li').addClass('disabled');
           break;
       }
-    },
-
-    bindIssue: function() {
-      var $issue = $('a#issue'),
-          template = _.template([
-            '<p>1. Save your test case (click on <span class="link-color"><i class="glyphicon glyphicon-link"></i> Save</span> in navbar). Copy the URL to the clipboard.</p>',
-            '<p>2. <a href="https://github.com/FlatFilers/csvjson-app/issues" target="_blank">Consult issues on GitHub.</a> If you find an existing issue matching yours, please comment and paste the URL of your test case.</p>',
-            '<p>3. If you do not find an existing issue, create one by clicking on this button: <a id="github-issue" class="btn btn-xs btn-primary" href="https://github.com/FlatFilers/csvjson-app/issues/new?body=<%=encodeURIComponent(url)%>" target="_blank">Create an issue in GitHub</a></p>'
-          ].join(' '));
-      $issue.click(function(e) {
-        e.preventDefault();
-      });
-      $issue.popover({
-        html: true,
-        placement: "top",
-        content: function() {
-          return template({url: window.location.href});
-        }
-      });
     }
   });
 
@@ -301,7 +281,7 @@ $(document).ready(function() {
       }
     });
   });
-    
+
   // Load the proper JS module for this page.
   // Each module extended APP with a function of its page name.
   if (APP.run) {

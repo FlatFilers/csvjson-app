@@ -8,7 +8,7 @@
 
 
   <div class="row gx-5">
-    <div class="col-md-5">
+    <div class="col-md-5 mb-5">
       <div class="mb-5">
         <label class="form-label">Upload a file</label>
           <input id="fileupload" type="file" name="file" class="form-control"/>
@@ -72,10 +72,10 @@
 
 
       <div class="clearfix more-bottom-margin">
-        <button id="convert" type="submit" class="btn btn-primary action">
+        <button id="convert" type="submit" class="btn btn-primary action mb-2 me-2">
           <i class="bi bi-chevron-right"></i> Format
         </button>
-        <button id="clear" type="submit" class="btn btn-light">
+        <button id="clear" type="submit" class="btn btn-light mb-2 me-2">
           <i class="bi bi-backspace"></i> Clear
         </button>
       </div>
@@ -94,7 +94,7 @@
 
 	<h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
-	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
 	  <div class="col d-flex align-items-start">
 	    <div>
 				<p>
@@ -110,7 +110,7 @@
 
   <h2 class="pb-2 border-bottom">More Details</h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
         <ul>

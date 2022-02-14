@@ -31,7 +31,7 @@
 
   <h2 class="pb-2 border-bottom">About Data Formats</h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
         <h5 class="fw-bold mb-0">CSV</h5>
@@ -70,7 +70,7 @@
 
   <h2 class="pb-2 border-bottom">About csv<b>json</b></h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
         <p>
@@ -230,7 +230,7 @@
 
   <h2 class="pb-2 border-bottom">Confidentiality</h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
         <p>
