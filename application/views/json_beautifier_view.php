@@ -18,10 +18,10 @@
 					<textarea id="json" class="form-control input save" rows="18" spellcheck="false"><?=$default?></textarea>
 				</div>
 			</div>
-			<button id="convert" type="submit" class="btn btn-primary action">
+			<button id="convert" type="submit" class="btn btn-primary action mb-2 me-2">
 				<i class="bi bi-chevron-right"></i> Beautify
 			</button>
-			<button id="clear" type="submit" class="btn btn-light">
+			<button id="clear" type="submit" class="btn btn-light mb-2 me-2">
 				<i class="bi bi-backspace"></i> Clear
 			</button>
 		</div>
@@ -103,7 +103,7 @@
 
 	<h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
-	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
 	  <div class="col d-flex align-items-start">
 	    <div>
 				<p>
@@ -119,21 +119,17 @@
 
   <h2 class="pb-2 border-bottom">More Details</h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
+
 				<ul>
 					<li>
 						This function is available as a <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package</a>.
 					</li>
 					<li>JSON stands for <strong>JavaScript Object Notation</strong>. It is a lightweight data-interchange format and fully described on <a href="http://www.json.org" target="_blank">www.json.org</a>.</li>
 					<li>
-						JSON is based on JavaScript but the format is stricter. JSON requires double quotes around keys whereas JavaScript does not. For example, this is valid JavaScript:<br/>
-						<pre>{pi: 3.14159265359, e: 2.7182818284, prime: [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
-						However the above is not valid JSON. Double quotes must be placed around pi, e and prime.
-						<pre>{"pi": 3.14159265359, "e": 2.7182818284, "prime": [2, 3, 5, 7, 11, 13, 17, 19]}</pre>
-						CSVJSON's JSON Beautifier has a toggle to drop quotes on keys. It can do so if JavaScript allows it. For example, we cannot drop quotes around key <code>"1+6"</code>.
-						CSVJSON also has a toggle to use single quotes to wrap keys and values.
+						JSON is based on JavaScript but the format is stricter. JSON requires double quotes around keys whereas JavaScript does not.
 					</li>
 					<li>Modern browsers have a built-in global object <code>JSON</code> with encoding and decoding functions. These are:
 						<ul>
@@ -144,6 +140,7 @@
 					</li>
 					<li>CSVJON uses a <a href="https://github.com/FlatFilers/csvjson-app/blob/master/js/csvjson/json2-mod.js" target="_blank">modified version of JSON2</a> which adds formatting options to drop quotes on keys, and sepcify the quote type. Anyone is free to use and extend it by forking the <a href="https://github.com/FlatFilers/csvjson-app" target="_blank">CSVJSON GitHub repo</a>.</li>
 				</ul>
+
 					<p>
 						<a class="btn btn-light" data-bs-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseExample">
 							View Change Log
@@ -154,35 +151,34 @@
 
 
 		<div id="collapseOne" class="accordion-collapse collapse showclass row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4">
-			    <div class="col d-flex align-items-start">
-						<div>
-								<h5>Mar 20, 2019</h5><p> Bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/FlatFilers/csvjson-app/issues/71">GitHub issue #71</a>.</p>
-								<h5>Feb 2, 2019</h5><p> Refactored and published <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package csv2json</a>. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/70">GitHub issue #70</a>.</p>
-								<h5>Jan 26, 2019</h5><p> Improvement: Removed 64k limit on download button. Also fixed issue #68 'Cannot work functional with special letters'.</p>
-								<h5>Mar 31, 2018</h5><p> Improvement: Added option to parse JSON values.</p>
-								<h5>Dec 18, 2017</h5><p> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></p>
-								<h5>Oct 7, 2016</h5><p> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/FlatFilers/csvjson-app/issues/13">GitHub issue #13</a></p>
-								<h5>Jul 09, 2016</h5><p> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</p>
-								<h5>Jun 20, 2016</h5><p> Bug fix: strings containing quotes and commas were prematurely cut.</p>
-								<h5>Dec 30, 2015</h5><p> Bug fix: drop quotes on keys of nested objects.</p>
-								<h5>Nov 26, 2015</h5><p> Improvement: Added options to transpose and output object instead of array.</p>
-								<h5>Jan 30, 2014</h5><p> Bug fix: Pasting Excel data into Textarea would cause an upload.</p>
-								<h5>Jan 12, 2014</h5><p> Initial release.</p>
+	    <div class="col d-flex align-items-start">
+				<div>
+						<h5>Mar 20, 2019</h5><p> Bug fix: Detect duplicate column headers and make them unique. <a href="https://github.com/FlatFilers/csvjson-app/issues/71">GitHub issue #71</a>.</p>
+						<h5>Feb 2, 2019</h5><p> Refactored and published <a href="https://www.npmjs.com/package/csvjson-csv2json" target="_blank">npm package csv2json</a>. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/70">GitHub issue #70</a>.</p>
+						<h5>Jan 26, 2019</h5><p> Improvement: Removed 64k limit on download button. Also fixed issue #68 'Cannot work functional with special letters'.</p>
+						<h5>Mar 31, 2018</h5><p> Improvement: Added option to parse JSON values.</p>
+						<h5>Dec 18, 2017</h5><p> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></p>
+						<h5>Oct 7, 2016</h5><p> Improvement: Added option to parse number values or not to retain original number formatting. <a href="https://github.com/FlatFilers/csvjson-app/issues/13">GitHub issue #13</a></p>
+						<h5>Jul 09, 2016</h5><p> Fixed bug : If no text is present in a csv field, it was assigned 0 (zero) by default.</p>
+						<h5>Jun 20, 2016</h5><p> Bug fix: strings containing quotes and commas were prematurely cut.</p>
+						<h5>Dec 30, 2015</h5><p> Bug fix: drop quotes on keys of nested objects.</p>
+						<h5>Nov 26, 2015</h5><p> Improvement: Added options to transpose and output object instead of array.</p>
+						<h5>Jan 30, 2014</h5><p> Bug fix: Pasting Excel data into Textarea would cause an upload.</p>
+						<h5>Jan 12, 2014</h5><p> Initial release.</p>
 
-								<h5>Jun 25, 2019</h5><p> Adjustable width for inling short arrays. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/76">issue #76</a>.</p>
-								<h5>Feb 3, 2019</h5> <p>Refactored and published <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package json_beautifier</a>.</p>
-								<h5>Jan 26, 2019</h5><p> Improvement: Removed 64k limit on download button.</p>
-								<h5>Dec 18, 2017</h5><p> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></p>
-								<h5>Oct 7, 2017</h5> <p>Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/FlatFilers/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></p>
-								<h5>Sep 27, 2016</h5><p> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/FlatFilers/csvjson-app/issues/12" target="_blank">GitHub issue #12</a></p>
-								<h5>Aug 22, 2016</h5><p> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/FlatFilers/csvjson-app/issues/9" target="_blank">GitHub issue #9</a></p>
-								<h5>Dec 30, 2015</h5><p> Bug fix: drop quotes on keys of nested objects.</p>
-								<h5>Jun 1, 2015</h5><p> Bug fix: proper support of commas inside quotes.</p>
-								<h5>Jan 12, 2014</h5><p> Initial release.</p>
-						</div>
-
-			      </div>
-			    </div>
+						<h5>Jun 25, 2019</h5><p> Adjustable width for inling short arrays. Fix for <a href="https://github.com/FlatFilers/csvjson-app/issues/76">issue #76</a>.</p>
+						<h5>Feb 3, 2019</h5> <p>Refactored and published <a href="https://www.npmjs.com/package/csvjson-json_beautifier" target="_blank">npm package json_beautifier</a>.</p>
+						<h5>Jan 26, 2019</h5><p> Improvement: Removed 64k limit on download button.</p>
+						<h5>Dec 18, 2017</h5><p> Improvement: Added option to minify or compact JSON. <a href="https://github.com/FlatFilers/csvjson-app/issues/21">GitHub issue #21</a></p>
+						<h5>Oct 7, 2017</h5> <p>Improvement: <a href="https://github.com/hisabimbola" target="_blank">Abimbola Idowu</a> added single quote option. <a href="https://github.com/FlatFilers/csvjson-app/issues/23" target="_blank">GitHub issue #23</a></p>
+						<h5>Sep 27, 2016</h5><p> Bug fix: Inline short arrays bug fix and improvement. Added nesting depth option. <a href="https://github.com/FlatFilers/csvjson-app/issues/12" target="_blank">GitHub issue #12</a></p>
+						<h5>Aug 22, 2016</h5><p> Bug fix: Inline short arrays was not working properly. <a href="https://github.com/FlatFilers/csvjson-app/issues/9" target="_blank">GitHub issue #9</a></p>
+						<h5>Dec 30, 2015</h5><p> Bug fix: drop quotes on keys of nested objects.</p>
+						<h5>Jun 1, 2015</h5><p> Bug fix: proper support of commas inside quotes.</p>
+						<h5>Jan 12, 2014</h5><p> Initial release.</p>
+					</div>
+	    	</div>
+			 </div>
 
   </div>
 

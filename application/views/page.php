@@ -63,10 +63,10 @@
 	</script>
 	</head>
 	<body>
-		<header class="py-3 border-bottom sticky-top bg-light">
+		<header class="px-3 py-3 border-bottom sticky-top bg-light">
 	    <div class="container d-flex flex-wrap justify-content-left">
-					<div class="dropdown d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none">
-								<a href="#" class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
+					<div class="dropdown d-flex align-items-center text-dark me-lg-auto text-decoration-none">
+								<a href="#" class="d-flex align-items-center me-lg-auto text-dark text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
 									<img src="img/logo.svg" width="140">
 								</a>
 								<ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownNavLink" style="">
@@ -83,30 +83,27 @@
 									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
 							</div>
-							<?php if ($showSave): ?>
-										<a href="#" class="btn btn-primary me-4" title="Save a permanent link to share with a colleague."><i class="bi bi-save"></i> Save</a>
-							<?php endif; ?>
 
-							<a class="btn btn-light" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
-								<img src="img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
+							<a class="btn btn-light d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+								<img src="./img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
 								<b>Turnkey CSV Importer</b> &bull; <small>Installs in minutes</small>
 							</a>
 			</div>
   	</header>
 		<?php $this->load->view($view); ?>
 
-		<footer class="bd-footer py-5 mt-5 bg-light">
+		<footer class="bd-footer px-3 py-5 mt-5 bg-light">
   		<div class="container py-5">
     <div class="row">
       <div class="col-lg-3 mb-3">
         <a class="d-inline-flex align-items-center mb-2 link-dark text-decoration-none" href="/" aria-label="Bootstrap">
-					<img src="img/logo.svg" width="140">
+					<img src="./img/logo.svg" width="140">
         </a>
         <ul class="list-unstyled small text-muted">
           <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
         </ul>
       </div>
-      <div class="col-6 col-lg-3 mb-3">
+      <div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
         <h5>Convert</h5>
         <ul class="list-unstyled">
           <li class="mb-2"><a href="/csv2json">CSV to JSON</a></li>
@@ -115,7 +112,7 @@
 					<li class="mb-2"><a href="/csvjson2json">CSVJSON to JSON</a></li>
         </ul>
       </div>
-			<div class="col-6 col-lg-3 mb-3">
+			<div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
         <h5>Validate & Transform</h5>
         <ul class="list-unstyled">
           <li class="mb-2"><a href="/json_validator">JSON Validator</a></li>
@@ -123,7 +120,7 @@
 					<!--<li class="mb-2"><a href="/datajanitor">Data Janitor</a></li>-->
 				</ul>
       </div>
-      <div class="col-6 col-lg-3 mb-3">
+      <div class="col-xs-12 col-sm-6 col-lg-3 mb-3">
         <h5>Community</h5>
         <ul class="list-unstyled">
 					<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/">Github</a></li>

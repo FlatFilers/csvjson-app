@@ -7,7 +7,7 @@
 	</div>
 
 	<div class="row gx-5">
-		<div class="col-md-5 more-bottom-margin">
+		<div class="col-md-5 mb-5">
 			<div class="mb-5">
 			<label class="form-label">Upload a JSON file</label>
 					<input id="fileupload" type="file" name="file" class="form-control"/>
@@ -109,7 +109,7 @@
 
 	<h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
-	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
 	  <div class="col d-flex align-items-start">
 	    <div>
 				<p>
@@ -125,7 +125,7 @@
 
   <h2 class="pb-2 border-bottom">More Details</h2>
 
-  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
 				<ul>

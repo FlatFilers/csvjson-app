@@ -7,7 +7,7 @@
 	</div>
 
 	<div class="row gx-5">
-		<div class="col-md-5 more-bottom-margin">
+		<div class="col-md-5 mb-5">
 			<div class="mb-5">
 				<label class="form-label">Upload a SQL file</label>
 					<input id="fileupload" type="file" name="file"class="form-control" />
@@ -43,10 +43,10 @@ INSERT INTO `continents` VALUES ('SA', 'South America');
 INSERT INTO `continents` VALUES ('??', NULL);
 </textarea>
 			</div>
-			<button id="convert" type="submit" class="btn btn-primary">
+			<button id="convert" type="submit" class="btn btn-primary mb-2 me-2">
 				<i class="bi bi-chevron-right"></i> Convert
 			</button>
-			<button id="clear" type="submit" class="btn btn-light">
+			<button id="clear" type="submit" class="btn btn-light mb-2 me-2">
 				<i class="bi bi-backspace"></i> Clear
 			</button>
 		</div>
@@ -79,7 +79,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 
 	<h2 class="pb-2 border-bottom">Need help cleaning data?</h2>
 
-	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
 		<div class="col d-flex align-items-start">
 			<div>
 				<p>
@@ -95,7 +95,7 @@ INSERT INTO `continents` VALUES ('??', NULL);
 
 	<h2 class="pb-2 border-bottom">More Details</h2>
 
-	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-5">
+	<div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
 		<div class="col d-flex align-items-start">
 			<div>
 				<ul>
