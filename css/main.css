@@ -32,7 +32,6 @@ a {
 	margin-right: 5px;
 }
 
-
 .btn-primary {
     color: #fff;
     background-color: var(--bs-primary);
@@ -51,6 +50,13 @@ a {
   background-color: var(--bs-light)!important;
 }
 
+textarea {
+  font-family: var(--bs-font-monospace);
+  font-size: 12px;
+}
+.display-2 {
+  font-weight: 600;
+}
 .text-secondary {
     color: rgba(255,255,255,.7)!important;
 }
@@ -64,3 +70,16 @@ a {
     color: #fff;
     background-color: var(--bs-purple);
     border-color: var(--bs-purple);
+}
+
+.dropdown-item.active {
+    background-color: var(--bs-primary)!important;
+}
+
+header.bg-dark .btn {
+  color: #fff;
+}
+
+header.bg-dark.border-bottom {
+  border-bottom: 1px solid rgba(255,255,255,.2)!important;
+}

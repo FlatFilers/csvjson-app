@@ -1,14 +1,8 @@
 <div class="bg-dark text-secondary px-4 py-5 text-center">
-	<div class="pt-5">
-		<h1 class="display-2 fw-bold text-warning">Your data, converted.</h1>
-		<h4 class="fw-bold text-white pb-2">Easy, confidential online data converter.</h4>
-		<div class="col-lg-6 mx-auto">
-			<p class="fs-5 mb-4">
-				We're Flatfile, the company behind <b>csvjson</b>.com. We offer this tool to the community for <b>free</b>, but our day job is fixing data import once and for all for people like you.
-			</p>
-		</div>
+	<div class="pt-5 pb-5">
+		<h1 class="display-2 pt-5 text-warning">The easy, confidential<br/>online data converter</h1>
 		<div class="col-lg-12 mx-auto pt-4">
-			<div class="text-white">Choose from popular data formats to convert your data now:</div>
+			<h5 class="text-secondary pb-5">Csvjson quickly converts popular data formats. It's built for everyone.</h5>
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center py-4">
 				<a class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" href="/csv2json" title="Convert a CSV to JSON format.">CSV to JSON</a>
 				<a class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" href="/json2csv" title="Convert JSON format to a CSV.">JSON to CSV</a>
@@ -16,20 +10,25 @@
 				<a href="/csvjson2json" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" title="Conversion of the CSVJSON format variant to JSON.">CSVJSON to JSON</a>
 			</div>
 		</div>
-		<div class="col-lg-12 mx-auto pt-5">
-			<div class="text-secondary">Additional tools to validate, clean and transform your data:</div>
+		<div class="col-lg-12 mx-auto">
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center py-4">
 				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_validator" title="Validate and format your JSON.">JSON Validator</a>
 				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_beautifier" title="Validate, format and beautify your JSON.">JSON Beautifier</a>
 				<!--<a href="/datajanitor" class="btn btn-outline-primary btn-sm px-4 me-sm-3" title="Excel and Google Sheets data cleaning and transformation.">Data Janitor <small>BETA</small></a>-->
 			</div>
 		</div>
+		<div class="col-lg-8 mx-auto pt-5 text-dark shadow" style="margin-bottom:-13rem">
+			<div class="card">
+			  <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+					<img src="img/CSVJSON_ad.png" style="max-width: 100%"/>
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
 
-<div class="container px-4 py-5" id="about-data-formats">
-
-  <h2 class="pb-2 border-bottom">About Data Formats</h2>
+<div class="container px-4 py-5" style="margin-top:10rem" id="about-data-formats">
+	<h2 class="pb-2 pt-5 pb-5">About Data Formats</h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-4 py-3">
     <div class="col d-flex align-items-start">
@@ -63,12 +62,11 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="container px-4 py-5" id="about-csvjson">
 
-  <h2 class="pb-2 border-bottom">About csv<b>json</b></h2>
+  <h2 class="pb-2 pt-5 pb-5">About csv<b>json</b></h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
@@ -228,7 +226,7 @@
 
 <div class="container px-4 py-5" id="confidentiality">
 
-  <h2 class="pb-2 border-bottom">Confidentiality</h2>
+  <h2 class="pb-2 pt-5 pb-5">Confidentiality</h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
