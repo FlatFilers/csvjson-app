@@ -44,6 +44,22 @@
 
 		<?php $this->load->view('assets'); ?>
 
+		<?php
+			//background color of menu
+			function dark_light($page){
+				echo ($page == 'home') ? 'bg-dark' : 'bg-light';
+			}
+		?>
+
+		<?php
+			//active menu
+			function active($current_page, $page){
+				if($current_page == $page){
+						echo 'active';
+				}
+			}
+		?>
+
 		<script>
 			!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
 				analytics.load("mVmXAtABgYVqPdbXw1a4Y19vcesa1cec");
@@ -63,33 +79,50 @@
 	</script>
 	</head>
 	<body>
-		<header class="px-3 py-3 border-bottom sticky-top bg-light">
-	    <div class="container d-flex flex-wrap justify-content-left">
-					<div class="dropdown d-flex align-items-center text-dark me-lg-auto text-decoration-none">
-								<a href="#" class="d-flex align-items-center me-lg-auto text-dark text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
-									<img src="img/logo.svg" width="140">
+		<header class="px-4 py-4 border-bottom <?php dark_light($page);?>">
+	    <div class="container d-flex flex-wrap justify-content-left pt-2 pb-2">
+					<div class="dropdown d-flex align-items-center me-lg-auto text-decoration-none">
+								<a href="#" class="d-flex align-items-center me-lg-auto text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
+									<img src="img/logo_<?php dark_light($page);?>.svg" width="140">
 								</a>
 								<ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownNavLink" style="">
-									<li><a class="dropdown-item active" href="/" aria-current="page">Home</a></li>
-									<li><a class="dropdown-item" href="/csv2json">CSV to JSON</a></li>
-									<li><a class="dropdown-item" href="/json2csv">JSON to CSV</a></li>
-									<li><a class="dropdown-item" href="/sql2json">SQL to JSON</a></li>
-									<li><a class="dropdown-item" href="/csvjson2json">CSVJSON to JSON</a></li>
+									<li><a class="dropdown-item <?php active('home',$page);?>" href="/">Home</a></li>
+									<li><a class="dropdown-item <?php active('csv2json', $page);?>" href="/csv2json">CSV to JSON</a></li>
+									<li><a class="dropdown-item <?php active('json2csv', $page);?>" href="/json2csv">JSON to CSV</a></li>
+									<li><a class="dropdown-item <?php active('sql2json', $page);?>" href="/sql2json">SQL to JSON</a></li>
+									<li><a class="dropdown-item <?php active('csvjson2json', $page);?>" href="/csvjson2json">CSVJSON to JSON</a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="/json_validator">JSON Validator</a></li>
-									<li><a class="dropdown-item" href="/json_beautifier">JSON Beautifier</a></li>
+									<li><a class="dropdown-item <?php active('json_validator', $page);?>" href="/json_validator">JSON Validator</a></li>
+									<li><a class="dropdown-item <?php active('json_beautifier', $page);?>" href="/json_beautifier">JSON Beautifier</a></li>
 									<!--<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>-->
 									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 								</ul>
 							</div>
 
-							<a class="btn btn-light d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+							<a class="btn d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
 								<img src="img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
 								<b>Turnkey CSV Importer</b> &bull; <small>Installs in minutes</small>
 							</a>
 			</div>
   	</header>
+		<?php if ($page !== 'home'): ?>
+			<header class="px-4 border-bottom">
+				<div class="container d-flex flex-wrap justify-content-left pt-3 pb-1">
+					<div class="row">
+						<div class="col-md-12">
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="/">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page"><?=$page?></li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</header>
+		<?php endif; ?>
+
 		<?php $this->load->view($view); ?>
 
 		<footer class="bd-footer px-3 py-5 mt-5 bg-light">
@@ -97,7 +130,7 @@
     <div class="row">
       <div class="col-lg-3 mb-3">
         <a class="d-inline-flex align-items-center mb-2 link-dark text-decoration-none" href="/" aria-label="Bootstrap">
-					<img src="./img/logo.svg" width="140">
+					<img src="./img/logo_bg-light.svg" width="140">
         </a>
         <ul class="list-unstyled small text-muted">
           <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
