@@ -1,6 +1,6 @@
 <div class="mb-3">
   <label class="form-label"><?=$result_title?></label> <span class="result-note"></span>
-  <textarea id="result" class="form-control result save" rows="18" spellcheck="false"></textarea>
+  <textarea id="result" class="form-control result save" rows="18" spellcheck="false" disabled></textarea>
 </div>
 <a id="download" class="btn btn-primary mb-2 me-2" href="" download="<?=$download?>" disabled="disabled" target="_self">
   <i class="bi bi-cloud-download"></i> Download
