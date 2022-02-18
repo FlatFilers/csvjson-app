@@ -27,8 +27,12 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+		<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
+
 		<link href="/js/3rd/jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" charset="utf-8" />
-		<link rel="stylesheet" href="https://use.typekit.net/kqm0crs.css">
+		<link rel="stylesheet" href="https://use.typekit.net/dkv2ioo.css">
 
 		<?php if ($page == 'json_validator' || $page == 'datajanitor'): ?>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.40.0/codemirror.min.js" type="text/javascript"></script>
@@ -81,23 +85,10 @@
 	<body>
 		<header class="px-4 py-4 border-bottom <?php dark_light($page);?>">
 	    <div class="container d-flex flex-wrap justify-content-left pt-2 pb-2">
-					<div class="dropdown d-flex align-items-center me-lg-auto text-decoration-none">
-								<a href="#" class="d-flex align-items-center me-lg-auto text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
+					<div class="d-flex align-items-center me-lg-auto text-decoration-none">
+								<a href="/" class="d-flex align-items-center me-lg-auto text-decoration-none">
 									<img src="img/logo_<?php dark_light($page);?>.svg" width="140">
 								</a>
-								<ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownNavLink" style="">
-									<li><a class="dropdown-item <?php active('home',$page);?>" href="/">Home</a></li>
-									<li><a class="dropdown-item <?php active('csv2json', $page);?>" href="/csv2json">CSV to JSON</a></li>
-									<li><a class="dropdown-item <?php active('json2csv', $page);?>" href="/json2csv">JSON to CSV</a></li>
-									<li><a class="dropdown-item <?php active('sql2json', $page);?>" href="/sql2json">SQL to JSON</a></li>
-									<li><a class="dropdown-item <?php active('csvjson2json', $page);?>" href="/csvjson2json">CSVJSON to JSON</a></li>
-									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item <?php active('json_validator', $page);?>" href="/json_validator">JSON Validator</a></li>
-									<li><a class="dropdown-item <?php active('json_beautifier', $page);?>" href="/json_beautifier">JSON Beautifier</a></li>
-									<!--<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>-->
-									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
-								</ul>
 							</div>
 
 							<a class="btn d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
@@ -114,7 +105,26 @@
 							<nav aria-label="breadcrumb">
 								<ol class="breadcrumb">
 									<li class="breadcrumb-item"><a href="/">Home</a></li>
-									<li class="breadcrumb-item active" aria-current="page"><?=$page?></li>
+									<li class="breadcrumb-item active" aria-current="page">
+
+										<div class="dropdown d-flex align-items-center me-lg-auto text-decoration-none">
+													<a href="#" class="d-flex align-items-center me-lg-auto text-decoration-none dropdown-toggle" id="dropdownNavLink" data-bs-toggle="dropdown" aria-expanded="false">
+														<?=$page?>
+													</a>
+													<ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownNavLink" style="">
+														<li><a class="dropdown-item <?php active('csv2json', $page);?>" href="/csv2json">CSV to JSON</a></li>
+														<li><a class="dropdown-item <?php active('json2csv', $page);?>" href="/json2csv">JSON to CSV</a></li>
+														<li><a class="dropdown-item <?php active('sql2json', $page);?>" href="/sql2json">SQL to JSON</a></li>
+														<li><a class="dropdown-item <?php active('csvjson2json', $page);?>" href="/csvjson2json">CSVJSON to JSON</a></li>
+														<li><hr class="dropdown-divider"></li>
+														<li><a class="dropdown-item <?php active('json_validator', $page);?>" href="/json_validator">JSON Validator</a></li>
+														<li><a class="dropdown-item <?php active('json_beautifier', $page);?>" href="/json_beautifier">JSON Beautifier</a></li>
+														<!--<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>-->
+														<li><hr class="dropdown-divider"></li>
+														<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
+													</ul>
+												</div>
+									</li>
 								</ol>
 							</nav>
 						</div>

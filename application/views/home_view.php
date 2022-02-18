@@ -1,19 +1,25 @@
 <div class="bg-dark text-secondary px-4 py-5 text-center">
 	<div class="pt-5 pb-5">
-		<h1 class="display-2 pt-5 text-warning">The easy, confidential<br/>online data converter</h1>
-		<div class="col-lg-12 mx-auto pt-4">
-			<h5 class="text-secondary pb-5">Csvjson quickly converts popular data formats. It's built for everyone.</h5>
+		<div class="col-lg-7 mx-auto pt-4">
+			<h1 class="display-2 pt-5 text-white">The easy, confidential online data converter</h1>
+			<p class="text-secondary pt-3 pb-3 lead">Csvjson helps you quickly convert popular data formats to the format you need. Data pasted and converted remains local on your computer.</p>
+		</div>
+		<div class="col-lg-12 mx-auto">
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center py-4">
-				<a class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" href="/csv2json" title="Convert a CSV to JSON format.">CSV to JSON</a>
-				<a class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" href="/json2csv" title="Convert JSON format to a CSV.">JSON to CSV</a>
-				<a href="/sql2json" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" title="Convert an SQL export to JSON format.">SQL to JSON</a>
-				<a href="/csvjson2json" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold" title="Conversion of the CSVJSON format variant to JSON.">CSVJSON to JSON</a>
+				<a class="btn btn-primary btn-lg me-sm-3" href="/csv2json" title="Convert a CSV to JSON format.">Csv to json</a>
+				<a class="btn btn-primary btn-lg me-sm-3" href="/json2csv" title="Convert JSON format to a CSV.">Json to csv</a>
+				<a class="btn btn-primary btn-lg me-sm-3" href="/json_beautifier" title="Validate, format and beautify your JSON.">Json beautifier</a>
+
 			</div>
 		</div>
 		<div class="col-lg-12 mx-auto">
 			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center py-4">
-				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_validator" title="Validate and format your JSON.">JSON Validator</a>
-				<a class="btn btn-outline-primary btn-sm px-4 me-sm-3" href="/json_beautifier" title="Validate, format and beautify your JSON.">JSON Beautifier</a>
+				<a class="btn btn-outline-primary btn-sm me-sm-3" href="/json_validator" title="Validate and format your JSON.">Json validator</a>
+				<a href="/sql2json" class="btn btn-outline-primary btn-sm me-sm-3" title="Convert an SQL export to JSON format.">Sql to json</a>
+				<a href="/csvjson2json" class="btn btn-outline-primary btn-sm me-sm-3" title="Conversion of the CSVJSON format variant to JSON.">Csvjson to json</a>
+
+
+
 				<!--<a href="/datajanitor" class="btn btn-outline-primary btn-sm px-4 me-sm-3" title="Excel and Google Sheets data cleaning and transformation.">Data Janitor <small>BETA</small></a>-->
 			</div>
 		</div>
@@ -28,7 +34,7 @@
 </div>
 
 <div class="container px-4 py-5" style="margin-top:10rem" id="about-data-formats">
-	<h2 class="pb-2 pt-5 pb-5">About Data Formats</h2>
+	<h2 class="pb-2 pt-5 pb-2">About Data Formats</h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 g-4 py-3">
     <div class="col d-flex align-items-start">
@@ -66,7 +72,7 @@
 
 <div class="container px-4 py-5" id="about-csvjson">
 
-  <h2 class="pb-2 pt-5 pb-5">About csv<b>json</b></h2>
+  <h2 class="pb-2 pt-5 pb-2">About csv<b>json</b></h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
@@ -226,14 +232,16 @@
 
 <div class="container px-4 py-5" id="confidentiality">
 
-  <h2 class="pb-2 pt-5 pb-5">Confidentiality</h2>
+  <h2 class="pb-2 pt-5 pb-2">Confidentiality</h2>
 
   <div class="row row-cols-1 row-cols-sm-1 row-cols-md-12 row-cols-lg-12 g-4 py-3">
     <div class="col d-flex align-items-start">
       <div>
         <p>
 					Any data pasted and converted on csv<b>json</b> remains local on your computer. Data is never sent to the server.
-					<br/>Three exceptions are:
+				</p>
+				<p>
+					Three exceptions are:
 					<ol>
 						<li>You upload a file. Data is sent to the server and downloaded back for use. The uploaded file gets deleted and is not tracked.</li>
 						<li>You Save a permalink to your session to share with co-workers. Your data gets persisted on the server. It can be deleted by clearing the data and saving again.</li>

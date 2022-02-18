@@ -24,6 +24,7 @@
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
 }
+
 a {
     color: var(--bs-primary);
 }
@@ -54,8 +55,14 @@ textarea {
   font-family: var(--bs-font-monospace);
   font-size: 12px;
 }
+
 .display-2 {
   font-weight: 600;
+}
+
+.lead {
+  font-size: 1.5rem;
+  font-weight: 400;
 }
 .text-secondary {
     color: rgba(255,255,255,.7)!important;
@@ -70,6 +77,15 @@ textarea {
     color: #fff;
     background-color: var(--bs-purple);
     border-color: var(--bs-purple);
+}
+
+.btn {
+  border-radius: 5px;
+  padding: .6rem 1.4rem;
+}
+
+.btn-lg {
+  padding: 0.9rem 2.4rem;
 }
 
 .dropdown-item.active {
