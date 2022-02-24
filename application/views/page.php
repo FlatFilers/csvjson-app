@@ -81,8 +81,16 @@
 				analytics.trackLink(flatfileLinks, 'Clicked Flatfile Link');
 			})
 	</script>
-	</head>
-	<body>
+	<!-- Global site tag (gtag.js) - Google Ads: 831825021 -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=AW-831825021"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	  gtag('config', 'AW-831825021');
+	</script>
+</head>
+<body>
 		<header class="px-4 py-4 border-bottom <?php dark_light($page);?>">
 	    <div class="container d-flex flex-wrap justify-content-left pt-2 pb-2">
 					<div class="d-flex align-items-center me-lg-auto text-decoration-none">
@@ -137,44 +145,63 @@
 
 		<footer class="bd-footer px-3 py-5 mt-5 bg-light">
   		<div class="container py-5">
-    <div class="row">
-      <div class="col-lg-3 mb-3">
-        <a class="d-inline-flex align-items-center mb-2 link-dark text-decoration-none" href="/" aria-label="Bootstrap">
-					<img src="./img/logo_bg-light.svg" width="140">
-        </a>
-        <ul class="list-unstyled small text-muted">
-          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
-        </ul>
-      </div>
-      <div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
-        <h5>Convert</h5>
-        <ul class="list-unstyled">
-          <li class="mb-2"><a href="/csv2json">CSV to JSON</a></li>
-          <li class="mb-2"><a href="/json2csv">JSON to CSV</a></li>
-					<li class="mb-2"><a href="/sql2json">SQL to JSON</a></li>
-					<li class="mb-2"><a href="/csvjson2json">CSVJSON to JSON</a></li>
-        </ul>
-      </div>
-			<div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
-        <h5>Validate & Transform</h5>
-        <ul class="list-unstyled">
-          <li class="mb-2"><a href="/json_validator">JSON Validator</a></li>
-          <li class="mb-2"><a href="/json_beautifier">JSON Beautifier</a></li>
-					<!--<li class="mb-2"><a href="/datajanitor">Data Janitor</a></li>-->
-				</ul>
-      </div>
-      <div class="col-xs-12 col-sm-6 col-lg-3 mb-3">
-        <h5>Community</h5>
-        <ul class="list-unstyled">
-					<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/">Github</a></li>
-					<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues?q=is%3Aissue+is%3Aclosed">Change Log</a></li>
-          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues/new">Issues</a></li>
-          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app#readme">Docs</a></li>
-          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
+		    <div class="row">
+		      <div class="col-lg-3 mb-3">
+		        <a class="d-inline-flex align-items-center mb-2 link-dark text-decoration-none" href="/" aria-label="Bootstrap">
+							<img src="./img/logo_bg-light.svg" width="140">
+		        </a>
+		        <ul class="list-unstyled small text-muted">
+		          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
+		        </ul>
+		      </div>
+		      <div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
+		        <h5>Convert</h5>
+		        <ul class="list-unstyled">
+		          <li class="mb-2"><a href="/csv2json">CSV to JSON</a></li>
+		          <li class="mb-2"><a href="/json2csv">JSON to CSV</a></li>
+							<li class="mb-2"><a href="/sql2json">SQL to JSON</a></li>
+							<li class="mb-2"><a href="/csvjson2json">CSVJSON to JSON</a></li>
+		        </ul>
+		      </div>
+					<div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
+		        <h5>Validate & Transform</h5>
+		        <ul class="list-unstyled">
+		          <li class="mb-2"><a href="/json_validator">JSON Validator</a></li>
+		          <li class="mb-2"><a href="/json_beautifier">JSON Beautifier</a></li>
+							<!--<li class="mb-2"><a href="/datajanitor">Data Janitor</a></li>-->
+						</ul>
+		      </div>
+		      <div class="col-xs-12 col-sm-6 col-lg-3 mb-3">
+		        <h5>Community</h5>
+		        <ul class="list-unstyled">
+							<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/">Github</a></li>
+							<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues?q=is%3Aissue+is%3Aclosed">Change Log</a></li>
+		          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues/new">Issues</a></li>
+		          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app#readme">Docs</a></li>
+		          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
+		        </ul>
+		      </div>
+		    </div>
+  		</div>
 		</footer>
+
+		<script type="text/javascript">
+			_linkedin_partner_id = "686353";
+			window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+			window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+			</script><script type="text/javascript">
+			(function(l) {
+			if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+			window.lintrk.q=[]}
+			var s = document.getElementsByTagName("script")[0];
+			var b = document.createElement("script");
+			b.type = "text/javascript";b.async = true;
+			b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+			s.parentNode.insertBefore(b, s);})(window.lintrk);
+		</script>
+		<noscript>
+			<img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=686353&fmt=gif" />
+		</noscript>
+
 	</body>
 </html>
