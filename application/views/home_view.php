@@ -25,7 +25,7 @@
 		</div>
 		<div class="col-lg-8 mx-auto pt-5 text-dark shadow" style="margin-bottom:-13rem">
 			<div class="card">
-			  <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+			  <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">
 					<img src="img/CSVJSON_ad.png" style="max-width: 100%"/>
 				</a>
 			</div>
@@ -79,7 +79,7 @@
       <div>
         <p>
 					As a developer, format conversion is something we sometimes have to do. We often look online for solutions and tools finding they only cover partly our needs.
-					<a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_body&utm_campaign=q1-2022-csvjson-redesign">Flatfile<a/> is proud to offer csv<b>json</b>, a do-it-yourself csv converter to the community for free.
+					<a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">Flatfile<a/> is proud to offer csv<b>json</b>, a do-it-yourself csv converter to the community for free.
 					Its best feature? You can save your session for later, and share it with a co-worker.
 
 				</p>
@@ -101,7 +101,7 @@
 							</p>
 							<h5>2019-10-01</h5>
 							<p>
-								Integrated design for sponsorship by <a href="https://flatfile.com/get-started?utm_source=csvjson-home&utm_medium=csvjsov_body&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a>.
+								Integrated design for sponsorship by <a href="https://flatfile.com/get-started?utm_source=csvjson-home&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">Flatfile</a>.
 							</p>
 							<h5>2019-07-15</h5>
 							<p>

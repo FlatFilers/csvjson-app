@@ -6,7 +6,7 @@
 		</div>
 		<div class="col-md-3 col-sm-4 text-right">
 			<span class="hire-cta-message">Need help cleaning data?</span><br/>
-			<a href="https://flatfile.com/get-started?utm_source=csvjson-tools&utm_medium=header&utm_campaign=q1-2022-csvjson-redesign" class="btn btn-primary">Check out Flatfile <i class="glyphicon glyphicon-chevron-right"></i></a>
+			<a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign" class="btn btn-primary">Check out Flatfile <i class="glyphicon glyphicon-chevron-right"></i></a>
 		</div>
 	</div>
 </div>
