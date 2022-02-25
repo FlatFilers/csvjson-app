@@ -99,7 +99,7 @@
 								</a>
 							</div>
 
-							<a class="btn d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_header&utm_campaign=q1-2022-csvjson-redesign">
+							<a class="btn d-none d-sm-block" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">
 								<img src="img/flatfile-jewel.svg" width="20" style="margin:-2px 5px 0 0px"/>
 								<b>Turnkey CSV Importer</b> &bull; <small>Installs in minutes</small>
 							</a>
@@ -129,7 +129,7 @@
 														<li><a class="dropdown-item <?php active('json_beautifier', $page);?>" href="/json_beautifier">JSON Beautifier</a></li>
 														<!--<li><a class="dropdown-item" href="/datajanitor">Data Janitor</a></li>-->
 														<li><hr class="dropdown-divider"></li>
-														<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjso&nutm_medium=csvjson_menu&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
+														<li><a class="dropdown-item" href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">Upgrade to Flatfile</a></li>
 													</ul>
 												</div>
 									</li>
@@ -151,7 +151,7 @@
 							<img src="./img/logo_bg-light.svg" width="140">
 		        </a>
 		        <ul class="list-unstyled small text-muted">
-		          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
+		          <li class="mb-2">Rage designed and built with love by the <a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">Flatfile team</a> with the help of <a href="https://github.com/FlatFilers/csvjson-app/graphs/contributors">our contributors</a>.</li>
 		        </ul>
 		      </div>
 		      <div class="col-sm-6 col-xs-12 col-lg-3 mb-3">
@@ -178,7 +178,7 @@
 							<li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues?q=is%3Aissue+is%3Aclosed">Change Log</a></li>
 		          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app/issues/new">Issues</a></li>
 		          <li class="mb-2"><a href="https://github.com/FlatFilers/csvjson-app#readme">Docs</a></li>
-		          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=csvjson_footer&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
+		          <li class="mb-2"><a href="https://flatfile.com/get-started?utm_source=csvjson&utm_medium=owned_site&utm_campaign=q1-2022-csvjson-redesign">Corporate sponsor</a></li>
 		        </ul>
 		      </div>
 		    </div>
