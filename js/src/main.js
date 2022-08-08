@@ -157,7 +157,11 @@ $(document).ready(function() {
       $copy.on('click', function(e) {
         e.preventDefault();
         $textarea[0].select();
-        document.execCommand('copy');
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText($textarea[0].value);
+        } else {
+          document.execCommand('copy');
+        }
       });
     },
 
