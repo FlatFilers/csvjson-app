@@ -9,7 +9,7 @@
 	<div class="row gx-5">
 		<div class="col-md-5 mb-5">
 			<div class="mb-5">
-				<label class="form-label">Upload a SQL file</label>
+				<label for="fileupload" class="form-label">Upload a SQL file</label>
 					<input id="fileupload" type="file" name="file"class="form-control" />
 			</div>
 			<div class="mb-3">
@@ -57,11 +57,11 @@ INSERT INTO `continents` VALUES ('??', NULL);
 				<div class="form-check-inline pt-1">
 					<label class="form-check-label me-2">Output format: </label>
 					<input type="radio" id="json" name="format" class="form-check-input save" value="json" checked="checked" />
-					<label class="form-check-label">JSON</label>
+					<label for="json" class="form-check-label">JSON</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="radio" id="javascript" name="format" class="form-check-input save" value="javascript" />
-					<label class="form-check-label">JavaScript</label>
+					<label for="javascript" class="form-check-label">JavaScript</label>
 				</div>
 				<div class="form-check-inline">
 					<label class="form-check-label" title="Minify or compact result by removing spaces and new lines.">

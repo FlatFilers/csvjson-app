@@ -9,11 +9,11 @@
 	<div class="row gx-5">
 		<div class="col-md-5 mb-5">
 			<div class="mb-5">
-				<label class="form-label">Upload a CSV file</label>
+				<label for="fileupload" class="form-label">Upload a CSV file</label>
 				<input id="fileupload" type="file" name="file" class="form-control"/>
 			</div>
 			<div class="mb-3">
-				<label class="form-label">Or paste your CSV here</label>
+				<label for="csv" class="form-label">Or paste your CSV here</label>
 <textarea id="csv" class="form-control input save" rows="18" spellcheck="false">
 album, year, US_peak_chart_post
 The White Stripes, 1999, -
@@ -51,19 +51,19 @@ Nine Miles from the White City, 2013, -
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="parseNumbers" name="parseNumbers" class="form-check-input save" checked="checked "/>
-					<label class="form-check-label" title="Check to parse numbers (i.e. '7e2' would become 700). Uncheck to keep original formatted numbers as strings.">
+					<label for="parseNumbers" class="form-check-label" title="Check to parse numbers (i.e. '7e2' would become 700). Uncheck to keep original formatted numbers as strings.">
 						 Parse numbers
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="parseJSON" name="parseJSON" class="form-check-input save" checked="checked "/>
-					<label class="form-check-label" title="Check to parse potential values as JSON (numbers, null, false, true, [] and {}). Uncheck to keep original values as strings.">
+					<label for="parseJSON" class="form-check-label" title="Check to parse potential values as JSON (numbers, null, false, true, [] and {}). Uncheck to keep original values as strings.">
 						 Parse JSON
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="transpose" name="transpose" class="form-check-input save" />
-					<label class="form-check-label" title="Transpose the data beforehand.">
+					<label for="transpose" class="form-check-label" title="Transpose the data beforehand.">
 						 Transpose
 					</label>
 				</div>
@@ -71,19 +71,19 @@ Nine Miles from the White City, 2013, -
 				<div class="form-check-inline">
 					<label class="form-check-label me-2">Output:</label>
 					<input type="radio" id="output-array" name="output" class="form-check-input save" value="array" checked="checked" />
-					<label class="form-check-label" title="Output an array of objects.">
+					<label for="output-array" class="form-check-label" title="Output an array of objects.">
 						Array
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="radio" id="output-hash" name="output" class="form-check-input save" value="hash" />
-					<label class="form-check-label" title="Output an object instead of an array. First column is used as hash key.">
+					<label for="output-hash" class="form-check-label" title="Output an object instead of an array. First column is used as hash key.">
 						Hash
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="minify" name="minify" class="form-check-input save" />
-					<label class="form-check-label" title="Minify or compact result by removing spaces and new lines.">
+					<label for="minify" class="form-check-label" title="Minify or compact result by removing spaces and new lines.">
 						 Minify
 					</label>
 				</div>

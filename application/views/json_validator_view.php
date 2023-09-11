@@ -10,12 +10,12 @@
   <div class="row gx-5">
     <div class="col-md-5 mb-5">
       <div class="mb-5">
-        <label class="form-label">Upload a file</label>
+        <label for="fileupload" class="form-label">Upload a file</label>
           <input id="fileupload" type="file" name="file" class="form-control"/>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Or paste your JSON here</label>
+        <label for="result" class="form-label">Or paste your JSON here</label>
 <textarea id="result" class="form-control result save" rows="14" placeholder="Paste your JSON here" spellcheck="false">{}</textarea>
       </div>
 
@@ -29,7 +29,7 @@
     </div>
     <div class="col-md-7">
       <div class="form-group">
-        <label class="form-label">Result</label>
+        <label for="status" class="form-label">Result</label>
         <div id="status" class="alert alert-default m-t-2"></div>
       </div>
     </div>
