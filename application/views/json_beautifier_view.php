@@ -8,11 +8,11 @@
 	<div class="row gx-5">
 		<div class="col-md-5 more-bottom-margin">
 			<div class="mb-5">
-				<label class="form-label">Upload a file</label>
+				<label for="fileupload" class="form-label">Upload a file</label>
 				<input id="fileupload" type="file" name="file" class="form-control"/>
 			</div>
 			<div class="form-group code-group">
-				<label class="form-label">Or paste your JSON here</label>
+				<label for="json" class="form-label">Or paste your JSON here</label>
 				<?php $default = '{"pi": "3.14159265359", "e": "2.7182818284", "prime": [2, 3, 5, 7, 11, 13, 17, 19], "1+6": 7}'; ?>
 				<div class="mb-3">
 					<textarea id="json" class="form-control input save" rows="18" placeholder="Paste your JSON here" spellcheck="false"><?=$default?></textarea>
@@ -56,7 +56,7 @@
 						<div class="">
 							<div class="form-check-inline">
 								<input type="checkbox" id="inline-short-arrays" name="inline-short-arrays" class="form-check-input save" />
-								<label class="form-label">Inline short arrays</label>
+								<label for="inline-short-arrays" class="form-label">Inline short arrays</label>
 						</div>
 						</div>
 						<select id="inline-short-arrays-depth" name="inline-short-arrays-depth" class="form-select save">
@@ -73,19 +73,19 @@
 				<div class="form-check-inline">
 					<label class="form-check-label me-2">No quotes:</label>
 					<input type="checkbox" id="drop-quotes-on-keys" name="drop-quotes-on-keys" class="form-check-input save" />
-					<label class="form-check-label" title="JSON wraps keys with double quotes by default. JavaScript doesn't need them though. Check this box to drop them. Will make for invalid JSON but valid JavaScript.">
+					<label for="drop-quotes-on-keys" class="form-check-label" title="JSON wraps keys with double quotes by default. JavaScript doesn't need them though. Check this box to drop them. Will make for invalid JSON but valid JavaScript.">
 						 on keys
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="drop-quotes-on-numbers" name="drop-quotes-on-numbers" class="form-check-input save" />
-					<label class="form-check-label" title="Check this box to parse number values and drop quotes around them.">
+					<label for="drop-quotes-on-numbers" class="form-check-label" title="Check this box to parse number values and drop quotes around them.">
 						 on numbers
 					</label>
 				</div>
 				<div class="form-check-inline">
 					<input type="checkbox" id="minify" name="minify" class="form-check-input save" />
-					<label class="form-check-label" title="Minify or compact result by removing spaces and new lines. Warning: this overrides other options.">
+					<label for="minify" class="form-check-label" title="Minify or compact result by removing spaces and new lines. Warning: this overrides other options.">
 						 Minify
 					</label>
 				</div>
