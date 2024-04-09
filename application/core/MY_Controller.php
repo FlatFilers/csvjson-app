@@ -23,7 +23,7 @@ class MY_Controller extends CI_Controller {
 		parent::__construct();
 		$this->run = true;
 		$this->beta = false;
-		$this->showSave = true;
+		$this->showSave = false;
 	}
 	
 	// Remap controller to allow passing a parameter to index().
