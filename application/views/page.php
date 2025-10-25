@@ -91,6 +91,38 @@
 	</script>
 </head>
 <body>
+		<section class="obviousBanner" aria-labelledby="obvious-title">
+			<div class="obviousInner">
+				<img
+					class="obLogo"
+					src="https://assets.codepen.io/11487/obious-logo.svg"
+					alt="Obvious"
+					width="160"
+					height="40"
+					decoding="async"
+				/>
+
+				<h2 id="obvious-title" class="obTitle">
+					The successor to csvjson is here:
+					<span class="obTitle--sub">an AI agent that can convert your data to and from any format, securely.</span>
+				</h2>
+
+				<a class="obBtn" href="#" aria-label="Get early access to Obvious">
+					Get early access here
+				</a>
+
+				<img
+					class="btmImg"
+					src="https://assets.codepen.io/11487/Illustration-anim_1.png"
+					alt=""
+					width="950"
+					height="600"
+					loading="lazy"
+					decoding="async"
+				/>
+			</div>
+		</section>
+
 		<header class="px-4 py-4 border-bottom <?php dark_light($page);?>">
 	    <div class="container d-flex flex-wrap justify-content-left pt-2 pb-2">
 					<div class="d-flex align-items-center me-lg-auto text-decoration-none">

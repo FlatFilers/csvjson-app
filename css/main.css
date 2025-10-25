@@ -1,7 +1,7 @@
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
-  --bs-purple: #4C48EF;
+  --bs-purple: #4c48ef;
   --bs-pink: #d63384;
   --bs-red: #dc3545;
   --bs-orange: #fd7e14;
@@ -11,44 +11,51 @@
   --bs-cyan: #0dcaf0;
   --bs-white: #fff;
   --bs-gray: #6c757d;
-  --bs-gray-dark: #002E70;
-  --bs-primary: #3B2FC9;
+  --bs-gray-dark: #002e70;
+  --bs-primary: #3b2fc9;
   --bs-secondary: #6c757d;
   --bs-success: #198754;
   --bs-info: #0dcaf0;
-  --bs-warning: #FFD86E;
+  --bs-warning: #ffd86e;
   --bs-danger: #dc3545;
   --bs-light: #f8f9fa;
-  --bs-dark: #090B2B;
-  --bs-font-sans-serif: proxima-nova, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+  --bs-dark: #090b2b;
+  --bs-font-sans-serif: proxima-nova, Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  --bs-gradient: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 a {
-    color: var(--bs-primary);
+  color: var(--bs-primary);
 }
 
 .bi {
-	margin-right: 5px;
+  margin-right: 5px;
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
+  color: #fff;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
 }
 
 .bg-dark {
-	background-color: var(--bs-dark)!important;
+  background-color: var(--bs-dark) !important;
 }
 
 .text-primary {
-  color: var(--bs-primary)!important;
+  color: var(--bs-primary) !important;
 }
 
 .form-control {
-  background-color: var(--bs-light)!important;
+  background-color: var(--bs-light) !important;
 }
 
 textarea {
@@ -65,23 +72,24 @@ textarea {
   font-weight: 400;
 }
 .text-secondary {
-    color: rgba(255,255,255,.7)!important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .btn-outline-primary {
-    color: #fff!important;
-    border-color: var(--bs-primary);
+  color: #fff !important;
+  border-color: var(--bs-primary);
 }
 
-.btn-outline-primary:hover, .btn-primary:hover {
-    color: #fff;
-    background-color: var(--bs-purple);
-    border-color: var(--bs-purple);
+.btn-outline-primary:hover,
+.btn-primary:hover {
+  color: #fff;
+  background-color: var(--bs-purple);
+  border-color: var(--bs-purple);
 }
 
 .btn {
   border-radius: 5px;
-  padding: .6rem 1.4rem;
+  padding: 0.6rem 1.4rem;
 }
 
 .btn-lg {
@@ -89,7 +97,7 @@ textarea {
 }
 
 .dropdown-item.active {
-    background-color: var(--bs-primary)!important;
+  background-color: var(--bs-primary) !important;
 }
 
 header.bg-dark .btn {
@@ -97,5 +105,125 @@ header.bg-dark .btn {
 }
 
 header.bg-dark.border-bottom {
-  border-bottom: 1px solid rgba(255,255,255,.2)!important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ========== Banner ========== */
+.obviousBanner {
+  --max-w: 76.999rem;
+  --pad-x: 1rem;
+  --pad-t: 3rem;
+  --gap-y: 1.5rem;
+
+  --black: #000;
+  --white: #fff;
+  --gray-800: #333;
+
+  --font: "Flatfile Diatype", Arial, system-ui, -apple-system, Segoe UI, Roboto,
+    "Helvetica Neue", sans-serif;
+
+  position: relative;
+  background: center / cover no-repeat
+    url("https://assets.codepen.io/11487/banner-bg-md.png");
+  color: var(--black);
+}
+
+.obviousInner {
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+  padding-block-start: var(--pad-t);
+  text-align: center;
+}
+
+/* Reset margins for children we control */
+.obviousInner > :where(h1, h2, p, a, img) {
+  margin: 0;
+}
+
+/* Logo */
+.obLogo {
+  display: block;
+  margin-inline: auto;
+  height: auto;
+  max-width: 74px;
+}
+
+/* Title + sub */
+.obTitle {
+  font-family: var(--font);
+  font-weight: 400;
+  line-height: 1.15;
+  font-size: clamp(1.5rem, 2.5vw + 1rem, 2.375rem);
+  margin-block-start: 0.25rem;
+}
+
+.obTitle--sub {
+  display: block;
+  font-weight: 400;
+}
+
+/* CTA */
+.obBtn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+
+  font-family: var(--font);
+  font-weight: 400;
+  line-height: 1;
+  font-size: clamp(1.25rem, 2vw + 0.5rem, 2rem);
+
+  padding: clamp(0.875rem, 1vw + 0.5rem, 3rem)
+    clamp(1.125rem, 2vw + 0.5rem, 4rem);
+  border-radius: 6.25rem;
+  background: var(--black);
+  color: var(--white);
+  text-decoration: none;
+  margin-block-start: 2rem;
+
+  transition: transform 150ms ease, background-color 200ms ease,
+    box-shadow 200ms ease;
+  will-change: transform;
+}
+
+.obBtn:hover {
+  background: var(--gray-800);
+  transform: translateY(-1px);
+}
+
+.obBtn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #000;
+}
+
+/* Bottom illustration */
+.btmImg {
+  display: block;
+  width: 100%;
+  max-width: 556px; /* 475px */
+  margin-inline: auto;
+  margin-top: 0;
+  height: auto;
+}
+
+/* Medium+ tweaks */
+@media (min-width: 768px) {
+  .obviousInner {
+    padding-block-start: 3.5rem;
+  }
+  .obBtn {
+    margin-block-start: 2.5rem;
+  }
+  .btmImg {
+    margin-block-start: 3rem;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .obBtn {
+    transition: none;
+  }
 }
