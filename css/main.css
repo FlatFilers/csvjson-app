@@ -165,9 +165,9 @@ header.bg-dark.border-bottom {
 /* Title + sub */
 .obTitle {
   font-family: var(--font);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.15;
-  font-size: clamp(1.5rem, 2.5vw + 1rem, 2.375rem);
+  font-size: 1.75rem;
   margin-block-start: 0.25rem;
 }
 
@@ -186,7 +186,7 @@ header.bg-dark.border-bottom {
   font-family: var(--font);
   font-weight: 400;
   line-height: 1;
-  font-size: clamp(1.25rem, 2vw + 0.5rem, 2rem);
+  font-size: 1.25rem;
 
   padding: clamp(0.875rem, 1vw + 0.5rem, 3rem)
     clamp(1.125rem, 2vw + 0.5rem, 4rem);
