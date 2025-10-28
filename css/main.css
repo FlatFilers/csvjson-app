@@ -126,6 +126,19 @@ header.bg-dark.border-bottom {
   background: center / cover no-repeat
     url("https://assets.codepen.io/11487/banner-bg-md.png");
   color: var(--black);
+  overflow: hidden;
+  animation: slideInFromTop 0.6s ease-in-out 0.15s backwards;
+}
+
+@keyframes slideInFromTop {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
 }
 
 .obviousInner {
@@ -184,13 +197,21 @@ header.bg-dark.border-bottom {
   margin-block-start: 2rem;
 
   transition: transform 150ms ease, background-color 200ms ease,
-    box-shadow 200ms ease;
+    box-shadow 200ms ease, color 200ms ease;
   will-change: transform;
 }
 
-.obBtn:hover {
+.obBtn:hover,
+.obBtn:focus,
+.obBtn:active {
   background: var(--gray-800);
+  color: var(--white) !important;
   transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.obBtn:visited {
+  color: var(--white) !important;
 }
 
 .obBtn:focus-visible {
@@ -206,6 +227,18 @@ header.bg-dark.border-bottom {
   margin-inline: auto;
   margin-top: 0;
   height: auto;
+  animation: slideInFromBottom 0.7s ease-in-out 0.4s backwards;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Medium+ tweaks */
