@@ -124,7 +124,7 @@ header.bg-dark.border-bottom {
 
   position: relative;
   background: center / cover no-repeat
-    url("https://assets.codepen.io/11487/banner-bg-md.png");
+    url("../img/obvious-banner-bg.png");
   color: var(--black);
   overflow: hidden;
   animation: slideInFromTop 0.6s ease-in-out 0.15s backwards;
