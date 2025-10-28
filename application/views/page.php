@@ -95,7 +95,7 @@
 			<div class="obviousInner">
 				<img
 					class="obLogo"
-					src="https://assets.codepen.io/11487/obious-logo.svg"
+					src="img/obvious-logo.svg"
 					alt="Obvious"
 					width="160"
 					height="40"
@@ -113,7 +113,7 @@
 
 				<img
 					class="btmImg"
-					src="https://assets.codepen.io/11487/Illustration-anim_1.png"
+					src="img/obvious-illustration.png"
 					alt=""
 					width="950"
 					height="600"
