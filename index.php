@@ -19,9 +19,9 @@
  *
  */
 if (strpos($_SERVER['SERVER_NAME'], $_ENV['DOMAIN_NAME']) !== FALSE) {
-	define('ENVIRONMENT', 'production');
+    define('ENVIRONMENT', 'production');
 } else {
-	define('ENVIRONMENT', 'development');
+    define('ENVIRONMENT', 'development');
 }
 /*
  *---------------------------------------------------------------
