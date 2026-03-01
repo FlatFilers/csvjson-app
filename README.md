@@ -5,7 +5,7 @@ www.csvjson.com are online formatting and conversion tools that I use as a devel
 - [CSV to JSON](https://www.csvjson.com/csv2json): Convert CSV (Excel) to JSON format.
 - [JSON to CSV](https://www.csvjson.com/json2csv): Convert JSON to CSV format (Excel).
 - [SQL to JSON](https://www.csvjson.com/sql2json): Convert SQL (CREATE TABLE and INSERT INTO statements) to JSON format.
-- [JSON Validator](https://csvjson.com/json_validator): Cerifies that your JavaScript Object Notation adheres to the JSON specification.
+- [JSON Validator](https://csvjson.com/json_validator): Certifies that your JavaScript Object Notation adheres to the JSON specification.
 - [JSON Beautifier](https://www.csvjson.com/json_beautifier): Format and make beautiful JSON. Convert it to JavaScript code (drop quotes on keys).
 - [Data Janitor](https://www.csvjson.com/datajanitor): Online tool for Excel and Google Sheets data cleaning and transformation using user-written JavaScript.
 - More to come...
