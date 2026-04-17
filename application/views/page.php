@@ -107,7 +107,7 @@
 					<span class="obTitle--sub">an AI agent that can convert your data to and from any format, securely.</span>
 				</h2>
 
-				<a class="obBtn" href="https://preview.obvious.ai/accept-invite?invite=Blcih4a7cPPTv2GWsypqpuz1UtEWYN3lkFVvCds7" aria-label="Try Obvious now">
+				<a class="obBtn" href="https://preview.obvious.ai/accept-invite?invite=Blcih4a7cPPTv2GWsypqpuz1UtEWYN3lkFVvCds7&utm_source=csvjson&utm_medium=referral&utm_campaign=csvjson_banner_cta" aria-label="Try Obvious now">
 					Try it now
 				</a>
 
