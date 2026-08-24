@@ -1,0 +1,15 @@
+# Obvious repository policy — FlatFilers/csvjson-app
+# Auto-detected from GitHub repo settings on 2026-08-24.
+
+# Default branch (GitHub: defaultBranchRef)
+default_branch: master
+
+# Merge method allowed by GitHub repo settings: merge, squash, and rebase are
+# all enabled. "merge" (merge commit) is GitHub's default selection.
+merge_method: merge
+
+# GitHub setting: deleteBranchOnMerge
+delete_branch_on_merge: false
+
+# Branches the setup/open PRs target
+setup_branch_prefix: obvious/
