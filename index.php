@@ -1,209 +1,140 @@
 <?php
 
-/*
- *---------------------------------------------------------------
- * APPLICATION ENVIRONMENT
- *---------------------------------------------------------------
+declare(strict_types=1);
+
+/**
+ * CSVJSON front controller — static shim.
  *
- * You can load different configurations depending on your
- * current environment. Setting the environment also influences
- * things like logging and error reporting.
+ * Serves the built SPA from app/dist. The legacy CodeIgniter app is gone:
+ * no server-side conversion, no upload endpoint, no save endpoint, no
+ * telemetry, no ad views. Legacy permalink data is read directly from S3
+ * by the browser; nothing is stored server-side.
  *
- * This can be set to anything, but default usage is:
- *
- *     development
- *     testing
- *     production
- *
- * NOTE: If you change these, also change the error_reporting() code below
- *
- */
-if (isset($_ENV['DOMAIN_NAME']) && strpos($_SERVER['SERVER_NAME'], $_ENV['DOMAIN_NAME']) !== FALSE) {
-    define('ENVIRONMENT', 'production');
-} else {
-    define('ENVIRONMENT', 'development');
-}
-/*
- *---------------------------------------------------------------
- * ERROR REPORTING
- *---------------------------------------------------------------
- *
- * Different environments will require different levels of error reporting.
- * By default development will show errors but testing and live will hide them.
+ * On Apache, real files (img/, favicon.ico) are served before PHP runs and
+ * everything else is rewritten here (.htaccess). Under `php -S` this same
+ * file acts as the router for every request.
  */
 
-if (defined('ENVIRONMENT'))
+const DIST_DIR = __DIR__ . '/app/dist';
+
+/**
+ * Content-Type for a file served out of the SPA build.
+ */
+function dist_mime_type(string $file): string
 {
-	switch (ENVIRONMENT)
-	{
-		case 'development':
-			error_reporting(E_ALL);
-		break;
+    static $types = [
+        'html' => 'text/html; charset=utf-8',
+        'htm' => 'text/html; charset=utf-8',
+        'css' => 'text/css; charset=utf-8',
+        'js' => 'text/javascript; charset=utf-8',
+        'mjs' => 'text/javascript; charset=utf-8',
+        'json' => 'application/json',
+        'map' => 'application/json',
+        'webmanifest' => 'application/json',
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'ico' => 'image/x-icon',
+        'txt' => 'text/plain; charset=utf-8',
+        'xml' => 'application/xml',
+        'woff2' => 'font/woff2',
+        'woff' => 'font/woff',
+        'wasm' => 'application/wasm',
+    ];
 
-		case 'testing':
-		case 'production':
-			error_reporting(0);
-		break;
+    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
-		default:
-			exit('The application environment is not set correctly.');
-	}
+    return $types[$ext] ?? 'application/octet-stream';
 }
 
-/*
- *---------------------------------------------------------------
- * SYSTEM FOLDER NAME
- *---------------------------------------------------------------
- *
- * This variable must contain the name of your "system" folder.
- * Include the path if the folder is not in the same  directory
- * as this file.
- *
+/**
+ * Serve one file from the SPA build, refusing anything outside app/dist.
  */
-	$system_path = 'system';
+function serve_dist_file(string $path): void
+{
+    $root = realpath(DIST_DIR);
+    $file = realpath(DIST_DIR . $path);
+    if ($root === false || $file === false || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0 || !is_file($file)) {
+        not_found();
+    }
 
-/*
- *---------------------------------------------------------------
- * APPLICATION FOLDER NAME
- *---------------------------------------------------------------
- *
- * If you want this front controller to use a different "application"
- * folder then the default one you can set its name here. The folder
- * can also be renamed or relocated anywhere on your server.  If
- * you do, use a full server path. For more info please see the user guide:
- * http://codeigniter.com/user_guide/general/managing_apps.html
- *
- * NO TRAILING SLASH!
- *
+    header('Content-Type: ' . dist_mime_type($file));
+    // Vite fingerprints its assets, so hashed files cache forever while
+    // index.html must revalidate on every visit so deploys propagate.
+    header('Cache-Control: ' . (preg_match('/-[A-Za-z0-9_-]{8,}\.\w+$/', $file)
+        ? 'public, max-age=31536000, immutable'
+        : 'no-cache'));
+    readfile($file);
+    exit;
+}
+
+/**
+ * Serve the SPA shell for "/" and for legacy permalink URLs, which the
+ * client-side router hydrates (read-only) straight from S3 — no redirect.
  */
-	$application_folder = 'application';
+function serve_spa(): void
+{
+    if (!is_file(DIST_DIR . '/index.html')) {
+        // The SPA build ships separately from this shim; without it there
+        // is nothing to serve.
+        http_response_code(503);
+        header('Content-Type: text/plain; charset=utf-8');
+        exit('The application build is not available.');
+    }
+    serve_dist_file('/index.html');
+}
 
-/*
- * --------------------------------------------------------------------
- * DEFAULT CONTROLLER
- * --------------------------------------------------------------------
- *
- * Normally you will set your default controller in the routes.php file.
- * You can, however, force a custom routing by hard-coding a
- * specific controller class/function here.  For most applications, you
- * WILL NOT set your routing here, but it's an option for those
- * special instances where you might want to override the standard
- * routing in a specific front controller that shares a common CI installation.
- *
- * IMPORTANT:  If you set the routing here, NO OTHER controller will be
- * callable. In essence, this preference limits your application to ONE
- * specific controller.  Leave the function name blank if you need
- * to call functions dynamically via the URI.
- *
- * Un-comment the $routing array below to use this feature
- *
- */
-	// The directory name, relative to the "controllers" folder.  Leave blank
-	// if your controller is not in a sub-folder within the "controllers" folder
-	// $routing['directory'] = '';
+function not_found(): void
+{
+    http_response_code(404);
+    header('Content-Type: text/html; charset=utf-8');
+    exit('<!doctype html><title>404 Not Found</title>'
+        . '<h1>404 Not Found</h1><p><a href="/">Go to the converter</a></p>');
+}
 
-	// The controller class file name.  Example:  Mycontroller
-	// $routing['controller'] = '';
+// ---------------------------------------------------------------------------
+// Request routing
+// ---------------------------------------------------------------------------
 
-	// The controller function you wish to be called.
-	// $routing['function']	= '';
+$rawPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$path = rawurldecode(is_string($rawPath) && $rawPath !== '' ? $rawPath : '/');
 
+// Normalize: a trailing slash changes nothing.
+if ($path !== '/') {
+    $path = rtrim($path, '/');
+    if ($path === '') {
+        $path = '/';
+    }
+}
 
-/*
- * -------------------------------------------------------------------
- *  CUSTOM CONFIG VALUES
- * -------------------------------------------------------------------
- *
- * The $assign_to_config array below will be passed dynamically to the
- * config class when initialized. This allows you to set custom config
- * items or override any default config values found in the config.php file.
- * This can be handy as it permits you to share one application between
- * multiple front controller files, with each file containing different
- * config values.
- *
- * Un-comment the $assign_to_config array below to use this feature
- *
- */
-	// $assign_to_config['name_of_config_item'] = 'value of config item';
+// Refuse anything that tries to escape the document root.
+if (strpos($path, "\0") !== false || strpos($path, '..') !== false) {
+    not_found();
+}
 
+// Under the PHP dev server, hand real docroot files (img/) to the built-in
+// server. Under Apache these never reach PHP in the first place.
+if (PHP_SAPI === 'cli-server' && $path !== '/' && is_file(__DIR__ . $path)) {
+    return false;
+}
 
+if ($path === '/') {
+    serve_spa();
+}
 
-// --------------------------------------------------------------------
-// END OF USER CONFIGURABLE SETTINGS.  DO NOT EDIT BELOW THIS LINE
-// --------------------------------------------------------------------
+// Built SPA assets (e.g. /assets/index-abc123.js) live under app/dist, not
+// the web root, so this script serves them with the right cache headers.
+if (is_file(DIST_DIR . $path)) {
+    serve_dist_file($path);
+}
 
-/*
- * ---------------------------------------------------------------
- *  Resolve the system path for increased reliability
- * ---------------------------------------------------------------
- */
+// The favicon lives at /img/favicon.ico.
+if ($path === '/favicon.ico' && is_file(__DIR__ . '/img/favicon.ico')) {
+    header('Content-Type: image/x-icon');
+    readfile(__DIR__ . '/img/favicon.ico');
+    exit;
+}
 
-	// Set the current directory correctly for CLI requests
-	if (defined('STDIN'))
-	{
-		chdir(dirname(__FILE__));
-	}
-
-	if (realpath($system_path) !== FALSE)
-	{
-		$system_path = realpath($system_path).'/';
-	}
-
-	// ensure there's a trailing slash
-	$system_path = rtrim($system_path, '/').'/';
-
-	// Is the system path correct?
-	if ( ! is_dir($system_path))
-	{
-		exit("Your system folder path does not appear to be set correctly. Please open the following file and correct this: ".pathinfo(__FILE__, PATHINFO_BASENAME));
-	}
-
-/*
- * -------------------------------------------------------------------
- *  Now that we know the path, set the main path constants
- * -------------------------------------------------------------------
- */
-	// The name of THIS file
-	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
-
-	// The PHP file extension
-	// this global constant is deprecated.
-	define('EXT', '.php');
-
-	// Path to the system folder
-	define('BASEPATH', str_replace("\\", "/", $system_path));
-
-	// Path to the front controller (this file)
-	define('FCPATH', str_replace(SELF, '', __FILE__));
-
-	// Name of the "system folder"
-	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
-
-
-	// The path to the "application" folder
-	if (is_dir($application_folder))
-	{
-		define('APPPATH', $application_folder.'/');
-	}
-	else
-	{
-		if ( ! is_dir(BASEPATH.$application_folder.'/'))
-		{
-			exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: ".SELF);
-		}
-
-		define('APPPATH', BASEPATH.$application_folder.'/');
-	}
-
-/*
- * --------------------------------------------------------------------
- * LOAD THE BOOTSTRAP FILE
- * --------------------------------------------------------------------
- *
- * And away we go...
- *
- */
-require_once BASEPATH.'core/CodeIgniter.php';
-
-/* End of file index.php */
-/* Location: ./index.php */
+not_found();
