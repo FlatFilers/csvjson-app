@@ -24,3 +24,25 @@ window.matchMedia = ((query: string) => ({
   removeEventListener: () => {},
   dispatchEvent: () => false,
 })) as unknown as typeof window.matchMedia;
+
+// CodeMirror 6 and TanStack Virtual need ResizeObserver; jsdom lacks it.
+// The stub fires the callback once on observe so virtualizers measure via
+// the element's (test-stubbed) getBoundingClientRect.
+class ResizeObserverStub implements ResizeObserver {
+  private callback: ResizeObserverCallback;
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+  }
+  observe(target: Element) {
+    this.callback(
+      [{ target } as ResizeObserverEntry],
+      this as unknown as ResizeObserver
+    );
+  }
+  unobserve() {}
+  disconnect() {}
+}
+if (typeof globalThis.ResizeObserver === "undefined") {
+  (globalThis as unknown as { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
+    ResizeObserverStub;
+}
