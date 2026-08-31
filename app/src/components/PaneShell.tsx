@@ -7,8 +7,8 @@ type PaneStatus = {
 
 type PaneShellProps = {
   title: string;
-  /** Row/col count hint shown in the header, e.g. "6 rows · 3 cols". */
-  meta?: string | null;
+  /** Header hint: row/col counts, byte size, filename, or a reader spinner. */
+  meta?: ReactNode;
   actions?: ReactNode;
   status?: PaneStatus;
   children: ReactNode;

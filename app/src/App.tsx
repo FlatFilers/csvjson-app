@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChatPromo } from "@/components/ChatPromo";
 import { DividerSwitch } from "@/components/DividerSwitch";
+import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
-import { OutputView } from "@/components/OutputView";
-import { PaneShell } from "@/components/PaneShell";
+import { OutputPane } from "@/components/OutputPane";
 import { SplitPane, type SplitLayout } from "@/components/SplitPane";
 import { TopBar } from "@/components/TopBar";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -14,8 +14,11 @@ import {
   type ConverterOptions,
   type Direction,
 } from "@/lib/convert";
+import { copyText } from "@/lib/clipboard";
+import { downloadText } from "@/lib/download";
+import { isTextFile } from "@/lib/files";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
-import { initialTheme, persistTheme, type Theme } from "@/lib/theme";
+import { initialTheme, persistTheme } from "@/lib/theme";
 
 /** Past this size, live conversion stretches its debounce (spec: Throttled). */
 const LARGE_INPUT_CHARS = 2 * 1024 * 1024;
@@ -28,7 +31,7 @@ function metaLabel(rows: number, cols: number): string | null {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [theme, setTheme] = useState(initialTheme);
   // index.html applies the pre-mount theme (no white flash); React stays the
   // source of truth after hydration.
   useEffect(() => {
@@ -46,9 +49,17 @@ export default function App() {
   const [input, setInput] = useState("");
   const [options, setOptions] = useState<ConverterOptions>(DEFAULT_OPTIONS);
   const [split, setSplit] = useState(50);
+  // Upload bookkeeping: source filename, reader spinner, rejection notice.
+  const [filename, setFilename] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const desktop = useMediaQuery("(min-width: 768px)");
   const layout: SplitLayout = desktop ? "side-by-side" : "stacked";
+
+  const csvToJson = direction === "csv2json";
+  const inputFormat = csvToJson ? "CSV" : "JSON";
+  const outputFormat = csvToJson ? "JSON" : "CSV";
 
   const inputEmpty = input.trim() === "";
   const debounceMs =
@@ -80,59 +91,89 @@ export default function App() {
     }
   };
 
-  const csvToJson = direction === "csv2json";
-  const inputFormat = csvToJson ? "CSV" : "JSON";
-  const outputFormat = csvToJson ? "JSON" : "CSV";
+  // FileReader upload — files never touch the network (spec: Input; the
+  // legacy /upload endpoint is deleted).
+  const readFile = (file: File) => {
+    if (!isTextFile(file)) {
+      setNotice(
+        `Can't read "${file.name}" as text — drop a ${csvToJson ? ".csv / .tsv" : ".json"} file.`
+      );
+      return;
+    }
+    setNotice(null);
+    setReading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setInput(String(reader.result ?? ""));
+      setFilename(file.name);
+      setReading(false);
+    };
+    reader.onerror = () => {
+      setReading(false);
+      setNotice(`Couldn't read "${file.name}".`);
+    };
+    reader.readAsText(file);
+  };
+
   const meta = result.ok ? metaLabel(result.rows, result.cols) : null;
   const largeInput = input.length > LARGE_INPUT_CHARS;
 
+  const copyInput = () => void copyText(input);
+  const copyOutput = () => {
+    if (lastValidOutput) void copyText(lastValidOutput);
+  };
+  const downloadInput = () =>
+    downloadText(input, filename ?? (csvToJson ? "data.csv" : "data.json"), {
+      mime: csvToJson ? "text/csv" : "application/json",
+      bom: csvToJson,
+    });
+  // CSV downloads carry a UTF-8 BOM (spec: Download); JSON never does.
+  const downloadOutput = () =>
+    downloadText(lastValidOutput ?? "", csvToJson ? "data.json" : "data.csv", {
+      mime: csvToJson ? "application/json" : "text/csv",
+      bom: !csvToJson,
+    });
+
   const leftPane = (
-    <PaneShell title={inputFormat} meta={inputEmpty ? null : meta}>
-      {/* The editor stays mounted so paste/typing always works; the
-          empty-state hint sits above it and yields once input arrives. */}
-      <div
-        data-testid="input-hint"
-        className={inputEmpty ? "flex flex-col items-center justify-center p-6 text-center" : "hidden"}
-      >
-        <p className="text-sm text-muted-foreground">
-          Drag &amp; drop, paste, or browse — {csvToJson ? "CSV / TSV" : "JSON"}{" "}
-          <button
-            type="button"
-            data-testid="try-example"
-            onClick={() => setInput(csvToJson ? SAMPLE_CSV : SAMPLE_JSON)}
-            className="cursor-pointer text-sky-700 underline underline-offset-4 hover:opacity-80 dark:text-sky-300"
-          >
-            or try an example
-          </button>
-        </p>
-      </div>
-      <textarea
-        data-testid="input-editor"
-        value={input}
-        onChange={(event) => setInput(event.target.value)}
-        spellCheck={false}
-        placeholder={`Paste ${inputFormat} here…`}
-        className="flex-1 resize-none bg-transparent p-3 font-mono text-[12.5px] leading-relaxed focus:outline-none"
-      />
-    </PaneShell>
+    <InputPane
+      format={inputFormat}
+      input={input}
+      onInputChange={(value) => {
+        setNotice(null);
+        setInput(value);
+      }}
+      onFile={readFile}
+      onTryExample={() => {
+        setNotice(null);
+        setInput(csvToJson ? SAMPLE_CSV : SAMPLE_JSON);
+      }}
+      onClear={() => {
+        setInput("");
+        setFilename(null);
+      }}
+      onCopy={copyInput}
+      onDownload={downloadInput}
+      filename={filename}
+      reading={reading}
+      meta={meta}
+      error={null}
+      notice={notice}
+      delimiter={options.separator === "auto" ? undefined : options.separator}
+      dark={theme === "dark"}
+    />
   );
 
   const rightPane = (
-    <PaneShell
-      title={outputFormat}
-      status={result.ok ? null : { kind: "error", message: result.error }}
-    >
-      {inputEmpty ? (
-        <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
-          Your {outputFormat} appears here.
-        </div>
-      ) : lastValidOutput ? (
-        <OutputView
-          text={lastValidOutput}
-          format={outputFormat === "JSON" ? "json" : "csv"}
-        />
-      ) : null}
-    </PaneShell>
+    <OutputPane
+      format={outputFormat}
+      inputEmpty={inputEmpty}
+      outputText={lastValidOutput}
+      error={result.ok ? null : result.error}
+      meta={meta}
+      dark={theme === "dark"}
+      onCopy={copyOutput}
+      onDownload={downloadOutput}
+    />
   );
 
   return (
@@ -156,9 +197,7 @@ export default function App() {
         options={options}
         onChange={(patch) => setOptions((current) => ({ ...current, ...patch }))}
         meta={meta}
-        notice={
-          largeInput ? "Large file — conversion pauses briefly while typing" : null
-        }
+        notice={largeInput ? "Large file — converting on pause" : null}
       />
     </div>
   );
