@@ -18,6 +18,22 @@ function Harness() {
   );
 }
 
+/** Same split, but with the floating direction switch as seam children. */
+function SwitchHarness() {
+  const [split, setSplit] = useState(50);
+  return (
+    <SplitPane
+      layout="side-by-side"
+      split={split}
+      onSplitChange={setSplit}
+      left={null}
+      right={null}
+    >
+      <button type="button" data-testid="divider-switch">⇄</button>
+    </SplitPane>
+  );
+}
+
 /** jsdom getBoundingClientRect always returns zeros — stub the container's width. */
 function stubContainerWidth() {
   const seam = screen.getByTestId("seam");
@@ -93,6 +109,21 @@ describe("SplitPane seam dragging", () => {
     expect(splitValue()).toBe(40);
   });
 
+  it("ignores pointerdowns that start on the floating switch", () => {
+    // Regression: the seam's pointer capture used to retarget a click on
+    // the divider switch to the seam, so the ⇄ button never fired on real
+    // mouse input (Playwright walkthrough caught it; jsdom's synthetic
+    // click did not).
+    render(<SwitchHarness />);
+    stubContainerWidth();
+
+    screen
+      .getByTestId("divider-switch")
+      .dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 700 }));
+    window.dispatchEvent(new PointerEvent("pointerup"));
+    expect(splitValue()).toBe(50); // untouched — the switch owns the gesture
+  });
   it("resizes with arrow keys and resets with Enter", async () => {
     const user = userEvent.setup();
     render(<Harness />);

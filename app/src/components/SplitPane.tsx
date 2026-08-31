@@ -125,6 +125,12 @@ export function SplitPane({
         aria-label="Resize panes"
         title="Drag to resize · double-click to reset"
         onPointerDown={(event) => {
+          // A pointerdown on the floating switch is the button's gesture.
+          // Capturing it here would retarget the click to the seam and the
+          // switch would never fire in a real browser.
+          if (event.target instanceof Element && event.target.closest('[data-testid="divider-switch"]')) {
+            return;
+          }
           event.preventDefault();
           // jsdom lacks setPointerCapture; the window listeners below make
           // capture redundant for pointer-move tracking anyway.
