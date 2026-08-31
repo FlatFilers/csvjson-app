@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { FAQ_ITEMS, FAQ_PAGE_LD } from "@/seo/faqContent";
 
 /**
@@ -9,6 +9,9 @@ import { FAQ_ITEMS, FAQ_PAGE_LD } from "@/seo/faqContent";
  */
 export function Faq() {
   const [open, setOpen] = useState(false);
+  // Same disclosure convention as OptionHint: the toggle names the region it
+  // controls via an id (aria-controls), not by DOM proximity.
+  const contentId = useId();
   return (
     <section
       data-testid="faq"
@@ -19,6 +22,7 @@ export function Faq() {
         type="button"
         data-testid="faq-toggle"
         aria-expanded={open}
+        aria-controls={contentId}
         onClick={() => setOpen((current) => !current)}
         className="flex w-full cursor-pointer items-center gap-1.5 py-2 text-[12.5px] text-muted-foreground hover:text-foreground"
       >
@@ -28,6 +32,7 @@ export function Faq() {
         How it works &amp; FAQ
       </button>
       <div
+        id={contentId}
         data-testid="faq-content"
         hidden={!open}
         className="max-w-3xl pb-4 text-[13px] leading-relaxed text-muted-foreground"

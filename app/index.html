@@ -63,6 +63,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Pre-mount guard: the prerendered markup is static until the bundle
+      // takes over, and React's fresh mount below discards whatever is in
+      // #root. Keep the shell non-interactive until then so nothing typed
+      // into it during the load window can be silently wiped.
+      document.getElementById("root").setAttribute("inert", "");
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
