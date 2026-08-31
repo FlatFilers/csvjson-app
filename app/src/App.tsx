@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChatPromo } from "@/components/ChatPromo";
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { Faq } from "@/components/Faq";
 import { InputPane } from "@/components/InputPane";
@@ -213,11 +212,7 @@ export default function App() {
       {/* The converter keeps a full viewport; the FAQ accordion sits below
           the fold (spec: SEO — collapsed FAQ below the tool). */}
       <div className="flex h-svh min-h-0 flex-col">
-        <TopBar
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        chatPromo={<ChatPromo data={input} format={inputFormat} />}
-      />
+        <TopBar theme={theme} onToggleTheme={toggleTheme} />
       {permalinkPath &&
       (permalink.phase === "loading" ||
         permalink.phase === "not-found" ||

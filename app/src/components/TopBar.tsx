@@ -47,14 +47,17 @@ function ThemeIcon({ theme }: { theme: Theme }) {
 type TopBarProps = {
   theme: Theme;
   onToggleTheme: () => void;
-  /** Rendered into the chat-promo slot (the single surviving promotion). */
-  chatPromo?: ReactNode;
+  /**
+   * Extension point between the wordmark and the theme toggle (kept
+   * intentionally empty for v1 — the promo was cut before launch).
+   */
+  slot?: ReactNode;
 };
 
 /**
- * Top bar: wordmark, chat-promo slot, and the persisted dark/light toggle.
+ * Top bar: wordmark, extension slot, and the persisted dark/light toggle.
  */
-export function TopBar({ theme, onToggleTheme, chatPromo }: TopBarProps) {
+export function TopBar({ theme, onToggleTheme, slot }: TopBarProps) {
   return (
     <header
       data-testid="topbar"
@@ -65,7 +68,7 @@ export function TopBar({ theme, onToggleTheme, chatPromo }: TopBarProps) {
         <span className="font-medium text-muted-foreground/70">.com</span>
       </span>
       <div className="flex-1" />
-      <div data-testid="chat-promo-slot">{chatPromo}</div>
+      <div data-testid="topbar-slot">{slot}</div>
       <button
         type="button"
         data-testid="theme-toggle"

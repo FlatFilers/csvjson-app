@@ -30,11 +30,6 @@ try {
   record("empty: dropzone visible while input empty", true);
   const placeholder = await page.getByTestId("output-pane").innerText();
   record("empty: output placeholder", /appears here|placeholder/i.test(await page.getByTestId("output-pane").innerText()), placeholder.slice(0, 60));
-  const chips = page.locator('[data-testid^="chat-provider-"]');
-  const chipCount = await chips.count();
-  let chipsDisabled = true;
-  for (const chip of await chips.all()) chipsDisabled = chipsDisabled && (await chip.isDisabled());
-  record("empty: chat chips disabled on empty input", chipCount > 0 && chipsDisabled, `${chipCount} chips`);
   const example = page.getByTestId("try-example");
   record("empty: 'Try an example' affordance present", await example.isVisible());
   await page.screenshot({ path: OUT + "/01-empty-light.png", fullPage: false });
