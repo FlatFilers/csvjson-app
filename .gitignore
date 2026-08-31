@@ -12,5 +12,7 @@ application/logs/*
 /application/config/development
 # /application/config/production
 
+/app/dist/
+
 /vendor/
 .env

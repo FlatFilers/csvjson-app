@@ -38,3 +38,18 @@ jobs:
 
       - name: Production build
         run: npx vite build  # typecheck step already runs tsc -b
+
+  shim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Lint PHP shim
+        run: php -l index.php
+
+      - name: Redirect table, permalinks, and removed endpoints
+        run: bash .github/scripts/verify-shim.sh

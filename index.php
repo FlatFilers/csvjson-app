@@ -5,10 +5,11 @@ declare(strict_types=1);
 /**
  * CSVJSON front controller — static shim.
  *
- * Serves the built SPA from app/dist. The legacy CodeIgniter app is gone:
- * no server-side conversion, no upload endpoint, no save endpoint, no
- * telemetry, no ad views. Legacy permalink data is read directly from S3
- * by the browser; nothing is stored server-side.
+ * Serves the built SPA from app/dist and applies the legacy URL map.
+ * The legacy CodeIgniter app is gone: no server-side conversion, no
+ * upload endpoint, no save endpoint, no telemetry, no ad views. Legacy
+ * permalink data is read directly from S3 by the browser; nothing is
+ * stored server-side.
  *
  * On Apache, real files (img/, favicon.ico) are served before PHP runs and
  * everything else is rewritten here (.htaccess). Under `php -S` this same
@@ -16,6 +17,32 @@ declare(strict_types=1);
  */
 
 const DIST_DIR = __DIR__ . '/app/dist';
+
+/**
+ * Legacy tool slugs. The tool root and every sub-route 301s home, with
+ * two carve-outs: /<tool>/<32-hex-id> permalinks stay live (the SPA
+ * hydrates them), and the endpoints removed outright below.
+ */
+const LEGACY_TOOLS = [
+    'csv2json',
+    'json2csv',
+    'json_validator',
+    'json_beautifier',
+    'sql2json',
+    'csvjson2json',
+    'datajanitor',
+    'dataclean',
+];
+
+/**
+ * Tools that issued legacy permalinks of the form /<tool>/<32-hex-id>.
+ * These URLs are external promises (bookmarks, embeds) and stay live;
+ * dataclean was only ever an alias, so its sub-routes redirect.
+ */
+const PERMALINK_TOOLS = [
+    'csv2json', 'json2csv', 'json_validator', 'json_beautifier',
+    'sql2json', 'csvjson2json', 'datajanitor',
+];
 
 /**
  * Content-Type for a file served out of the SPA build.
@@ -86,6 +113,20 @@ function serve_spa(): void
     serve_dist_file('/index.html');
 }
 
+function redirect_home(): void
+{
+    header('Location: /', true, 301);
+    exit;
+}
+
+function gone(): void
+{
+    http_response_code(410);
+    header('Content-Type: text/html; charset=utf-8');
+    exit('<!doctype html><title>410 Gone</title>'
+        . '<h1>410 Gone</h1><p><a href="/">Go to the converter</a></p>');
+}
+
 function not_found(): void
 {
     http_response_code(404);
@@ -120,8 +161,12 @@ if (PHP_SAPI === 'cli-server' && $path !== '/' && is_file(__DIR__ . $path)) {
     return false;
 }
 
-if ($path === '/') {
-    serve_spa();
+// Telemetry write and the upload round-trip are removed outright —
+// uploads are read client-side and never hit the server.
+if (preg_match('#^/(?:' . implode('|', LEGACY_TOOLS) . ')/upload$#i', $path)
+    || strtolower($path) === '/csv2json/instrument'
+) {
+    gone();
 }
 
 // Built SPA assets (e.g. /assets/index-abc123.js) live under app/dist, not
@@ -130,11 +175,27 @@ if (is_file(DIST_DIR . $path)) {
     serve_dist_file($path);
 }
 
+if ($path === '/') {
+    serve_spa();
+}
+
 // The favicon lives at /img/favicon.ico.
 if ($path === '/favicon.ico' && is_file(__DIR__ . '/img/favicon.ico')) {
     header('Content-Type: image/x-icon');
     readfile(__DIR__ . '/img/favicon.ico');
     exit;
+}
+
+// Legacy permalinks stay live: serve the SPA shell and let the router
+// hydrate the stored object read-only from S3 — no redirect, URL unchanged.
+if (preg_match('#^/(?:' . implode('|', PERMALINK_TOOLS) . ')/[0-9a-f]{32}/?$#i', $path)) {
+    serve_spa();
+}
+
+// Everything left on a retired tool URL — root or any sub-route —
+// permanently redirects home.
+if (preg_match('#^/(?:' . implode('|', LEGACY_TOOLS) . ')(?:/|$)#i', $path)) {
+    redirect_home();
 }
 
 not_found();
