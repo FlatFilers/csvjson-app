@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/patch-json2csv.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
