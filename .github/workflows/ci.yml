@@ -51,5 +51,18 @@ jobs:
       - name: Lint PHP shim
         run: php -l index.php
 
+
+      # Spec criterion 8: no promotional or telemetry remnants anywhere in
+      # the shipped frontend or the PHP shim. Fail the build on any hit.
+      - name: No promotional or telemetry remnants
+        run: |
+          targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
+          [ -d app/public ] && targets+=(app/public)
+          [ -d app/dist ] && targets+=(app/dist)
+          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}"; then
+            echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
+            exit 1
+          fi
+
       - name: Redirect table, permalinks, and removed endpoints
         run: bash .github/scripts/verify-shim.sh
