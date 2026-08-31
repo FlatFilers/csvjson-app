@@ -38,3 +38,37 @@ jobs:
 
       - name: Production build
         run: npx vite build  # typecheck step already runs tsc -b
+
+  shim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Lint PHP shim
+        run: php -l index.php
+
+
+      # Spec criterion 8: no promotional or telemetry remnants anywhere in
+      # the shipped frontend or the PHP shim. Fail the build on any hit.
+      - name: No promotional or telemetry remnants
+        run: |
+          targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
+          # Same zero-tolerance rule for surviving webroot image assets:
+          # promotional filenames must not ship, even unreferenced.
+          if find img -type f 2>/dev/null | grep -iE 'flatfile|obvious|_ad|sponsor'; then
+            echo "::error::Promotional image remnant found in img/ (spec criterion 8)"
+            exit 1
+          fi
+          [ -d app/public ] && targets+=(app/public)
+          [ -d app/dist ] && targets+=(app/dist)
+          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}"; then
+            echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
+            exit 1
+          fi
+
+      - name: Redirect table, permalinks, and removed endpoints
+        run: bash .github/scripts/verify-shim.sh
