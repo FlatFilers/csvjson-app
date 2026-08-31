@@ -53,9 +53,13 @@ export function SplitPane({
     const onUp = () => setDragging(false);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    // Palm rejection / gesture takeover can cancel the pointer mid-drag;
+    // without this the seam keeps tracking with no button held.
+    window.addEventListener("pointercancel", onUp);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [dragging, stacked, onSplitChange]);
 
