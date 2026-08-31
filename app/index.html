@@ -32,9 +32,44 @@
       name="description"
       content="Convert CSV to JSON and JSON to CSV right in your browser. Supports TSV and semicolon separators, quoted fields, and Unicode — nothing ever leaves your browser."
     />
+    <link rel="canonical" href="https://www.csvjson.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CSVJSON" />
+    <meta property="og:title" content="CSV to JSON Converter — CSVJSON" />
+    <meta
+      property="og:description"
+      content="Convert CSV to JSON and JSON to CSV right in your browser. Supports TSV and semicolon separators, quoted fields, and Unicode — nothing ever leaves your browser."
+    />
+    <meta property="og:url" content="https://www.csvjson.com/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CSV to JSON Converter — CSVJSON" />
+    <meta
+      name="twitter:description"
+      content="Convert CSV to JSON and JSON to CSV right in your browser. Supports TSV and semicolon separators, quoted fields, and Unicode — nothing ever leaves your browser."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "CSVJSON",
+        "url": "https://www.csvjson.com/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "Convert CSV to JSON and JSON to CSV right in your browser. Supports TSV and semicolon separators, quoted fields, and Unicode — nothing ever leaves your browser.",
+        "featureList": "CSV to JSON, JSON to CSV, TSV support, drag-and-drop file input, in-browser conversion",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Pre-mount guard: the prerendered markup is static until the bundle
+      // takes over, and React's fresh mount below discards whatever is in
+      // #root. Keep the shell non-interactive until then so nothing typed
+      // into it during the load window can be silently wiped.
+      document.getElementById("root").setAttribute("inert", "");
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

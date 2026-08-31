@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChatPromo } from "@/components/ChatPromo";
 import { DividerSwitch } from "@/components/DividerSwitch";
+import { Faq } from "@/components/Faq";
 import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputPane } from "@/components/OutputPane";
@@ -74,7 +75,13 @@ export default function App() {
   // S3 object, read-only. The URL is never rewritten; edits behave normally
   // afterward (spec: Old share links keep resolving — read-only).
   const permalinkPath = useMemo(
-    () => parsePermalinkPath(window.location.pathname),
+    // SSR/prerender has no window — the permalink path only exists in the
+    // browser, so the shell renders the default converter state (same
+    // typeof-window guard as initialTheme and useMediaQuery).
+    () =>
+      typeof window === "undefined"
+        ? null
+        : parsePermalinkPath(window.location.pathname),
     []
   );
   const permalink = useLegacyPermalink(permalinkPath);
@@ -199,8 +206,14 @@ export default function App() {
   );
 
   return (
-    <div className="flex h-svh flex-col bg-background text-foreground">
-      <TopBar
+    <div className="flex min-h-svh flex-col bg-background text-foreground">
+      {/* The one H1 the page ships (spec: SEO on-page targets) — quiet, so
+          the tool itself stays the interface. */}
+      <h1 className="sr-only">CSV to JSON and JSON to CSV converter</h1>
+      {/* The converter keeps a full viewport; the FAQ accordion sits below
+          the fold (spec: SEO — collapsed FAQ below the tool). */}
+      <div className="flex h-svh min-h-0 flex-col">
+        <TopBar
         theme={theme}
         onToggleTheme={toggleTheme}
         chatPromo={<ChatPromo data={input} format={inputFormat} />}
@@ -230,8 +243,10 @@ export default function App() {
         options={options}
         onChange={(patch) => setOptions((current) => ({ ...current, ...patch }))}
         meta={meta}
-        notice={largeInput ? "Large file — converting on pause" : null}
+          notice={largeInput ? "Large file — converting on pause" : null}
       />
+      </div>
+      <Faq />
     </div>
   );
 }

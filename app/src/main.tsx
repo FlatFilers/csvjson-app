@@ -8,3 +8,8 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </StrictMode>
 );
+
+// React owns #root now — lift the pre-mount inert guard so the app is
+// interactive again (index.html sets it to protect prerendered markup
+// during the bundle-load window).
+document.getElementById("root")!.removeAttribute("inert");
