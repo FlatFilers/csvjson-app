@@ -5,9 +5,6 @@
  */
 const REAL_ID = "000c44f43e2f62cc15c48d9d7c5a4582";
 
-// Minimal import.meta.env shim — matches .env / code default.
-(globalThis as Record<string, unknown>).import_meta_env = {};
-
 const { fetchLegacyPermalink, hydrateConverter } = await import("../src/lib/permalink");
 
 const data = await fetchLegacyPermalink(REAL_ID);

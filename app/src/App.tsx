@@ -73,11 +73,11 @@ export default function App() {
   // Legacy permalinks: /<tool>/<32-hex-id> hydrates the converter from the
   // S3 object, read-only. The URL is never rewritten; edits behave normally
   // afterward (spec: Old share links keep resolving — read-only).
-  const permalinkId = useMemo(
+  const permalinkPath = useMemo(
     () => parsePermalinkPath(window.location.pathname),
     []
   );
-  const permalink = useLegacyPermalink(permalinkId);
+  const permalink = useLegacyPermalink(permalinkPath);
 
   const result = useMemo(
     () => convertText(direction, debouncedInput, options),
@@ -205,9 +205,10 @@ export default function App() {
         onToggleTheme={toggleTheme}
         chatPromo={<ChatPromo data={input} format={inputFormat} />}
       />
-      {permalinkId &&
+      {permalinkPath &&
       (permalink.phase === "loading" ||
         permalink.phase === "not-found" ||
+        permalink.phase === "unsupported" ||
         permalink.phase === "error") ? (
         <PermalinkNotice
           phase={permalink.phase}

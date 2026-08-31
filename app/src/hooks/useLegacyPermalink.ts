@@ -1,19 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   hydrateConverter,
   fetchLegacyPermalink,
+  isHydratableTool,
   PermalinkNotFoundError,
   type HydratedConverterState,
+  type ParsedPermalink,
 } from "@/lib/permalink";
 
 /**
  * Fetch + map one legacy permalink into converter state. The caller owns
  * what happens to the converter; this hook only owns the fetch lifecycle:
- * loading → hydrated (with the mapped state) | not-found | error, plus a
- * retry that re-runs the same read-only GET.
+ * loading → hydrated (with the mapped state) | not-found | unsupported |
+ * error, plus a retry that re-runs the same read-only GET. Permalinks for
+ * tools with no converter equivalent (sql2json, json_beautifier, …) are
+ * never fetched — the converter just renders normally.
  */
 export type PermalinkHydration = {
-  phase: "idle" | "loading" | "not-found" | "error" | "hydrated";
+  phase:
+    | "idle"
+    | "loading"
+    | "not-found"
+    | "unsupported"
+    | "error"
+    | "hydrated";
   /** The mapped converter state, set only in the hydrated phase. */
   hydrated: HydratedConverterState | null;
   /** Human-readable failure detail — set only in the error phase. */
@@ -22,7 +32,14 @@ export type PermalinkHydration = {
   retry: () => void;
 };
 
-export function useLegacyPermalink(id: string | null): PermalinkHydration {
+export function useLegacyPermalink(
+  permalink: ParsedPermalink | null
+): PermalinkHydration {
+  // Only converter-shaped tools fetch; other tools fall through untouched.
+  const id = useMemo(
+    () => (permalink && isHydratableTool(permalink.tool) ? permalink.id : null),
+    [permalink]
+  );
   // Bumped by retry() — the effect re-runs the fetch for the same id.
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<PermalinkHydration["phase"]>(
@@ -45,8 +62,8 @@ export function useLegacyPermalink(id: string | null): PermalinkHydration {
           setPhase("hydrated");
         } else {
           // Object exists but no longer maps onto the converter (e.g. a
-          // Data Janitor session) — same fallback as a missing object.
-          setPhase("not-found");
+          // Data Janitor session) — a distinct notice from a missing one.
+          setPhase("unsupported");
         }
       })
       .catch((e: unknown) => {

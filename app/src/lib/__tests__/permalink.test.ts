@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fetchLegacyPermalink,
   hydrateConverter,
+  isHydratableTool,
   parsePermalinkPath,
   PermalinkFetchError,
   PermalinkNotFoundError,
@@ -27,10 +28,19 @@ const REAL_CSV2JSON_PAYLOAD = {
 };
 
 describe("parsePermalinkPath", () => {
-  it("extracts the id from a legacy permalink path", () => {
-    expect(parsePermalinkPath(`/csv2json/${ID}`)).toBe(ID);
-    expect(parsePermalinkPath(`/json2csv/${ID}/`)).toBe(ID);
-    expect(parsePermalinkPath(`/datajanitor/${ID}`)).toBe(ID);
+  it("extracts tool and id from a legacy permalink path", () => {
+    expect(parsePermalinkPath(`/csv2json/${ID}`)).toEqual({
+      tool: "csv2json",
+      id: ID,
+    });
+    expect(parsePermalinkPath(`/json2csv/${ID}/`)).toEqual({
+      tool: "json2csv",
+      id: ID,
+    });
+    expect(parsePermalinkPath(`/datajanitor/${ID}`)).toEqual({
+      tool: "datajanitor",
+      id: ID,
+    });
   });
 
   it("accepts every tool that issued legacy permalinks", () => {
@@ -43,8 +53,24 @@ describe("parsePermalinkPath", () => {
       "csvjson2json",
       "datajanitor",
     ]) {
-      expect(parsePermalinkPath(`/${tool}/${ID}`)).toBe(ID);
+      expect(parsePermalinkPath(`/${tool}/${ID}`)).toEqual({ tool, id: ID });
     }
+  });
+
+  it("gates hydration to converter-shaped tools only", () => {
+    // Real legacy tools that must fall through untouched: no fetch, no
+    // notice (sql2json/json_validator/json_beautifier/datajanitor).
+    expect(isHydratableTool("sql2json")).toBe(false);
+    expect(isHydratableTool("json_validator")).toBe(false);
+    expect(isHydratableTool("json_beautifier")).toBe(false);
+    expect(isHydratableTool("datajanitor")).toBe(false);
+    expect(isHydratableTool("csv2json")).toBe(true);
+    expect(isHydratableTool("json2csv")).toBe(true);
+    expect(isHydratableTool("csvjson2json")).toBe(true);
+  });
+
+  it("normalizes the S3 URL to a trailing slash", () => {
+    expect(S3_DATA_URL.endsWith("/")).toBe(true);
   });
 
   it("rejects everything that is not a permalink", () => {
@@ -93,6 +119,30 @@ describe("hydrateConverter", () => {
     expect(state!.options.hash).toBe(true);
   });
 
+  it("maps a csvjson2json save onto the csv2json direction", () => {
+    // csvjson2json saves the same CSV shape under `csv` (+ its own flags).
+    const state = hydrateConverter({ csv: "a,b\n1,2", minify: true });
+    expect(state).not.toBeNull();
+    expect(state!.direction).toBe("csv2json");
+    expect(state!.input).toBe("a,b\n1,2");
+  });
+
+  it("never treats a boolean format radio as input text", () => {
+    // A real sql2json save: `json`/`javascript` are format radios stored
+    // as booleans — not the textarea. Hydrating it as json2csv with an
+    // empty input is the blocker scenario; it must return null instead.
+    expect(
+      hydrateConverter({
+        sql: "SELECT 1",
+        json: true,
+        javascript: false,
+        minify: false,
+      })
+    ).toBeNull();
+    expect(hydrateConverter({ json: true })).toBeNull();
+    expect(hydrateConverter({ csv: "" })).toBeNull();
+  });
+
   it("returns null for payloads that no longer map onto the converter", () => {
     // A Data Janitor session: exists, but not a converter shape.
     expect(hydrateConverter({ id: ID, date: "Mon", text: "a,b" })).toBeNull();
@@ -103,6 +153,33 @@ describe("hydrateConverter", () => {
     expect(hydrateConverter(null)).toBeNull();
     expect(hydrateConverter("album,year")).toBeNull();
     expect(hydrateConverter({ csv: { nested: true } })).toBeNull();
+  });
+});
+
+describe("legacy tool fixtures (view ids from origin/master)", () => {
+  it("sql2json saves are not hydratable — the boolean radio can't masquerade", () => {
+    // sql2json_view.php + APP.save: {sql, json, javascript, minify} with
+    // json/javascript as radio booleans.
+    const save = {
+      sql: "SELECT 1",
+      json: true,
+      javascript: false,
+      minify: false,
+    };
+    expect(isHydratableTool("sql2json")).toBe(false);
+    expect(hydrateConverter(save)).toBeNull();
+  });
+
+  it("json_beautifier links fall through untouched", () => {
+    // json_beautifier saves its input under `json` — right shape, wrong
+    // tool; the tool gate (not the shape) keeps it from hydrating.
+    expect(isHydratableTool("json_beautifier")).toBe(false);
+  });
+
+  it("json_validator saves map to nothing and must never hydrate", () => {
+    // json_validator saves {result: ...} only.
+    expect(hydrateConverter({ result: "{}" })).toBeNull();
+    expect(isHydratableTool("json_validator")).toBe(false);
   });
 });
 

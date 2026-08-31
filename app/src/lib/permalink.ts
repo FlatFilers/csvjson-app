@@ -22,6 +22,22 @@ const PERMALINK_TOOLS: readonly string[] = [
   "datajanitor",
 ];
 
+/**
+ * Tools whose saves map onto the two converter directions. Other legacy
+ * tools (sql2json, json_validator, json_beautifier, datajanitor) issued
+ * permalinks too, but their payloads have no converter equivalent — those
+ * links fall through to the plain converter with no fetch and no notice.
+ */
+export const HYDRATABLE_TOOLS: readonly string[] = [
+  "csv2json",
+  "json2csv",
+  "csvjson2json", // saves the same CSV shape under `csv`
+];
+
+export function isHydratableTool(tool: string): boolean {
+  return HYDRATABLE_TOOLS.includes(tool);
+}
+
 const PERMALINK_ID_PATTERN = /^[0-9a-f]{32}$/i;
 
 const PATH_PATTERN = /^\/([a-z0-9_]+)\/([0-9a-f]{32})\/?$/i;
@@ -30,18 +46,33 @@ const PATH_PATTERN = /^\/([a-z0-9_]+)\/([0-9a-f]{32})\/?$/i;
  * Build-time constant for the bucket's `data/` prefix. Defaults to the
  * production bucket the CSP already whitelists (csvjson.s3.us-east-2);
  * override with VITE_S3_DATA_URL if the bucket location ever moves.
+ *
+ * Read through an optional chain so the module also loads in non-Vite
+ * runtimes (e.g. the committed E2E script under tsx); a misconfigured
+ * value without a trailing slash is normalized rather than corrupting
+ * the object key on concatenation.
  */
-export const S3_DATA_URL: string =
-  import.meta.env.VITE_S3_DATA_URL ??
-  "https://csvjson.s3.us-east-2.amazonaws.com/data/";
+const ENV = (import.meta as { env?: Record<string, string | undefined> })
+  .env;
 
-/** The permalink id this URL hydrates, or null for every other path. */
-export function parsePermalinkPath(pathname: string): string | null {
+export const S3_DATA_URL: string = (
+  ENV?.VITE_S3_DATA_URL ??
+  "https://csvjson.s3.us-east-2.amazonaws.com/data/"
+).replace(/\/*$/, "/");
+
+export type ParsedPermalink = { tool: string; id: string };
+
+/**
+ * The permalink this URL hydrates — tool included so hydration can be
+ * gated per tool — or null for every other path.
+ */
+export function parsePermalinkPath(pathname: string): ParsedPermalink | null {
   const match = PATH_PATTERN.exec(pathname);
   if (!match) return null;
-  if (!PERMALINK_TOOLS.includes(match[1].toLowerCase())) return null;
+  const tool = match[1].toLowerCase();
+  if (!PERMALINK_TOOLS.includes(tool)) return null;
   // S3 keys are lowercase hex (md5 ids); normalize so case never 403s.
-  return match[2].toLowerCase();
+  return { tool, id: match[2].toLowerCase() };
 }
 
 /**
@@ -127,6 +158,11 @@ function toText(value: unknown): string {
   return "";
 }
 
+/** A non-empty string value — the only thing that counts as saved input. */
+function isInputText(value: unknown): value is string {
+  return typeof value === "string" && value.trim() !== "";
+}
+
 function toBool(value: unknown): boolean | undefined {
   if (value === true || value === "true") return true;
   if (value === false || value === "false") return false;
@@ -145,17 +181,21 @@ function isLegacyShape(data: unknown): data is Record<string, unknown> {
 
 /**
  * Map a legacy {elementId: value} object onto converter state. Returns
- * null when the payload is not a legacy converter shape (no `csv`/`json`
- * input key — e.g. Data Janitor sessions) so the caller can fall back to
- * the not-found notice. If both input keys somehow appear, `csv` wins:
- * a single legacy save carries exactly one.
+ * null when the payload is not a legacy converter shape (no non-empty
+ * `csv`/`json` input — e.g. Data Janitor sessions, sql2json format-radio
+ * bags) so the caller can fall back to the unsupported notice. If both
+ * input keys somehow appear, `csv` wins: a single save carries exactly
+ * one.
  */
 export function hydrateConverter(
   data: unknown
 ): HydratedConverterState | null {
   if (!isLegacyShape(data)) return null;
-  const hasCsvInput = "csv" in data;
-  const hasJsonInput = "json" in data;
+  // Only a non-empty string counts as input: legacy format radios reuse
+  // the same element ids as booleans (sql2json saves `json: true` for its
+  // format radio) and must never masquerade as input text.
+  const hasCsvInput = isInputText(data.csv);
+  const hasJsonInput = isInputText(data.json);
   if (!hasCsvInput && !hasJsonInput) return null;
 
   const state: HydratedConverterState = {

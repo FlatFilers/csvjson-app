@@ -143,6 +143,42 @@ describe("legacy permalink hydration", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("falls through untouched for a tool with no converter equivalent", async () => {
+    // sql2json links must not fetch (and never blank or notice) — the
+    // converter renders normally, read-only contract intact.
+    visitPermalink("sql2json");
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(jsonResponse('{"sql":"SELECT 1"}'));
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("input-pane")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("permalink-loading")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("permalink-notice")).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("shows the unsupported notice for a live object that no longer maps", async () => {
+    visitPermalink();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse(JSON.stringify({ id: ID, date: "Mon", text: "a,b" }))
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("permalink-unsupported")).toHaveTextContent(
+        "can't be shown in the new converter"
+      );
+    });
+    // It exists — never claim it was deleted.
+    expect(screen.queryByTestId("permalink-notice")).not.toBeInTheDocument();
+    expect(screen.getByTestId("input-pane")).toBeInTheDocument();
+  });
+
   it("renders the converter normally with no permalink in the URL", () => {
     window.history.pushState({}, "", "/");
     vi.spyOn(globalThis, "fetch").mockRejectedValue(
