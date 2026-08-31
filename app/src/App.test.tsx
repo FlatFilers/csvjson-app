@@ -5,22 +5,6 @@ import App from "./App";
 
 const SAMPLE_CSV_INPUT = "album,year\nElephant,2003\nDe Stijl,2000";
 
-function inputEditor() {
-  return screen.getByTestId("input-editor") as HTMLTextAreaElement;
-}
-
-async function typeInput(text: string) {
-  const user = userEvent.setup();
-  await user.type(screen.getByTestId("input-editor"), text);
-  // Wait for the debounced conversion to land in the output pane.
-  await waitFor(
-    () => {
-      expect(screen.getByTestId("output-view").textContent).not.toBe("");
-    },
-    { timeout: 2000 }
-  );
-}
-
 async function flip() {
   const user = userEvent.setup();
   await user.click(screen.getByTestId("divider-switch"));
@@ -37,49 +21,63 @@ afterEach(() => {
 describe("direction flip", () => {
   it("turns the last valid output into the new input", async () => {
     render(<App />);
-    await typeInput(SAMPLE_CSV_INPUT);
+    fireEvent.click(screen.getByTestId("try-example"));
 
     // CSV → JSON: output is JSON for the two rows.
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
     const jsonOutput = screen.getByTestId("output-view").textContent;
     expect(jsonOutput).toContain('"Elephant"');
 
     // Flip: the JSON output becomes the input, panes swap roles.
     await flip();
     await waitFor(() => {
-      expect(inputEditor().value).toBe(jsonOutput);
+      // The JSON input editor renders the flipped output as its document.
+      expect(screen.getByTestId("input-editor").textContent).toBe(jsonOutput);
     });
-    expect(screen.getByTestId("output-view").textContent).toContain("Elephant");
+    expect(screen.getByTestId("output-table")).toBeInTheDocument();
   });
 
   it("flips without waiting for the debounce and never wipes the input", async () => {
     render(<App />);
-    const user = userEvent.setup({ delay: null });
-    // Type and flip immediately — inside the 150ms debounce window. The
+    // Paste and flip immediately — inside the 150ms debounce window. The
     // memoized result still holds the previous (empty) conversion; the
     // handler must convert the CURRENT input instead.
-    await user.type(inputEditor(), SAMPLE_CSV_INPUT);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => SAMPLE_CSV_INPUT },
+    });
     await flip();
-    expect(inputEditor().value).toContain("Elephant");
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("input-editor").textContent).toContain("Elephant");
   });
 
   it("leaves the input untouched when the output is an error", async () => {
     render(<App />);
-    await typeInput(SAMPLE_CSV_INPUT);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => SAMPLE_CSV_INPUT },
+    });
 
-    // Flip to JSON → CSV, then break the input. user-event's key parser
-    // chokes on literal braces, so set the value directly.
-    await flip();
-    fireEvent.change(inputEditor(), { target: { value: "bad json {{{" } });
+    // Switch to the raw editor (the table view is display-only) and break
+    // the CSV so conversion fails with a parse position.
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const editor = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: 'a,b\n"x"y,z' } });
     await waitFor(
       () => {
-        expect(screen.getByTestId("pane-status")).toBeInTheDocument();
+        expect(screen.getByTestId("pane-status")).toHaveTextContent(/line 2/i);
       },
       { timeout: 2000 }
     );
 
-    const broken = inputEditor().value;
+    const broken = editor.value;
     await flip();
-    expect(inputEditor().value).toBe(broken);
+    // Flip with an error output: the input editor keeps the broken text
+    // (CodeMirror renders it per-line; join without the newline) instead
+    // of adopting the error output.
+    expect(screen.getByTestId("input-editor").textContent).toBe(broken.replace(/\n/g, ""));
   });
 });
 
