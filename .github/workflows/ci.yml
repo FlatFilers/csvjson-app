@@ -57,6 +57,12 @@ jobs:
       - name: No promotional or telemetry remnants
         run: |
           targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
+          # Same zero-tolerance rule for surviving webroot image assets:
+          # promotional filenames must not ship, even unreferenced.
+          if find img -type f 2>/dev/null | grep -iE 'flatfile|obvious|_ad|sponsor'; then
+            echo "::error::Promotional image remnant found in img/ (spec criterion 8)"
+            exit 1
+          fi
           [ -d app/public ] && targets+=(app/public)
           [ -d app/dist ] && targets+=(app/dist)
           if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}"; then
