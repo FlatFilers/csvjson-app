@@ -128,7 +128,7 @@ export function SplitPane({
           // A pointerdown on the floating switch is the button's gesture.
           // Capturing it here would retarget the click to the seam and the
           // switch would never fire in a real browser.
-          if (event.target instanceof Element && event.target.closest('[data-testid="divider-switch"]')) {
+          if (event.target instanceof Element && event.target.closest("button")) {
             return;
           }
           event.preventDefault();
