@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ChatPromo } from "@/components/ChatPromo";
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputView } from "@/components/OutputView";
@@ -136,7 +137,11 @@ export default function App() {
 
   return (
     <div className="flex h-svh flex-col bg-background text-foreground">
-      <TopBar theme={theme} onToggleTheme={toggleTheme} />
+      <TopBar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        chatPromo={<ChatPromo data={input} format={inputFormat} />}
+      />
       <SplitPane
         layout={layout}
         split={split}
