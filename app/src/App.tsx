@@ -75,7 +75,13 @@ export default function App() {
   // S3 object, read-only. The URL is never rewritten; edits behave normally
   // afterward (spec: Old share links keep resolving — read-only).
   const permalinkPath = useMemo(
-    () => parsePermalinkPath(window.location.pathname),
+    // SSR/prerender has no window — the permalink path only exists in the
+    // browser, so the shell renders the default converter state (same
+    // typeof-window guard as initialTheme and useMediaQuery).
+    () =>
+      typeof window === "undefined"
+        ? null
+        : parsePermalinkPath(window.location.pathname),
     []
   );
   const permalink = useLegacyPermalink(permalinkPath);
