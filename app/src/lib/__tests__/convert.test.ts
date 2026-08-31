@@ -162,6 +162,8 @@ describe("edge cases (criterion 11)", () => {
   });
 
   it("rethrows other package failures as real Errors", () => {
+    // a thrown primitive string must NOT satisfy this — callers rely on e.message
+    expect(() => csvToJson("")).toThrowError(Error);
     expect(() => csvToJson("")).toThrowError(
       "Empty CSV. Please provide something."
     );

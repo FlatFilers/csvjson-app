@@ -52,9 +52,15 @@ export function csvToJson(
   // Belt and suspenders: the package tolerates a BOM, but stripping it here
   // guarantees header detection never sees it (spec: UTF-8 BOM stripped on input).
   const input = csv.startsWith(UTF8_BOM) ? csv.slice(UTF8_BOM.length) : csv;
-  return csv2json(input, options) as
-    | Record<string, unknown>[]
-    | Record<string, unknown>;
+  try {
+    return csv2json(input, options) as
+      | Record<string, unknown>[]
+      | Record<string, unknown>;
+  } catch (e) {
+    // The packages throw plain strings — rethrow as real Errors so callers
+    // never see a swallowed or message-less failure.
+    throw new Error(unwrapErrorMessage(e));
+  }
 }
 
 export function jsonToJsonCsv(
