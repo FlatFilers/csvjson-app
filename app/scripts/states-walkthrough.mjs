@@ -5,9 +5,12 @@
  */
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:8899";
-const OUT = "/home/user/work/csvjson-app/verification-screenshots";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const OUT = path.join(ROOT, "verification-screenshots");
 mkdirSync(OUT, { recursive: true });
 
 const results = [];
