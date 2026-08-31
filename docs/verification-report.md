@@ -11,7 +11,7 @@ the same front controller Apache uses).
 
 | # | Criterion | Verdict | Evidence |
 |---|-----------|---------|----------|
-| 1 | Round-trip fidelity | ✅ | vitest fixture suite: 111/111 tests green (13 files) |
+| 1 | Round-trip fidelity | ✅ | vitest fixture suite: 91/91 tests green (11 files) after the chat-promo cut; was 111/111 (13 files) with the promo |
 | 2 | Options behave | ✅ | vitest fixtures per option (same suite) |
 | 3 | Dense table / highlighted JSON / toggle swap | ✅ | component tests + walkthrough (see criterion 12) |
 | 4 | Invalid input → inline error, last valid output retained | ✅ | walkthrough steps `invalid: inline error shown`, `invalid: last valid output retained` |
@@ -21,15 +21,16 @@ the same front controller Apache uses).
 | 8 | No promotional/telemetry remnants | ✅ | grep over `app/dist`, `app/src`, `index.php`, `.htaccess`, `sitemap.xml`, `robots.txt` for segment/gtag/linkedin/carbonads/chikita/flatfile/typekit/putObject/googletagmanager/analytics → **zero hits** |
 | 9 | CI green on every PR | ✅ | CI from zero (`.github/workflows/ci.yml`): lint + typecheck + tests + production build; all six child PRs merged green; full local gate re-run on the integrated branch (below) |
 | 10 | Crawlable initial HTML | ✅ | curl of built `index.html`: title, H1, og:title/og:description, canonical, 2 JSON-LD blocks (SoftwareApplication, FAQPage with 4 Q/As), "How it works & FAQ", option-hint text ("…00721 into 7…"), "CSV to JSON"/"JSON to CSV"/"TSV" all present |
-| 11 | Edge-case behaviors | ✅ | vitest fixtures (ragged rows, duplicate headers, empty cells, direction flip) — part of the 111 |
-| 12 | States render per the states table | ✅ | component tests per state + scripted walkthrough, **18/18 checks** |
+| 11 | Edge-case behaviors | ✅ | vitest fixtures (ragged rows, duplicate headers, empty cells, direction flip) — part of the 91 |
+| 12 | States render per the states table | ✅ | component tests per state + scripted walkthrough, **17/17 checks** |
+| 13 | One promo ("Chat with this data in…") | ✂️ **Cut for v1** | Documented product decision (David, 2026-08-31): the chat promo is parked for a future release, not a verification failure. Feature surface (PR #159) fully removed on this branch — no dead code or copy remains (grep-verified); the TopBar's general extension slot is retained for the future re-add. |
 
 ## Local verification (integrated branch, this pass)
 
 - lint: clean
 - typecheck (`tsc -b`): clean
-- test suite: **111 passed (111)**, 13 files
-- production build + prerender: green (`dist/index.html` prerendered, 16837 chars of app markup)
+- test suite: **91 passed (91)**, 11 files (chat-promo suites removed with the feature — cut for v1 per David's direction)
+- production build + prerender: green (`dist/index.html` prerendered, 15329 chars of app markup, chat-promo-free)
 - legacy permalink E2E (criterion 6): committed script `app/scripts/e2e-legacy-permalink.ts` against the live bucket —
   `GET https://csvjson.s3.us-east-2.amazonaws.com/data/000c44f43e2f62cc15c48d9d7c5a4582` → HTTP 200, direct browser fetch
   (no PHP proxy), hydrates direction `csv2json` with saved options `{parseNumbers:true, parseJSON:true, transpose:false, hash:false}`;
@@ -51,7 +52,7 @@ the same front controller Apache uses).
 ## Criterion 12 — states walkthrough (screenshots in `verification-screenshots/`)
 
 Driven by `app/scripts/states-walkthrough.mjs` (Playwright, trusted browser input) against
-the PHP shim serving the production build. 18/18 checks:
+the PHP shim serving the production build. 17/17 checks:
 
 empty (dropzone + quiet output placeholder) · drag-over highlight (`data-drag-over`) ·
 ready (dense table replaces dropzone, `6 rows · 3 cols` in header) · raw editing toggle ·
