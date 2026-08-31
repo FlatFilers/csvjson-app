@@ -21,7 +21,7 @@ beforeEach(() => {
   stubClipboardWrite(async (text) => {
     written.push(text);
   });
-  vi.spyOn(window, "open").mockReturnValue(null);
+  vi.spyOn(window, "open").mockReturnValue({} as Window);
 });
 
 afterEach(() => {
@@ -147,6 +147,21 @@ describe("clipboard fallback (spec: browser / platform)", () => {
     await clickProviderWithToast("claude", null);
     expect(window.open).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("chat-toast")).toBeNull();
+  });
+
+  it("toasts when the copy fails AND the popup is blocked", async () => {
+    stubClipboardWrite(async () => {
+      throw new Error("denied");
+    });
+    document.execCommand = vi.fn(() => false) as unknown as typeof document.execCommand;
+    vi.spyOn(window, "open").mockReturnValue(null);
+
+    renderPromo(SMALL_DATA, "CSV");
+    await clickProviderWithToast(
+      "claude",
+      "Couldn't copy or open — check your popup blocker"
+    );
+    expect(window.open).toHaveBeenCalledTimes(1);
   });
 });
 

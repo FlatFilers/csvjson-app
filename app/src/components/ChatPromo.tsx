@@ -41,14 +41,24 @@ export function ChatPromo({ data, format }: ChatPromoProps) {
     toastTimer.current = window.setTimeout(() => setToast(null), TOAST_DISMISS_MS);
   };
 
-  const openProvider = async (provider: ChatProvider) => {
+  const openProvider = (provider: ChatProvider) => {
     if (disabled) return;
     const handoff = buildChatHandoff(data, format);
-    const copied = await copyText(handoff.inline ? handoff.prompt : data);
-    if (copied) {
-      showToast(handoff.inline ? PROMPT_COPIED_TOAST : DATA_COPIED_TOAST);
-    }
-    window.open(provider.buildUrl(handoff.prompt), "_blank", "noopener,noreferrer");
+    // Open synchronously inside the click gesture — Safari and strict popup
+    // blockers reject window.open after an await, and a blocked tab is silent.
+    const copyPromise = copyText(handoff.inline ? handoff.prompt : data);
+    const win = window.open(
+      provider.buildUrl(handoff.prompt),
+      "_blank",
+      "noopener,noreferrer"
+    );
+    void copyPromise.then((copied) => {
+      if (copied) {
+        showToast(handoff.inline ? PROMPT_COPIED_TOAST : DATA_COPIED_TOAST);
+      } else if (!win) {
+        showToast("Couldn't copy or open — check your popup blocker");
+      }
+    });
   };
 
   return (
@@ -57,17 +67,20 @@ export function ChatPromo({ data, format }: ChatPromoProps) {
         Chat with this data in…
       </span>
       {CHAT_PROMO_PROVIDERS.map((provider) => (
-        <button
+        <span
           key={provider.id}
-          type="button"
-          data-testid={`chat-provider-${provider.id}`}
-          disabled={disabled}
           title={disabled ? "Add data to the converter first" : undefined}
-          onClick={() => void openProvider(provider)}
-          className="cursor-pointer rounded-md border border-border bg-panel px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-panel disabled:hover:text-muted-foreground"
         >
-          {provider.label}
-        </button>
+          <button
+            type="button"
+            data-testid={`chat-provider-${provider.id}`}
+            disabled={disabled}
+            onClick={() => openProvider(provider)}
+            className="cursor-pointer rounded-md border border-border bg-panel px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none disabled:hover:bg-panel disabled:hover:text-muted-foreground"
+          >
+            {provider.label}
+          </button>
+        </span>
       ))}
       {toast && (
         <div
