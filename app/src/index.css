@@ -1,4 +1,11 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+
+/* Constrain the Tailwind source scan to actual app code. Bare auto
+   detection scans the whole repository, so text in CI workflows, script
+   comments, and config files leaked unused utilities into production CSS —
+   any text edit anywhere in the repo could silently change the shipped CSS. */
+@source "./**/*.{ts,tsx}";
+@source "../index.html";
 
 @custom-variant dark (&:is(.dark *));
 
