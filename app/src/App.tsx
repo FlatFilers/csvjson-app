@@ -4,10 +4,12 @@ import { DividerSwitch } from "@/components/DividerSwitch";
 import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputPane } from "@/components/OutputPane";
+import { PermalinkNotice } from "@/components/PermalinkNotice";
 import { SplitPane, type SplitLayout } from "@/components/SplitPane";
 import { TopBar } from "@/components/TopBar";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useLegacyPermalink } from "@/hooks/useLegacyPermalink";
 import {
   convertText,
   DEFAULT_OPTIONS,
@@ -19,6 +21,7 @@ import { downloadText } from "@/lib/download";
 import { isTextFile } from "@/lib/files";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
 import { initialTheme, persistTheme } from "@/lib/theme";
+import { parsePermalinkPath } from "@/lib/permalink";
 
 /** Past this size, live conversion stretches its debounce (spec: Throttled). */
 const LARGE_INPUT_CHARS = 2 * 1024 * 1024;
@@ -66,6 +69,16 @@ export default function App() {
     input.length > LARGE_INPUT_CHARS ? LARGE_INPUT_DEBOUNCE_MS : DEBOUNCE_MS;
   const debouncedInput = useDebouncedValue(input, inputEmpty ? 0 : debounceMs);
 
+
+  // Legacy permalinks: /<tool>/<32-hex-id> hydrates the converter from the
+  // S3 object, read-only. The URL is never rewritten; edits behave normally
+  // afterward (spec: Old share links keep resolving — read-only).
+  const permalinkPath = useMemo(
+    () => parsePermalinkPath(window.location.pathname),
+    []
+  );
+  const permalink = useLegacyPermalink(permalinkPath);
+
   const result = useMemo(
     () => convertText(direction, debouncedInput, options),
     [direction, debouncedInput, options]
@@ -90,6 +103,15 @@ export default function App() {
       if (current.ok) setInput(current.text);
     }
   };
+  // Hydration applies exactly once per fetch, like a paste: direction,
+  // input text, and the saved option values merged over the defaults.
+  const hydratedState = permalink.hydrated;
+  useEffect(() => {
+    if (hydratedState === null) return;
+    setDirection(hydratedState.direction);
+    setInput(hydratedState.input);
+    setOptions((current) => ({ ...current, ...hydratedState.options }));
+  }, [hydratedState]);
 
   // FileReader upload — files never touch the network (spec: Input; the
   // legacy /upload endpoint is deleted).
@@ -183,6 +205,17 @@ export default function App() {
         onToggleTheme={toggleTheme}
         chatPromo={<ChatPromo data={input} format={inputFormat} />}
       />
+      {permalinkPath &&
+      (permalink.phase === "loading" ||
+        permalink.phase === "not-found" ||
+        permalink.phase === "unsupported" ||
+        permalink.phase === "error") ? (
+        <PermalinkNotice
+          phase={permalink.phase}
+          message={permalink.phase === "error" ? permalink.message : undefined}
+          onRetry={permalink.retry}
+        />
+      ) : null}
       <SplitPane
         layout={layout}
         split={split}

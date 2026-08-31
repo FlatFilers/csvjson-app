@@ -70,5 +70,14 @@ jobs:
             exit 1
           fi
 
+      # Legacy permalinks are read-only (spec: Old share links keep
+      # resolving — read-only): no write verbs may ever appear in the SPA.
+      - name: No write API usage in the SPA
+        run: |
+          if grep -rniE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']' app/src; then
+            echo "::error::Write API usage found in app/src — the SPA must be read-only"
+            exit 1
+          fi
+
       - name: Redirect table, permalinks, and removed endpoints
         run: bash .github/scripts/verify-shim.sh
