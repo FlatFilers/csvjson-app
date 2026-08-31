@@ -26,3 +26,17 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
       "No. The conversion runs entirely in your browser — nothing is uploaded, nothing is stored, nothing is logged. Files you open are read locally in the page, and there is no account, server processing, or telemetry anywhere in the flow.",
   },
 ];
+
+/**
+ * Rendered unconditionally — the prerendered HTML carries it whether the
+ * accordion is open or not.
+ */
+export const FAQ_PAGE_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};

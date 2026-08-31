@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FAQ_ITEMS } from "@/seo/faqContent";
+import { FAQ_ITEMS, FAQ_PAGE_LD } from "@/seo/faqContent";
 
 /**
  * Collapsed-by-default accordion under the converter (spec: SEO — FAQ).
@@ -41,4 +41,13 @@ export function Faq() {
           </div>
         ))}
       </div>
+      {/* FAQPage structured data (spec: SEO — structured data), derived from
+          the same items the accordion renders so the markup always matches
+          the visible questions. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_PAGE_LD) }}
+      />
     </section>
+  );
+}

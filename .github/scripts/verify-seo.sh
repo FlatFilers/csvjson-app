@@ -55,6 +55,8 @@ check "FAQ privacy copy" "The conversion runs entirely in your browser"
 check "option hint copy (parse numbers)" "it turns 00721 into 7"
 
 # Structured data (spec: SEO — structured data).
+check "JSON-LD SoftwareApplication" '"@type": "SoftwareApplication"'
+check "JSON-LD FAQPage" '"@type":"FAQPage"'
 if ! grep -qF '<div id="root"><' "$OUT"; then
   echo "::error::SEO check failed: #root is empty in the built index.html — prerender did not run"
   fail=1
