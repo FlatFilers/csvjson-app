@@ -12,8 +12,14 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.9",
+    "@tanstack/react-virtual": "^3.14.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "codemirror": "^6.0.2",
     "csvjson-csv2json": "5.0.6",
     "csvjson-json2csv": "1.0.3",
     "react": "^18.3.1",
