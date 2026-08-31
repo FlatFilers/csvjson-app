@@ -200,6 +200,9 @@ export default function App() {
 
   return (
     <div className="flex h-svh flex-col bg-background text-foreground">
+      {/* The one H1 the page ships (spec: SEO on-page targets) — quiet, so
+          the tool itself stays the interface. */}
+      <h1 className="sr-only">CSV to JSON and JSON to CSV converter</h1>
       <TopBar
         theme={theme}
         onToggleTheme={toggleTheme}

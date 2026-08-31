@@ -37,7 +37,10 @@ jobs:
         run: npm test
 
       - name: Production build
-        run: npx vite build  # typecheck step already runs tsc -b
+        run: npm run build  # typecheck step already runs tsc -b; build ends with the prerender step
+
+      - name: SEO — prerendered index.html carries the on-page targets
+        run: bash ../.github/scripts/verify-seo.sh
 
   shim:
     runs-on: ubuntu-latest
