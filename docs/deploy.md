@@ -26,9 +26,17 @@ installs the PHP 8.3 runtime, reads the `Procfile`, and starts
 `heroku-php-apache2` at the repo root. Heroku's Apache build honors the
 committed `.htaccess`, so the shim behaves exactly as verified locally:
 
-1. Real files under the docroot (`img/`, `robots.txt`, `sitemap.xml`) are
-   served by Apache directly.
-2. `app/`, `.git*`, and `README.md` are forbidden at the web server.
+1. Real files under the docroot are served by Apache directly — the deny
+   list in `.htaccess` is the **only** gate, because the docroot is the repo
+   root. What stays public: `img/`, `robots.txt`, `sitemap.xml`,
+   `license.txt`, and `index.php` itself (the front controller).
+2. Everything else committed is forbidden at the web server (403): the SPA
+   build tree (`app/`), git/CI metadata (`.git*`, `.github`), repo docs
+   (`docs/`), verification screenshots, dotfiles, build/dep metadata
+   (`Procfile`, `composer.json`/`composer.lock`), `README.md`,
+   `ISSUE_TEMPLATE.md`, and the editor project files. The front controller
+   mirrors the same list so the dev server (and CI's `verify-shim.sh`) 404s
+   them identically.
 3. Everything else rewrites to `index.php`, which serves the built SPA from
    `app/dist` (the committed build is the deploy transport) and applies the
    legacy 301 map and permalink passthrough.
@@ -96,6 +104,11 @@ commit rather than force-pushing the branch.
 - **DNS / SSL** — untouched. Cloudflare already proxies csvjson.com to the
   app's heroku-router hostname (confirmed by the DNS trace); the same app,
   origin, and certificates keep serving the domain.
+- **Docroot gate** — because the default docroot is the repo root, every
+  newly committed real file is publicly reachable on csvjson.com unless the
+  `.htaccess` deny list (and its mirror in `index.php`) covers it. Anything
+  committed at the root in future must either be public by design or added
+  to both deny lists.
 - **Heroku app identity** — same app name, same config vars, same add-ons.
 - **Legacy permalink storage** — objects stay in S3 and are fetched
   read-only by the browser; the server never touches them.

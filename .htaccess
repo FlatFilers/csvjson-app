@@ -17,6 +17,17 @@ RewriteRule ^([^/]+/)*favicon\.ico$ /img/favicon.ico [L]
 RewriteRule ^app/ - [F,L]
 RewriteRule ^(.*/)?\.git - [F,L]
 RewriteRule ^README\.md - [F,L]
+
+# The default Heroku docroot is the repo root, so Apache serves every
+# committed real file unless it is denied here. Repo docs, screenshots,
+# dotfiles, and build/dep metadata are not part of the public site.
+RewriteRule ^docs/ - [F,L]
+RewriteRule ^verification-screenshots/ - [F,L]
+RewriteRule ^\. - [F,L]
+RewriteRule ^composer\.(json|lock)$ - [F,L]
+RewriteRule ^Procfile$ - [F,L]
+RewriteRule ^ISSUE_TEMPLATE\.md$ - [F,L]
+RewriteRule ^csvjson\.sublime- - [F,L]
 ErrorDocument 403 "Access Forbidden"
 
 # Everything that is not a real file or directory goes to the front

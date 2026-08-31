@@ -63,6 +63,17 @@ expect_status /csv2json/instrument 410
 expect_status /csv2json/upload 410
 expect_status /json2csv/upload 410
 
+# Repo internals are not public — mirrors the docroot deny list (the
+# .htaccess rules 403 these under Apache; the shim 404s them).
+expect_status /docs/deploy.md 404
+expect_status /verification-screenshots/01-empty-light.png 404
+expect_status /composer.json 404
+expect_status /composer.lock 404
+expect_status /Procfile 404
+expect_status /ISSUE_TEMPLATE.md 404
+expect_status /csvjson.sublime-project 404
+expect_status /.user.ini 404
+
 # The root serves the SPA shell; unknown paths 404.
 expect_status / 200
 if ! curl -s http://127.0.0.1:8080/ | grep -q spa; then
