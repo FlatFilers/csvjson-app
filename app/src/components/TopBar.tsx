@@ -1,5 +1,5 @@
+import type { ReactNode } from "react";
 import type { Theme } from "@/lib/theme";
-
 function ThemeIcon({ theme }: { theme: Theme }) {
   // Sun in dark mode (click to go light), moon in light mode.
   if (theme === "dark") {
@@ -47,13 +47,14 @@ function ThemeIcon({ theme }: { theme: Theme }) {
 type TopBarProps = {
   theme: Theme;
   onToggleTheme: () => void;
+  /** Rendered into the chat-promo slot (the single surviving promotion). */
+  chatPromo?: ReactNode;
 };
 
 /**
- * Top bar: wordmark, chat-promo slot (empty — the promo is a sibling task),
- * and the persisted dark/light toggle.
+ * Top bar: wordmark, chat-promo slot, and the persisted dark/light toggle.
  */
-export function TopBar({ theme, onToggleTheme }: TopBarProps) {
+export function TopBar({ theme, onToggleTheme, chatPromo }: TopBarProps) {
   return (
     <header
       data-testid="topbar"
@@ -64,8 +65,7 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
         <span className="font-medium text-muted-foreground/70">.com</span>
       </span>
       <div className="flex-1" />
-      {/* Reserved slot for the sibling chat-promo task — intentionally empty. */}
-      <div data-testid="chat-promo-slot" />
+      <div data-testid="chat-promo-slot">{chatPromo}</div>
       <button
         type="button"
         data-testid="theme-toggle"
