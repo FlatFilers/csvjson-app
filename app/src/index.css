@@ -3,6 +3,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --panel: 0 0% 100%;
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --muted: 240 4.8% 95.9%;
@@ -22,6 +23,7 @@
 
 .dark {
   --background: 240 10% 3.9%;
+  --panel: 240 6% 7%;
   --foreground: 0 0% 98%;
   --muted: 240 3.7% 15.9%;
   --muted-foreground: 240 5% 64.9%;
@@ -37,6 +39,7 @@
 
 @theme inline {
   --color-background: hsl(var(--background));
+  --color-panel: hsl(var(--panel));
   --color-foreground: hsl(var(--foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
