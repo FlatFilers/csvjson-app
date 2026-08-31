@@ -84,3 +84,8 @@ Screenshots: `01-empty-light` … `12-faq-open` (light, dark, narrow, permalink 
 2. **Deploy transport** — default per spec: commit the built `dist/` (done on this
    branch). If David prefers rsync/SCP from CI, the committed dist can be dropped;
    his call, host-access details only he has.
+
+   The deploy runbook now lives in **`docs/deploy.md`**: Procfile + composer stub
+   for the existing Heroku app (PHP buildpack auto-detects, `heroku-php-apache2`
+   boots Apache at the repo root, `.htaccess` rewriting unchanged), the
+   post-merge cutover checklist, and rollback.
