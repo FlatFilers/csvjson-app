@@ -28,12 +28,18 @@ function metaLabel(rows: number, cols: number): string | null {
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
-  const toggleTheme = () =>
-    setTheme((current) => (current === "dark" ? "light" : "dark"));
+  // index.html applies the pre-mount theme (no white flash); React stays the
+  // source of truth after hydration.
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    persistTheme(theme);
   }, [theme]);
+  // Persist only an explicit choice — an OS-derived theme isn't a preference.
+  const toggleTheme = () =>
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      persistTheme(next);
+      return next;
+    });
 
   const [direction, setDirection] = useState<Direction>("csv2json");
   const [input, setInput] = useState("");
@@ -64,8 +70,13 @@ export default function App() {
   const handleFlip = () => {
     setDirection((current) => (current === "csv2json" ? "json2csv" : "csv2json"));
     // Flip rule: the last valid output becomes the new input; an error
-    // output leaves the input untouched.
-    if (!inputEmpty && result.ok) setInput(result.text);
+    // output leaves the input untouched. Convert the *current* input — the
+    // memoized result lags `input` by the debounce window (1 s for large
+    // files), so using it here could wipe a freshly typed value.
+    if (!inputEmpty) {
+      const current = convertText(direction, input, options);
+      if (current.ok) setInput(current.text);
+    }
   };
 
   const csvToJson = direction === "csv2json";
@@ -140,7 +151,9 @@ export default function App() {
         options={options}
         onChange={(patch) => setOptions((current) => ({ ...current, ...patch }))}
         meta={meta}
-        notice={largeInput ? "Large file — converting on pause" : null}
+        notice={
+          largeInput ? "Large file — conversion pauses briefly while typing" : null
+        }
       />
     </div>
   );

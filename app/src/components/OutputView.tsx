@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import type { JsonToken } from "@/lib/highlight";
 import { tokenizeJson } from "@/lib/highlight";
 
@@ -13,25 +14,48 @@ function tokenClass(kind: JsonToken["kind"]): string | undefined {
 /**
  * Read-only output view. JSON renders pretty-printed with syntax coloring
  * (mockup token palette); CSV renders as plain preformatted text.
- * Full-bleed, no card chrome.
+ * Full-bleed, no card chrome. Memoized: App re-renders on every keystroke
+ * and tokenizing multi-MB output on each one would freeze typing.
  */
-export function OutputView({ text, format }: { text: string; format: "json" | "csv" }) {
+export const OutputView = memo(function OutputView({
+  text,
+  format,
+}: {
+  text: string;
+  format: "json" | "csv";
+}) {
   const className =
     "flex-1 overflow-auto p-3 font-mono text-[12.5px] leading-relaxed whitespace-pre";
   if (format === "json") {
-    return (
-      <pre data-testid="output-view" className={className}>
-        {tokenizeJson(text).map((token, index) => (
-          <span key={`${token.kind}-${index}`} className={tokenClass(token.kind)}>
-            {token.text}
-          </span>
-        ))}
-      </pre>
-    );
+    return <JsonOutput text={text} className={className} />;
   }
   return (
     <pre data-testid="output-view" className={className}>
       {text}
+    </pre>
+  );
+});
+
+/** Past this size highlighting costs more than it shows — render plain. */
+const HIGHLIGHT_MAX_CHARS = 256 * 1024;
+
+function JsonOutput({ text, className }: { text: string; className: string }) {
+  // The memo keeps re-tokenization off re-renders; the cap keeps huge
+  // outputs usable — fully visible, just uncolored.
+  const tokens = useMemo(
+    () =>
+      text.length > HIGHLIGHT_MAX_CHARS
+        ? [{ text, kind: "plain" as const }]
+        : tokenizeJson(text),
+    [text]
+  );
+  return (
+    <pre data-testid="output-view" className={className}>
+      {tokens.map((token, index) => (
+        <span key={`${token.kind}-${index}`} className={tokenClass(token.kind)}>
+          {token.text}
+        </span>
+      ))}
     </pre>
   );
 }

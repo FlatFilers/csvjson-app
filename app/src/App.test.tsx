@@ -51,6 +51,17 @@ describe("direction flip", () => {
     expect(screen.getByTestId("output-view").textContent).toContain("Elephant");
   });
 
+  it("flips without waiting for the debounce and never wipes the input", async () => {
+    render(<App />);
+    const user = userEvent.setup({ delay: null });
+    // Type and flip immediately — inside the 150ms debounce window. The
+    // memoized result still holds the previous (empty) conversion; the
+    // handler must convert the CURRENT input instead.
+    await user.type(inputEditor(), SAMPLE_CSV_INPUT);
+    await flip();
+    expect(inputEditor().value).toContain("Elephant");
+  });
+
   it("leaves the input untouched when the output is an error", async () => {
     render(<App />);
     await typeInput(SAMPLE_CSV_INPUT);

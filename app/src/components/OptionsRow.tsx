@@ -1,4 +1,5 @@
 import type { ConverterOptions, Direction } from "@/lib/convert";
+import { useId, useState } from "react";
 
 type OptionsRowProps = {
   direction: Direction;
@@ -50,21 +51,27 @@ function ToggleOption({
 }
 
 function OptionHint({ text }: { text: string }) {
+  const hintId = useId();
+  const [open, setOpen] = useState(false);
   return (
     <span className="relative ml-1 inline-flex items-center">
       <button
         type="button"
         aria-label="What does this option do?"
+        aria-expanded={open}
+        aria-describedby={hintId}
         title="What does this option do?"
-        onClick={(event) => {
-          const target = event.currentTarget.parentElement?.querySelector("[data-hint]");
-          if (target instanceof HTMLElement) target.hidden = !target.hidden;
-        }}
+        onClick={() => setOpen((current) => !current)}
         className="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-border text-[9px] font-semibold leading-none text-muted-foreground hover:text-foreground"
       >
         i
       </button>
-      <span data-hint hidden className="ml-1.5 text-muted-foreground">
+      <span
+        data-hint
+        id={hintId}
+        hidden={!open}
+        className="ml-1.5 text-muted-foreground"
+      >
         {text}
       </span>
     </span>

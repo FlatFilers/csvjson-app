@@ -3,6 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Apply the theme before first paint — no dark-mode white flash.
+      // React reads the same values and stays the source of truth after mount.
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem("csvjson-theme");
+        } catch (e) {
+          /* private mode — fall through to OS preference */
+        }
+        if (theme !== "dark" && theme !== "light") {
+          try {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          } catch (e) {
+            theme = "light";
+          }
+        }
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
     <title>CSV to JSON Converter — CSVJSON</title>
     <meta
       name="description"

@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { SPLIT_MAX, SPLIT_MIN, SPLIT_RESET, clampSplit } from "@/lib/split";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +38,11 @@ export function SplitPane({
   const [dragging, setDragging] = useState(false);
   const stacked = layout === "stacked";
 
+  // Pointer Events cover mouse, touch, and pen in one path; touch-action:
+  // none on the seam stops the browser from claiming the gesture to scroll.
   useEffect(() => {
     if (!dragging) return;
-    const onMove = (event: MouseEvent) => {
+    const onMove = (event: PointerEvent) => {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect || rect.width === 0 || rect.height === 0) return;
       const fraction = stacked
@@ -43,13 +51,42 @@ export function SplitPane({
       onSplitChange(clampSplit(fraction * 100));
     };
     const onUp = () => setDragging(false);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
     };
   }, [dragging, stacked, onSplitChange]);
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? 5 : 1;
+    switch (event.key) {
+      case "ArrowLeft":
+      case "ArrowUp":
+        event.preventDefault();
+        onSplitChange(clampSplit(split - step));
+        break;
+      case "ArrowRight":
+      case "ArrowDown":
+        event.preventDefault();
+        onSplitChange(clampSplit(split + step));
+        break;
+      case "Home":
+        event.preventDefault();
+        onSplitChange(SPLIT_MIN);
+        break;
+      case "End":
+        event.preventDefault();
+        onSplitChange(SPLIT_MAX);
+        break;
+      case "Enter":
+      case " ":
+        event.preventDefault();
+        onSplitChange(SPLIT_RESET);
+        break;
+    }
+  };
 
   return (
     <div
@@ -76,23 +113,32 @@ export function SplitPane({
       <div
         data-testid="seam"
         role="separator"
+        tabIndex={0}
         aria-orientation={stacked ? "horizontal" : "vertical"}
         aria-valuenow={Math.round(split)}
         aria-valuemin={SPLIT_MIN}
         aria-valuemax={SPLIT_MAX}
+        aria-label="Resize panes"
         title="Drag to resize · double-click to reset"
-        onMouseDown={(event) => {
+        onPointerDown={(event) => {
           event.preventDefault();
+          // jsdom lacks setPointerCapture; the window listeners below make
+          // capture redundant for pointer-move tracking anyway.
+          event.currentTarget.setPointerCapture?.(event.pointerId);
           setDragging(true);
         }}
+        onPointerUp={() => setDragging(false)}
         onDoubleClick={() => onSplitChange(SPLIT_RESET)}
+        onKeyDown={onKeyDown}
+        style={
+          stacked
+            ? { top: `${split}%`, height: 0, touchAction: "none" }
+            : { left: `${split}%`, width: 0, touchAction: "none" }
+        }
         className={cn(
           "absolute z-10",
           stacked ? "inset-x-0 cursor-row-resize" : "inset-y-0 cursor-col-resize"
         )}
-        style={
-          stacked ? { top: `${split}%`, height: 0 } : { left: `${split}%`, width: 0 }
-        }
       >
         {/* 12px invisible hit area so the 1px seam is grabbable */}
         <div

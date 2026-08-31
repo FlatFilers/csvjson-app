@@ -34,8 +34,8 @@ function splitValue() {
 async function dragSeamTo(seam: HTMLElement, clientX: number) {
   const user = userEvent.setup();
   await user.pointer({ target: seam, keys: "[MouseLeft>]" });
-  window.dispatchEvent(new MouseEvent("mousemove", { clientX }));
-  window.dispatchEvent(new MouseEvent("mouseup"));
+  window.dispatchEvent(new PointerEvent("pointermove", { clientX }));
+  window.dispatchEvent(new PointerEvent("pointerup"));
 }
 
 describe("clampSplit", () => {
@@ -83,13 +83,30 @@ describe("SplitPane seam dragging", () => {
     expect(splitValue()).toBe(SPLIT_RESET);
   });
 
-  it("stops resizing after mouseup", async () => {
+  it("stops resizing after pointerup", async () => {
     render(<Harness />);
     stubContainerWidth();
     const seam = screen.getByTestId("seam");
 
     await dragSeamTo(seam, 400);
-    window.dispatchEvent(new MouseEvent("mousemove", { clientX: 700 }));
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 700 }));
     expect(splitValue()).toBe(40);
+  });
+
+  it("resizes with arrow keys and resets with Enter", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    const seam = screen.getByTestId("seam");
+
+    seam.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(splitValue()).toBe(51);
+
+    // Shift makes the step 5.
+    await user.keyboard("{Shift>}{ArrowLeft}{/Shift}");
+    expect(splitValue()).toBe(46);
+
+    await user.keyboard("{Enter}");
+    expect(splitValue()).toBe(SPLIT_RESET);
   });
 });
