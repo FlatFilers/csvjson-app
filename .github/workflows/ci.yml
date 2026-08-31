@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [release/rebuild-csvjson-spa]
+    branches: [master, release/rebuild-csvjson-spa]
 
 permissions:
   contents: read
@@ -36,8 +36,22 @@ jobs:
       - name: Test
         run: npm test
 
+      # Stale-artifact guard: hash the committed app/dist BEFORE the build
+      # regenerates it, so a forgotten rebuild can never ship stale frontend
+      # code through the committed-artifact deploy transport.
+      - name: Snapshot committed dist hashes
+        run: find dist -type f -exec sha256sum {} + | LC_ALL=C sort -k2 > /tmp/dist-committed.sha
+
       - name: Production build
         run: npm run build  # typecheck step already runs tsc -b; build ends with the prerender step
+
+      - name: Verify committed dist matches the fresh build
+        run: |
+          find dist -type f -exec sha256sum {} + | LC_ALL=C sort -k2 > /tmp/dist-fresh.sha
+          if ! diff -u /tmp/dist-committed.sha /tmp/dist-fresh.sha; then
+            echo "::error::Committed app/dist differs from a fresh build — run 'npm run build' locally and commit the updated app/dist"
+            exit 1
+          fi
 
       - name: SEO — prerendered index.html carries the on-page targets
         run: bash ../.github/scripts/verify-seo.sh
