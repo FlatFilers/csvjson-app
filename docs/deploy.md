@@ -47,9 +47,17 @@ dist-asset caching, traversal refusal) and `php -l index.php` on PHP 8.3.
 
 ## Cutover checklist (after PR #155 merges)
 
-Deploy the release branch to the production app (via your existing deploy
-path — Git push to the Heroku remote, CI auto-deploy, or dashboard), then
-verify, in order:
+0. **Search Console baseline export — BLOCKING, before deploying anything.**
+   Export query performance and URL coverage data for csvjson.com from
+   Google Search Console before deploying the release branch. It is the
+   only before/after evidence available once the old tree is gone — there
+   is no way to reconstruct it later. This is a required pre-cutover
+   artifact (David's call; already on the pre-launch list in
+   `docs/verification-report.md`).
+
+Then deploy the release branch to the production app (via your existing
+deploy path — Git push to the Heroku remote, CI auto-deploy, or dashboard),
+and verify, in order:
 
 1. **301 map** — run the same checks CI runs, but against production:
 
@@ -98,6 +106,36 @@ previous release was.
 
 If the bad deploy came through the release branch, fix forward on a new
 commit rather than force-pushing the branch.
+
+## Post-cutover SEO monitoring
+
+With Search Console's baseline in hand (step 0 above), measure after
+cutover:
+
+- **Week-2 checkpoint** — compare Search Console URL coverage and query
+  rankings against the baseline export. No action threshold yet; this is
+  the early-warning read.
+- **Week-4 checkpoint** — the decision point. Two things to check:
+
+  1. **Coverage:** legacy tool URLs (`/csv2json`, `/json2csv`, and the
+     rest of the 301 map) must show as **"Page is redirected"** in
+     coverage — that is the healthy state. Any of them showing as errors
+     (not-found, excluded, soft-404) is a cutover defect, not a ranking
+     signal, and gets fixed before anything else.
+  2. **Query rankings** for the core-tool queries (`csv to json`,
+     `json to csv`) versus the baseline.
+
+- **Trigger:** a sustained >20% drop on the core-tool queries at the
+  week-4 checkpoint is the trigger to revisit. The recovery play is
+  **dedicated landing pages for those intents** — not undoing the
+  redirects. The redirects stay: undoing them would resurrect retired
+  tool URLs pointing at pages that no longer exist, which trades a
+  ranking dip for a genuinely broken site.
+- **Expected loss, not a trigger:** satellite-tool query traffic
+  (`sql to json`, `data janitor`) is expected to drop, since the content
+  those queries matched no longer exists. That is the already-locked
+  product decision to consolidate on one converter; it is not a
+  regression to react to.
 
 ## What does not change
 
