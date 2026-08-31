@@ -17,6 +17,7 @@ function textFile(name: string, content: string, type = "text/csv"): File {
 vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(600);
 vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(800);
 
+
 beforeEach(() => {
   localStorage.clear();
   // jsdom lacks both; the download helper and any accidental network call
@@ -38,6 +39,48 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
   localStorage.clear();
+});
+
+describe("dropzone interactions", () => {
+  it("opens the picker on click and on Enter/Space (not a dead target)", async () => {
+    render(<App />);
+    const pickerClick = vi
+      .spyOn(HTMLInputElement.prototype, "click")
+      .mockImplementation(() => {});
+
+    // Clicking anywhere in the dashed area opens the browse dialog.
+    fireEvent.click(screen.getByTestId("dropzone"));
+    expect(pickerClick).toHaveBeenCalledTimes(1);
+
+    // Enter/Space on the focused dropzone do the same.
+    fireEvent.keyDown(screen.getByTestId("dropzone"), { key: "Enter" });
+    fireEvent.keyDown(screen.getByTestId("dropzone"), { key: " " });
+    expect(pickerClick).toHaveBeenCalledTimes(3);
+  });
+
+  it("receives paste right after load: the dropzone holds focus", async () => {
+    render(<App />);
+    // autoFocus keeps focus inside the pane subtree on a fresh load, so
+    // Ctrl+V reaches the pane's paste handler.
+    expect(screen.getByTestId("dropzone")).toHaveFocus();
+    fireEvent.paste(screen.getByTestId("dropzone"), {
+      clipboardData: { getData: () => "album,year\nDe Stijl,2000" },
+    });
+    await screen.findByTestId("input-table");
+  });
+});
+
+describe("file gate", () => {
+  it("accepts .csv files carrying a non-text MIME type", async () => {
+    render(<App />);
+    const excelCsv = new File(["a,b\n1,2"], "sheet.csv", {
+      type: "application/vnd.ms-excel",
+    });
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: { files: [excelCsv], types: ["Files"] },
+    });
+    await screen.findByTestId("input-table");
+  });
 });
 
 describe("empty state", () => {

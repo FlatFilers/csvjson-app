@@ -4,6 +4,8 @@
  * Dashed border, paste/browse affordances, and the sample-dataset link.
  */
 
+import { useEffect, useRef } from "react";
+
 type DropzoneProps = {
   format: "CSV" | "JSON";
   onBrowse: () => void;
@@ -11,10 +13,29 @@ type DropzoneProps = {
 };
 
 export function Dropzone({ format, onBrowse, onTryExample }: DropzoneProps) {
+  // Hold focus while empty so a paste on a fresh page load lands inside the
+  // pane subtree (spec: Empty — "Drag & drop, paste, or browse").
+  const zoneRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    zoneRef.current?.focus();
+  }, []);
+
   return (
     <div
+      ref={zoneRef}
       data-testid="dropzone"
       tabIndex={0}
+      role="button"
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        event.stopPropagation();
+        onBrowse();
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        onBrowse();
+      }}
       aria-label={`Empty input — drag & drop, paste, or browse for a ${format} file`}
       className="m-3 flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-border p-6 text-center text-muted-foreground transition-colors focus:outline-none focus-visible:border-sky-600 dark:focus-visible:border-sky-400"
     >

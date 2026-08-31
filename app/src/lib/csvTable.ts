@@ -135,15 +135,16 @@ export function parseCsvTable(raw: string, forcedDelimiter?: string): CsvTableDa
 export function numericColumns(table: CsvTableData): boolean[] {
   const NUMERIC = /^-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
   const flags = Array.from({ length: table.headers.length }, () => true);
-  let sawAny = false;
+  const sawCell = Array.from({ length: table.headers.length }, () => false);
   for (const row of table.rows) {
     for (let c = 0; c < row.length; c++) {
       const cell = row[c];
       if (cell === "") continue;
       flags[c] = flags[c] && NUMERIC.test(cell);
-      sawAny = true;
+      sawCell[c] = true;
     }
   }
-  if (!sawAny) return flags.fill(false);
-  return flags;
+  // The contract is per-column: an all-empty column is not numeric, no
+  // matter what the other columns contain.
+  return flags.map((flag, c) => flag && sawCell[c]);
 }

@@ -8,10 +8,19 @@ import {
   indentWithTab,
 } from "@codemirror/commands";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
-import { linter } from "@codemirror/lint";
+import { linter, type Diagnostic } from "@codemirror/lint";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import { cn } from "@/lib/utils";
+
+/**
+ * JSON.parse over a multi-MB document on every edit pause costs more than
+ * the diagnostics return — above this size, lint is skipped (spec: Throttled
+ * still applies; the editor stays responsive).
+ */
+const LINT_MAX_CHARS = 512 * 1024;
+const sizeGatedJsonLinter = (view: EditorView): Diagnostic[] =>
+  view.state.doc.length > LINT_MAX_CHARS ? [] : jsonParseLinter()(view);
 
 /**
  * CodeMirror 6 JSON rendering for both panes (spec: JSON pane — CodeMirror 6
@@ -95,7 +104,7 @@ export function JsonCodeMirror({
               EditorView.updateListener.of((update) => {
                 if (update.docChanged) onChangeRef.current?.(update.state.doc.toString());
               }),
-              linter(jsonParseLinter(), { delay: 300 }),
+              linter(sizeGatedJsonLinter, { delay: 300 }),
             ],
         ...(placeholder ? [cmPlaceholder(placeholder)] : []),
       ],
