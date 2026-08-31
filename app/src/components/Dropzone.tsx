@@ -27,6 +27,9 @@ export function Dropzone({ format, onBrowse, onTryExample }: DropzoneProps) {
       tabIndex={0}
       role="button"
       onKeyDown={(event) => {
+        // Only the container itself activates browse — Enter/Space bubbling
+        // from a nested button must keep its native activation.
+        if (event.target !== event.currentTarget) return;
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         event.stopPropagation();

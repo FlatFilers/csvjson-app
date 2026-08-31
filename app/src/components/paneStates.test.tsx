@@ -58,6 +58,23 @@ describe("dropzone interactions", () => {
     expect(pickerClick).toHaveBeenCalledTimes(3);
   });
 
+  it("keeps native Enter activation on the nested try-example button", async () => {
+    render(<App />);
+    const pickerClick = vi
+      .spyOn(HTMLInputElement.prototype, "click")
+      .mockImplementation(() => {});
+
+    // Tab to the nested button and press Enter — the container handler must
+    // not swallow the child's keydown and open the file picker. jsdom does
+    // not synthesize click from Enter, so the child's own click path is
+    // asserted separately below.
+    fireEvent.keyDown(screen.getByTestId("try-example"), { key: "Enter" });
+    expect(pickerClick).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("try-example"));
+    await screen.findByTestId("input-table");
+  });
+
   it("receives paste right after load: the dropzone holds focus", async () => {
     render(<App />);
     // autoFocus keeps focus inside the pane subtree on a fresh load, so
