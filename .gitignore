@@ -2,7 +2,5 @@
 
 /data
 
-/app/dist/
-
 /vendor/
 .env
