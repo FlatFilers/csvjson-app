@@ -155,6 +155,17 @@ if (strpos($path, "\0") !== false || strpos($path, '..') !== false) {
     not_found();
 }
 
+// Docroot internals — repo docs, screenshots, dotfiles, build/dep
+// metadata — are not public. Under Apache, .htaccess forbids them (403)
+// before PHP runs; mirror the same list here so the dev server matches
+// production and CI can pin the behavior.
+if (preg_match('#^/(?:docs|verification-screenshots)(?:/|$)#', $path)
+    || preg_match('#^/\.#', $path)
+    || preg_match('#^/(?:composer\.(?:json|lock)|Procfile|ISSUE_TEMPLATE\.md|csvjson\.sublime-\w+)$#', $path)
+) {
+    not_found();
+}
+
 // Under the PHP dev server, hand real docroot files (img/) to the built-in
 // server. Under Apache these never reach PHP in the first place.
 if (PHP_SAPI === 'cli-server' && $path !== '/' && is_file(__DIR__ . $path)) {
