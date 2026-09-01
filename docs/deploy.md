@@ -14,15 +14,17 @@ The repo root carries exactly two pieces of deploy configuration:
   Apache with the default docroot (the app root). We deliberately do **not**
   pass a docroot argument: `index.php` is the front controller at the web
   root, and the committed `.htaccess` does the rewriting.
-- **`composer.json`** — `{"require":{"php":"~8.3.0"}}` with a matching
+- **`composer.json`** — `{"require":{"php":"~8.4.0"}}` with a matching
   `composer.lock` (platform-only, no packages). The file is required purely
   for PHP buildpack detection (see
   [Deploying PHP](https://devcenter.heroku.com/articles/deploying-php)); the
-  `php` constraint pins the runtime to PHP 8.3.x. There are no Composer
+  `php` constraint pins the runtime to PHP 8.4.x. There are no Composer
   dependencies — no `vendor/` is built and `composer install` is a no-op.
+  8.4 (not 8.3) because the heroku-26 stack offers PHP 8.4.20–8.4.24 and
+  8.5.x only — the earlier 8.3 pin made the buildpack reject the push.
 
 On deploy, Heroku auto-detects the PHP buildpack from `composer.json`,
-installs the PHP 8.3 runtime, reads the `Procfile`, and starts
+installs the PHP 8.4 runtime, reads the `Procfile`, and starts
 `heroku-php-apache2` at the repo root. Heroku's Apache build honors the
 committed `.htaccess`, so the shim behaves exactly as verified locally:
 
@@ -43,7 +45,7 @@ committed `.htaccess`, so the shim behaves exactly as verified locally:
 
 The redirect/asset behavior is exactly what CI enforces on every push:
 `.github/scripts/verify-shim.sh` (301 map, permalinks, removed endpoints,
-dist-asset caching, traversal refusal) and `php -l index.php` on PHP 8.3.
+dist-asset caching, traversal refusal) and `php -l index.php` on PHP 8.4.
 
 ## Cutover checklist (after PR #155 merges)
 
@@ -155,7 +157,8 @@ cutover:
 
 - If `composer.json` were ever emptied to `{}` (no `require` section), the
   buildpack would still auto-detect, but Heroku would assign its latest PHP
-  (8.x major at deploy time) instead of the pinned 8.3 line — and a lock
-  file would not be required. The committed lock pins 8.3 deliberately.
-- PHP version compatibility: the shim targets PHP 8.3 (`declare(strict_types=1)`,
-  no deprecated constructs) and is lint-checked with `php -l` on 8.3 in CI.
+  (8.x major at deploy time) instead of the pinned 8.4 line — and a lock
+  file would not be required. The committed lock pins 8.4 deliberately: it
+  is the lowest runtime the heroku-26 stack offers.
+- PHP version compatibility: the shim targets PHP 8.4 (`declare(strict_types=1)`,
+  no deprecated constructs) and is lint-checked with `php -l` on 8.4 in CI.
