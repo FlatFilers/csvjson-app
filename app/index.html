@@ -60,6 +60,32 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
       }
     </script>
+    <!-- Analytics, restored for launch (David, 2026-09-01) — supersedes spec
+         criterion 8's zero-telemetry decision for analytics only. The Google
+         Ads gtag block is the exact tag the legacy site shipped (pre-rebuild
+         master abda3770, application/views/page.php). GA4 shares this single
+         gtag.js load when VITE_GA4_MEASUREMENT_ID is set at build time (its
+         config is added by app/src/analytics); unset means only the Ads
+         config ships. The legacy site's dead Universal Analytics ID is gone
+         for good — no config call may ever reference it. Plausible counts
+         visits only and never sees user data. -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-831825021"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "AW-831825021");
+    </script>
+    <script
+      defer
+      data-domain="csvjson.com"
+      src="https://plausible.io/js/script.js"
+    ></script>
   </head>
   <body>
     <div id="root"></div>

@@ -23,7 +23,7 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   {
     question: "Does my data ever leave the browser?",
     answer:
-      "No. The conversion runs entirely in your browser — nothing is uploaded, nothing is stored, nothing is logged. Files you open are read locally in the page, and there is no account, server processing, or telemetry anywhere in the flow.",
+      "No. The conversion runs entirely in your browser — nothing is uploaded, nothing is stored, nothing is logged. Files you open are read locally in the page, there is no account and no server processing, and the site's analytics are privacy-respecting: they count only that a visit happened and never see your data.",
   },
 ];
 

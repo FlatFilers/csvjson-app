@@ -18,7 +18,7 @@ the same front controller Apache uses).
 | 5 | Large-input virtualization, no network upload | ✅ | component tests + FileReader-only upload (no upload endpoint exists; `curl /csv2json/upload` → 410) |
 | 6 | Legacy permalink hydration | ✅ | see below |
 | 7 | Every dead URL 301s per the map | ✅ | see curl table below |
-| 8 | No promotional/telemetry remnants | ✅ | grep over `app/dist`, `app/src`, `index.php`, `.htaccess`, `sitemap.xml`, `robots.txt` for segment/gtag/linkedin/carbonads/chikita/flatfile/typekit/putObject/googletagmanager/analytics → **zero hits** |
+| 8 | No promotional/telemetry remnants | ✅ | grep over `app/dist`, `app/src`, `index.php`, `.htaccess`, `sitemap.xml`, `robots.txt` for segment/linkedin/carbonads/chikita/flatfile/typekit/putObject → **zero hits**. Amended 2026-09-01 (see "Criterion 8 — analytics restored" below): gtag and Plausible are sanctioned analytics tags asserted present by CI, not banned. |
 | 9 | CI green on every PR | ✅ | CI from zero (`.github/workflows/ci.yml`): lint + typecheck + tests + production build; all six child PRs merged green; full local gate re-run on the integrated branch (below) |
 | 10 | Crawlable initial HTML | ✅ | curl of built `index.html`: title, H1, og:title/og:description, canonical, 2 JSON-LD blocks (SoftwareApplication, FAQPage with 4 Q/As), "How it works & FAQ", option-hint text ("…00721 into 7…"), "CSV to JSON"/"JSON to CSV"/"TSV" all present |
 | 11 | Edge-case behaviors | ✅ | vitest fixtures (ragged rows, duplicate headers, empty cells, direction flip) — part of the 91 |
@@ -48,6 +48,30 @@ the same front controller Apache uses).
 | `/csv2json/<bogus-32-hex>` | 200 + inline not-found notice (client hydrate failure) | never blank |
 | `/nonexistent` | 404 | |
 | `/assets/index-*.js` | 200, `text/javascript; charset=utf-8`, `Cache-Control: public, max-age=31536000, immutable` | hashed assets immutable; `index.html` `no-cache` |
+
+## Criterion 8 — analytics restored (scope change, 2026-09-01)
+
+**Decision (David Boskovic, 2026-09-01):** analytics are restored for the launch,
+which supersedes criterion 8's zero-telemetry decision **for analytics only** —
+the site's own data flow is unchanged and conversions still never touch a
+server; only visits are counted.
+
+- **Google Ads**: the exact legacy conversion tag is restored — gtag.js with
+  `AW-831825021` (async loader + dataLayer bootstrap + `gtag('js')` +
+  `gtag('config')` in `app/index.html`, carried into the prerendered
+  `app/dist/index.html`). Conversion actions are configured in the Ads
+  console; no frontend code is needed per conversion.
+- **GA4**: the loader is GA4-ready. A measurement ID injected at build time
+  (`VITE_GA4_MEASUREMENT_ID`) adds its config to the same single gtag.js
+  load; unset means only the Ads config ships. The legacy Universal Analytics
+  ID `UA-46942708-1` is dead (July 2023 sunset) and a CI/SEO check fails the
+  build if it ever reappears.
+- **Plausible**: cloud script with `data-domain="csvjson.com"` ships in the
+  prerendered head.
+- The remnant gate keeps `segment|linkedin|carbonads|chikita|flatfile|
+  typekit|putObject` banned; `gtag` was removed from the banned list. The
+  FAQ privacy copy now states the analytics are privacy-respecting and never
+  see user data (conversion claims unchanged and still true).
 
 ## Criterion 12 — states walkthrough (screenshots in `verification-screenshots/`)
 
