@@ -54,6 +54,11 @@ check "FAQ TSV vs CSV section" "TSV vs CSV"
 check "FAQ privacy copy" "The conversion runs entirely in your browser"
 check "option hint copy (parse numbers)" "it turns 00721 into 7"
 
+# Launch-week banner ships in the initial HTML too (spec: full-width
+# feedback banner above the TopBar).
+check "feedback banner copy" "Enjoy a cleaner, simpler CSVJSON"
+check "feedback banner link to discussion #163" "https://github.com/FlatFilers/csvjson-app/discussions/163"
+
 # Structured data (spec: SEO — structured data).
 check "JSON-LD SoftwareApplication" '"@type": "SoftwareApplication"'
 check "JSON-LD FAQPage" '"@type":"FAQPage"'
