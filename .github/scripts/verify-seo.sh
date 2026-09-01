@@ -62,11 +62,17 @@ check "feedback banner link to discussion #163" "https://github.com/FlatFilers/c
 
 # Analytics restored for launch (David, 2026-09-01 — criterion 8 amended):
 # the restored Google Ads gtag tag and Plausible must ship in the prerendered
-# head, and the dead Universal Analytics ID must never come back.
+# head, and the dead Universal Analytics ID must never come back. Plausible
+# MUST be manual mode (script.manual.js) — the auto-tracking script.js would
+# double every visit, because the app fires its own single pageview on mount.
 check "gtag.js loader with legacy Ads ID" "googletagmanager.com/gtag/js?id=AW-831825021"
 check "Google Ads gtag config" 'gtag("config", "AW-831825021")'
 check "Plausible data-domain" 'data-domain="csvjson.com"'
-check "Plausible script source" "https://plausible.io/js/script.js"
+check "Plausible manual-mode script" "https://plausible.io/js/script.manual.js"
+if grep -qF 'https://plausible.io/js/script.js"' "$OUT"; then
+  echo "::error::SEO check failed: auto-tracking Plausible script.js shipped — manual mode (script.manual.js) required to avoid double-counted pageviews"
+  fail=1
+fi
 if grep -qF "UA-46942708-1" "$OUT"; then
   echo "::error::SEO check failed: dead Universal Analytics ID UA-46942708-1 must never ship"
   fail=1

@@ -67,8 +67,9 @@
          gtag.js load when VITE_GA4_MEASUREMENT_ID is set at build time (its
          config is added by app/src/analytics); unset means only the Ads
          config ships. The legacy site's dead Universal Analytics ID is gone
-         for good — no config call may ever reference it. Plausible counts
-         visits only and never sees user data. -->
+         for good — no config call may ever reference it. Plausible runs in
+         manual mode (script.manual.js) and counts visits only; the app fires
+         its single pageview. -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=AW-831825021"
@@ -81,10 +82,14 @@
       gtag("js", new Date());
       gtag("config", "AW-831825021");
     </script>
+    <!-- Plausible runs in MANUAL mode (script.manual.js): it fires no
+         automatic pageview — the app sends exactly one pageview per mount
+         (app/src/main.tsx via app/src/analytics). This avoids double-counting
+         visits with a fresh mount on a prerendered page. -->
     <script
       defer
       data-domain="csvjson.com"
-      src="https://plausible.io/js/script.js"
+      src="https://plausible.io/js/script.manual.js"
     ></script>
   </head>
   <body>

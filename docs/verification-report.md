@@ -67,11 +67,19 @@ server; only visits are counted.
   ID `UA-46942708-1` is dead (July 2023 sunset) and a CI/SEO check fails the
   build if it ever reappears.
 - **Plausible**: cloud script with `data-domain="csvjson.com"` ships in the
-  prerendered head.
+  prerendered head, in **manual mode** (`script.manual.js`, follow-up fix
+  2026-09-01) — the auto-tracking script would double every visit next to the
+  app's single mount pageview. The app fires exactly one pageview per mount;
+  legacy permalink hydration fires a distinct `permalink_view` event
+  (gtag) / `Permalink View` (Plausible), never a second pageview.
 - The remnant gate keeps `segment|linkedin|carbonads|chikita|flatfile|
-  typekit|putObject` banned; `gtag` was removed from the banned list. The
-  FAQ privacy copy now states the analytics are privacy-respecting and never
-  see user data (conversion claims unchanged and still true).
+  typekit|putObject` banned; `gtag` was removed from the banned list (it is
+  now a sanctioned tag), and the dead `UA-46942708` ID was added to the ban
+  so the never-ship invariant holds at source level, not just in the built
+  HTML. The FAQ privacy copy now characterizes each tag honestly: Plausible
+  counts visits cookieless; the Google tag is a standard conversion-
+  measurement tag that uses page URL and referrer — neither ever sees user
+  data (conversion claims unchanged and still true).
 
 ## Criterion 12 — states walkthrough (screenshots in `verification-screenshots/`)
 
