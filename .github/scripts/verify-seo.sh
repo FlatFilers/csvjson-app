@@ -60,6 +60,18 @@ check "option hint copy (parse numbers)" "it turns 00721 into 7"
 check "feedback banner copy" "Enjoy a cleaner, simpler CSVJSON"
 check "feedback banner link to discussion #163" "https://github.com/FlatFilers/csvjson-app/discussions/163"
 
+# Analytics restored for launch (David, 2026-09-01 — criterion 8 amended):
+# the restored Google Ads gtag tag and Plausible must ship in the prerendered
+# head, and the dead Universal Analytics ID must never come back.
+check "gtag.js loader with legacy Ads ID" "googletagmanager.com/gtag/js?id=AW-831825021"
+check "Google Ads gtag config" 'gtag("config", "AW-831825021")'
+check "Plausible data-domain" 'data-domain="csvjson.com"'
+check "Plausible script source" "https://plausible.io/js/script.js"
+if grep -qF "UA-46942708-1" "$OUT"; then
+  echo "::error::SEO check failed: dead Universal Analytics ID UA-46942708-1 must never ship"
+  fail=1
+fi
+
 # Structured data (spec: SEO — structured data).
 check "JSON-LD SoftwareApplication" '"@type": "SoftwareApplication"'
 check "JSON-LD FAQPage" '"@type":"FAQPage"'

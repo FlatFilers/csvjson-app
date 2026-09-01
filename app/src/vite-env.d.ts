@@ -7,4 +7,10 @@ interface ImportMetaEnv {
    * Optional — the permalink service falls back to the production bucket.
    */
   readonly VITE_S3_DATA_URL?: string;
+
+  /**
+   * GA4 measurement ID (e.g. G-XXXXXXXXXX), injected at build time. Optional
+   * — when unset, only the Google Ads config ships (app/src/analytics).
+   */
+  readonly VITE_GA4_MEASUREMENT_ID?: string;
 }

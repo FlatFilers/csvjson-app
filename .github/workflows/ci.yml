@@ -69,8 +69,12 @@ jobs:
         run: php -l index.php
 
 
-      # Spec criterion 8: no promotional or telemetry remnants anywhere in
-      # the shipped frontend or the PHP shim. Fail the build on any hit.
+      # Spec criterion 8, amended 2026-09-01 (David): analytics are restored
+      # for launch — gtag (the Google Ads conversion tag, restored verbatim
+      # from the legacy site, plus an opt-in GA4 config) and Plausible are
+      # sanctioned tags now, and the SEO step asserts they ship in the built
+      # index.html. The remaining promotional/telemetry remnants stay banned
+      # anywhere in the shipped frontend or the PHP shim. Fail on any hit.
       - name: No promotional or telemetry remnants
         run: |
           targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
@@ -89,7 +93,7 @@ jobs:
           # filtering would exempt the entire minified bundle line from the
           # zero-tolerance gate, and a bare non-empty check would false-
           # positive on lines whose only hit was the sanctioned URL.
-          remnant_re='segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject'
+          remnant_re='segment|linkedin|carbonads|chikita|flatfile|typekit|putObject'  # gtag removed 2026-09-01: sanctioned analytics tag
           if grep -riE "$remnant_re" "${targets[@]}" \
               | sed 's#github[.]com/FlatFilers/csvjson-app/discussions/163##g' \
               | grep -iE "$remnant_re"; then

@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { configureAnalytics, trackPageview } from "@/analytics/analytics";
 import "./index.css";
 import App from "./App.tsx";
 
@@ -13,3 +14,9 @@ createRoot(document.getElementById("root")!).render(
 // interactive again (index.html sets it to protect prerendered markup
 // during the bundle-load window).
 document.getElementById("root")!.removeAttribute("inert");
+
+// Analytics (restored 2026-09-01): add the build-time-conditional GA4 config
+// to the gtag.js load bootstrapped in index.html, then one pageview per app
+// load. Legacy /:tool/:id loads fire another on hydration (App.tsx).
+configureAnalytics();
+trackPageview();
