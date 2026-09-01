@@ -69,23 +69,36 @@ export default function App() {
   const [reading, setReading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Latest direction/options for the conversion-event validity predicate —
-  // fires up to 2s after the last edit, so it must read the values current
-  // at fire time, not at the keystroke.
-  const converterStateRef = useRef({ direction, options });
-  converterStateRef.current = { direction, options };
+  // Latest converter state for the conversion-event validity predicate —
+  // fires happen up to 2s after the last edit (or synchronously for a
+  // permalink hydration), so they must read values current at fire time,
+  // not at the keystroke. Refreshed after the memoized result below.
+  const converterStateRef = useRef({
+    direction,
+    options,
+    input,
+    resultOk: true,
+  });
 
   const trackerRef = useRef<ConversionTracker | null>(null);
   if (!trackerRef.current) {
     trackerRef.current = createConversionTracker({
       settleMs: CONVERSION_SETTLE_MS,
       minWindowMs: CONVERSION_MIN_WINDOW_MS,
-      isValid: (direction, text) =>
-        convertText(
+      isValid: (direction, text) => {
+        // Settle fires land ≥2s after the last edit, by which time the
+        // memoized result corresponds to exactly this text — trust it
+        // instead of paying a second full conversion on the main thread.
+        // Discrete fires (upload/drop/permalink) can land before React has
+        // rendered the new input, so convert that text directly then.
+        const current = converterStateRef.current;
+        if (text === current.input) return current.resultOk;
+        return convertText(
           direction === "csv_to_json" ? "csv2json" : "json2csv",
           text,
-          converterStateRef.current.options
-        ).ok,
+          current.options
+        ).ok;
+      },
     });
   }
   const tracker = trackerRef.current;
@@ -122,6 +135,14 @@ export default function App() {
     () => convertText(direction, debouncedInput, options),
     [direction, debouncedInput, options]
   );
+  // Fire-time validity reads this; assigned after the memo so it always
+  // holds the freshest state (see the tracker's isValid above).
+  converterStateRef.current = {
+    direction,
+    options,
+    input,
+    resultOk: result.ok,
+  };
 
   // The last valid output survives parse failures (spec: States → Invalid
   // input, Direction flip rule).
@@ -147,6 +168,22 @@ export default function App() {
   const hydratedState = permalink.hydrated;
   useEffect(() => {
     if (hydratedState === null) return;
+    const hydratedOptions = {
+      ...converterStateRef.current.options,
+      ...hydratedState.options,
+    };
+    // The immediate validity check must see the hydrated state, not the
+    // pre-hydration values still in the refs (no render has happened yet).
+    converterStateRef.current = {
+      direction: hydratedState.direction,
+      options: hydratedOptions,
+      input: hydratedState.input,
+      resultOk: convertText(
+        hydratedState.direction,
+        hydratedState.input,
+        hydratedOptions
+      ).ok,
+    };
     setDirection(hydratedState.direction);
     setInput(hydratedState.input);
     setOptions((current) => ({ ...current, ...hydratedState.options }));

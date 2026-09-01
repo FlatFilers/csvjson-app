@@ -169,6 +169,39 @@ describe("conversion tracker", () => {
     expect(gtag).toHaveBeenCalledTimes(2);
   });
 
+  it("counts genuinely new inputs of the same byte length (content fingerprint)", () => {
+    vi.useFakeTimers();
+    const { gtag } = installAnalytics();
+    const tracker = createConversionTracker();
+
+    // Two different inputs of identical length must both count — the
+    // signature tracks content, not just byte length.
+    tracker.edit("csv_to_json", "a,b\n1,2");
+    vi.advanceTimersByTime(3000);
+    expect(gtag).toHaveBeenCalledTimes(1);
+
+    tracker.edit("csv_to_json", "a,b\n3,4");
+    vi.advanceTimersByTime(3000);
+    expect(gtag).toHaveBeenCalledTimes(2);
+  });
+
+  it("counts a repeat conversion after clear + re-paste of identical content", () => {
+    vi.useFakeTimers();
+    const { gtag } = installAnalytics();
+    const tracker = createConversionTracker();
+
+    tracker.edit("csv_to_json", "a,b");
+    vi.advanceTimersByTime(2000);
+    expect(gtag).toHaveBeenCalledTimes(1);
+
+    // Clear wipes the pending observation AND forgets the last signature —
+    // a fresh paste of the same content is a new conversion.
+    tracker.cancel();
+    tracker.edit("csv_to_json", "a,b");
+    vi.advanceTimersByTime(3000);
+    expect(gtag).toHaveBeenCalledTimes(2);
+  });
+
   it("fires discrete inputs immediately with the given input method", () => {
     const { gtag } = installAnalytics();
     const tracker = createConversionTracker();

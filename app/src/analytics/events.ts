@@ -94,12 +94,26 @@ export interface ConversionTrackerOptions {
 }
 
 /**
+ * Cheap content fingerprint (FNV-1a) — distinguishes same-length inputs so
+ * the dedupe signature tracks the input's actual content, not just its size.
+ */
+function contentFingerprint(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/**
  * Stateful gate for conversion events. The app converts live on every
  * keystroke, so raw conversions would be noise: an event fires once per
  * first stable output after input settles, keyed by a signature of
- * direction + input method + input length — it fires again only when the
- * input actually changes (new paste/upload/drop or permalink hydration),
- * and never more than once per {@link minWindowMs} window.
+ * direction + input method + byte length + content fingerprint — it fires
+ * again only when the input actually changes (new paste/upload/drop or
+ * permalink hydration), and never more than once per {@link minWindowMs}
+ * window.
  */
 export function createConversionTracker(
   options: ConversionTrackerOptions = {}
@@ -114,13 +128,10 @@ export function createConversionTracker(
   let lastSignature: string | null = null;
   let lastFiredAt = 0; // epoch 0 = "long ago": the first fire is never window-blocked
 
-  function signatureOf(obs: ConversionObservation): string {
-    return `${obs.direction}:${obs.input}:${byteLength(obs.text)}`;
-  }
-
   function attemptFire(obs: ConversionObservation): boolean {
     if (obs.text.trim() === "") return false; // nothing to convert — not a conversion
-    const signature = signatureOf(obs);
+    const bytes = byteLength(obs.text);
+    const signature = `${obs.direction}:${obs.input}:${bytes}:${contentFingerprint(obs.text)}`;
     if (signature === lastSignature) return false;
     if (!isValid(obs.direction, obs.text)) return false;
     const at = now();
@@ -130,7 +141,7 @@ export function createConversionTracker(
     trackConversion({
       direction: obs.direction,
       input: obs.input,
-      size: sizeBucket(byteLength(obs.text)),
+      size: sizeBucket(bytes),
     });
     return true;
   }
@@ -157,6 +168,9 @@ export function createConversionTracker(
     },
     cancel() {
       pending = null;
+      // A cleared input followed by a fresh paste is a new conversion even
+      // for identical content — forget the last-fired signature.
+      lastSignature = null;
       if (timer) {
         clearTimeout(timer);
         timer = undefined;
