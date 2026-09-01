@@ -82,7 +82,11 @@ jobs:
           fi
           [ -d app/public ] && targets+=(app/public)
           [ -d app/dist ] && targets+=(app/dist)
-          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}"; then
+          # The launch-week feedback banner links to the project's own
+          # GitHub discussions (contains "FlatFilers") — the sanctioned
+          # URL is exempt; everything else stays zero-tolerance.
+          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}" \
+              | grep -viF 'github.com/FlatFilers/csvjson-app/discussions/163'; then
             echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
             exit 1
           fi
