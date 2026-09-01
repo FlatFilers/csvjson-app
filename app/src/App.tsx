@@ -1,5 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { trackPermalinkView } from "@/analytics/analytics";
+import {
+  createConversionTracker,
+  trackExport,
+  type ConversionTracker,
+} from "@/analytics/events";
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { Faq } from "@/components/Faq";
 import { FeedbackBanner } from "@/components/FeedbackBanner";
@@ -30,6 +35,11 @@ const LARGE_INPUT_CHARS = 2 * 1024 * 1024;
 const DEBOUNCE_MS = 150;
 const LARGE_INPUT_DEBOUNCE_MS = 1000;
 
+/** Quiet period before a settled input counts as a conversion event. */
+const CONVERSION_SETTLE_MS = 2000;
+/** Never more than one conversion event per window (analytics events spec). */
+const CONVERSION_MIN_WINDOW_MS = 2000;
+
 function metaLabel(rows: number, cols: number): string | null {
   if (rows === 0) return null;
   return cols > 0 ? `${rows} rows · ${cols} cols` : `${rows} rows`;
@@ -58,6 +68,27 @@ export default function App() {
   const [filename, setFilename] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Latest direction/options for the conversion-event validity predicate —
+  // fires up to 2s after the last edit, so it must read the values current
+  // at fire time, not at the keystroke.
+  const converterStateRef = useRef({ direction, options });
+  converterStateRef.current = { direction, options };
+
+  const trackerRef = useRef<ConversionTracker | null>(null);
+  if (!trackerRef.current) {
+    trackerRef.current = createConversionTracker({
+      settleMs: CONVERSION_SETTLE_MS,
+      minWindowMs: CONVERSION_MIN_WINDOW_MS,
+      isValid: (direction, text) =>
+        convertText(
+          direction === "csv_to_json" ? "csv2json" : "json2csv",
+          text,
+          converterStateRef.current.options
+        ).ok,
+    });
+  }
+  const tracker = trackerRef.current;
 
   const desktop = useMediaQuery("(min-width: 768px)");
   const layout: SplitLayout = desktop ? "side-by-side" : "stacked";
@@ -122,11 +153,17 @@ export default function App() {
     // The mount pageview already carried the permalink URL, so hydration
     // fires a distinct event — never a second pageview.
     trackPermalinkView();
-  }, [hydratedState]);
+    // Hydration is also a discrete conversion input (analytics events spec).
+    tracker.discrete(
+      hydratedState.direction === "csv2json" ? "csv_to_json" : "json_to_csv",
+      "permalink",
+      hydratedState.input
+    );
+  }, [hydratedState, tracker]);
 
   // FileReader upload — files never touch the network (spec: Input; the
   // legacy /upload endpoint is deleted).
-  const readFile = (file: File) => {
+  const readFile = (file: File, source: "picker" | "drop") => {
     if (!isTextFile(file)) {
       setNotice(
         `Can't read "${file.name}" as text — drop a ${csvToJson ? ".csv / .tsv" : ".json"} file.`
@@ -137,9 +174,17 @@ export default function App() {
     setReading(true);
     const reader = new FileReader();
     reader.onload = () => {
-      setInput(String(reader.result ?? ""));
+      const text = String(reader.result ?? "");
+      setInput(text);
       setFilename(file.name);
       setReading(false);
+      // A completed upload/drop is a discrete conversion input — fire
+      // immediately (the tracker still gates on a valid result + 2s window).
+      tracker.discrete(
+        csvToJson ? "csv_to_json" : "json_to_csv",
+        source === "drop" ? "drag" : "file",
+        text
+      );
     };
     reader.onerror = () => {
       setReading(false);
@@ -151,21 +196,31 @@ export default function App() {
   const meta = result.ok ? metaLabel(result.rows, result.cols) : null;
   const largeInput = input.length > LARGE_INPUT_CHARS;
 
-  const copyInput = () => void copyText(input);
+  // Every intentional copy/download is an export event; format is the
+  // resolved format of the pane's text (input pane carries the input format).
+  const copyInput = () => {
+    trackExport({ via: "copy", format: csvToJson ? "csv" : "json" });
+    void copyText(input);
+  };
   const copyOutput = () => {
+    trackExport({ via: "copy", format: csvToJson ? "json" : "csv" });
     if (lastValidOutput) void copyText(lastValidOutput);
   };
-  const downloadInput = () =>
+  const downloadInput = () => {
+    trackExport({ via: "download", format: csvToJson ? "csv" : "json" });
     downloadText(input, filename ?? (csvToJson ? "data.csv" : "data.json"), {
       mime: csvToJson ? "text/csv" : "application/json",
       bom: csvToJson,
     });
+  };
   // CSV downloads carry a UTF-8 BOM (spec: Download); JSON never does.
-  const downloadOutput = () =>
+  const downloadOutput = () => {
+    trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
     downloadText(lastValidOutput ?? "", csvToJson ? "data.json" : "data.csv", {
       mime: csvToJson ? "application/json" : "text/csv",
       bom: !csvToJson,
     });
+  };
 
   const leftPane = (
     <InputPane
@@ -174,15 +229,20 @@ export default function App() {
       onInputChange={(value) => {
         setNotice(null);
         setInput(value);
+        // Typed/pasted text is a settle-tracked input (input="paste").
+        tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", value);
       }}
       onFile={readFile}
       onTryExample={() => {
         setNotice(null);
-        setInput(csvToJson ? SAMPLE_CSV : SAMPLE_JSON);
+        const sample = csvToJson ? SAMPLE_CSV : SAMPLE_JSON;
+        setInput(sample);
+        tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", sample);
       }}
       onClear={() => {
         setInput("");
         setFilename(null);
+        tracker.cancel();
       }}
       onCopy={copyInput}
       onDownload={downloadInput}

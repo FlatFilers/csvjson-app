@@ -81,6 +81,37 @@ server; only visits are counted.
   measurement tag that uses page URL and referrer — neither ever sees user
   data (conversion claims unchanged and still true).
 
+### Analytics events (added 2026-09-01, David's go-ahead)
+
+Custom event instrumentation fans out from a single helper
+(`app/src/analytics/events.ts`) to every surface at once: each event goes to
+`window.plausible` under its capitalized goal name with `{ props }`, and to
+gtag as a lowercase machine-named event — which reaches the Google Ads tag
+today and GA4 automatically once `VITE_GA4_MEASUREMENT_ID` is configured.
+
+- **`conversion`** — props: `direction` (`csv_to_json` | `json_to_csv`),
+  `input` (`paste` | `file` | `drag` | `permalink`), `size` (byte bucket of
+  the input: `<10KB` | `10-100KB` | `100KB-1MB` | `>1MB`). The app converts
+  live on every keystroke, so raw conversions would be noise: the event fires
+  once per first stable output after input settles (~2s after the last edit,
+  only when the result is valid), keyed by a signature of direction + input
+  method + input length — it fires again only when the input actually changes
+  (new paste/upload/drop or permalink hydration), and never more than once
+  per 2s window. Completed file-picker uploads, drag-drops, and permalink
+  hydration fire immediately (still gated by the same valid-result + 2s
+  window rules).
+- **`export`** — props: `via` (`copy` | `download`), `format` (`json` | `csv`,
+  the resolved format of the pane's text). Fires on every intentional
+  copy/download click, no debounce.
+- **Ads seam (one line):** conversion events carry no `send_to` yet. When
+  David creates a conversion action in the Google Ads console, add its
+  `send_to` label to the conversion call in `events.ts` — one line.
+- **Dashboard expectations:** David adds Plausible goals `conversion` and
+  `export` in the dashboard (custom-property breakdown is plan-gated; if
+  breakdowns are plan-gated, the one-line fallback is distinct event names
+  per method — noted, not preemptively split). GA4 receives the same custom
+  events automatically once `VITE_GA4_MEASUREMENT_ID` is set.
+
 ## Criterion 12 — states walkthrough (screenshots in `verification-screenshots/`)
 
 Driven by `app/scripts/states-walkthrough.mjs` (Playwright, trusted browser input) against

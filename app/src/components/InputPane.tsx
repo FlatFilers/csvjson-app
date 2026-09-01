@@ -16,7 +16,7 @@ type InputPaneProps = {
   format: "CSV" | "JSON";
   input: string;
   onInputChange: (value: string) => void;
-  onFile: (file: File) => void;
+  onFile: (file: File, source: "picker" | "drop") => void;
   onTryExample: () => void;
   onClear: () => void;
   onCopy: () => void;
@@ -112,7 +112,7 @@ export function InputPane({
     dragDepth.current = 0;
     setDragOver(false);
     const file = event.dataTransfer?.files?.[0];
-    if (file) onFile(file);
+    if (file) onFile(file, "drop");
   };
 
   // While the input is empty there is no editor to focus, so paste is caught
@@ -210,7 +210,7 @@ export function InputPane({
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
-                if (file) onFile(file);
+                if (file) onFile(file, "picker");
                 event.target.value = "";
               }}
             />
