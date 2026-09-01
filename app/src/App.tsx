@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { Faq } from "@/components/Faq";
+import { FeedbackBanner } from "@/components/FeedbackBanner";
 import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputPane } from "@/components/OutputPane";
@@ -212,6 +213,9 @@ export default function App() {
       {/* The converter keeps a full viewport; the FAQ accordion sits below
           the fold (spec: SEO — collapsed FAQ below the tool). */}
       <div className="flex h-svh min-h-0 flex-col">
+        {/* Launch-week banner sits above the TopBar inside the h-svh column,
+            so the flex panes absorb its height instead of overflowing. */}
+        <FeedbackBanner />
         <TopBar theme={theme} onToggleTheme={toggleTheme} />
       {permalinkPath &&
       (permalink.phase === "loading" ||
