@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master, release/rebuild-csvjson-spa]
+
+permissions:
+  contents: read
+
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # Stale-artifact guard: hash the committed app/dist BEFORE the build
+      # regenerates it, so a forgotten rebuild can never ship stale frontend
+      # code through the committed-artifact deploy transport.
+      - name: Snapshot committed dist hashes
+        run: find dist -type f -exec sha256sum {} + | LC_ALL=C sort -k2 > /tmp/dist-committed.sha
+
+      - name: Production build
+        run: npm run build  # typecheck step already runs tsc -b; build ends with the prerender step
+
+      - name: Verify committed dist matches the fresh build
+        run: |
+          find dist -type f -exec sha256sum {} + | LC_ALL=C sort -k2 > /tmp/dist-fresh.sha
+          if ! diff -u /tmp/dist-committed.sha /tmp/dist-fresh.sha; then
+            echo "::error::Committed app/dist differs from a fresh build — run 'npm run build' locally and commit the updated app/dist"
+            exit 1
+          fi
+
+      - name: SEO — prerendered index.html carries the on-page targets
+        run: bash ../.github/scripts/verify-seo.sh
+
+  shim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Lint PHP shim
+        run: php -l index.php
+
+
+      # Spec criterion 8: no promotional or telemetry remnants anywhere in
+      # the shipped frontend or the PHP shim. Fail the build on any hit.
+      - name: No promotional or telemetry remnants
+        run: |
+          targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
+          # Same zero-tolerance rule for surviving webroot image assets:
+          # promotional filenames must not ship, even unreferenced.
+          if find img -type f 2>/dev/null | grep -iE 'flatfile|obvious|_ad|sponsor'; then
+            echo "::error::Promotional image remnant found in img/ (spec criterion 8)"
+            exit 1
+          fi
+          [ -d app/public ] && targets+=(app/public)
+          [ -d app/dist ] && targets+=(app/dist)
+          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}"; then
+            echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
+            exit 1
+          fi
+
+      # Legacy permalinks are read-only (spec: Old share links keep
+      # resolving — read-only): no write verbs may ever appear in the SPA.
+      - name: No write API usage in the SPA
+        run: |
+          if grep -rniE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']' app/src; then
+            echo "::error::Write API usage found in app/src — the SPA must be read-only"
+            exit 1
+          fi
+
+      - name: Redirect table, permalinks, and removed endpoints
+        run: bash .github/scripts/verify-shim.sh

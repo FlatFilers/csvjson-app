@@ -8,38 +8,30 @@ Options -Indexes
 
 RewriteEngine on
 
-# Force www
-# RewriteCond %{HTTP_HOST} !^www\.
-# RewriteCond %{HTTP_HOST} !^localhost
-# RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
-
 # favicon always at same place!
 RewriteCond $0 !=img/favicon.ico
 RewriteRule ^([^/]+/)*favicon\.ico$ /img/favicon.ico [L]
 
-# Move /dataclean to /datajanitor
-RewriteRule ^dataclean/(.+) /datajanitor/$1 [R=301,L]
-RewriteRule ^dataclean$ /datajanitor [R=301,L]
+# Never expose repository internals: the SPA source/build tree, git
+# metadata, and the readme are not part of the public site.
+RewriteRule ^app/ - [F,L]
+RewriteRule ^(.*/)?\.git - [F,L]
+RewriteRule ^README\.md - [F,L]
 
-# Removes access to the system folder by users.
-RewriteCond %{REQUEST_URI} ^system.*
-RewriteRule ^(.*)$ /index.php/$1 [L]
-
-# Removes access to the application folder by users.
-RewriteCond %{REQUEST_URI} ^application.*
-RewriteRule ^(.*)$ /index.php/$1 [L]
-
-# Remove access to git stuff
-RewriteRule ^(.*/)?\.git+ - [F,L]
+# The default Heroku docroot is the repo root, so Apache serves every
+# committed real file unless it is denied here. Repo docs, screenshots,
+# dotfiles, and build/dep metadata are not part of the public site.
+RewriteRule ^docs/ - [F,L]
+RewriteRule ^verification-screenshots/ - [F,L]
+RewriteRule ^\. - [F,L]
+RewriteRule ^composer\.(json|lock)$ - [F,L]
+RewriteRule ^Procfile$ - [F,L]
+RewriteRule ^ISSUE_TEMPLATE\.md$ - [F,L]
+RewriteRule ^csvjson\.sublime- - [F,L]
 ErrorDocument 403 "Access Forbidden"
 
-# Remove access to README file
-RewriteRule ^README.md [F,L]
-ErrorDocument 403 "Access Forbidden"
-
-# Checks to see if the user is attempting to access a valid file,
-# such as an image or css document, if this isn't true it sends the
-# request to index.php
+# Everything that is not a real file or directory goes to the front
+# controller: it serves the built SPA and applies the legacy URL map.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /index.php/$1 [L]
+RewriteRule ^ index.php [L]

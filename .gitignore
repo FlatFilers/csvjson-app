@@ -1,16 +1,6 @@
 .DS_Store
 
-application/cache/*
-!application/cache/index.html
-!application/cache/.htaccess
-
-application/logs/*
-!application/logs/index.html
-!application/logs/.htaccess
-# /application/config/aws_s3.php
 /data
-/application/config/development
-# /application/config/production
 
 /vendor/
 .env
