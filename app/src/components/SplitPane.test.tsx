@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { SPLIT_MAX, SPLIT_MIN, SPLIT_RESET, clampSplit } from "@/lib/split";
@@ -139,5 +139,34 @@ describe("SplitPane seam dragging", () => {
 
     await user.keyboard("{Enter}");
     expect(splitValue()).toBe(SPLIT_RESET);
+  });
+});
+
+describe("SplitPane text selection", () => {
+  function container() {
+    return screen.getByTestId("seam").parentElement as HTMLElement;
+  }
+
+  it("keeps pane text selectable outside of a drag", () => {
+    // Regression: select-none used to sit on the container unconditionally,
+    // making every pane (table cells, JSON editors, read-only output,
+    // raw text) unselectable with the mouse.
+    render(<Harness />);
+    expect(container().className).not.toContain("select-none");
+  });
+
+  it("suppresses selection only while a seam drag is live", async () => {
+    render(<Harness />);
+    stubContainerWidth();
+    const seam = screen.getByTestId("seam");
+    const user = userEvent.setup();
+
+    await user.pointer({ target: seam, keys: "[MouseLeft>]" }); // down, not up
+    expect(container().className).toContain("select-none");
+
+    window.dispatchEvent(new PointerEvent("pointerup"));
+    // The pointerup listener is native (not React), so the state update
+    // flushes on a microtask — wait for the re-render.
+    await waitFor(() => expect(container().className).not.toContain("select-none"));
   });
 });

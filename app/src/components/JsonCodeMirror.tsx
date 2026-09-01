@@ -144,7 +144,10 @@ export function JsonCodeMirror({
   return (
     <div
       data-testid={testId}
-      className={cn("min-h-0 flex-1 overflow-hidden", className)}
+      // font-mono consumes the --font-mono theme token (index.css): JSON must
+      // render fixed-width in the editor AND the read-only output, in both
+      // themes. The CodeMirror content inherits it (fontFamily: inherit).
+      className={cn("min-h-0 flex-1 overflow-hidden font-mono", className)}
       ref={hostRef}
     />
   );
