@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 const SAMPLE_CSV_INPUT = "album,year\nElephant,2003\nDe Stijl,2000";
@@ -118,6 +118,73 @@ describe("theme persistence", () => {
     expect(document.documentElement).not.toHaveClass("dark");
     await waitFor(() => {
       expect(localStorage.getItem("csvjson-theme")).toBe("light");
+    });
+  });
+});
+
+
+describe("analytics events", () => {
+  function installAnalytics() {
+    const gtag = vi.fn();
+    const plausible = vi.fn();
+    (window as { gtag?: unknown }).gtag = gtag;
+    (window as { plausible?: unknown }).plausible = plausible;
+    return { gtag, plausible };
+  }
+
+  afterEach(() => {
+    delete (window as { gtag?: unknown }).gtag;
+    delete (window as { plausible?: unknown }).plausible;
+  });
+
+  it("fires exactly one conversion event after the example input settles", async () => {
+    const { gtag, plausible } = installAnalytics();
+
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    // Settle window is 2s after the last edit — the event must appear.
+    await waitFor(
+      () => {
+        expect(
+          gtag.mock.calls.filter((call) => call[1] === "conversion")
+        ).toHaveLength(1);
+      },
+      { timeout: 4000 }
+    );
+    const call = gtag.mock.calls.find((c) => c[1] === "conversion");
+    expect(call).toEqual([
+      "event",
+      "conversion",
+      { direction: "csv_to_json", input: "paste", size: "<10KB" },
+    ]);
+    expect(plausible).toHaveBeenCalledWith("Conversion", {
+      props: { direction: "csv_to_json", input: "paste", size: "<10KB" },
+    });
+  });
+
+  it("fires an export event on every output copy click", async () => {
+    const gtag = vi.fn();
+    const plausible = vi.fn();
+    (window as { gtag?: unknown }).gtag = gtag;
+    (window as { plausible?: unknown }).plausible = plausible;
+
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(gtag).toHaveBeenCalledWith("event", "export", {
+      via: "copy",
+      format: "json",
+    });
+    expect(plausible).toHaveBeenCalledWith("Export", {
+      props: { via: "copy", format: "json" },
     });
   });
 });

@@ -23,7 +23,7 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   {
     question: "Does my data ever leave the browser?",
     answer:
-      "No. The conversion runs entirely in your browser — nothing is uploaded, nothing is stored, nothing is logged. Files you open are read locally in the page, there is no account and no server processing. The site's analytics never see your data: Plausible counts visits cookieless, and the Google tag is a standard conversion-measurement tag that uses the page URL and referrer to measure ad performance. Your files and converted output never leave the browser.",
+      "No. The conversion runs entirely in your browser — nothing is uploaded, nothing is stored, nothing is logged. Files you open are read locally in the page, there is no account and no server processing. The site's analytics never see your data: Plausible counts visits cookieless, and the Google tag is a standard conversion-measurement tag that uses the page URL, referrer, and a first-party conversion cookie to measure ad performance. Your files and converted output never leave the browser.",
   },
 ];
 
