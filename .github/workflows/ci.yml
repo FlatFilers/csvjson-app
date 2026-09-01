@@ -93,7 +93,11 @@ jobs:
           # filtering would exempt the entire minified bundle line from the
           # zero-tolerance gate, and a bare non-empty check would false-
           # positive on lines whose only hit was the sanctioned URL.
-          remnant_re='segment|linkedin|carbonads|chikita|flatfile|typekit|putObject'  # gtag removed 2026-09-01: sanctioned analytics tag
+          # gtag is a sanctioned analytics tag since 2026-09-01 (the restored
+          # Google Ads conversion tag), but the DEAD legacy Universal Analytics
+          # ID is banned outright — it collects nothing, so any reintroduction
+          # is always a bug. Everything else stays banned as before.
+          remnant_re='segment|linkedin|carbonads|chikita|flatfile|typekit|putObject|UA-46942708'
           if grep -riE "$remnant_re" "${targets[@]}" \
               | sed 's#github[.]com/FlatFilers/csvjson-app/discussions/163##g' \
               | grep -iE "$remnant_re"; then

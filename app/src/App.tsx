@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { trackPageview } from "@/analytics/analytics";
+import { trackPermalinkView } from "@/analytics/analytics";
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { Faq } from "@/components/Faq";
 import { FeedbackBanner } from "@/components/FeedbackBanner";
@@ -119,10 +119,9 @@ export default function App() {
     setDirection(hydratedState.direction);
     setInput(hydratedState.input);
     setOptions((current) => ({ ...current, ...hydratedState.options }));
-    // A legacy share link hydrating is worth one pageview: it marks that a
-    // /:tool/:id link was actually used (the mount pageview already carried
-    // the permalink URL — see app/src/analytics).
-    trackPageview();
+    // The mount pageview already carried the permalink URL, so hydration
+    // fires a distinct event — never a second pageview.
+    trackPermalinkView();
   }, [hydratedState]);
 
   // FileReader upload — files never touch the network (spec: Input; the

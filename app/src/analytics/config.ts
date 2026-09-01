@@ -7,8 +7,9 @@
  * One gtag.js load (bootstrap in app/index.html) serves every gtag property.
  * The Google Ads conversion tag is the exact tag the legacy site shipped
  * (pre-rebuild master abda3770, application/views/page.php). GA4 must be a
- * NEW property: the legacy Universal Analytics ID UA-46942708-1 sunset in
- * July 2023 and collects nothing — never send to it.
+ * NEW property: the legacy Universal Analytics ID (dead since July 2023)
+ * collects nothing — never send to it. Its literal is banned in app/src by
+ * the CI remnant gate, which is why it appears nowhere verbatim here.
  */
 
 /** Google Ads conversion ID, restored verbatim from the legacy site. */

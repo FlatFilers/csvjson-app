@@ -16,7 +16,8 @@ createRoot(document.getElementById("root")!).render(
 document.getElementById("root")!.removeAttribute("inert");
 
 // Analytics (restored 2026-09-01): add the build-time-conditional GA4 config
-// to the gtag.js load bootstrapped in index.html, then one pageview per app
-// load. Legacy /:tool/:id loads fire another on hydration (App.tsx).
+// to the gtag.js load bootstrapped in index.html, then the app's single
+// pageview per mount (Plausible is manual mode; hydration fires a distinct
+// permalink_view event, never a second pageview — see App.tsx).
 configureAnalytics();
 trackPageview();
