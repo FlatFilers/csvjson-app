@@ -55,7 +55,8 @@ check "FAQ privacy copy" "The conversion runs entirely in your browser"
 check "option hint copy (parse numbers)" "it turns 00721 into 7"
 
 # Launch-week banner ships in the initial HTML too (spec: full-width
-# feedback banner above the TopBar).
+# feedback banner above the TopBar). Canonical URL lives in
+# app/src/components/FeedbackBanner.tsx (FEEDBACK_DISCUSSION_URL).
 check "feedback banner copy" "Enjoy a cleaner, simpler CSVJSON"
 check "feedback banner link to discussion #163" "https://github.com/FlatFilers/csvjson-app/discussions/163"
 

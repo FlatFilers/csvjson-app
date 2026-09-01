@@ -82,11 +82,17 @@ jobs:
           fi
           [ -d app/public ] && targets+=(app/public)
           [ -d app/dist ] && targets+=(app/dist)
-          # The launch-week feedback banner links to the project's own
-          # GitHub discussions (contains "FlatFilers") — the sanctioned
-          # URL is exempt; everything else stays zero-tolerance.
-          if grep -riE 'segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject' "${targets[@]}" \
-              | grep -viF 'github.com/FlatFilers/csvjson-app/discussions/163'; then
+          # The launch-week feedback banner links to the project's own GitHub
+          # discussions (canonical URL: FEEDBACK_DISCUSSION_URL in
+          # app/src/components/FeedbackBanner.tsx). Strip that URL from
+          # matched lines, then re-grep with the same pattern — whole-line
+          # filtering would exempt the entire minified bundle line from the
+          # zero-tolerance gate, and a bare non-empty check would false-
+          # positive on lines whose only hit was the sanctioned URL.
+          remnant_re='segment|gtag|linkedin|carbonads|chikita|flatfile|typekit|putObject'
+          if grep -riE "$remnant_re" "${targets[@]}" \
+              | sed 's#github[.]com/FlatFilers/csvjson-app/discussions/163##g' \
+              | grep -iE "$remnant_re"; then
             echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
             exit 1
           fi

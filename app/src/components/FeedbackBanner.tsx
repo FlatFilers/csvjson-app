@@ -14,7 +14,7 @@ export function FeedbackBanner() {
       data-testid="feedback-banner"
       className="flex flex-shrink-0 items-center justify-center border-b border-border bg-muted px-4 py-1.5 text-sm text-muted-foreground"
     >
-      <p className="truncate">
+      <p className="text-center">
         Enjoy a cleaner, simpler CSVJSON.{" "}
         <a
           data-testid="feedback-link"
