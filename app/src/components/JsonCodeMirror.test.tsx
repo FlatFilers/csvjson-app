@@ -25,6 +25,21 @@ describe("JsonCodeMirror", () => {
     expect(screen.getByTestId("input-editor")).toBeInTheDocument();
   });
 
+  it("renders editor and output hosts with the monospace font token", () => {
+    // Regression: the JSON panes inherited the sans body font because the
+    // renderer host carried no font token — JSON must be fixed-width in
+    // both the editable and read-only views.
+    render(
+      <>
+        <JsonCodeMirror value="{}" onChange={() => {}} dark={false} testId="input-editor" />
+        <JsonCodeMirror value="{}" dark={false} testId="output-view" />
+      </>
+    );
+    for (const testId of ["input-editor", "output-view"]) {
+      expect(screen.getByTestId(testId)).toHaveClass("font-mono");
+    }
+  });
+
   it("renders the output view read-only with the doc intact", () => {
     const viewRef: { current: EditorView | null } = { current: null };
     render(

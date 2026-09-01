@@ -96,8 +96,12 @@ export function SplitPane({
     <div
       ref={containerRef}
       className={cn(
-        "relative flex min-h-0 flex-1 select-none",
-        stacked ? "flex-col" : "flex-row"
+        "relative flex min-h-0 flex-1",
+        stacked ? "flex-col" : "flex-row",
+        // Text must stay selectable in every pane (table cells, editors,
+        // read-only output). The suppression is only for an active seam drag
+        // so pointer drags don't highlight content — never a standing rule.
+        dragging && "select-none"
       )}
     >
       {/* Left pane gets the border — that 1px line IS the flush seam (no gutter). */}
