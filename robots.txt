@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /feedback-admin/
 
 Sitemap: https://www.csvjson.com/sitemap.xml

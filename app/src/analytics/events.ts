@@ -33,7 +33,14 @@ export interface ExportProps {
   format: ExportFormat;
 }
 
-export type TrackableEventName = "conversion" | "export";
+export interface FeedbackProps {
+  /** Recorded vote: 1 = up, -1 = down. */
+  vote: 1 | -1;
+  /** Downvotes always carry a reason chip; upvotes never do. */
+  with_reason: boolean;
+}
+
+export type TrackableEventName = "conversion" | "export" | "feedback";
 
 function capitalize(name: TrackableEventName): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
@@ -45,7 +52,7 @@ function capitalize(name: TrackableEventName): string {
  */
 export function trackEvent(
   name: TrackableEventName,
-  props: ConversionProps | ExportProps
+  props: ConversionProps | ExportProps | FeedbackProps
 ): void {
   window.gtag?.("event", name, { ...props });
   window.plausible?.(capitalize(name), { props: { ...props } });
@@ -57,6 +64,11 @@ export function trackConversion(props: ConversionProps): void {
 
 export function trackExport(props: ExportProps): void {
   trackEvent("export", props);
+}
+
+/** One recorded feedback vote (spec: CSVJSON feedback votes, art_2AdAvo34). */
+export function trackFeedback(props: FeedbackProps): void {
+  trackEvent("feedback", props);
 }
 
 export function byteLength(text: string): number {

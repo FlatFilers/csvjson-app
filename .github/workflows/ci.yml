@@ -58,6 +58,19 @@ jobs:
 
   shim:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: smoke
+          POSTGRES_DB: feedback_smoke
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -66,7 +79,11 @@ jobs:
           php-version: '8.4'
 
       - name: Lint PHP shim
-        run: php -l index.php
+        run: |
+          php -l index.php
+          php -l feedback-db.php
+          php -l feedback-api.php
+          php -l feedback-admin.php
 
 
       # Spec criterion 8, amended 2026-09-01 (David): analytics are restored
@@ -77,7 +94,7 @@ jobs:
       # anywhere in the shipped frontend or the PHP shim. Fail on any hit.
       - name: No promotional or telemetry remnants
         run: |
-          targets=(index.php .htaccess sitemap.xml robots.txt app/index.html app/src)
+          targets=(index.php .htaccess sitemap.xml robots.txt feedback-db.php feedback-api.php feedback-admin.php app/index.html app/src)
           # Same zero-tolerance rule for surviving webroot image assets:
           # promotional filenames must not ship, even unreferenced.
           if find img -type f 2>/dev/null | grep -iE 'flatfile|obvious|_ad|sponsor'; then
@@ -109,10 +126,25 @@ jobs:
       # resolving — read-only): no write verbs may ever appear in the SPA.
       - name: No write API usage in the SPA
         run: |
-          if grep -rniE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']' app/src; then
-            echo "::error::Write API usage found in app/src — the SPA must be read-only"
+          # The feedback vote widget's fetch is the one sanctioned write (it
+          # POSTs /api/feedback): strip the lines carrying that endpoint, then
+          # re-grep — same carve-out discipline as the sanctioned banner URL.
+          if grep -rniE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']' app/src \
+              | sed '/\/api\/feedback/d' \
+              | grep -iE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']'; then
+            echo "::error::Write API usage found in app/src — the SPA must be read-only (/api/feedback is the one sanctioned write)"
             exit 1
           fi
 
       - name: Redirect table, permalinks, and removed endpoints
         run: bash .github/scripts/verify-shim.sh
+
+      # The feedback endpoint is exercised against a real Postgres service
+      # container: success paths, every 4xx class, both rate limits, the 503
+      # no-database path, admin auth, and the robots.txt disallows.
+      - name: Feedback endpoint smoke test (Postgres)
+        env:
+          DATABASE_URL: postgresql://postgres:smoke@127.0.0.1:5432/feedback_smoke
+          FEEDBACK_SALT: ci-smoke-salt-not-a-secret
+          ADMIN_TOKEN: ci-smoke-admin-token-not-a-secret
+        run: bash scripts/smoke-feedback.sh

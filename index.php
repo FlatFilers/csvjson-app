@@ -8,8 +8,9 @@ declare(strict_types=1);
  * Serves the built SPA from app/dist and applies the legacy URL map.
  * The legacy CodeIgniter app is gone: no server-side conversion, no
  * upload endpoint, no save endpoint, no telemetry, no ad views. Legacy
- * permalink data is read directly from S3 by the browser; nothing is
- * stored server-side.
+ * Legacy permalink data is read directly from S3 by the browser; nothing
+ * conversion-related is stored server-side. The one sanctioned write path
+ * is the feedback vote endpoint (/api/feedback, see feedback-api.php).
  *
  * On Apache, real files (img/, favicon.ico) are served before PHP runs and
  * everything else is rewritten here (.htaccess). Under `php -S` this same
@@ -170,6 +171,21 @@ if (preg_match('#^/(?:docs|verification-screenshots)(?:/|$)#', $path)
 // server. Under Apache these never reach PHP in the first place.
 if (PHP_SAPI === 'cli-server' && $path !== '/' && is_file(__DIR__ . $path)) {
     return false;
+}
+
+// The feedback vote endpoint (the site's one sanctioned write path — spec:
+// CSVJSON feedback votes, art_2AdAvo34) and its admin page are routed here
+// rather than being standalone entry files so they behave identically under
+// Apache (.htaccess rewrite) and the PHP dev server; CI's smoke test
+// exercises the real code path either way.
+if ($path === '/api/feedback') {
+    require __DIR__ . '/feedback-api.php';
+    exit; // The endpoint always answers for itself; never fall through to the 404.
+}
+
+if ($path === '/feedback-admin') {
+    require __DIR__ . '/feedback-admin.php';
+    exit; // The admin page renders inline; never fall through to the 404.
 }
 
 // Telemetry write and the upload round-trip are removed outright —

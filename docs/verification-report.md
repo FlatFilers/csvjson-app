@@ -103,6 +103,14 @@ today and GA4 automatically once `VITE_GA4_MEASUREMENT_ID` is configured.
 - **`export`** — props: `via` (`copy` | `download`), `format` (`json` | `csv`,
   the resolved format of the pane's text). Fires on every intentional
   copy/download click, no debounce.
+- **`feedback`** (added 2026-09-02, spec art_2AdAvo34) — props: `vote`
+  (`1` | `-1`), `with_reason` (boolean: downvotes always true, upvotes always
+  false). Fires only on a confirmed successful submit (the endpoint answered
+  without error) — including the mount-time retry of a previously failed
+  submit, never on the failure itself and never on popover dismissal. David
+  adds the Plausible goal `feedback` in the dashboard alongside `conversion`
+  and `export`; GA4 receives it automatically once
+  `VITE_GA4_MEASUREMENT_ID` is set.
 - **Ads seam (one line):** conversion events carry no `send_to` yet. When
   David creates a conversion action in the Google Ads console, add its
   `send_to` label to the conversion call in `events.ts` — one line.
@@ -111,6 +119,26 @@ today and GA4 automatically once `VITE_GA4_MEASUREMENT_ID` is configured.
   breakdowns are plan-gated, the one-line fallback is distinct event names
   per method — noted, not preemptively split). GA4 receives the same custom
   events automatically once `VITE_GA4_MEASUREMENT_ID` is set.
+
+## Feedback votes (spec art_2AdAvo34) — verification
+
+The header vote widget, `POST /api/feedback` endpoint, and `/feedback-admin`
+view. Verified on `feat/feedback-votes` against a real Postgres 17 (local
+cluster + CI service container) and the vitest suite (`FeedbackVote.test.tsx`,
+12 tests).
+
+| # | Spec criterion | Verdict | Evidence |
+|---|----------------|---------|----------|
+| 1 | Upvote POSTs `{vote:1}` → 204; selected state persists across reload; repeat clicks idempotent (one row per client_id) | ✅ | `FeedbackVote.test.tsx` exact-payload + pre-selected-state + idempotent-repeat tests; curl smoke `valid upvote → 204`; Postgres check after the smoke run: 1 client → exactly 1 row |
+| 2 | Downvote opens the reason popover and records nothing until a chip is chosen and submitted; Esc dismisses without a vote | ✅ | component tests: submit disabled until a chip, Esc path asserts zero fetch calls and empty localStorage; outside-click same |
+| 3 | Changing a vote updates the existing row (updated_at bump) — never a duplicate | ✅ | component tests assert same clientId across posts and reason cleared on switch to up; smoke script down→up sequence leaves 1 row, `reason_code` NULL, `vote` 1 |
+| 4 | Malformed JSON → 400; bad vote/reason/oversize text → 422; no row written | ✅ | curl smoke: 400 malformed, 422 ×3 (invalid vote, invalid enum, 501-char text), 422 missing required reason; validation exits before any DB touch |
+| 5 | >10 writes per ip_hash/24h → 429; global flood cap → 429 | ✅ | curl smoke: 10 accepted writes then 429 (per-IP window); global 600/h cap in `feedback-db.php` with the same counter mechanism |
+| 6 | `/feedback-admin`: 401 unauthenticated; 200 with ADMIN_TOKEN showing totals, reason breakdown, recent entries (escaped); X-Robots-Tag: noindex; robots.txt disallows /api/ and /feedback-admin/ | ✅ | curl smoke: 401 no creds, 401 wrong token, 200 + noindex header with token; robots assertion for both Disallow lines; all output HTML-escaped via `feedback_admin_escape` |
+| 7 | DATABASE_URL unset → API returns 503 JSON; UI shows a retryable notice; site otherwise unaffected | ✅ | smoke test runs a second server without DATABASE_URL → 503; component failure test asserts the quiet retry note and the queued intent |
+| 8 | No raw IP, email, name, or file/conversion data stored anywhere — only the salted truncated hash | ✅ | `feedback-db.php` stores `ip_hash = substr(hmac_sha256(ip, FEEDBACK_SALT), 0, 16)`; the raw IP is read once, hashed, discarded — never bound, logged, or inserted |
+| 9 | Suites green: vitest extended; php -l on all endpoint files; smoke script against a Postgres service container in the shim job; remnant-gate targets extended; 125+ existing tests stay green; dist rebuilt; verify-seo.sh passes | ✅ | 137/137 tests (15 files, incl. 12 new); `php -l` clean ×4 on 8.4; CI shim job gained the `postgres:16` service + `scripts/smoke-feedback.sh`; remnant targets extended; dist freshness gate re-run; SEO check passed |
+| 10 | A recorded vote fires trackEvent('feedback', {vote, with_reason}) — Plausible goal 'feedback' documented alongside conversion/export | ✅ | component tests assert the exact gtag/plausible payloads on success only; the `feedback` event is documented in the Analytics events section above |
 
 ## Criterion 12 — states walkthrough (screenshots in `verification-screenshots/`)
 
