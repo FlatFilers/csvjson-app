@@ -47,6 +47,37 @@ The redirect/asset behavior is exactly what CI enforces on every push:
 `.github/scripts/verify-shim.sh` (301 map, permalinks, removed endpoints,
 dist-asset caching, traversal refusal) and `php -l index.php` on PHP 8.4.
 
+## Feedback votes — environment setup (spec art_2AdAvo34)
+
+The site's one sanctioned write path (`POST /api/feedback`, plus the
+`/feedback-admin` view) needs three config vars on the Heroku app. Until
+they exist, the endpoint answers 503 and the admin page 503s — the rest of
+the site is unaffected, and the header widget queues votes in the browser
+and retries on the next visit.
+
+| Var | How to set | Notes |
+|---|---|---|
+| `DATABASE_URL` | Either `heroku addons:create heroku-postgresql:essential` (~$5/mo, attaches the var automatically) or a Neon free-tier string: `heroku config:set DATABASE_URL=postgresql://…` | The `feedback_votes` table (and its index) create themselves on first use — no migration step. Any Postgres works; the code is PDO with prepared statements only. |
+| `FEEDBACK_SALT` | `heroku config:set FEEDBACK_SALT=$(openssl rand -hex 32)` | Pepper for the client-IP hash. Rotating it resets every visitor's rate-limit window (hashes are only comparable under one salt) — set it once and leave it. |
+| `ADMIN_TOKEN` | `heroku config:set ADMIN_TOKEN=$(openssl rand -hex 24)` | The HTTP Basic password for `/feedback-admin` (username ignored). Rotating revokes old credentials immediately. Never commit it. |
+
+### Post-cutover feedback smoke check
+
+After the deploy lands **and** the three vars above are set:
+
+1. Open https://www.csvjson.com, click the header thumbs-up → the thanks
+   note appears (204 in the network tab, one new row in `feedback_votes`).
+2. `curl -s -o /dev/null -w '%{http_code}' -u "admin:<ADMIN_TOKEN>"
+   https://www.csvjson.com/feedback-admin` → 200 with the vote visible in
+   the recent-entries table; the same URL without credentials must give 401.
+3. Spot-check the noindex header: `curl -s -D - -o /dev/null -u
+   "admin:<ADMIN_TOKEN>" https://www.csvjson.com/feedback-admin | grep -i
+   x-robots-tag` → `X-Robots-Tag: noindex`.
+
+CI runs the same matrix on every push against a Postgres service container
+(`scripts/smoke-feedback.sh` in the shim job), so a regression here surfaces
+before deploy, not after.
+
 ## Cutover checklist (after PR #155 merges)
 
 0. **Search Console baseline export — BLOCKING, before deploying anything.**
