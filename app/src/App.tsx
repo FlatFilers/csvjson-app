@@ -8,6 +8,7 @@ import {
 import { DividerSwitch } from "@/components/DividerSwitch";
 import { Faq } from "@/components/Faq";
 import { FeedbackBanner } from "@/components/FeedbackBanner";
+import { FeedbackVote } from "@/components/FeedbackVote";
 import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputPane } from "@/components/OutputPane";
@@ -317,7 +318,7 @@ export default function App() {
         {/* Launch-week banner sits above the TopBar inside the h-svh column,
             so the flex panes absorb its height instead of overflowing. */}
         <FeedbackBanner />
-        <TopBar theme={theme} onToggleTheme={toggleTheme} />
+        <TopBar theme={theme} onToggleTheme={toggleTheme} slot={<FeedbackVote />} />
       {permalinkPath &&
       (permalink.phase === "loading" ||
         permalink.phase === "not-found" ||
