@@ -1,5 +1,7 @@
 {
     "require": {
-        "php": "~8.4.0"
+        "php": "~8.4.0",
+        "ext-mbstring": "*",
+        "ext-pdo_pgsql": "*"
     }
 }
