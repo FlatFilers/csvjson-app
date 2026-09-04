@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { trackPermalinkView } from "@/analytics/analytics";
 import {
   createConversionTracker,
@@ -27,6 +27,7 @@ import {
 import { copyText } from "@/lib/clipboard";
 import { downloadText } from "@/lib/download";
 import { isTextFile } from "@/lib/files";
+import { isEditablePasteTarget } from "@/lib/paste";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
 import { initialTheme, persistTheme } from "@/lib/theme";
 import { parsePermalinkPath } from "@/lib/permalink";
@@ -231,6 +232,43 @@ export default function App() {
     reader.readAsText(file);
   };
 
+  // Shared input path — every text ingestion (typed, pasted in-pane, or
+  // pasted anywhere on the page) funnels through here: notices clear, the
+  // input is set, and the settle tracker attributes the edit.
+  const handleInputChange = useCallback(
+    (value: string) => {
+      setNotice(null);
+      setInput(value);
+      tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", value);
+    },
+    [csvToJson, tracker]
+  );
+
+  // Global paste routing (spec: paste-anywhere). Paste used to work only
+  // while focus sat inside the input pane; this document-level capture
+  // listener catches every other surface — page background, top bar,
+  // options bar, output pane. A body-level paste has no caret context, so
+  // routing REPLACES the input (the Excel workflow: copy table → paste →
+  // converted). Editable controls keep their native paste: the handler
+  // returns before preventDefault, so the event reaches the input editors
+  // (textarea, CodeMirror) untouched. The output CodeMirror is read-only
+  // but still owns its pane — isEditablePasteTarget keeps those pastes
+  // local too. stopPropagation keeps the empty-state pane handler from
+  // double-ingesting a routed paste.
+  useEffect(() => {
+    const onDocumentPaste = (event: ClipboardEvent) => {
+      const text = event.clipboardData?.getData("text/plain");
+      if (!text || isEditablePasteTarget(event.target)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setFilename(null); // replaced input is no longer the uploaded file
+      handleInputChange(text);
+    };
+    document.addEventListener("paste", onDocumentPaste, true);
+    return () =>
+      document.removeEventListener("paste", onDocumentPaste, true);
+  }, [handleInputChange]);
+
   const meta = result.ok ? metaLabel(result.rows, result.cols) : null;
   const largeInput = input.length > LARGE_INPUT_CHARS;
 
@@ -264,12 +302,7 @@ export default function App() {
     <InputPane
       format={inputFormat}
       input={input}
-      onInputChange={(value) => {
-        setNotice(null);
-        setInput(value);
-        // Typed/pasted text is a settle-tracked input (input="paste").
-        tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", value);
-      }}
+      onInputChange={handleInputChange}
       onFile={readFile}
       onTryExample={() => {
         setNotice(null);
