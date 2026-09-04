@@ -117,9 +117,13 @@ export function InputPane({
 
   // While the input is empty there is no editor to focus, so paste is caught
   // on the pane (and focused children) and fed into the input. Once content
-  // exists the editors handle their own paste.
+  // exists the editors handle their own paste. The document-level router
+  // (App) already covers non-editable targets here in capture phase and
+  // stops propagation — this handler stays as a fallback and skips anything
+  // the router already handled (defaultPrevented) to keep ingestion
+  // exactly-once.
   const onPaste = (event: ReactClipboardEvent<HTMLDivElement>) => {
-    if (!inputEmpty) return;
+    if (!inputEmpty || event.defaultPrevented) return;
     const text = event.clipboardData?.getData("text/plain");
     if (text) {
       event.preventDefault();

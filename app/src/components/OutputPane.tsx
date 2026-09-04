@@ -32,7 +32,11 @@ export function OutputPane({
 }: OutputPaneProps) {
   const isJson = format === "JSON";
   return (
-    <div data-testid="output-pane" className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div
+      data-testid="output-pane"
+      data-surface="output"
+      className="flex min-h-0 min-w-0 flex-1 flex-col"
+    >
       <PaneShell
         title={format}
         meta={inputEmpty ? null : meta}

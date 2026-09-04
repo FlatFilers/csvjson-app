@@ -81,6 +81,96 @@ describe("direction flip", () => {
   });
 });
 
+describe("global paste routing (paste-anywhere)", () => {
+  function pasteOn(target: Element, text: string) {
+    fireEvent.paste(target, {
+      clipboardData: { getData: () => text },
+    });
+  }
+
+  it("routes a body-level paste into the empty converter and converts it", async () => {
+    render(<App />);
+    // Focus sits outside the pane (page background) — the old field-paste
+    // path never fired here.
+    pasteOn(document.body, SAMPLE_CSV_INPUT);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("output-view").textContent).toContain("Elephant");
+  });
+
+  it("replaces existing input content on a body-level paste", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("input-table")).toBeInTheDocument();
+    });
+
+    pasteOn(document.body, "a,b\n1,2");
+
+    // The CSV table view virtualizes its rows — assert on the JSON output
+    // (a CodeMirror doc renders the full text) for the replaced content.
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain('"a"');
+    });
+    expect(screen.getByTestId("output-view").textContent).not.toContain(
+      "Elephant"
+    );
+  });
+
+  it("does not reroute a paste inside a text field", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    // The raw CSV editor is a real textarea — native paste owns the caret.
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const editor = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    const before = editor.value;
+
+    pasteOn(editor, "INJECTED");
+
+    // The router must have skipped the textarea: the controlled value is
+    // untouched (jsdom's native paste inserts nothing, so any reroute —
+    // which replaces the whole input — would surface here).
+    expect(editor.value).toBe(before);
+  });
+
+  it("keeps a paste inside the output CodeMirror local", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+    const inputBefore = screen.getByTestId("input-table").textContent;
+    const outputBefore = screen.getByTestId("output-view").textContent;
+    // The read-only output editor sets contenteditable=false — the .cm-editor
+    // ancestor check is what keeps this paste local instead of rerouted.
+    pasteOn(screen.getByTestId("output-view"), "INJECTED");
+
+    expect(screen.getByTestId("input-table").textContent).toBe(inputBefore);
+    expect(screen.getByTestId("output-view").textContent).toBe(outputBefore);
+  });
+
+  it("routes to the JSON editor after a direction switch to JSON→CSV", async () => {
+    render(<App />);
+    await flip();
+    pasteOn(document.body, '[{"zip":"00721"}]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor").textContent).toContain("00721");
+    });
+    // The converted output lands after the 150ms debounce — wait for it.
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toBeInTheDocument();
+    });
+  });
+
+  it("shows the shortcut chip in the empty state", () => {
+    render(<App />);
+    expect(screen.getByTestId("paste-shortcut")).toBeInTheDocument();
+  });
+});
+
 describe("direction-conditional options", () => {
   it("shows CSV→JSON options only in CSV mode", () => {
     render(<App />);
