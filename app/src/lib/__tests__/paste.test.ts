@@ -38,7 +38,7 @@ describe("isEditablePasteTarget", () => {
 
   it("treats the output pane surface as owned by the output", () => {
     const pane = el(
-      "<div data-testid=\"output-pane\"><div class=\"output-table\"></div></div>"
+      "<div data-surface=\"output\"><div class=\"output-table\"></div></div>"
     );
     const table = pane.querySelector(".output-table") as HTMLElement;
     expect(isEditablePasteTarget(table)).toBe(true);

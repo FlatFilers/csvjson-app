@@ -10,7 +10,9 @@
  *   the read-only output view — its content is contenteditable=false, so
  *   a paste made over the output must stay local, never silently rewrite
  *   the input,
- * - the output pane at large (chrome, CSV table view) for the same reason.
+ * - the output pane at large (chrome, CSV table view) for the same reason,
+ *   marked with the first-party data-surface="output" attribute (not a test
+ *   hook, so the guarantee does not ride on test selectors).
  */
 export function isEditablePasteTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -18,7 +20,7 @@ export function isEditablePasteTarget(target: EventTarget | null): boolean {
   const tag = target.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA") return true;
   return (
-    target.closest('.cm-editor, [data-testid="output-pane"], [contenteditable="true"]') !==
+    target.closest('.cm-editor, [data-surface="output"], [contenteditable="true"]') !==
     null
   );
 }
