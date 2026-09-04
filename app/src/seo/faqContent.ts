@@ -13,7 +13,7 @@ export const FAQ_ITEMS: Array<{ question: string; answer: string }> = [
   {
     question: "What do the options do?",
     answer:
-      "Separator picks the delimiter — auto-detect covers comma, semicolon, and tab. Parse numbers is off by default because it turns 00721 into 7; turn it on only when plain numeric cells should become real JSON numbers. Parse JSON converts null, true, false, [] and {} cells into real JSON values instead of strings. Transpose flips rows and columns; Hash output makes the first column the object key; Minify removes indentation from JSON output. On the JSON to CSV side, Flatten explodes nested arrays into extra rows with dotted keys.",
+      "Separator picks the delimiter — auto-detect covers comma, semicolon, and tab. Parse numbers is on by default with smart semantics — plain numbers like 5 or 19.99 become real JSON numbers, while leading-zero values like 00721 and very long IDs stay strings; uncheck it to keep every cell a string. Parse JSON converts null, true, false, [] and {} cells into real JSON values instead of strings. Transpose flips rows and columns; Hash output makes the first column the object key; Minify removes indentation from JSON output. On the JSON to CSV side, Flatten explodes nested arrays into extra rows with dotted keys.",
   },
   {
     question: "TSV vs CSV — what changes?",

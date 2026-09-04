@@ -15,7 +15,9 @@ describe("OptionsRow option hints", () => {
     );
     // The hint text exists in the DOM before any interaction — the click
     // only toggles visibility (spec: SEO initial-DOM rule).
-    const hint = screen.getByText("00721 into 7", { exact: false });
+    const hint = screen.getByText("leading-zero values like 00721", {
+      exact: false,
+    });
     expect(hint).toHaveAttribute("data-hint");
     expect(hint).toHaveAttribute("hidden");
   });
@@ -34,6 +36,6 @@ describe("OptionsRow option hints", () => {
     })[0];
     expect(infoButton).toHaveAttribute("aria-expanded", "false");
     await user.click(infoButton);
-    expect(screen.getByText(/turns 00721 into 7/)).toBeVisible();
+    expect(screen.getByText(/very long IDs stay strings/)).toBeVisible();
   });
 });
