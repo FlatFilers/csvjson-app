@@ -6,7 +6,7 @@ import { PaneShell } from "@/components/PaneShell";
  * Output pane (spec: States → Empty/Ready): a quiet placeholder while the
  * input is empty; otherwise the read-only JSON view (CodeMirror, linted) or
  * the dense CSV table. The last valid conversion stays visible through
- * invalid input (spec: Invalid input).
+ * invalid input (spec: Invalid input), labeled while it is stale.
  */
 
 type OutputPaneProps = {
@@ -15,6 +15,8 @@ type OutputPaneProps = {
   outputText: string | null;
   error: string | null;
   meta: string | null;
+  /** Validity label for the retained result; null while the input is valid. */
+  staleNotice: string | null;
   dark: boolean;
   onCopy: () => void;
   onDownload: () => void;
@@ -26,6 +28,7 @@ export function OutputPane({
   outputText,
   error,
   meta,
+  staleNotice,
   dark,
   onCopy,
   onDownload,
@@ -39,7 +42,20 @@ export function OutputPane({
     >
       <PaneShell
         title={format}
-        meta={inputEmpty ? null : meta}
+        meta={
+          inputEmpty ? null : staleNotice ? (
+            // Warning tone, not error red — the output is not broken, it is
+            // a deliberate hold (spec: Invalid input → retention).
+            <span
+              data-testid="stale-notice"
+              className="text-xs text-amber-600 dark:text-amber-400"
+            >
+              {staleNotice}
+            </span>
+          ) : (
+            meta
+          )
+        }
         actions={
           <>
             <button

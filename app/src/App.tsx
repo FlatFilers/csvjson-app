@@ -270,6 +270,11 @@ export default function App() {
   }, [handleInputChange]);
 
   const meta = result.ok ? metaLabel(result.rows, result.cols) : null;
+  // Stale-output validity label (spec: States → Invalid input): when the
+  // current input errors but an earlier conversion succeeded, the output
+  // pane still shows that retained result — label it; never block or clear.
+  const staleNotice =
+    !result.ok && lastValidOutput ? "Last valid result — input has errors" : null;
   const largeInput = input.length > LARGE_INPUT_CHARS;
 
   // Every intentional copy/download is an export event; format is the
@@ -334,6 +339,7 @@ export default function App() {
       outputText={lastValidOutput}
       error={result.ok ? null : result.error}
       meta={meta}
+      staleNotice={staleNotice}
       dark={theme === "dark"}
       onCopy={copyOutput}
       onDownload={downloadOutput}
