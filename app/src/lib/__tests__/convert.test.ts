@@ -300,6 +300,17 @@ describe("whitespace preservation (B5, fixes #87 #95)", () => {
     expect(csv2json("a\n x ", { trim: false })).toEqual([{ a: " x " }]);
   });
 
+  it("library default keeps the #114 stray-quote strip on the gated fallback", () => {
+    // The #114 strip moved into the unquoted fallback; gating the trim must
+    // not strand it on the no-trim branch (the .replace tail chains after
+    // BOTH ternary branches). Regression probe from code review: a leading
+    // quote that failed the quoted grammar is parse damage — stripped on the
+    // default path exactly as #114-master shipped it.
+    expect(csv2json('name,amount\n"Avery,12.50', {})).toEqual([
+      { name: "Avery", amount: "12.50" },
+    ]);
+  });
+
   it("convertText renders padding in the JSON output and keeps the guard", () => {
     const preserved = convertText("csv2json", "name,notes\nAvery, hello ");
     expect(preserved.ok).toBe(true);
