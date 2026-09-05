@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_OPTIONS } from "@/lib/convert";
 import { OptionsRow } from "./OptionsRow";
 
@@ -45,5 +45,54 @@ describe("OptionsRow option hints", () => {
     expect(infoButton).toHaveAttribute("aria-expanded", "false");
     await user.click(infoButton);
     expect(screen.getByText(/very long IDs stay strings/)).toBeVisible();
+  });
+});
+
+describe("encoding select (spec B7 — issue #106)", () => {
+  it("renders the upload encoding select, defaulting to UTF-8, and reports changes", async () => {
+    const user = userEvent.setup();
+    const onUploadEncodingChange = vi.fn();
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+        uploadEncoding="utf-8"
+        onUploadEncodingChange={onUploadEncodingChange}
+      />
+    );
+    const select = screen.getByTestId("opt-encoding");
+    expect(select).toHaveValue("utf-8");
+    await user.selectOptions(select, "windows-1252");
+    expect(onUploadEncodingChange).toHaveBeenCalledWith("windows-1252");
+  });
+
+  it("carries the upload-scoping hint in the DOM at load, hidden until clicked (SEO initial-DOM rule)", () => {
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+        uploadEncoding="utf-8"
+        onUploadEncodingChange={() => {}}
+      />
+    );
+    const hint = screen.getByText("Applies to file uploads and drops only", {
+      exact: false,
+    });
+    expect(hint).toHaveAttribute("data-hint");
+    expect(hint).toHaveAttribute("hidden");
+    expect(hint.textContent).toContain("always read as UTF-8");
+  });
+
+  it("hides the encoding select when no upload-encoding props are given", () => {
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+      />
+    );
+    expect(screen.queryByTestId("opt-encoding")).not.toBeInTheDocument();
   });
 });

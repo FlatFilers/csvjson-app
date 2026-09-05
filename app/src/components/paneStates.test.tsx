@@ -260,3 +260,104 @@ describe("downloads", () => {
 function jsonBytesLead(bytes: Uint8Array): boolean {
   return bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
 }
+
+/** File built from raw bytes — encoding tests exercise real legacy bytes. */
+function byteFile(bytes: number[], name: string, type = "text/csv"): File {
+  return new File([new Uint8Array(bytes)], name, { type });
+}
+
+// "name,city\nJürgen,Köln" in windows-1252: ü = 0xFC, ö = 0xF6. Read as
+// UTF-8 those bytes are invalid and show as replacement characters —
+// exactly the mojibake issue #106 reports.
+const WIN1252_BYTES = [
+  0x6e, 0x61, 0x6d, 0x65, 0x2c, 0x63, 0x69, 0x74, 0x79, 0x0a, // name,city\n
+  0x4a, 0xfc, 0x72, 0x67, 0x65, 0x6e, 0x2c, 0x4b, 0xf6, 0x6c, 0x6e, // Jürgen,Köln
+];
+
+describe("upload encoding (spec B7 — issue #106)", () => {
+  // The file-level offset mocks are restored by the shared afterEach after
+  // the first test (restoreAllMocks); re-arm them here so the virtualized
+  // table renders data rows — same approach as CsvTable.test.tsx.
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(600);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(800);
+  });
+
+  it("decodes a windows-1252 upload's accented bytes when the select is switched first", async () => {
+    render(<App />);
+    fireEvent.change(screen.getByTestId("opt-encoding"), {
+      target: { value: "windows-1252" },
+    });
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: {
+        files: [byteFile(WIN1252_BYTES, "legacy.csv")],
+        types: ["Files"],
+      },
+    });
+    await screen.findByTestId("input-table");
+    const text = screen.getByTestId("input-table").textContent ?? "";
+    expect(text).toContain("Jürgen");
+    expect(text).toContain("Köln");
+  });
+
+  it("keeps the UTF-8 default decode: 1252 bytes read as UTF-8 show replacement characters", async () => {
+    render(<App />);
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: {
+        files: [byteFile(WIN1252_BYTES, "mojibake.csv")],
+        types: ["Files"],
+      },
+    });
+    await screen.findByTestId("input-table");
+    const text = screen.getByTestId("input-table").textContent ?? "";
+    expect(text).not.toContain("Jürgen");
+    expect(text).toContain("\uFFFD");
+  });
+
+  it("re-decodes the held upload when the encoding changes — recovery without a re-upload", async () => {
+    render(<App />);
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: {
+        files: [byteFile(WIN1252_BYTES, "legacy.csv")],
+        types: ["Files"],
+      },
+    });
+    await screen.findByTestId("input-table");
+    expect(screen.getByTestId("input-table").textContent).toContain("\uFFFD");
+
+    fireEvent.change(screen.getByTestId("opt-encoding"), {
+      target: { value: "windows-1252" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-table").textContent).toContain("Jürgen");
+    });
+  });
+
+  it("never re-decodes over text that replaced the upload — paste stays untouched", async () => {
+    render(<App />);
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: {
+        files: [byteFile(WIN1252_BYTES, "legacy.csv")],
+        types: ["Files"],
+      },
+    });
+    await screen.findByTestId("input-table");
+
+    // The paste replaces the input, so the upload no longer feeds it.
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => "a,b\n1,2" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-table").textContent).toContain("1");
+    });
+
+    fireEvent.change(screen.getByTestId("opt-encoding"), {
+      target: { value: "windows-1252" },
+    });
+    // Flush any (wrongly) scheduled re-decode before asserting.
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    const text = screen.getByTestId("input-table").textContent ?? "";
+    expect(text).toContain("1");
+    expect(text).not.toContain("Jürgen");
+  });
+});
