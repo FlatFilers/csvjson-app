@@ -48,13 +48,13 @@ afterEach(() => {
 });
 
 describe("dropzone interactions", () => {
-  it("opens the picker from the browse link — field clicks place the caret", () => {
+  it("opens the picker from the Choose file button — field clicks place the caret", () => {
     render(<App />);
     const pickerClick = vi
       .spyOn(HTMLInputElement.prototype, "click")
       .mockImplementation(() => {});
 
-    fireEvent.click(screen.getByTestId("browse"));
+    fireEvent.click(screen.getByTestId("choose-file"));
     expect(pickerClick).toHaveBeenCalledTimes(1);
 
     // The empty state is a real field now: a click inside it is caret

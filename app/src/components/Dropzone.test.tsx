@@ -47,6 +47,44 @@ describe("Dropzone paste field", () => {
     expect(field).toHaveFocus();
   });
 
+  it("is compact: input-height and centered, never filling the pane", () => {
+    render(
+      <Dropzone
+        format="CSV"
+        onIngest={() => {}}
+        onBrowse={() => {}}
+        onTryExample={() => {}}
+      />
+    );
+    const field = screen.getByTestId("paste-field");
+    // Input-height field (44px touch target), not a pane-filling flex child.
+    expect(field).toHaveClass("min-h-11");
+    expect(field).not.toHaveClass("flex-1");
+    // The affordances center vertically in the pane inside a max-w-sm column.
+    const dropzone = screen.getByTestId("dropzone");
+    expect(dropzone).toHaveClass("items-center", "justify-center");
+    expect(dropzone.querySelector(".max-w-sm")).not.toBeNull();
+  });
+
+  it("grows with stacked content but caps the field at 3 rows", () => {
+    render(
+      <Dropzone
+        format="CSV"
+        onIngest={() => {}}
+        onBrowse={() => {}}
+        onTryExample={() => {}}
+      />
+    );
+    const field = screen.getByTestId("paste-field");
+    // Input-height at rest…
+    expect(field).toHaveAttribute("rows", "1");
+    // …grows for stacked content, capped at 3 rows — never a filled pane.
+    fireEvent.change(field, { target: { value: "a\nb" } });
+    expect(field).toHaveAttribute("rows", "2");
+    fireEvent.change(field, { target: { value: "a\nb\nc\nd" } });
+    expect(field).toHaveAttribute("rows", "3");
+  });
+
   it("names JSON in the placeholder after a direction switch", () => {
     render(
       <Dropzone
@@ -102,7 +140,7 @@ describe("Dropzone paste field", () => {
     expect(onIngest).toHaveBeenCalledWith("album,year\nDe Stijl,2000");
   });
 
-  it("shows an Apple shortcut chip beside the field", () => {
+  it("shows an Apple shortcut chip in the hint line", () => {
     const restore = shadowNavigator("platform", "MacIntel");
     render(
       <Dropzone
@@ -116,8 +154,24 @@ describe("Dropzone paste field", () => {
 
     expect(screen.getByTestId("paste-shortcut").textContent).toBe("⌘V");
     expect(screen.getByTestId("dropzone").textContent).toContain(
-      "Press ⌘V to paste anywhere on this page"
+      "paste anywhere on the page (⌘V)"
     );
+  });
+
+  it("teaches drop and paste-anywhere in one plain hint line", () => {
+    render(
+      <Dropzone
+        format="CSV"
+        onIngest={() => {}}
+        onBrowse={() => {}}
+        onTryExample={() => {}}
+      />
+    );
+    const hint = screen.getByTestId("dropzone").textContent;
+    expect(hint).toContain("or drag & drop a file");
+    expect(hint).toContain("paste anywhere on the page");
+    // jsdom has no platform → the chip shows both shortcuts.
+    expect(hint).toContain("(⌘V / Ctrl+V)");
   });
 
   it("shows Ctrl+V on Windows/Linux", () => {
@@ -167,7 +221,7 @@ describe("Dropzone paste field", () => {
     expect(screen.getByTestId("paste-shortcut").textContent).toBe("⌘V");
   });
 
-  it("keeps the browse and example affordances working", async () => {
+  it("opens the file dialog from a real Choose file button", async () => {
     const user = userEvent.setup();
     const onBrowse = vi.fn();
     const onTryExample = vi.fn();
@@ -180,7 +234,10 @@ describe("Dropzone paste field", () => {
       />
     );
 
-    await user.click(screen.getByTestId("browse"));
+    const choose = screen.getByRole("button", { name: "Choose file" });
+    expect(choose.tagName).toBe("BUTTON");
+    expect(choose).toHaveClass("h-11"); // 44px touch target
+    await user.click(choose);
     await user.click(screen.getByTestId("try-example"));
     expect(onBrowse).toHaveBeenCalledTimes(1);
     expect(onTryExample).toHaveBeenCalledTimes(1);
