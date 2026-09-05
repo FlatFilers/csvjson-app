@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "@/App";
 
@@ -171,6 +177,53 @@ describe("throttle hint", () => {
     });
     expect(screen.getByTestId("options-notice")).toHaveTextContent(
       "Large file — converting on pause"
+    );
+  });
+});
+
+describe("malformed-CSV warnings (todo_D8PMLUA1)", () => {
+  it("repro: `name,amount\n\"Avery,12.50` converts AND warns in the output pane", async () => {
+    render(<App />);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => 'name,amount\n"Avery,12.50' },
+    });
+
+    // Conversion succeeds — the result still renders, warnings never block.
+    await screen.findByTestId("output-view");
+    const output = screen.getByTestId("output-pane");
+    await waitFor(() => {
+      expect(within(output).getByTestId("pane-status")).toHaveTextContent(
+        "Unbalanced quote on line 2 — parsed as plain text"
+      );
+    });
+    // The notice lives in the OUTPUT pane, not the input pane.
+    expect(within(screen.getByTestId("input-pane")).queryByTestId("pane-status")).not.toBeInTheDocument();
+  });
+
+  it("ragged rows warn; clean CSV stays silent", async () => {
+    render(<App />);
+    // Pane-level paste ingests only while the input is empty; later edits go
+    // through the raw editor (same pattern as the stale-output tests).
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => "a,b,c\n1,2" },
+    });
+    await screen.findByTestId("output-view");
+    await waitFor(() => {
+      expect(
+        within(screen.getByTestId("output-pane")).getByTestId("pane-status")
+      ).toHaveTextContent("Row 1 has fewer fields than the header, padded");
+    });
+
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const editor = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: "a,b,c\n1,2,3\n3,4,5" } });
+    await waitFor(
+      () => {
+        expect(
+          within(screen.getByTestId("output-pane")).queryByTestId("pane-status")
+        ).not.toBeInTheDocument();
+      },
+      { timeout: 2000 }
     );
   });
 });

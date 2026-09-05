@@ -40,6 +40,24 @@ describe("parseCsvTable", () => {
     const table = parseCsvTable("\uFEFFalbum,year\nDe Stijl,2000");
     expect(table.headers).toEqual(["album", "year"]);
   });
+
+  it("reports raw row widths before padding and truncation", () => {
+    const table = parseCsvTable("a,b,c\n1\n1,2,3,4\n5,6");
+    expect(table.rowWidths).toEqual([1, 4, 2]);
+    expect(table.rows).toEqual([
+      ["1", "", ""],
+      ["1", "2", "3"],
+      ["5", "6", ""],
+    ]);
+  });
+
+  it("keeps quoted newlines and blank lines in the raw widths", () => {
+    const table = parseCsvTable('a,b\n"x\ny",1\n\n2');
+    // The quoted field spans two lines but is one record; the blank line
+    // is a record of its own (width 1) that convert.ts skips by content.
+    expect(table.rowWidths).toEqual([2, 1, 1]);
+    expect(table.rows[0]).toEqual(["x\ny", "1"]);
+  });
 });
 
 describe("parseCsvTable line endings", () => {

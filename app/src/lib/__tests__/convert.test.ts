@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   convertText,
   csvToJson,
+  csvWarnings,
   DEFAULT_OPTIONS,
   jsonToJsonCsv,
   NonTabularJsonError,
@@ -434,5 +435,103 @@ describe("count parity — count == preview == download (art_afRt2cdg R1/R1b/R1c
     if (!result.ok) return;
     expect(result.rows).toBe(2);
     expect(result.cols).toBe(2);
+  });
+});
+
+// The lib reinterprets malformed CSV silently (art_afRt2cdg §2): unbalanced
+// quotes fall back to unquoted parsing and the stray quote is stripped,
+// short rows are padded, extra cells are dropped. Warnings surface exactly
+// those reinterpretations — non-blocking, on the ok branch.
+describe("malformed-CSV warnings (todo_D8PMLUA1)", () => {
+  it("repro: `name,amount\n\"Avery,12.50` converts AND warns", () => {
+    const result = convertText("csv2json", 'name,amount\n"Avery,12.50');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Conversion semantics unchanged — the lib's reading still stands.
+    expect(result.text).toContain('"Avery"');
+    expect(result.warnings).toEqual([
+      "Unbalanced quote on line 2 — parsed as plain text",
+    ]);
+  });
+
+  it("clean CSV stays silent — no warnings key at all", () => {
+    const result = convertText(
+      "csv2json",
+      "name,amount\nAvery,12.50\nGrace,45.00"
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
+  });
+
+  it("quoted newlines and doubled quotes never warn", () => {
+    // TRICKY_CSV carries an embedded newline and ""-doubling inside quoted
+    // fields — valid RFC-4180 that the lib parses losslessly.
+    const result = convertText("csv2json", TRICKY_CSV);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
+  });
+
+  it("a quote closing on a later line is balanced — embedded newlines are literal", () => {
+    expect(csvWarnings('name,amount\n"Avery\n12.50",3', undefined)).toEqual([]);
+  });
+
+  it("flags rows the lib pads and rows whose extra cells it drops", () => {
+    const result = convertText("csv2json", "a,b,c\n1,2\n3,4,5,6");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toEqual([
+      "Row 1 has fewer fields than the header, padded",
+      "Row 2 has more fields than the header, extra fields dropped",
+    ]);
+  });
+
+  it("blank lines never warn — the lib skips them entirely", () => {
+    const result = convertText("csv2json", "a,b,c\n\n1,2");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Row numbers count data rows as written, blanks included.
+    expect(result.warnings).toEqual([
+      "Row 2 has fewer fields than the header, padded",
+    ]);
+  });
+
+  it("does not width-check the record carrying the unbalanced quote", () => {
+    // The lib splits `"Avery,12.50` at the comma via its unquoted fallback —
+    // two fields, nothing padded — so a ragged warning here would be false.
+    expect(csvWarnings('name,amount\n"Avery,12.50', undefined)).toEqual([
+      "Unbalanced quote on line 2 — parsed as plain text",
+    ]);
+  });
+
+  it("quote parity is separator-independent", () => {
+    expect(csvWarnings('a;b\n"x;y', undefined)).toEqual([
+      "Unbalanced quote on line 2 — parsed as plain text",
+    ]);
+    expect(csvWarnings('a\tb\n"x\ty', undefined)).toEqual([
+      "Unbalanced quote on line 2 — parsed as plain text",
+    ]);
+  });
+
+  it("width checks follow a forced separator", () => {
+    // Forced tab: `a,b` is ONE field, so both records match the 1-field header.
+    expect(csvWarnings("a,b\n1,2", "\t")).toEqual([]);
+  });
+
+  it("trailing garbage after a closed quote still errors — no warnings", () => {
+    // The lib's one genuine error path is untouched: it throws a PEG syntax
+    // error, convertText reports it, and the warnings channel stays out.
+    const result = convertText("csv2json", 'a,b\n"x"junk,2');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("line 2");
+  });
+
+  it("json2csv never carries warnings — JSON errors already surface", () => {
+    const result = convertText("json2csv", '[{"a":1}]');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
   });
 });
