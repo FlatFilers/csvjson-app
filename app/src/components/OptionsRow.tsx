@@ -120,7 +120,7 @@ export function OptionsRow({
             label="Parse numbers"
             checked={options.parseNumbers}
             onChange={(parseNumbers) => onChange({ parseNumbers })}
-            hint="On by default — plain numbers like 5 or 19.99 become real JSON numbers; leading-zero values like 00721 and very long IDs stay strings. Uncheck to keep every cell a string."
+            hint="On by default — plain numbers like 5 or 19.99 become real JSON numbers; leading-zero values like 00721 and very long IDs stay strings. Uncheck to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on."
           />
           <ToggleOption
             label="Parse JSON"

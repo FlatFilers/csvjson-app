@@ -52,7 +52,7 @@ check "FAQ trigger line" "How it works &amp; FAQ"
 check "FAQ how-it-works question" "How does it work?"
 check "FAQ TSV vs CSV section" "TSV vs CSV"
 check "FAQ privacy copy" "The conversion runs entirely in your browser"
-check "option hint copy (parse numbers)" "leading-zero values like 00721 and very long IDs stay strings. Uncheck to keep every cell a string"
+check "option hint copy (parse numbers)" "leading-zero values like 00721 and very long IDs stay strings. Uncheck to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on"
 
 # Launch-week banner ships in the initial HTML too (spec: full-width
 # feedback banner above the TopBar). Canonical URL lives in

@@ -20,6 +20,14 @@ describe("OptionsRow option hints", () => {
     });
     expect(hint).toHaveAttribute("data-hint");
     expect(hint).toHaveAttribute("hidden");
+    // Pin the corrected final sentence: unchecking does NOT keep every cell a
+    // string while Parse JSON is on (the default) — booleans, null, and
+    // containers still convert. Accuracy under default options is the
+    // acceptance criterion.
+    expect(hint.textContent).toContain(
+      "Uncheck to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on."
+    );
+    expect(hint.textContent).not.toContain("keep every cell a string");
   });
 
   it("reveals a hint when its info icon is clicked", async () => {
