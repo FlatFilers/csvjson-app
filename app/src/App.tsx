@@ -382,7 +382,6 @@ export default function App() {
         direction={direction}
         options={options}
         onChange={(patch) => setOptions((current) => ({ ...current, ...patch }))}
-        meta={meta}
           notice={largeInput ? "Large file — converting on pause" : null}
       />
       </div>

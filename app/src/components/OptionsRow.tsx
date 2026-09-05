@@ -5,8 +5,6 @@ type OptionsRowProps = {
   direction: Direction;
   options: ConverterOptions;
   onChange: (patch: Partial<ConverterOptions>) => void;
-  /** e.g. "6 rows · 3 cols" — shown right-aligned. */
-  meta?: string | null;
   /** Quiet hint ("Large file — converting on pause"), distinct from errors. */
   notice?: string | null;
 };
@@ -35,7 +33,7 @@ function ToggleOption({
   hint?: string;
 }) {
   return (
-    <span className="inline-flex items-center">
+    <span className="inline-flex items-center gap-1">
       <label className="flex cursor-pointer items-center gap-1.5 text-foreground">
         <input
           type="checkbox"
@@ -54,7 +52,7 @@ function OptionHint({ text }: { text: string }) {
   const hintId = useId();
   const [open, setOpen] = useState(false);
   return (
-    <span className="relative ml-1 inline-flex items-center">
+    <span className="relative inline-flex items-center">
       <button
         type="button"
         aria-label="What does this option do?"
@@ -70,7 +68,7 @@ function OptionHint({ text }: { text: string }) {
         data-hint
         id={hintId}
         hidden={!open}
-        className="ml-1.5 text-muted-foreground"
+        className="ml-1 text-muted-foreground"
       >
         {text}
       </span>
@@ -87,7 +85,6 @@ export function OptionsRow({
   direction,
   options,
   onChange,
-  meta,
   notice,
 }: OptionsRowProps) {
   const csvToJson = direction === "csv2json";
@@ -160,11 +157,6 @@ export function OptionsRow({
       {notice ? (
         <span data-testid="options-notice" className="text-muted-foreground">
           {notice}
-        </span>
-      ) : null}
-      {meta ? (
-        <span data-testid="options-meta" className="text-muted-foreground">
-          {meta}
         </span>
       ) : null}
     </div>

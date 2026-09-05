@@ -57,13 +57,16 @@ export function OutputPane({
           )
         }
         actions={
+          // Output Copy/Download are the header's most prominent actions
+          // (spec: hierarchy) — sentence case, foreground color; the quiet
+          // tracked-uppercase treatment stays on input-pane utilities only.
           <>
             <button
               type="button"
               data-testid="copy-output"
               onClick={onCopy}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
+              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
             >
               Copy
             </button>
@@ -72,7 +75,7 @@ export function OutputPane({
               data-testid="download-output"
               onClick={onDownload}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
+              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
             >
               Download
             </button>
