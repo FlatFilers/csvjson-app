@@ -1,4 +1,5 @@
 import { useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
+import { Braces, Copy, Download, FileUp, Table, Trash2, type LucideIcon } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
 import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
@@ -57,11 +58,14 @@ function ActionButton({
   testId,
   onClick,
   disabled,
+  Icon,
 }: {
   label: string;
   testId: string;
   onClick: () => void;
   disabled?: boolean;
+  /** Decorative v0 icon (aria-hidden) — the label stays the accessible name. */
+  Icon?: LucideIcon;
 }) {
   return (
     <button
@@ -72,6 +76,7 @@ function ActionButton({
       title={label}
       className={actionButtonClass}
     >
+      {Icon ? <Icon aria-hidden="true" /> : null}
       {label}
     </button>
   );
@@ -157,12 +162,13 @@ export function InputPane({
         aria-pressed={!rawMode}
         onClick={() => setRawMode(false)}
         className={cn(
-          "cursor-pointer rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+          "inline-flex cursor-pointer items-center gap-1 rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           rawMode
             ? "text-muted-foreground hover:text-foreground"
             : "bg-background text-foreground shadow-sm"
         )}
       >
+        <Table aria-hidden="true" className="size-3.5" />
         Table
       </button>
       <button
@@ -171,12 +177,13 @@ export function InputPane({
         aria-pressed={rawMode}
         onClick={() => setRawMode(true)}
         className={cn(
-          "cursor-pointer rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+          "inline-flex cursor-pointer items-center gap-1 rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
           rawMode
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         )}
       >
+        <Braces aria-hidden="true" className="size-3.5" />
         Raw
       </button>
     </span>
@@ -232,19 +239,22 @@ export function InputPane({
               label="Upload"
               testId="upload"
               onClick={() => fileInputRef.current?.click()}
+              Icon={FileUp}
             />
-            <ActionButton label="Copy" testId="copy-input" onClick={onCopy} />
+            <ActionButton label="Copy" testId="copy-input" onClick={onCopy} Icon={Copy} />
             <ActionButton
               label="Clear"
               testId="clear-input"
               onClick={onClear}
               disabled={inputEmpty}
+              Icon={Trash2}
             />
             <ActionButton
               label="Download"
               testId="download-input"
               onClick={onDownload}
               disabled={inputEmpty}
+              Icon={Download}
             />
           </>
         }

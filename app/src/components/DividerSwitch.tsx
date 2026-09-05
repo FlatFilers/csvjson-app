@@ -1,3 +1,4 @@
+import { ArrowLeftRight } from "lucide-react";
 import type { Direction } from "@/lib/convert";
 import { cn } from "@/lib/utils";
 
@@ -5,26 +6,15 @@ function directionLabel(direction: Direction): string {
   return direction === "csv2json" ? "CSV → JSON" : "JSON → CSV";
 }
 
-/** The mockup's ⇄ icon (arrow-right-left) — rotates 180° in JSON → CSV. */
+/** The mockup's ⇄ icon (lucide arrow-left-right) — rotates 180° in JSON → CSV. */
 function SwapIcon({ flipped }: { flipped: boolean }) {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
+    <ArrowLeftRight
+      size={18}
       strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
       aria-hidden="true"
       className={cn("transition-transform duration-300", flipped && "rotate-180")}
-    >
-      <path d="M8 3 4 7l4 4" />
-      <path d="M4 7h16" />
-      <path d="m16 21 4-4-4-4" />
-      <path d="M20 17H4" />
-    </svg>
+    />
   );
 }
 
