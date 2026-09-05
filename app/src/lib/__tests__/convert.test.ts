@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import csv2json from "csvjson-csv2json";
 import {
   convertText,
   csvToJson,
@@ -246,6 +247,70 @@ describe("quote-run at record close (issue #114)", () => {
   });
 });
 
+// B5 (art_RfUU1oAy, fixes #87 #95): the package trimmed every field
+// unconditionally, discarding the leading/trailing whitespace RFC-4180
+// section 2.4 keeps part of the field (" | " arrived as "|", ", " as ",").
+// The postinstall patch gates that trim behind a trim option — the library
+// default stays true (byte-identical for other consumers), the app passes
+// false. The numeric-adjacency guard lives in the smart pass: numeric
+// interpretation trims first, so " 5 " still converts to 5 while " x "
+// keeps its padding.
+describe("whitespace preservation (B5, fixes #87 #95)", () => {
+  // Single-column helper: converts one-cell CSV and returns the `a` value.
+  const cell = (csv: string, options?: Parameters<typeof csvToJson>[1]) =>
+    (csvToJson(csv, options) as Record<string, unknown>[])[0].a;
+
+  it("preserves unquoted leading/trailing cell whitespace", () => {
+    expect(csvToJson("a,b\n x , y ")).toEqual([{ a: " x ", b: " y " }]);
+  });
+
+  it("#87 repro — TSV cells ', ' and ' and ' keep their padding in hash mode", () => {
+    const csv =
+      "Key\ten-us\nTEXT_SERIES_SEPARATOR\t, \nTEXT_SERIES_CONJUNCTION\t and ";
+    expect(csvToJson(csv, { hash: true })).toEqual({
+      TEXT_SERIES_SEPARATOR: { "en-us": ", " },
+      TEXT_SERIES_CONJUNCTION: { "en-us": " and " },
+    });
+  });
+
+  it("#95 repro — ' | ' stays ' | '", () => {
+    expect(cell("a\n | ")).toBe(" | ");
+  });
+
+  it("preserves whitespace inside quoted fields too", () => {
+    expect(cell('a\n" x "', { parseNumbers: false })).toBe(" x ");
+  });
+
+  it("numeric adjacency guard — padded numbers still convert with Parse numbers on", () => {
+    expect(cell("a\n 5 ")).toBe(5);
+    expect(cell("a\n 19.99 ")).toBe(19.99);
+    expect(cell("a\n -3 ")).toBe(-3);
+    // The guard trims for interpretation only — non-numbers keep padding.
+    expect(cell("a\n Widget ")).toBe(" Widget ");
+  });
+
+  it("with Parse numbers off, padded numbers stay padded strings", () => {
+    expect(cell("a\n 5 ", { parseNumbers: false })).toBe(" 5 ");
+  });
+
+  it("library default stays trim:true — other consumers unchanged", () => {
+    // Direct package calls, bypassing the wrapper: the default trims, the
+    // explicit opt-out preserves.
+    expect(csv2json("a\n x ", {})).toEqual([{ a: "x" }]);
+    expect(csv2json("a\n x ", { trim: false })).toEqual([{ a: " x " }]);
+  });
+
+  it("convertText renders padding in the JSON output and keeps the guard", () => {
+    const preserved = convertText("csv2json", "name,notes\nAvery, hello ");
+    expect(preserved.ok).toBe(true);
+    if (preserved.ok) expect(preserved.text).toContain('"notes": " hello "');
+
+    const numeric = convertText("csv2json", "name,qty\nWidget, 5 ");
+    expect(numeric.ok).toBe(true);
+    if (numeric.ok) expect(numeric.text).toContain('"qty": 5');
+  });
+});
+
 describe("smart parse-numbers default (todo_PtV57hBw)", () => {
   // Single-column helper: converts one-cell CSV and returns the `a` value.
   const cell = (csv: string, options?: Parameters<typeof csvToJson>[1]) =>
@@ -279,11 +344,11 @@ describe("smart parse-numbers default (todo_PtV57hBw)", () => {
   });
 
   it("applies the smart rule to the parser's delivered value — never a loose parse", () => {
-    // The package parser trims cells before the walk, so a padded cell
-    // arrives as "5" and converts. The anchored literal match is what
-    // prevents loose parses — the walk itself never accepts surrounding
-    // whitespace (a parser that preserves padding would keep it a string).
+    // Since B5 the walk receives padded cells intact; the adjacency guard
+    // trims for interpretation only. The anchored literal match is still
+    // what prevents loose parses — an interior space keeps the cell a string.
     expect(cell('a\n" 5 "')).toBe(5);
+    expect(cell("a\n1 000")).toBe("1 000");
   });
 
   it("default conversion (no options) produces numbers", () => {
