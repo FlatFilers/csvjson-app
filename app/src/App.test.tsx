@@ -1,9 +1,22 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 const SAMPLE_CSV_INPUT = "album,year\nElephant,2003\nDe Stijl,2000";
+
+// Export assertions spy on the platform helpers; everything else passes
+// through to the real implementations.
+vi.mock("@/lib/clipboard", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/clipboard")>()),
+  copyText: vi.fn(),
+}));
+vi.mock("@/lib/download", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/download")>()),
+  downloadText: vi.fn(),
+}));
+import { copyText } from "@/lib/clipboard";
+import { downloadText } from "@/lib/download";
 
 async function flip() {
   const user = userEvent.setup();
@@ -276,5 +289,89 @@ describe("analytics events", () => {
     expect(plausible).toHaveBeenCalledWith("Export", {
       props: { via: "copy", format: "json" },
     });
+  });
+});
+
+describe("stale output validity label", () => {
+  const BROKEN_CSV = 'a,b\n"x"y,z';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // Valid sample → break the input → error state with the retained result.
+  async function renderStaleOutput() {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const editor = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: BROKEN_CSV } });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("pane-status")).toHaveTextContent(/line 2/i);
+      },
+      { timeout: 2000 }
+    );
+    return editor;
+  }
+
+  it("keeps the last valid output visible and labels it during an input error", async () => {
+    await renderStaleOutput();
+    // The retained conversion is still on screen...
+    expect(screen.getByTestId("output-view").textContent).toContain("Elephant");
+    // ...with the validity label in the header meta slot.
+    expect(screen.getByTestId("stale-notice")).toHaveTextContent(
+      "Last valid result — input has errors"
+    );
+  });
+
+  it("exports the retained result from Copy and Download during an input error", async () => {
+    await renderStaleOutput();
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenLastCalledWith(
+      expect.stringContaining("Elephant")
+    );
+
+    fireEvent.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenLastCalledWith(
+      expect.stringContaining("Elephant"),
+      "data.json",
+      expect.objectContaining({ mime: "application/json", bom: false })
+    );
+  });
+
+  it("shows the count instead of the label on valid input", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("stale-notice")).not.toBeInTheDocument();
+    // The input pane carries its own count — assert on the output header.
+    expect(
+      within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+    ).toHaveTextContent("6 rows · 3 cols");
+  });
+
+  it("clears the label after the input is fixed", async () => {
+    const editor = await renderStaleOutput();
+    expect(screen.getByTestId("stale-notice")).toBeInTheDocument();
+
+    fireEvent.change(editor, { target: { value: SAMPLE_CSV_INPUT } });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("stale-notice")).not.toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
+    // The count returns in the label's place.
+    expect(
+      within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+    ).toHaveTextContent("2 rows · 2 cols");
   });
 });
