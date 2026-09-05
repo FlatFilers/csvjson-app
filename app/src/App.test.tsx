@@ -148,6 +148,40 @@ describe("global paste routing (paste-anywhere)", () => {
     expect(editor.value).toBe(before);
   });
 
+  it("leaves a paste inside the empty-state paste field to the field alone", async () => {
+    render(<App />);
+    const field = screen.getByTestId("paste-field");
+    expect(field.tagName).toBe("TEXTAREA");
+
+    // The paste event itself must be ignored by BOTH interceptors — the
+    // document-level router (editable-target skip) and the pane fallback
+    // (field-ownership skip) — because the field's native caret paste owns
+    // it. jsdom inserts nothing natively, so any interception here would
+    // surface as an already-populated view.
+    pasteOn(field, "INJECTED");
+    expect(screen.queryByTestId("input-table")).not.toBeInTheDocument();
+    expect(screen.getByTestId("dropzone")).toBeInTheDocument();
+
+    // The insertion completing (real browsers) is the field's change event
+    // — the one ingest path, fired exactly once: no duplicated content, no
+    // second conversion event from a reroute.
+    fireEvent.change(field, { target: { value: SAMPLE_CSV_INPUT } });
+    await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("dropzone")).not.toBeInTheDocument();
+  });
+
+  it("swaps the paste field for the data view on the first typed character", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const field = screen.getByTestId("paste-field");
+
+    // Typing ingests too — first content replaces the empty state with the
+    // existing data view (the field unmounts, so type a single character).
+    await user.type(field, "a");
+    await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("paste-field")).not.toBeInTheDocument();
+  });
+
   it("keeps a paste inside the output CodeMirror local", async () => {
     render(<App />);
     fireEvent.click(screen.getByTestId("try-example"));

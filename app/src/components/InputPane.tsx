@@ -6,7 +6,8 @@ import { PaneShell } from "@/components/PaneShell";
 
 /**
  * Input pane state machine (spec: Every pane state, including empty):
- * Empty → dashed dropzone; Ready → dense table (CSV) or CodeMirror editor
+ * Empty → input-styled paste field (a real textarea, so mobile long-press
+ * paste works); Ready → dense table (CSV) or CodeMirror editor
  * (JSON); the CSV side carries a raw toggle exposing the source text.
  * Drag-over highlights the whole pane as the drop target; file reading
  * itself is owned by the app (FileReader, no network).
@@ -121,9 +122,18 @@ export function InputPane({
   // (App) already covers non-editable targets here in capture phase and
   // stops propagation — this handler stays as a fallback and skips anything
   // the router already handled (defaultPrevented) to keep ingestion
-  // exactly-once.
+  // exactly-once. It also skips pastes landing inside a real field — the
+  // empty-state paste field is a textarea that owns its caret paste, and
+  // its change event feeds the ingest; intercepting here would double-handle
+  // it. (While empty, the paste field is the pane's only field-type child.)
   const onPaste = (event: ReactClipboardEvent<HTMLDivElement>) => {
     if (!inputEmpty || event.defaultPrevented) return;
+    if (
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLInputElement
+    ) {
+      return;
+    }
     const text = event.clipboardData?.getData("text/plain");
     if (text) {
       event.preventDefault();
@@ -249,6 +259,7 @@ export function InputPane({
         {inputEmpty ? (
           <Dropzone
             format={format}
+            onIngest={onInputChange}
             onBrowse={() => fileInputRef.current?.click()}
             onTryExample={onTryExample}
           />
