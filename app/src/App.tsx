@@ -25,7 +25,7 @@ import {
   type Direction,
 } from "@/lib/convert";
 import { copyText } from "@/lib/clipboard";
-import { downloadText } from "@/lib/download";
+import { downloadText, outputFilenameFor } from "@/lib/download";
 import {
   decodeUpload,
   isTextFile,
@@ -347,12 +347,18 @@ export default function App() {
     });
   };
   // CSV downloads carry a UTF-8 BOM (spec: Download); JSON never does.
+  // The output name swaps the uploaded source's extension (spec B3: #79 #102);
+  // pasted input has no source and falls back to data.json / data.csv.
   const downloadOutput = () => {
     trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
-    downloadText(lastValidOutput ?? "", csvToJson ? "data.json" : "data.csv", {
-      mime: csvToJson ? "application/json" : "text/csv",
-      bom: !csvToJson,
-    });
+    downloadText(
+      lastValidOutput ?? "",
+      outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
+      {
+        mime: csvToJson ? "application/json" : "text/csv",
+        bom: !csvToJson,
+      }
+    );
   };
 
   const leftPane = (

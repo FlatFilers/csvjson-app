@@ -413,3 +413,32 @@ describe("stale output validity label", () => {
     ).toHaveTextContent("2 rows · 2 cols");
   });
 });
+
+describe("output download naming", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("derives the output name from the uploaded source file", async () => {
+    render(<App />);
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: {
+        files: [
+          new File(["album,year\nElephant,2003"], "aaa.csv", {
+            type: "text/csv",
+          }),
+        ],
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenLastCalledWith(
+      expect.stringContaining("Elephant"),
+      "aaa.json",
+      expect.objectContaining({ mime: "application/json", bom: false })
+    );
+  });
+});
