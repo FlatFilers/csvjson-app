@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Compartment, EditorState } from "@codemirror/state";
+import { useCallback, useEffect, useRef } from "react";
+import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import { EditorView, keymap, placeholder as cmPlaceholder } from "@codemirror/view";
 import {
   defaultKeymap,
@@ -16,9 +16,10 @@ import { cn } from "@/lib/utils";
 /**
  * JSON.parse over a multi-MB document on every edit pause costs more than
  * the diagnostics return — above this size, lint is skipped (spec: Throttled
- * still applies; the editor stays responsive).
+ * still applies; the editor stays responsive). Exported for the size-gate
+ * editability tests.
  */
-const LINT_MAX_CHARS = 512 * 1024;
+export const LINT_MAX_CHARS = 512 * 1024;
 const sizeGatedJsonLinter = (view: EditorView): Diagnostic[] =>
   view.state.doc.length > LINT_MAX_CHARS ? [] : jsonParseLinter()(view);
 
@@ -58,6 +59,13 @@ type JsonCodeMirrorProps = {
   value: string;
   /** Omitted → read-only output view. */
   onChange?: (value: string) => void;
+  /**
+   * Explicit editability override; defaults to `onChange !== undefined`.
+   * Unlike a mount-time role, this may flip at runtime: the output editor
+   * switches between editable (valid CSV→JSON result) and read-only
+   * (retained invalid-input result) without remounting.
+   */
+  editable?: boolean;
   dark: boolean;
   placeholder?: string;
   testId?: string;
@@ -69,6 +77,7 @@ type JsonCodeMirrorProps = {
 export function JsonCodeMirror({
   value,
   onChange,
+  editable,
   dark,
   placeholder,
   testId = "json-editor",
@@ -82,12 +91,36 @@ export function JsonCodeMirror({
   onChangeRef.current = onChange;
   const darkRef = useRef(dark);
   const themeCompartmentRef = useRef<Compartment | null>(null);
+  const editabilityCompartmentRef = useRef<Compartment | null>(null);
+  const editableProp = editable ?? onChange !== undefined;
+  const wasEditableRef = useRef(editableProp);
+  // True while the value-sync effect applies an external value: that
+  // transaction must not echo back through the update listener as a user
+  // edit — it would mark the output edited on every derived regeneration.
+  const applyingExternalRef = useRef(false);
+
+  // One extension bundle per role; the compartment swaps it at runtime.
+  // Stable identity: it only touches refs, and the effects below key on it.
+  const editabilityExtensions = useCallback(
+    (canEdit: boolean): Extension[] =>
+      canEdit
+        ? [
+            EditorView.updateListener.of((update) => {
+              if (update.docChanged && !applyingExternalRef.current) {
+                onChangeRef.current?.(update.state.doc.toString());
+              }
+            }),
+            linter(sizeGatedJsonLinter, { delay: 300 }),
+          ]
+        : [EditorState.readOnly.of(true), EditorView.editable.of(false)],
+    []
+  );
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    const readOnly = onChange === undefined;
     const themeCompartment = new Compartment();
+    const editabilityCompartment = new Compartment();
 
     const state = EditorState.create({
       doc: value,
@@ -98,26 +131,20 @@ export function JsonCodeMirror({
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         baseTheme,
         themeCompartment.of(syntaxHighlighting(jsonHighlight(dark))),
-        readOnly
-          ? [EditorState.readOnly.of(true), EditorView.editable.of(false)]
-          : [
-              EditorView.updateListener.of((update) => {
-                if (update.docChanged) onChangeRef.current?.(update.state.doc.toString());
-              }),
-              linter(sizeGatedJsonLinter, { delay: 300 }),
-            ],
+        editabilityCompartment.of(editabilityExtensions(editableProp)),
         ...(placeholder ? [cmPlaceholder(placeholder)] : []),
       ],
     });
     const view = new EditorView({ state, parent: host });
     themeCompartmentRef.current = themeCompartment;
+    editabilityCompartmentRef.current = editabilityCompartment;
     onReady?.(view);
     viewRef.current = view;
     return () => {
       view.destroy();
       viewRef.current = null;
     };
-    // Role (editable vs read-only) is fixed for the component's lifetime.
+    // Mount-only: later role changes flow through the compartment below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -126,10 +153,28 @@ export function JsonCodeMirror({
     const view = viewRef.current;
     if (!view) return;
     if (view.state.doc.toString() === value) return;
-    view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: value },
-    });
+    applyingExternalRef.current = true;
+    try {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: value },
+      });
+    } finally {
+      applyingExternalRef.current = false;
+    }
   }, [value]);
+
+  // Runtime editability swap (output editor: editable on a valid result,
+  // read-only for a retained invalid-input result).
+  useEffect(() => {
+    const view = viewRef.current;
+    const compartment = editabilityCompartmentRef.current;
+    if (!view || !compartment) return;
+    if (editableProp === wasEditableRef.current) return;
+    wasEditableRef.current = editableProp;
+    view.dispatch({
+      effects: compartment.reconfigure(editabilityExtensions(editableProp)),
+    });
+  }, [editableProp, editabilityExtensions]);
 
   // Dark-mode token palette swap.
   useEffect(() => {
