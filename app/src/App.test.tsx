@@ -213,7 +213,7 @@ describe("global paste routing (paste-anywhere)", () => {
 
   it("routes a paste over the empty-state output pane exactly once", async () => {
     const gtag = vi.fn();
-    (window as { gtag?: unknown }).gtag = gtag;
+    vi.stubGlobal("gtag", gtag);
 
     render(<App />);
     // Empty state: the output pane is placeholder chrome (no editor, no
@@ -240,7 +240,7 @@ describe("global paste routing (paste-anywhere)", () => {
       },
       { timeout: 4000 }
     );
-    delete (window as { gtag?: unknown }).gtag;
+    vi.unstubAllGlobals();
   });
 
   it("routes a paste over the output CSV table after a direction switch to JSON→CSV", async () => {
