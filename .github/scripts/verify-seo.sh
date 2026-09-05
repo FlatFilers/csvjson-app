@@ -53,6 +53,15 @@ check "FAQ how-it-works question" "How does it work?"
 check "FAQ TSV vs CSV section" "TSV vs CSV"
 check "FAQ privacy copy" "The conversion runs entirely in your browser"
 check "option hint copy (parse numbers)" "leading-zero values like 00721 and very long IDs stay strings. Uncheck to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on"
+check "FAQ parse-numbers copy (truthful)" "uncheck it to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on"
+
+# The false claim corrected in PR #179 (and its FAQ follow-up) must never ship
+# again — unchecking Parse numbers keeps only numeric cells as strings while
+# Parse JSON is on.
+if grep -qF "keep every cell a string" "$OUT"; then
+  echo "::error::SEO check failed: false parse-numbers claim 'keep every cell a string' must never ship — unchecking keeps only numeric cells as strings while Parse JSON is on"
+  fail=1
+fi
 
 # Launch-week banner ships in the initial HTML too (spec: full-width
 # feedback banner above the TopBar). Canonical URL lives in

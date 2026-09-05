@@ -24,6 +24,18 @@ describe("Faq", () => {
     expect(text).toContain("The conversion runs entirely in your browser");
   });
 
+  it("keeps the parse-numbers answer truthful (follow-up to PR #179)", () => {
+    render(<Faq />);
+    // The section text covers both FAQ surfaces at once: the visible answers
+    // and the FAQPage JSON-LD, which is derived from the same FAQ_ITEMS list.
+    // Accuracy under default options is the acceptance criterion.
+    const text = screen.getByTestId("faq").textContent ?? "";
+    expect(text).toContain(
+      "uncheck it to keep numeric cells as strings — booleans, null, and containers still convert while Parse JSON is on"
+    );
+    expect(text).not.toContain("keep every cell a string");
+  });
+
   it("reveals the answers when the trigger is clicked", async () => {
     const user = userEvent.setup();
     render(<Faq />);
