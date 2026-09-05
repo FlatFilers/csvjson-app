@@ -61,6 +61,34 @@ describe("per-option behavior (criterion 2)", () => {
     ]);
   });
 
+  it("forced pipe parses pipe-separated input (B2, #110)", () => {
+    expect(csvToJson("a|b\n1|2", { separator: "|" })).toEqual([
+      { a: 1, b: 2 },
+    ]);
+  });
+
+  it("forced pipe emits pipe-separated CSV and round-trips (B2, #110)", () => {
+    const csv = jsonToJsonCsv([{ album: "De Stijl", year: 2000 }], {
+      separator: "|",
+    });
+    // The package always RFC-4180-quotes strings and headers, whatever the
+    // separator — quoted fields keep embedded pipes unambiguous.
+    expect(csv).toBe('"album"|"year"\n"De Stijl"|2000');
+    expect(csvToJson(csv, { separator: "|" })).toEqual([
+      { album: "De Stijl", year: 2000 },
+    ]);
+  });
+
+  it("auto-detect never picks pipe — commas win and pipe-only input stays unsplit (B2, #110)", () => {
+    // Commas present: the pipe is treated as data, comma is detected.
+    expect(csvToJson("a|b,c\n1|2,3")).toEqual([{ "a|b": "1|2", c: 3 }]);
+    // Pipe-only input has no candidate separators at all, so detection falls
+    // back to the comma rule and each line stays one unsplit field — the
+    // explicit Pipe option is the only way to split it (false positives on
+    // prose are why pipe is never detected).
+    expect(csvToJson("a|b\n1|2")).toEqual([{ "a|b": "1|2" }]);
+  });
+
   it("parseNumbers keeps leading zeros but parses plain numbers", () => {
     expect(csvToJson("a\n00721\n7\n1.5", { parseNumbers: true })).toEqual([
       { a: "00721" },
