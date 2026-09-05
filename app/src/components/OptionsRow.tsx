@@ -60,10 +60,12 @@ function GroupLabel({ children }: { children: string }) {
 
 /**
  * One boolean option rendered as v0's Switch pill with its optional i-hint.
- * The pill is the control (role="switch", aria-checked); the hint text is
- * rendered into the DOM at load (hidden) and the click only toggles
- * visibility — never mounted-on-click (spec: Option hints, SEO initial-DOM
- * rule). Same state and onChange contract as the checkbox it replaces.
+ * The button is the control (role="switch", aria-checked) and doubles as a
+ * 24px-tall hit area around the 18px pill (WCAG 2.5.8 target size); the
+ * hint text is rendered into the DOM at load (hidden) and the click only
+ * toggles visibility — never mounted-on-click (spec: Option hints, SEO
+ * initial-DOM rule). Same state and onChange contract as the checkbox it
+ * replaces.
  */
 function ToggleOption({
   label,
@@ -85,17 +87,21 @@ function ToggleOption({
           aria-checked={checked}
           aria-label={label}
           onClick={() => onChange(!checked)}
-          className={cn(
-            "relative inline-flex h-[18px] w-8 shrink-0 cursor-pointer items-center rounded-full border transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-            checked ? "border-primary bg-primary" : "border-border bg-muted"
-          )}
+          className="flex h-6 shrink-0 cursor-pointer items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <span
             className={cn(
-              "pointer-events-none inline-block size-3 rounded-full bg-background shadow-sm transition-transform",
-              checked ? "translate-x-[15px]" : "translate-x-[2px]"
+              "relative inline-flex h-[18px] w-8 items-center rounded-full border transition-colors",
+              checked ? "border-primary bg-primary" : "border-border bg-muted"
             )}
-          />
+          >
+            <span
+              className={cn(
+                "pointer-events-none inline-block size-3 rounded-full bg-background shadow-sm transition-transform",
+                checked ? "translate-x-[15px]" : "translate-x-[2px]"
+              )}
+            />
+          </span>
         </button>
         <span className="select-none">{label}</span>
       </label>

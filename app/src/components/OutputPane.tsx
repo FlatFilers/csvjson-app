@@ -1,15 +1,7 @@
 import { CsvTable } from "@/components/CsvTable";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
-
-/**
- * Shared compact action language (v0 port) — see InputPane's ActionButton.
- * Output Copy/Download join the same quiet ghost treatment as every other
- * pane action (spec: hierarchy — v0 unifies them); Revert and the freeze
- * notice's Discard action share it too.
- */
-const actionButtonClass =
-  "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-3.5";
+import { actionButtonClass } from "@/components/pane-actions";
 
 /**
  * Output pane (spec: States → Empty/Ready): a quiet placeholder while the

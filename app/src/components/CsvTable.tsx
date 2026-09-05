@@ -106,7 +106,10 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                   gridTemplateColumns: gridTemplate,
                 }}
               >
-                <div className="truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40">
+                <div
+                  className="truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40"
+                  aria-hidden="true"
+                >
                   {virtualRow.index + 1}
                 </div>
                 {row.map((cell, c) => (
@@ -115,14 +118,16 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                     className={
                       "truncate px-2" +
                       (cell === ""
-                        ? " text-muted-foreground/30"
+                        ? // Empty cells keep their em-dash purely visual via
+                          // ::after — copying the table yields empty strings.
+                          " after:content-['—'] after:text-muted-foreground/30"
                         : numeric[c]
                           ? " font-mono tabular-nums"
                           : "")
                     }
                     title={cell}
                   >
-                    {cell === "" ? "—" : cell}
+                    {cell}
                   </div>
                 ))}
               </div>
