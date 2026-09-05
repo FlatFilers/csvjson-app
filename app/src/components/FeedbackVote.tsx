@@ -7,12 +7,15 @@
  * One vote per browser: a random clientId lives in localStorage
  * (csvjson:feedback.v1) next to the recorded vote, and the endpoint upserts
  * on that clientId — changing your vote updates the same row, never a
- * duplicate. A failed submit (network / 503) keeps its intent queued in
- * localStorage and retries on the next mount, with a quiet non-blocking
- * error note in the meantime. Analytics fire only on successful submits.
+ * duplicate. An intent is stored as queued (pending) until the server
+ * confirms it, so even a refresh mid-flight retries on the next mount.
+ * While queued — right after a failed submit and after a reload — a visible
+ * inline note says the vote is kept on this device and will send
+ * automatically once the service is back; a retry success shows the normal
+ * thanks confirmation. Analytics fire only on successful submits.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { trackFeedback } from "@/analytics/events";
 
 const STORAGE_KEY = "csvjson:feedback.v1";
@@ -137,40 +140,68 @@ export function FeedbackVote() {
   const [selectedReason, setSelectedReason] = useState<ReasonCode | null>(null);
   const [reasonText, setReasonText] = useState("");
   const [thanksVisible, setThanksVisible] = useState(false);
-  const [showError, setShowError] = useState(false);
+  // True only while a submit started from a user click is in flight. It
+  // suppresses the queued note for that window so a healthy submit never
+  // flashes the failure copy; the mount-retry path keeps the note visible
+  // the whole time (no flicker between paint and settle).
+  const [optimisticFlight, setOptimisticFlight] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // Monotonic token per submit: a flight that settles after a newer submit
+  // started must not overwrite the newer queued intent (or fire duplicate
+  // analytics) — the user's last intent wins, matching the endpoint's
+  // last-write-wins upsert.
+  const flightRef = useRef(0);
 
   /** Apply a submit outcome: persist, settle the pending flag, surface UX. */
-  const settleVote = (record: StoredFeedback, outcome: "ok" | "failed") => {
+  const settleVote = useCallback((record: StoredFeedback, outcome: "ok" | "failed") => {
     const settled: StoredFeedback = { ...record, pending: outcome === "failed" };
     writeStored(settled);
     setStored(settled);
     if (outcome === "ok") {
-      setShowError(false);
       trackFeedback({ vote: record.vote, with_reason: record.reasonCode !== null });
     } else {
-      setShowError(true);
+      // A failure must never sit next to the thanks note — kill it.
+      setThanksVisible(false);
     }
-  };
+  }, []);
 
-  /** Optimistically persist + render a record, then POST it. */
-  const recordVote = (record: StoredFeedback) => {
-    writeStored(record);
-    setStored(record);
-    void submitVote(record).then((outcome) => {
-      settleVote(record, outcome);
-      if (outcome === "ok") setThanksVisible(true);
-    });
+  /** POST one record and settle the outcome; success shows the thanks note. */
+  const submitAndSettle = useCallback(
+    (record: StoredFeedback, fromClick: boolean) => {
+      const flight = ++flightRef.current;
+      if (fromClick) setOptimisticFlight(true);
+      void submitVote(record)
+        .then((outcome) => {
+          if (flightRef.current !== flight) return; // superseded by a newer submit
+          settleVote(record, outcome);
+          if (outcome === "ok") setThanksVisible(true);
+        })
+        .finally(() => {
+          if (fromClick && flightRef.current === flight) setOptimisticFlight(false);
+        });
+    },
+    [settleVote],
+  );
+
+  /** Optimistically persist the intent as queued, render it, then POST it. */
+  const recordVote = (intent: Omit<StoredFeedback, "pending">) => {
+    const queued: StoredFeedback = { ...intent, pending: true };
+    writeStored(queued);
+    setStored(queued);
+    submitAndSettle(queued, true);
   };
 
   // Retry a queued vote from a previous failed submit — once per mount,
-  // after paint, before any user interaction.
+  // after paint, before any user interaction. The ref keeps React 18 Strict
+  // mode's dev double-invocation from posting twice.
+  const retriedRef = useRef(false);
   useEffect(() => {
+    if (retriedRef.current) return;
+    retriedRef.current = true;
     const queued = readStored();
-    if (queued?.pending) {
-      void submitVote(queued).then((outcome) => settleVote(queued, outcome));
-    }
-  }, []);
+    if (queued?.pending) submitAndSettle(queued, false);
+    // The retriedRef guard above makes re-runs from this dep a no-op.
+  }, [submitAndSettle]);
 
   useEffect(() => {
     if (!thanksVisible) return;
@@ -210,7 +241,6 @@ export function FeedbackVote() {
       vote: 1,
       reasonCode: null,
       reasonText: null,
-      pending: false,
     });
   };
 
@@ -227,15 +257,16 @@ export function FeedbackVote() {
 
   const handleDownvoteSubmit = () => {
     if (selectedReason === null) return;
+    const text = reasonText.trim();
+    // No optimistic thanks: the submit outcome picks the follow-up — thanks
+    // on success, the queued note on failure. Never both.
     recordVote({
       clientId: stored?.clientId ?? newClientId(),
       vote: -1,
       reasonCode: selectedReason,
-      reasonText: reasonText.trim() === "" ? null : reasonText,
-      pending: false,
+      reasonText: text === "" ? null : text,
     });
     setPopoverOpen(false);
-    setThanksVisible(true);
   };
 
   return (
@@ -276,9 +307,13 @@ export function FeedbackVote() {
           Thanks for the feedback!
         </span>
       )}
-      {showError && (
-        <span data-testid="feedback-error" role="status" className="text-xs text-muted-foreground">
-          Feedback couldn&apos;t be saved — we&apos;ll retry automatically.
+      {stored?.pending && !optimisticFlight && (
+        <span
+          data-testid="feedback-pending"
+          role="status"
+          className="max-w-44 text-right text-xs text-muted-foreground sm:max-w-none"
+        >
+          Feedback couldn&apos;t send — your vote is kept on this device and will send automatically once the service is back.
         </span>
       )}
 

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FeedbackVote } from "./FeedbackVote";
@@ -220,7 +220,10 @@ describe("FeedbackVote", () => {
     await waitFor(() =>
       expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ pending: true }),
     );
-    expect(screen.getByTestId("feedback-error")).toBeInTheDocument();
+    const note = screen.getByTestId("feedback-pending");
+    expect(note).toHaveTextContent("kept on this device");
+    expect(note).toHaveTextContent("send automatically once the service is back");
+    expect(screen.queryByTestId("feedback-thanks")).not.toBeInTheDocument();
     expect(gtag).not.toHaveBeenCalled();
 
     unmount();
@@ -233,6 +236,9 @@ describe("FeedbackVote", () => {
     await waitFor(() =>
       expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ pending: false }),
     );
+    // Retry success shows the normal confirmation and clears the note.
+    expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument();
+    expect(screen.queryByTestId("feedback-pending")).not.toBeInTheDocument();
   });
 
   it("failed submit via 503 also queues and does not fire analytics", async () => {
@@ -263,5 +269,148 @@ describe("FeedbackVote", () => {
     await user.click(screen.getByTestId("feedback-up"));
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the queued note on mount with a stored pending vote, then confirms after the retry settles", async () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ clientId: "client-1", vote: -1, reasonCode: "other", reasonText: null, pending: true }),
+    );
+    let resolveRetry: (response: Response) => void = () => {};
+    installFetch(
+      () => new Promise<Response>((resolve) => { resolveRetry = resolve; }),
+    );
+    render(<FeedbackVote />);
+
+    // The queued state is visible at first paint — before the retry settles.
+    expect(screen.getByTestId("feedback-pending"));
+    expect(screen.getByTestId("feedback-pending")).toHaveTextContent("kept on this device");
+    expect(screen.queryByTestId("feedback-thanks")).not.toBeInTheDocument();
+
+    resolveRetry(okResponse());
+    await waitFor(() => expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument());
+    expect(screen.queryByTestId("feedback-pending")).not.toBeInTheDocument();
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ pending: false });
+  });
+
+  it("upvote is optimistic — pressed and queued in storage before the response settles", async () => {
+    const gtag = vi.fn();
+    (window as { gtag?: unknown }).gtag = gtag;
+    installFetch(() => new Promise<Response>(() => {})); // never settles
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    await user.click(screen.getByTestId("feedback-up"));
+
+    expect(screen.getByTestId("feedback-up")).toHaveAttribute("aria-pressed", "true");
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ vote: 1, pending: true });
+    expect(gtag).not.toHaveBeenCalled();
+    // The queued note stays hidden while this submit is in flight.
+    expect(screen.queryByTestId("feedback-pending")).not.toBeInTheDocument();
+  });
+
+  it("abandoning a mid-flight vote still queues it — the next mount retries", async () => {
+    installFetch(() => new Promise<Response>(() => {})); // never settles
+    const user = userEvent.setup();
+    const { unmount } = render(<FeedbackVote />);
+
+    await user.click(screen.getByTestId("feedback-up"));
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ pending: true });
+
+    // Simulates closing the tab mid-flight: storage kept the queued intent.
+    unmount();
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(okResponse())));
+    render(<FeedbackVote />);
+
+    await waitFor(() =>
+      expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({ pending: false }),
+    );
+    expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument();
+  });
+
+  it("a stale settle from a superseded submit never overwrites the newer queued intent", async () => {
+    const { gtag } = installAnalytics();
+    const flights: Array<(response: Response) => void> = [];
+    installFetch(
+      () => new Promise<Response>((resolve) => { flights.push(resolve); }),
+    );
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    // First submit: an upvote still in flight when the user changes their mind.
+    await user.click(screen.getByTestId("feedback-up"));
+    await waitFor(() => expect(flights).toHaveLength(1));
+
+    // Second submit supersedes it: a downvote with a reason.
+    await user.click(screen.getByTestId("feedback-down"));
+    await user.click(screen.getByTestId("feedback-reason-other"));
+    await user.click(screen.getByTestId("feedback-submit"));
+    await waitFor(() => expect(flights).toHaveLength(2));
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      reasonCode: "other",
+      pending: true,
+    });
+
+    // The first flight settles late — flush the chain, then prove its success
+    // was ignored entirely: the newer queued intent stays, no analytics,
+    // no thanks.
+    flights[0](okResponse());
+    await act(async () => {});
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      pending: true,
+    });
+    expect(gtag).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("feedback-thanks")).not.toBeInTheDocument();
+
+    // The latest flight settles: its success applies once.
+    flights[1](okResponse());
+    await waitFor(() => expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument());
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      pending: false,
+    });
+    expect(gtag).toHaveBeenCalledTimes(1);
+  });
+
+
+  it("failed downvote submit closes the popover and shows the queued note, never thanks", async () => {
+    const gtag = vi.fn();
+    (window as { gtag?: unknown }).gtag = gtag;
+    installFetch(() => Promise.resolve({ ok: false, status: 503 } as Response));
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    await user.click(screen.getByTestId("feedback-down"));
+    await user.click(screen.getByTestId("feedback-reason-other"));
+    await user.click(screen.getByTestId("feedback-submit"));
+
+    expect(screen.queryByTestId("feedback-popover")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("feedback-thanks")).not.toBeInTheDocument();
+    expect(screen.getByTestId("feedback-pending")).toHaveTextContent("kept on this device");
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      reasonCode: "other",
+      pending: true,
+    });
+    expect(gtag).not.toHaveBeenCalled();
+  });
+
+  it("trims the free-text reason before sending and storing it", async () => {
+    const fetchMock = installFetch(() => Promise.resolve(okResponse()));
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    await user.click(screen.getByTestId("feedback-down"));
+    await user.click(screen.getByTestId("feedback-reason-other"));
+    await user.type(screen.getByTestId("feedback-text"), "  padded reason  ");
+    await user.click(screen.getByTestId("feedback-submit"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(sentPayload(fetchMock)).toMatchObject({ reasonText: "padded reason" });
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      reasonText: "padded reason",
+    });
   });
 });
