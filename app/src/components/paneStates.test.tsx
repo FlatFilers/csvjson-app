@@ -48,20 +48,19 @@ afterEach(() => {
 });
 
 describe("dropzone interactions", () => {
-  it("opens the picker on click and on Enter/Space (not a dead target)", async () => {
+  it("opens the picker from the browse link — field clicks place the caret", () => {
     render(<App />);
     const pickerClick = vi
       .spyOn(HTMLInputElement.prototype, "click")
       .mockImplementation(() => {});
 
-    // Clicking anywhere in the dashed area opens the browse dialog.
-    fireEvent.click(screen.getByTestId("dropzone"));
+    fireEvent.click(screen.getByTestId("browse"));
     expect(pickerClick).toHaveBeenCalledTimes(1);
 
-    // Enter/Space on the focused dropzone do the same.
-    fireEvent.keyDown(screen.getByTestId("dropzone"), { key: "Enter" });
-    fireEvent.keyDown(screen.getByTestId("dropzone"), { key: " " });
-    expect(pickerClick).toHaveBeenCalledTimes(3);
+    // The empty state is a real field now: a click inside it is caret
+    // placement and must not open the file picker.
+    fireEvent.click(screen.getByTestId("paste-field"));
+    expect(pickerClick).toHaveBeenCalledTimes(1);
   });
 
   it("keeps native Enter activation on the nested try-example button", async () => {
@@ -81,13 +80,14 @@ describe("dropzone interactions", () => {
     await screen.findByTestId("input-table");
   });
 
-  it("receives paste right after load: the dropzone holds focus", async () => {
+  it("receives paste right after load: the field holds focus", async () => {
     render(<App />);
-    // autoFocus keeps focus inside the pane subtree on a fresh load, so
-    // Ctrl+V reaches the pane's paste handler.
-    expect(screen.getByTestId("dropzone")).toHaveFocus();
-    fireEvent.paste(screen.getByTestId("dropzone"), {
-      clipboardData: { getData: () => "album,year\nDe Stijl,2000" },
+    // The empty state IS a focused field, so Ctrl+V lands in it natively;
+    // the field's change event (a real browser's paste insertion completing)
+    // feeds the shared ingest path.
+    expect(screen.getByTestId("paste-field")).toHaveFocus();
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: "album,year\nDe Stijl,2000" },
     });
     await screen.findByTestId("input-table");
   });
