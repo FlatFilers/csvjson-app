@@ -66,7 +66,7 @@ export function OutputPane({
               data-testid="copy-output"
               onClick={onCopy}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
+              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:bg-foreground/5 disabled:cursor-default disabled:opacity-50"
             >
               Copy
             </button>
@@ -75,7 +75,7 @@ export function OutputPane({
               data-testid="download-output"
               onClick={onDownload}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
+              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:bg-foreground/5 disabled:cursor-default disabled:opacity-50"
             >
               Download
             </button>
