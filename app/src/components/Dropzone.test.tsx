@@ -236,7 +236,7 @@ describe("Dropzone paste field", () => {
 
     const choose = screen.getByRole("button", { name: "Choose file" });
     expect(choose.tagName).toBe("BUTTON");
-    expect(choose).toHaveClass("h-11"); // 44px touch target
+    expect(choose).toHaveClass("h-8"); // v0 port: compact 32px control
     await user.click(choose);
     await user.click(screen.getByTestId("try-example"));
     expect(onBrowse).toHaveBeenCalledTimes(1);

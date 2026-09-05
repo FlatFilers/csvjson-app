@@ -61,12 +61,16 @@ export function TopBar({ theme, onToggleTheme, slot }: TopBarProps) {
   return (
     <header
       data-testid="topbar"
-      className="flex flex-shrink-0 items-center gap-3 border-b border-border bg-panel px-4 py-2.5"
+      className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-border bg-panel px-5"
     >
-      <span className="text-base font-bold tracking-[-0.02em] whitespace-nowrap">
-        csvjson
-        <span className="font-medium text-muted-foreground/70">.com</span>
-      </span>
+      <div className="flex items-baseline gap-2">
+        <span className="text-[15px] font-semibold tracking-tight text-foreground whitespace-nowrap">
+          csvjson
+        </span>
+        <span className="hidden text-[13px] font-medium text-muted-foreground sm:inline">
+          CSV → JSON converter
+        </span>
+      </div>
       <div className="flex-1" />
       <div data-testid="topbar-slot">{slot}</div>
       <button
@@ -75,7 +79,7 @@ export function TopBar({ theme, onToggleTheme, slot }: TopBarProps) {
         onClick={onToggleTheme}
         aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
         title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border bg-panel text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-border bg-panel text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <ThemeIcon theme={theme} />
       </button>

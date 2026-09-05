@@ -236,8 +236,8 @@ describe("freeze while edited", () => {
     await editOutput(replaceDoc(EDITED_TEXT));
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("checkbox", { name: "Parse numbers" }));
-    await user.click(screen.getByRole("checkbox", { name: "Minify" }));
+    await user.click(screen.getByRole("switch", { name: "Parse numbers" }));
+    await user.click(screen.getByRole("switch", { name: "Minify" }));
     await settle();
 
     expect(outputEditorView().state.doc.toString()).toBe(EDITED_TEXT);

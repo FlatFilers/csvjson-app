@@ -45,13 +45,18 @@ function jsonHighlight(dark: boolean) {
 }
 
 const baseTheme = EditorView.theme({
-  "&": { height: "100%", fontSize: "12.5px", backgroundColor: "transparent" },
+  "&": { height: "100%", fontSize: "13px", backgroundColor: "transparent" },
   "&.cm-focused": { outline: "none" },
-  ".cm-scroller": { fontFamily: "inherit", lineHeight: "1.6", overflow: "auto" },
+  ".cm-scroller": { fontFamily: "inherit", lineHeight: "1.5rem", overflow: "auto" },
   // The pane header is the chrome; the editor itself stays full-bleed.
   ".cm-gutters": { display: "none" },
   ".cm-activeLine": { backgroundColor: "transparent" },
-  ".cm-content": { caretColor: "currentColor", fontFamily: "inherit" },
+  ".cm-content": {
+    caretColor: "currentColor",
+    fontFamily: "inherit",
+    // v0 text-surface port: tracking-tight matches the raw-text textarea.
+    letterSpacing: "-0.025em",
+  },
   ".cm-placeholder": { color: "var(--color-muted-foreground)" },
 });
 
@@ -192,7 +197,8 @@ export function JsonCodeMirror({
       // font-mono consumes the --font-mono theme token (index.css): JSON must
       // render fixed-width in the editor AND the read-only output, in both
       // themes. The CodeMirror content inherits it (fontFamily: inherit).
-      className={cn("min-h-0 flex-1 overflow-hidden font-mono", className)}
+      // px-5 py-4 is the v0 text-surface padding (matches the raw textarea).
+      className={cn("min-h-0 flex-1 overflow-hidden px-5 py-4 font-mono", className)}
       ref={hostRef}
     />
   );

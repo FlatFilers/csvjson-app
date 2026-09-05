@@ -1,6 +1,7 @@
 import type { ConverterOptions, Direction } from "@/lib/convert";
 import { UPLOAD_ENCODINGS, type UploadEncoding } from "@/lib/files";
 import { useId, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type OptionsRowProps = {
   direction: Direction;
@@ -22,9 +23,49 @@ const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: st
 ];
 
 /**
- * One checkbox option with its optional i-hint. The hint text is rendered
- * into the DOM at load (hidden) and the click only toggles visibility —
- * never mounted-on-click (spec: Option hints, SEO initial-DOM rule).
+ * Group divider between the footer's option clusters (v0 port).
+ */
+function Divider() {
+  return <div className="h-5 w-px shrink-0 bg-border" aria-hidden="true" />;
+}
+
+/** v0's MiniSelect: unstyled native select with an overlaid chevron. */
+function selectClass() {
+  return "h-7 cursor-pointer appearance-none rounded-md border border-border bg-background py-0 pl-2.5 pr-6 text-[13px] font-medium text-foreground transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50";
+}
+
+function Chevron() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="pointer-events-none absolute top-1/2 right-1.5 size-3.5 -translate-y-1/2 text-muted-foreground"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <path d="m4 6 4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** v0's eyebrow label for an option group. */
+function GroupLabel({ children }: { children: string }) {
+  return (
+    <span className="font-mono text-[11px] font-semibold tracking-[0.14em] whitespace-nowrap text-muted-foreground/70 uppercase">
+      {children}
+    </span>
+  );
+}
+
+/**
+ * One boolean option rendered as v0's Switch pill with its optional i-hint.
+ * The button is the control (role="switch", aria-checked) and doubles as a
+ * 24px-tall hit area around the 18px pill (WCAG 2.5.8 target size); the
+ * hint text is rendered into the DOM at load (hidden) and the click only
+ * toggles visibility — never mounted-on-click (spec: Option hints, SEO
+ * initial-DOM rule). Same state and onChange contract as the checkbox it
+ * replaces.
  */
 function ToggleOption({
   label,
@@ -39,14 +80,30 @@ function ToggleOption({
 }) {
   return (
     <span className="inline-flex items-center gap-1">
-      <label className="flex cursor-pointer items-center gap-1.5 text-foreground">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(event) => onChange(event.target.checked)}
-          className="h-3.5 w-3.5 accent-primary"
-        />
-        {label}
+      <label className="flex cursor-pointer items-center gap-2 whitespace-nowrap text-[13px] text-muted-foreground transition-colors hover:text-foreground">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={checked}
+          aria-label={label}
+          onClick={() => onChange(!checked)}
+          className="flex h-6 shrink-0 cursor-pointer items-center rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <span
+            className={cn(
+              "relative inline-flex h-[18px] w-8 items-center rounded-full border transition-colors",
+              checked ? "border-primary bg-primary" : "border-border bg-muted"
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none inline-block size-3 rounded-full bg-background shadow-sm transition-transform",
+                checked ? "translate-x-[15px]" : "translate-x-[2px]"
+              )}
+            />
+          </span>
+        </button>
+        <span className="select-none">{label}</span>
       </label>
       {hint ? <OptionHint text={hint} /> : null}
     </span>
@@ -99,52 +156,62 @@ export function OptionsRow({
   return (
     <div
       data-testid="options-row"
-      className="flex flex-shrink-0 flex-wrap items-center gap-4 border-t border-border bg-panel px-4 py-2 text-[12.5px] text-muted-foreground"
+      className="flex flex-shrink-0 flex-wrap items-center gap-5 border-t border-border bg-panel px-5 py-2.5 text-[13px] text-muted-foreground"
     >
-      <span className="inline-flex items-center gap-1">
-        <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-          Separator
-          <select
-            data-testid="opt-separator"
-            value={options.separator}
-            onChange={(event) =>
-              onChange({ separator: event.target.value as ConverterOptions["separator"] })
-            }
-            className="cursor-pointer rounded border border-border bg-panel px-1.5 py-0.5 text-xs text-foreground"
-          >
-            {SEPARATOR_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <OptionHint text="Auto-detect is conservative — it only picks comma, semicolon, or tab. Pipe never auto-detects because normal prose is full of pipes, so pipe-separated text must be selected explicitly." />
-      </span>
-
-      {uploadEncoding && onUploadEncodingChange ? (
-        <span className="inline-flex items-center gap-1">
-          <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-            Encoding
+      <span className="inline-flex items-center gap-2">
+        <label className="flex items-center gap-2">
+          <GroupLabel>Separator</GroupLabel>
+          <span className="relative inline-flex">
             <select
-              data-testid="opt-encoding"
-              value={uploadEncoding}
+              data-testid="opt-separator"
+              value={options.separator}
               onChange={(event) =>
-                onUploadEncodingChange(event.target.value as UploadEncoding)
+                onChange({ separator: event.target.value as ConverterOptions["separator"] })
               }
-              className="cursor-pointer rounded border border-border bg-panel px-1.5 py-0.5 text-xs text-foreground"
+              className={selectClass()}
             >
-              {UPLOAD_ENCODINGS.map((option) => (
+              {SEPARATOR_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
-          </label>
-          <OptionHint text="Applies to file uploads and drops only — pasted or typed text is always read as UTF-8. Switch to Windows-1252 for CSVs saved by legacy Excel to fix mangled accents like ü and ö." />
-        </span>
+            <Chevron />
+          </span>
+        </label>
+        <OptionHint text="Auto-detect is conservative — it only picks comma, semicolon, or tab. Pipe never auto-detects because normal prose is full of pipes, so pipe-separated text must be selected explicitly." />
+      </span>
+
+      {uploadEncoding && onUploadEncodingChange ? (
+        <>
+          <Divider />
+          <span className="inline-flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <GroupLabel>Encoding</GroupLabel>
+              <span className="relative inline-flex">
+                <select
+                  data-testid="opt-encoding"
+                  value={uploadEncoding}
+                  onChange={(event) =>
+                    onUploadEncodingChange(event.target.value as UploadEncoding)
+                  }
+                  className={selectClass()}
+                >
+                  {UPLOAD_ENCODINGS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <Chevron />
+              </span>
+            </label>
+            <OptionHint text="Applies to file uploads and drops only — pasted or typed text is always read as UTF-8. Switch to Windows-1252 for CSVs saved by legacy Excel to fix mangled accents like ü and ö." />
+          </span>
+        </>
       ) : null}
 
+      <Divider />
       {csvToJson ? (
         <>
           <ToggleOption

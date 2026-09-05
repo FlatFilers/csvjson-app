@@ -148,8 +148,8 @@ describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
         onChange={onChange}
       />
     );
-    const skip = screen.getByRole("checkbox", { name: "Skip empty fields" });
-    const nulls = screen.getByRole("checkbox", { name: "NULL as null" });
+    const skip = screen.getByRole("switch", { name: "Skip empty fields" });
+    const nulls = screen.getByRole("switch", { name: "NULL as null" });
     expect(skip).not.toBeChecked();
     expect(nulls).not.toBeChecked();
     await user.click(skip);
@@ -173,16 +173,16 @@ describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
       />
     );
     expect(
-      screen.getByRole("checkbox", { name: "Skip empty fields" })
+      screen.getByRole("switch", { name: "Skip empty fields" })
     ).toBeChecked();
     expect(
-      screen.getByRole("checkbox", { name: "NULL as null" })
+      screen.getByRole("switch", { name: "NULL as null" })
     ).toBeChecked();
     await user.click(
-      screen.getByRole("checkbox", { name: "Skip empty fields" })
+      screen.getByRole("switch", { name: "Skip empty fields" })
     );
     expect(onChange).toHaveBeenLastCalledWith({ emptyFields: "keep" });
-    await user.click(screen.getByRole("checkbox", { name: "NULL as null" }));
+    await user.click(screen.getByRole("switch", { name: "NULL as null" }));
     expect(onChange).toHaveBeenLastCalledWith({ nullLiterals: "string" });
   });
 
@@ -217,10 +217,10 @@ describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
       />
     );
     expect(
-      screen.queryByRole("checkbox", { name: "Skip empty fields" })
+      screen.queryByRole("switch", { name: "Skip empty fields" })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("checkbox", { name: "NULL as null" })
+      screen.queryByRole("switch", { name: "NULL as null" })
     ).not.toBeInTheDocument();
   });
 });
