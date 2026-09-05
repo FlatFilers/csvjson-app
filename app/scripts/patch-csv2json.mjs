@@ -27,6 +27,18 @@
  * separator→rule map. Detection (`separators` array) deliberately stays
  * , ; \t - pipe is explicit-only because prose is full of pipes.
  *
+ * B5 (fixes #87 #95): the same cleanup also trimmed every field
+ * unconditionally - RFC-4180 section 2.4 keeps leading/trailing spaces part
+ * of the field, so " | " arrived as "|" and ", " as ",". The trim now hides
+ * behind a `trim` option: the library default stays true (byte-identical
+ * for every other consumer), and the app passes false. Both trim sites gate
+ * on a module-scoped `trimFields` flag that convert() sets before parsing -
+ * the PEG actions cannot see `options` (the parser IIFE closes only over
+ * its own separator variable), so the flag follows the package's own
+ * separator pattern. With trim off the unquoted-fallback branch still
+ * strips the stray quotes #114 moved there - quote artifacts are parse
+ * damage, not field content - it only stops trimming.
+ *
  * Wired as the app's `postinstall` (chained after patch-json2csv) so CI's
  * fresh `npm ci` gets the patch. Idempotent; fails loudly if the file or a
  * pattern is missing.
@@ -55,8 +67,13 @@ let patched = source;
 // smart parse-numbers rule relies on trimmed cells).
 const VALUE_STRIP = `var value = (a[l][i]||'').trim().replace(/(^")|("$)/g, '');`;
 const VALUE_TRIMMED = `var value = (a[l][i]||'').trim();`;
+// B5: the trim itself becomes conditional (default stays true).
+const VALUE_OPTIONAL = VALUE_TRIMMED.replace(
+  "(a[l][i]||'').trim()",
+  "trimFields ? (a[l][i]||'').trim() : (a[l][i]||'')"
+);
 
-if (patched.includes(VALUE_TRIMMED)) {
+if (patched.includes(VALUE_TRIMMED) || patched.includes(VALUE_OPTIONAL)) {
   console.log("patch-csv2json: field cleanup already trim-only");
 } else if (patched.includes(VALUE_STRIP)) {
   patched = patched.replace(VALUE_STRIP, VALUE_TRIMMED);
@@ -87,15 +104,78 @@ if (patched.includes(KEY_TRIMMED)) {
 // byte-identical. (The quoted branch's action - the one passing
 // (pos0, result0[1]) - is deliberately untouched: its text is final.)
 const FALLBACK_PLAIN = `result0 = (function(offset, text) { return text.join(''); })(pos0, result0);`;
+
+// B5 (fixes #87 #95): the gated forms derive from the constants above - no
+// patched byte is duplicated here. The ternary is parenthesized: member
+// access (.replace) binds tighter than ?:, so unparenthesized the else
+// branch would swallow the .replace tail and the default path would lose
+// the #114 stray-quote strip. Parenthesized, the strip wraps BOTH branches
+// - quote artifacts are parse damage, not field content, on every path.
 const FALLBACK_STRIPPED = `result0 = (function(offset, text) { return text.join('').trim().replace(/(^")|("$)/g, ''); })(pos0, result0);`;
 
-if (patched.includes(FALLBACK_STRIPPED)) {
+const FALLBACK_OPTIONAL = FALLBACK_STRIPPED.replace(
+  "return text.join('').trim()",
+  "return (trimFields ? text.join('').trim() : text.join(''))"
+);
+
+if (patched.includes(FALLBACK_STRIPPED) || patched.includes(FALLBACK_OPTIONAL)) {
   console.log("patch-csv2json: fallback branch already strips stray quotes");
 } else if (patched.includes(FALLBACK_PLAIN)) {
   patched = patched.replace(FALLBACK_PLAIN, FALLBACK_STRIPPED);
   console.log("patch-csv2json: stray-quote strip moved into the unquoted fallback branch");
 } else {
   console.error("patch-csv2json: expected fallback action not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+// B5 (fixes #87 #95): gate both trim sites behind a trim option. The flag
+// lives in the module scope next to the separator list - the PEG actions
+// close over it the way they close over `separator` - and convert() sets it
+// from options before parsing. Default true: callers that never pass trim
+// get today's behavior byte-for-byte.
+const NAMES_OPEN = "pegjsSeparatorNames = {";
+const NAMES_OPEN_FLAGGED = "trimFields = true,\n      pegjsSeparatorNames = {";
+
+if (patched.includes(NAMES_OPEN_FLAGGED)) {
+  console.log("patch-csv2json: trimFields flag already declared");
+} else if (patched.includes(NAMES_OPEN)) {
+  patched = patched.replace(NAMES_OPEN, NAMES_OPEN_FLAGGED);
+  console.log("patch-csv2json: module-scope trimFields flag declared (default true)");
+} else {
+  console.error("patch-csv2json: expected pegjsSeparatorNames declaration not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+const PARSE_CALL = "var a = csvParser.parse(csv, pegjsSeparatorNames[separator]);";
+const PARSE_CALL_FLAGGED = "trimFields = options.trim === false ? false : true; " + PARSE_CALL;
+
+if (patched.includes(PARSE_CALL_FLAGGED)) {
+  console.log("patch-csv2json: convert() already sets trimFields");
+} else if (patched.includes(PARSE_CALL)) {
+  patched = patched.replace(PARSE_CALL, PARSE_CALL_FLAGGED);
+  console.log("patch-csv2json: convert() sets trimFields from options before parsing");
+} else {
+  console.error("patch-csv2json: expected parser call not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+if (patched.includes(FALLBACK_OPTIONAL)) {
+  console.log("patch-csv2json: fallback trim already gated");
+} else if (patched.includes(FALLBACK_STRIPPED)) {
+  patched = patched.replace(FALLBACK_STRIPPED, FALLBACK_OPTIONAL);
+  console.log("patch-csv2json: unquoted-fallback trim gated behind trimFields (quote strip kept)");
+} else {
+  console.error("patch-csv2json: expected fallback action not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+if (patched.includes(VALUE_OPTIONAL)) {
+  console.log("patch-csv2json: field trim already gated");
+} else if (patched.includes(VALUE_TRIMMED)) {
+  patched = patched.replace(VALUE_TRIMMED, VALUE_OPTIONAL);
+  console.log("patch-csv2json: convert() field trim gated behind trimFields");
+} else {
+  console.error("patch-csv2json: expected field trim not found - package changed upstream, investigate before shipping");
   process.exit(1);
 }
 
