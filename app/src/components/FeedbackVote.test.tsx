@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FeedbackVote } from "./FeedbackVote";
@@ -327,6 +327,53 @@ describe("FeedbackVote", () => {
     );
     expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument();
   });
+
+  it("a stale settle from a superseded submit never overwrites the newer queued intent", async () => {
+    const { gtag } = installAnalytics();
+    const flights: Array<(response: Response) => void> = [];
+    installFetch(
+      () => new Promise<Response>((resolve) => { flights.push(resolve); }),
+    );
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    // First submit: an upvote still in flight when the user changes their mind.
+    await user.click(screen.getByTestId("feedback-up"));
+    await waitFor(() => expect(flights).toHaveLength(1));
+
+    // Second submit supersedes it: a downvote with a reason.
+    await user.click(screen.getByTestId("feedback-down"));
+    await user.click(screen.getByTestId("feedback-reason-other"));
+    await user.click(screen.getByTestId("feedback-submit"));
+    await waitFor(() => expect(flights).toHaveLength(2));
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      reasonCode: "other",
+      pending: true,
+    });
+
+    // The first flight settles late — flush the chain, then prove its success
+    // was ignored entirely: the newer queued intent stays, no analytics,
+    // no thanks.
+    flights[0](okResponse());
+    await act(async () => {});
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      pending: true,
+    });
+    expect(gtag).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("feedback-thanks")).not.toBeInTheDocument();
+
+    // The latest flight settles: its success applies once.
+    flights[1](okResponse());
+    await waitFor(() => expect(screen.getByTestId("feedback-thanks")).toBeInTheDocument());
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}")).toMatchObject({
+      vote: -1,
+      pending: false,
+    });
+    expect(gtag).toHaveBeenCalledTimes(1);
+  });
+
 
   it("failed downvote submit closes the popover and shows the queued note, never thanks", async () => {
     const gtag = vi.fn();

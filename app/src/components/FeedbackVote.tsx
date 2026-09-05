@@ -146,6 +146,11 @@ export function FeedbackVote() {
   // the whole time (no flicker between paint and settle).
   const [optimisticFlight, setOptimisticFlight] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  // Monotonic token per submit: a flight that settles after a newer submit
+  // started must not overwrite the newer queued intent (or fire duplicate
+  // analytics) — the user's last intent wins, matching the endpoint's
+  // last-write-wins upsert.
+  const flightRef = useRef(0);
 
   /** Apply a submit outcome: persist, settle the pending flag, surface UX. */
   const settleVote = useCallback((record: StoredFeedback, outcome: "ok" | "failed") => {
@@ -163,14 +168,16 @@ export function FeedbackVote() {
   /** POST one record and settle the outcome; success shows the thanks note. */
   const submitAndSettle = useCallback(
     (record: StoredFeedback, fromClick: boolean) => {
+      const flight = ++flightRef.current;
       if (fromClick) setOptimisticFlight(true);
       void submitVote(record)
         .then((outcome) => {
+          if (flightRef.current !== flight) return; // superseded by a newer submit
           settleVote(record, outcome);
           if (outcome === "ok") setThanksVisible(true);
         })
         .finally(() => {
-          if (fromClick) setOptimisticFlight(false);
+          if (fromClick && flightRef.current === flight) setOptimisticFlight(false);
         });
     },
     [settleVote],
