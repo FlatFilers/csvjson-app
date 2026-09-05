@@ -11,6 +11,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { Clipboard, FileUp, Sparkles } from "lucide-react";
 import { pasteShortcutFor } from "@/lib/platform";
 
 /** Rows the field grows to as content stacks up — input-height at rest, capped at 3. */
@@ -57,17 +58,7 @@ export function Dropzone({
           aria-hidden="true"
           className="flex size-11 items-center justify-center rounded-xl border border-border bg-muted/50 text-muted-foreground"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <rect x="8" y="3" width="8" height="4" rx="1" />
-            <path d="M16 4h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-          </svg>
+          <Clipboard className="size-5" />
         </div>
 
         <p className="text-sm font-medium text-foreground">
@@ -120,18 +111,7 @@ export function Dropzone({
             onClick={onBrowse}
             className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-[13px] font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
           >
-            <svg
-              aria-hidden="true"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <path d="M14 2v6h6" />
-            </svg>
+            <FileUp aria-hidden="true" />
             Choose file
           </button>
 
@@ -141,6 +121,7 @@ export function Dropzone({
             onClick={onTryExample}
             className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
           >
+            <Sparkles aria-hidden="true" />
             Try an example
           </button>
         </div>

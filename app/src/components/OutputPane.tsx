@@ -1,3 +1,4 @@
+import { Copy, Download, RotateCcw } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
@@ -97,6 +98,7 @@ export function OutputPane({
                 onClick={onRevert}
                 className={actionButtonClass}
               >
+                <RotateCcw aria-hidden="true" />
                 Revert
               </button>
             </span>
@@ -122,6 +124,7 @@ export function OutputPane({
               disabled={!outputText}
               className={actionButtonClass}
             >
+              <Copy aria-hidden="true" />
               Copy
             </button>
             <button
@@ -131,6 +134,7 @@ export function OutputPane({
               disabled={!outputText}
               className={actionButtonClass}
             >
+              <Download aria-hidden="true" />
               Download
             </button>
           </>
@@ -151,6 +155,7 @@ export function OutputPane({
                   onClick={onDiscardReconvert}
                   className={actionButtonClass + " ml-2"}
                 >
+                  <RotateCcw aria-hidden="true" />
                   Discard edits & reconvert
                 </button>
               ) : undefined,
