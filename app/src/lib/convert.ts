@@ -32,15 +32,36 @@ export type Csv2JsonOptions = {
 
 export type Json2CsvOptions = {
   separator?: "," | ";" | "\t";
-  flatten?: boolean; // nested arrays → extra rows, dotted keys
+  /**
+   * Arrays of objects explode into extra rows with dotted keys; scalar
+   * arrays join into a single column, elements separated by ", " (P2,
+   * art_RfUU1oAy).
+   */
+  flatten?: boolean;
 };
 
 /** Thrown when JSON→CSV receives non-tabular JSON (scalar or array of scalars). */
 export class NonTabularJsonError extends Error {
-  constructor() {
-    super("I need an array of objects — try enabling Flatten");
+  constructor(message = "I need an array of objects — try enabling Flatten") {
+    super(message);
     this.name = "NonTabularJsonError";
   }
+}
+
+/**
+ * The wrapper message for a non-tabular input. With Flatten off the fix is
+ * to enable it; with Flatten on that advice would be wrong (P2, art_RfUU1oAy)
+ * — after the scalar-array join, the remaining "item is not an object" cause
+ * is an array still holding plain values where the package needs objects,
+ * and a bare scalar is untabulable by any option. The package's own detail
+ * (it names the offending value) is kept so the error stays actionable.
+ */
+function nonTabularMessage(packageMessage: string, flatten: boolean): string {
+  if (!flatten) return "I need an array of objects — try enabling Flatten";
+  if (packageMessage.startsWith("Item in array is not an object:")) {
+    return `Flatten is on, but an array still holds plain values where objects are needed — ${packageMessage}`;
+  }
+  return "I need an array of objects to make a table";
 }
 
 // The packages throw plain strings, not Error instances.
@@ -93,6 +114,64 @@ function tryParseJsonLiteral(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** JSON scalar: string, number, boolean, or null. */
+type JsonScalar = string | number | boolean | null;
+
+function isJsonScalar(value: unknown): value is JsonScalar {
+  return (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  );
+}
+
+/**
+ * P2 (art_RfUU1oAy, fixes #80): under Flatten, a non-empty array of JSON
+ * scalars serializes as a single column named after its key, elements
+ * joined by ", " — the CSV writer then quotes the cell correctly when
+ * elements contain commas. Joining wins over JSON-encoding the array on
+ * reporter intent: the values should read naturally in Excel. Elements
+ * render like the writer itself would render them: strings as-is, numbers
+ * and booleans via String, nulls as empty slots (matching its null →
+ * empty-cell rendering) — Array.prototype.join's own semantics.
+ *
+ * The walk covers exactly the shapes the package's flatten touches: the
+ * top-level record (it wraps one in a single-element array) and the
+ * elements of arrays, which explode into rows under dotted keys. Plain
+ * object values are NOT entered — the package JSON-encodes them into their
+ * cell, and joining inside would make that JSON lossy.
+ *
+ * Everything else passes through untouched: empty arrays (the package
+ * already drops the column), arrays of objects (explode-into-rows
+ * semantics), and mixed arrays (left for the package's own error, routed
+ * to a flatten-aware NonTabularJsonError).
+ */
+function joinScalarArrays(data: unknown): unknown {
+  const joinRow = (row: unknown): unknown => {
+    if (!isRecord(row)) return row;
+    const joined: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(row)) {
+      if (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        value.every(isJsonScalar)
+      ) {
+        joined[key] = value.join(", ");
+      } else if (Array.isArray(value)) {
+        // An array of objects explodes into rows — walk its elements.
+        joined[key] = value.map(joinRow);
+      } else {
+        joined[key] = value;
+      }
+    }
+    return joined;
+  };
+  if (Array.isArray(data)) return data.map(joinRow);
+  if (isRecord(data)) return joinRow(data);
+  return data;
 }
 
 /**
@@ -181,13 +260,18 @@ export function jsonToJsonCsv(
   options: Json2CsvOptions = {}
 ): string {
   try {
-    return json2csv(data, options);
+    // P2: under Flatten the scalar-array join runs before the package sees
+    // the data — its own flatten would reject those arrays (#80).
+    const prepared = options.flatten ? joinScalarArrays(data) : data;
+    return json2csv(prepared, options);
   } catch (e) {
     // The packages throw plain strings — rethrow as real Errors so callers
     // never see a swallowed or message-less failure.
     const message = unwrapErrorMessage(e);
     if (NON_TABULAR_PATTERNS.some((pattern) => message.startsWith(pattern))) {
-      throw new NonTabularJsonError();
+      throw new NonTabularJsonError(
+        nonTabularMessage(message, options.flatten ?? false)
+      );
     }
     throw new Error(message);
   }
