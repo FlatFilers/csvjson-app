@@ -159,6 +159,47 @@ describe("edited flag lifecycle", () => {
     ).not.toBeInTheDocument();
   });
 
+  // The transition the bot review flagged: discard while the CURRENT input
+  // is broken — regenerateOutput's convertText fails, lastValidOutput stays
+  // at the older conversion, edited clears, and the editor flips
+  // editable→read-only in the same commit as a full-doc value sync.
+  it("discard with a broken input keeps the retained output, read-only, with the parse error", async () => {
+    render(<App />);
+    await populate();
+    const retained = outputEditorView().state.doc.toString();
+
+    await editOutput(replaceDoc(EDITED_TEXT));
+
+    // Break the input while edited: the output stays frozen on the edited
+    // text; the conversion result is an error, so lastValidOutput keeps the
+    // older derived conversion.
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    fireEvent.change(screen.getByTestId("input-editor") as HTMLTextAreaElement, {
+      target: { value: 'a,b\n"x"y,z' },
+    });
+    await settle();
+    expect(outputEditorView().state.doc.toString()).toBe(EDITED_TEXT);
+
+    fireEvent.click(screen.getByTestId("discard-reconvert"));
+
+    // The edited text is gone; the pane falls back to the retained older
+    // conversion (never a blank pane), labeled as the last valid result.
+    await waitFor(() => {
+      expect(outputEditorView().state.doc.toString()).toBe(retained);
+    });
+    expect(screen.queryByTestId("edited-badge")).not.toBeInTheDocument();
+    const status = within(screen.getByTestId("output-pane")).getByTestId(
+      "pane-status"
+    );
+    expect(status).not.toHaveTextContent("Output edited");
+    expect(
+      within(screen.getByTestId("output-pane")).getByTestId("stale-notice")
+    ).toHaveTextContent(/Last valid result/);
+    // The same commit that restored the retained value also made the
+    // invalid-input output read-only again.
+    expect(outputContent().getAttribute("contenteditable")).toBe("false");
+  });
+
   it("clears edited when the input is cleared — the output fully regenerates", async () => {
     render(<App />);
     await populate();
