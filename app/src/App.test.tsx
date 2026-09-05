@@ -185,30 +185,104 @@ describe("global paste routing (paste-anywhere)", () => {
     expect(screen.queryByTestId("paste-field")).not.toBeInTheDocument();
   });
 
-  it("routes a paste over the read-only output CodeMirror into the input", async () => {
+  it("keeps a paste into the editable output CodeMirror native at the caret", async () => {
     render(<App />);
     fireEvent.click(screen.getByTestId("try-example"));
     await waitFor(() => {
       expect(screen.getByTestId("output-view")).toBeInTheDocument();
     });
 
-    // The defect (Sep 5 feedback): a trusted paste over the output
-    // CodeMirror was treated as local and silently discarded — the
-    // read-only editor has no caret to receive it. It must route like a
-    // body paste instead: replace the input, convert, stay populated.
+    // The valid CSV→JSON output is editable — its .cm-content is
+    // contenteditable=true, so the paste is native: it edits the output in
+    // place at the caret and marks it edited, instead of routing to the
+    // input (PR #197's routing applies to non-editable surfaces only).
     const outputView = screen.getByTestId("output-view");
-    const line = outputView.querySelector(".cm-line") as HTMLElement | null;
-    pasteOn(line ?? outputView, "a,b\n1,2");
+    const content = outputView.querySelector(".cm-content") as HTMLElement;
+    expect(content.getAttribute("contenteditable")).toBe("true");
+    pasteOn(content, "INJECTED");
 
-    // The output converts the NEW input (replaced, not the example).
+    // Native caret paste: clipboard text inserted, existing doc kept.
+    await waitFor(() => {
+      expect(outputView.textContent).toContain("INJECTED");
+    });
+    expect(outputView.textContent).toContain("Elephant");
+
+    // The input never saw the paste; the edited state took over the pane.
+    expect(screen.getByTestId("input-table").textContent).toContain(
+      "US_peak_chart_post"
+    );
+    await screen.findByTestId("edited-badge");
+    expect(
+      within(screen.getByTestId("output-pane")).getByTestId("pane-status")
+    ).toHaveTextContent("Output edited — CSV and option changes aren't applied.");
+  });
+
+  it("routes a paste over the output pane chrome into the input while the output is editable", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    // Chrome around the editable editor ([data-surface="output"] but not
+    // contenteditable) has no editable target of its own — the paste still
+    // routes to the input exactly like a body paste (PR #197 behavior).
+    pasteOn(screen.getByTestId("output-pane"), "a,b\n1,2");
+
+    // The routed paste replaced the input; the conversion regenerated the
+    // output from it (the dense table renders cells without commas, so the
+    // output JSON is the reliable signal).
     await waitFor(() => {
       expect(screen.getByTestId("output-view").textContent).toContain('"a"');
     });
-    expect(screen.getByTestId("output-view").textContent).not.toContain(
-      "Elephant"
+    // No edit happened — the routed paste regenerates the output normally.
+    expect(screen.queryByTestId("edited-badge")).not.toBeInTheDocument();
+  });
+
+  it("routes a paste over the read-only retained output into the input", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    // Break the input: the last valid output stays visible, read-only.
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    fireEvent.change(screen.getByTestId("input-editor") as HTMLTextAreaElement, {
+      target: { value: 'a,b\n"x"y,z' },
+    });
+    // The retained state's signal is the header label (pane-status carries
+    // the parse error itself).
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("stale-notice")).toHaveTextContent(
+          /Last valid result/
+        );
+      },
+      { timeout: 2000 }
     );
-    // The populated state keeps its data view — no empty-state remount.
-    expect(screen.queryByTestId("dropzone")).not.toBeInTheDocument();
+    const content = screen
+      .getByTestId("output-view")
+      .querySelector(".cm-content") as HTMLElement;
+    expect(content.getAttribute("contenteditable")).toBe("false");
+
+    // PR #197 preserved for the remaining read-only surface: the paste
+    // routes to the input (replaces it), the conversion recovers. The
+    // input is still in raw mode, so the textarea holds the pasted text.
+    const line = screen
+      .getByTestId("output-view")
+      .querySelector(".cm-line") as HTMLElement;
+    pasteOn(line, "album,year\nFever Dog,2001");
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("input-editor") as HTMLTextAreaElement).value
+      ).toContain("Fever Dog");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"Fever Dog"'
+      );
+    });
   });
 
   it("routes a paste over the empty-state output pane exactly once", async () => {

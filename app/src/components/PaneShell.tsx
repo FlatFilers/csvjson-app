@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 type PaneStatus = {
   kind: "error" | "notice";
   message: string;
+  /** Optional inline action (the edited-output freeze notice's discard). */
+  action?: ReactNode;
 } | null;
 
 type PaneShellProps = {
@@ -51,6 +53,7 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
           role="status"
         >
           {status.message}
+          {status.action}
         </div>
       ) : null}
     </div>

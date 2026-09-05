@@ -51,6 +51,16 @@ function metaLabel(rows: number, cols: number): string | null {
   return cols > 0 ? `${rows} rows · ${cols} cols` : `${rows} rows`;
 }
 
+/** Strict JSON.parse validity — the flip rule's edited-output test. */
+function isParsableJson(text: string): boolean {
+  try {
+    JSON.parse(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default function App() {
   const [theme, setTheme] = useState(initialTheme);
   // index.html applies the pre-mount theme (no white flash); React stays the
@@ -162,7 +172,61 @@ export default function App() {
     if (result.ok) setLastValidOutput(result.text);
   }, [result, debouncedInput]);
 
+  // Editable output (edited-state machine, David-approved Option 2): the
+  // first user modification freezes regeneration — input and option changes
+  // keep updating their own state but never clobber the edited text. The
+  // only ways out are the explicitly warned ones: Revert, Discard &
+  // reconvert, a valid flip, and paths that fully regenerate the output.
+  const [outputEdited, setOutputEdited] = useState(false);
+  const [editedOutput, setEditedOutput] = useState<string | null>(null);
+  const displayedOutput = outputEdited ? editedOutput : lastValidOutput;
+  // Editable window: CSV→JSON with a valid result — or an edited output,
+  // which stays editable even after the input breaks (the freeze notice,
+  // not a lockout, is the guard). Retained invalid-input results and the
+  // CSV table stay read-only.
+  const outputEditable =
+    csvToJson && !inputEmpty && displayedOutput !== null && (outputEdited || result.ok);
+
+  // Every user modification marks the output edited — including undo steps
+  // that happen to land back on the derived text, which is not an edit.
+  const handleOutputEdit = useCallback(
+    (value: string) => {
+      if (value === lastValidOutput) {
+        setOutputEdited(false);
+        setEditedOutput(null);
+        return;
+      }
+      setOutputEdited(true);
+      setEditedOutput(value);
+    },
+    [lastValidOutput]
+  );
+
+  // Revert and Discard & reconvert both restore the derived output by
+  // re-running the conversion from the CURRENT input + options — not the
+  // debounced snapshot, which can lag a fresh keystroke by up to 1s.
+  const regenerateOutput = useCallback(() => {
+    const current = convertText(direction, input, options);
+    if (current.ok) setLastValidOutput(current.text);
+    setOutputEdited(false);
+    setEditedOutput(null);
+  }, [direction, input, options]);
+
   const handleFlip = () => {
+    if (outputEdited) {
+      // Flip with an edited output: adopt the edited text as the new input
+      // when it is valid JSON — else today's error-output rule (input
+      // untouched). Either way the output fully regenerates in the new
+      // direction, so the edited state clears.
+      const edited = editedOutput ?? "";
+      if (isParsableJson(edited)) setInput(edited);
+      setDirection((current) =>
+        current === "csv2json" ? "json2csv" : "csv2json"
+      );
+      setOutputEdited(false);
+      setEditedOutput(null);
+      return;
+    }
     setDirection((current) => (current === "csv2json" ? "json2csv" : "csv2json"));
     // Flip rule: the last valid output becomes the new input; an error
     // output leaves the input untouched. Convert the *current* input — the
@@ -197,6 +261,9 @@ export default function App() {
     setDirection(hydratedState.direction);
     setInput(hydratedState.input);
     setOptions((current) => ({ ...current, ...hydratedState.options }));
+    // Hydration fully regenerates the output — any edited state is gone.
+    setOutputEdited(false);
+    setEditedOutput(null);
     // The mount pageview already carried the permalink URL, so hydration
     // fires a distinct event — never a second pageview.
     trackPermalinkView();
@@ -339,7 +406,10 @@ export default function App() {
   };
   const copyOutput = () => {
     trackExport({ via: "copy", format: csvToJson ? "json" : "csv" });
-    if (lastValidOutput) void copyText(lastValidOutput);
+    // Copy always delivers the pane's current text — the edited one while
+    // the edited state holds.
+    const text = outputEdited ? editedOutput : lastValidOutput;
+    if (text) void copyText(text);
   };
   const downloadInput = () => {
     trackExport({ via: "download", format: csvToJson ? "csv" : "json" });
@@ -354,7 +424,7 @@ export default function App() {
   const downloadOutput = () => {
     trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
     downloadText(
-      lastValidOutput ?? "",
+      (outputEdited ? editedOutput : lastValidOutput) ?? "",
       outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
       {
         mime: csvToJson ? "application/json" : "text/csv",
@@ -378,6 +448,10 @@ export default function App() {
       onClear={() => {
         setInput("");
         setFilename(null);
+        // Clearing the input fully regenerates the output (empty state) —
+        // the edited state has nothing to stay attached to.
+        setOutputEdited(false);
+        setEditedOutput(null);
         tracker.cancel();
       }}
       onCopy={copyInput}
@@ -396,14 +470,19 @@ export default function App() {
     <OutputPane
       format={outputFormat}
       inputEmpty={inputEmpty}
-      outputText={lastValidOutput}
+      outputText={displayedOutput}
       error={result.ok ? null : result.error}
       meta={meta}
       staleNotice={staleNotice}
       warnings={warnings}
+      edited={outputEdited}
+      editable={outputEditable}
       dark={theme === "dark"}
       onCopy={copyOutput}
       onDownload={downloadOutput}
+      onOutputChange={handleOutputEdit}
+      onRevert={regenerateOutput}
+      onDiscardReconvert={regenerateOutput}
     />
   );
 

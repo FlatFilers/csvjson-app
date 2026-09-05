@@ -18,6 +18,8 @@ function renderPane(props: Partial<Parameters<typeof OutputPane>[0]> = {}) {
       meta="1 rows · 1 cols"
       staleNotice={null}
       warnings={null}
+      edited={false}
+      editable={false}
       dark={false}
       onCopy={() => {}}
       onDownload={() => {}}
