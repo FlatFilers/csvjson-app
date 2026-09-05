@@ -1,4 +1,5 @@
 import type { ConverterOptions, Direction } from "@/lib/convert";
+import { UPLOAD_ENCODINGS, type UploadEncoding } from "@/lib/files";
 import { useId, useState } from "react";
 
 type OptionsRowProps = {
@@ -7,6 +8,9 @@ type OptionsRowProps = {
   onChange: (patch: Partial<ConverterOptions>) => void;
   /** Quiet hint ("Large file — converting on pause"), distinct from errors. */
   notice?: string | null;
+  /** Upload decode label (spec B7 — issue #106); omit to hide the select. */
+  uploadEncoding?: UploadEncoding;
+  onUploadEncodingChange?: (encoding: UploadEncoding) => void;
 };
 
 const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: string }> = [
@@ -86,6 +90,8 @@ export function OptionsRow({
   options,
   onChange,
   notice,
+  uploadEncoding,
+  onUploadEncodingChange,
 }: OptionsRowProps) {
   const csvToJson = direction === "csv2json";
   return (
@@ -110,6 +116,29 @@ export function OptionsRow({
           ))}
         </select>
       </label>
+
+      {uploadEncoding && onUploadEncodingChange ? (
+        <span className="inline-flex items-center gap-1">
+          <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            Encoding
+            <select
+              data-testid="opt-encoding"
+              value={uploadEncoding}
+              onChange={(event) =>
+                onUploadEncodingChange(event.target.value as UploadEncoding)
+              }
+              className="cursor-pointer rounded border border-border bg-panel px-1.5 py-0.5 text-xs text-foreground"
+            >
+              {UPLOAD_ENCODINGS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <OptionHint text="Applies to file uploads and drops only — pasted or typed text is always read as UTF-8. Switch to Windows-1252 for CSVs saved by legacy Excel to fix mangled accents like ü and ö." />
+        </span>
+      ) : null}
 
       {csvToJson ? (
         <>
