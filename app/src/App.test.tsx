@@ -356,6 +356,10 @@ describe("stale output validity label", () => {
     expect(
       within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
     ).toHaveTextContent("6 rows · 3 cols");
+    // Count consolidation (spec: hierarchy): the options bar no longer
+    // repeats the count — each pane header carries exactly one.
+    expect(screen.queryByTestId("options-meta")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("pane-meta")).toHaveLength(2);
   });
 
   it("clears the label after the input is fixed", async () => {
