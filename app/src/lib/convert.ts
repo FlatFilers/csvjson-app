@@ -1,5 +1,6 @@
 import csv2json from "csvjson-csv2json";
 import json2csv from "csvjson-json2csv";
+import { parseCsvTable } from "./csvTable";
 
 /**
  * Typed wrapper over the csvjson conversion packages. The packages are
@@ -306,7 +307,20 @@ export function convertText(
       separator: separatorFor(options.separator),
       flatten: options.flatten,
     });
-    return { ok: true, text: csv, ...countShape(data) };
+    // Count the PRODUCED CSV, not the raw input: with flatten on, nested
+    // arrays explode into extra rows and dotted keys add columns, so the
+    // input shape understates the output (art_afRt2cdg, root cause A).
+    // Parsing the same string the preview and the download consume makes
+    // count ≡ preview ≡ download by construction — with the delimiter
+    // auto-detected exactly as the preview table detects it. The csv2json
+    // branch already counts its converted output; both directions agree.
+    const table = parseCsvTable(csv);
+    return {
+      ok: true,
+      text: csv,
+      rows: table.rows.length,
+      cols: table.headers.length,
+    };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
