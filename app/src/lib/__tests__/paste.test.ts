@@ -26,23 +26,39 @@ describe("isEditablePasteTarget", () => {
     // browsers alike.
   });
 
-  it("treats anything inside a CodeMirror editor as owned by CodeMirror", () => {
-    const cmContent = el(
-      "<div class=\"cm-editor\"><div class=\"cm-content\"></div></div>"
+  it("routes a paste over the read-only output CodeMirror (cm-line)", () => {
+    // The output view renders contenteditable=false — no editable target
+    // exists locally, so the paste must fall through to the router
+    // (Sep 5 feedback: swallowing it silently was the defect).
+    const editor = el(
+      "<div class=\"cm-editor\"><div class=\"cm-content\" contenteditable=\"false\"><div class=\"cm-line\"></div></div></div>"
     );
-    const content = cmContent.querySelector(".cm-content") as HTMLElement;
-    // The read-only output view sets contenteditable=false — still local.
-    content.setAttribute("contenteditable", "false");
-    expect(isEditablePasteTarget(content)).toBe(true);
+    const line = editor.querySelector(".cm-line") as HTMLElement;
+    expect(isEditablePasteTarget(line)).toBe(false);
+    expect(isEditablePasteTarget(editor.querySelector(".cm-content"))).toBe(
+      false
+    );
   });
 
-  it("treats the output pane surface as owned by the output", () => {
+  it("routes a paste over the output pane chrome ([data-surface=output])", () => {
     const pane = el(
       "<div data-surface=\"output\"><div class=\"output-table\"></div></div>"
     );
     const table = pane.querySelector(".output-table") as HTMLElement;
-    expect(isEditablePasteTarget(table)).toBe(true);
-    expect(isEditablePasteTarget(pane)).toBe(true);
+    expect(isEditablePasteTarget(table)).toBe(false);
+    expect(isEditablePasteTarget(pane)).toBe(false);
+  });
+
+  it("keeps the editable input CodeMirror native (contenteditable .cm-content)", () => {
+    const cmContent = el(
+      "<div class=\"cm-editor\"><div class=\"cm-content\" contenteditable=\"true\"><div class=\"cm-line\"></div></div></div>"
+    );
+    // The editable input editor's .cm-content is contenteditable=true —
+    // native paste-at-caret owns the event there.
+    const content = cmContent.querySelector(".cm-content") as HTMLElement;
+    expect(isEditablePasteTarget(content)).toBe(true);
+    const line = cmContent.querySelector(".cm-line") as HTMLElement;
+    expect(isEditablePasteTarget(line)).toBe(true);
   });
 
   it("treats page surfaces (body, divs, buttons) as routable", () => {

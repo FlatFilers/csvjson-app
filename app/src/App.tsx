@@ -296,9 +296,11 @@ export default function App() {
   // routing REPLACES the input (the Excel workflow: copy table → paste →
   // converted). Editable controls keep their native paste: the handler
   // returns before preventDefault, so the event reaches the input editors
-  // (textarea, CodeMirror) untouched. The output CodeMirror is read-only
-  // but still owns its pane — isEditablePasteTarget keeps those pastes
-  // local too. stopPropagation keeps the empty-state pane handler from
+  // (textarea, CodeMirror) untouched. Pastes over the read-only output
+  // pane route like body pastes (Sep 5 feedback: skipping them silently
+  // swallowed the paste — the output has no editable target of its own);
+  // the output is not editable, so nothing local can be corrupted.
+  // stopPropagation keeps the empty-state pane handler from
   // double-ingesting a routed paste.
   useEffect(() => {
     const onDocumentPaste = (event: ClipboardEvent) => {

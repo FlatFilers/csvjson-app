@@ -185,20 +185,120 @@ describe("global paste routing (paste-anywhere)", () => {
     expect(screen.queryByTestId("paste-field")).not.toBeInTheDocument();
   });
 
-  it("keeps a paste inside the output CodeMirror local", async () => {
+  it("routes a paste over the read-only output CodeMirror into the input", async () => {
     render(<App />);
     fireEvent.click(screen.getByTestId("try-example"));
     await waitFor(() => {
       expect(screen.getByTestId("output-view")).toBeInTheDocument();
     });
-    const inputBefore = screen.getByTestId("input-table").textContent;
-    const outputBefore = screen.getByTestId("output-view").textContent;
-    // The read-only output editor sets contenteditable=false — the .cm-editor
-    // ancestor check is what keeps this paste local instead of rerouted.
-    pasteOn(screen.getByTestId("output-view"), "INJECTED");
 
-    expect(screen.getByTestId("input-table").textContent).toBe(inputBefore);
-    expect(screen.getByTestId("output-view").textContent).toBe(outputBefore);
+    // The defect (Sep 5 feedback): a trusted paste over the output
+    // CodeMirror was treated as local and silently discarded — the
+    // read-only editor has no caret to receive it. It must route like a
+    // body paste instead: replace the input, convert, stay populated.
+    const outputView = screen.getByTestId("output-view");
+    const line = outputView.querySelector(".cm-line") as HTMLElement | null;
+    pasteOn(line ?? outputView, "a,b\n1,2");
+
+    // The output converts the NEW input (replaced, not the example).
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain('"a"');
+    });
+    expect(screen.getByTestId("output-view").textContent).not.toContain(
+      "Elephant"
+    );
+    // The populated state keeps its data view — no empty-state remount.
+    expect(screen.queryByTestId("dropzone")).not.toBeInTheDocument();
+  });
+
+  it("routes a paste over the empty-state output pane exactly once", async () => {
+    const gtag = vi.fn();
+    (window as { gtag?: unknown }).gtag = gtag;
+
+    render(<App />);
+    // Empty state: the output pane is placeholder chrome (no editor, no
+    // caret) — the exact surface from the defect report.
+    pasteOn(screen.getByTestId("output-pane"), SAMPLE_CSV_INPUT);
+
+    // Populated-state transition fires: the paste ingested, the empty
+    // state swapped for the data view.
+    await screen.findByTestId("input-table");
+
+    // Exactly-once ingest: the routed paste never re-enters through the
+    // pane change-event fallback — the raw editor holds the pasted text
+    // verbatim, one copy.
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const editor = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    expect(editor.value).toBe(SAMPLE_CSV_INPUT);
+
+    // And one ingest means one conversion event.
+    await waitFor(
+      () => {
+        expect(
+          gtag.mock.calls.filter((call) => call[1] === "conversion")
+        ).toHaveLength(1);
+      },
+      { timeout: 4000 }
+    );
+    delete (window as { gtag?: unknown }).gtag;
+  });
+
+  it("routes a paste over the output CSV table after a direction switch to JSON→CSV", async () => {
+    render(<App />);
+    await flip();
+    pasteOn(document.body, '[{"zip":"00721"}]');
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toBeInTheDocument();
+    });
+
+    // Paste over the output table chrome — routes per the active
+    // direction: the JSON input adopts the clipboard text.
+    pasteOn(screen.getByTestId("output-table"), '[{"color":"blue"}]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor").textContent).toContain(
+        "blue"
+      );
+    });
+    // The output converted the new input: the CSV table rebuilt around the
+    // "color" key. (The table virtualizes its body rows under jsdom — the
+    // header is the reliable full-render surface, per the flip tests.)
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table").textContent).toContain(
+        "color"
+      );
+    });
+  });
+
+  it("keeps a paste into the editable input CodeMirror native at caret", async () => {
+    render(<App />);
+    await flip();
+    pasteOn(document.body, '[{"zip":"00721"}]');
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor").textContent).toContain(
+        "00721"
+      );
+    });
+
+    // The editable input editor's .cm-content is contenteditable=true —
+    // the [contenteditable="true"] predicate branch owns the paste there.
+    // CodeMirror inserts the clipboard text at the caret natively (works
+    // in jsdom too): the document GROWS around the caret instead of being
+    // replaced by the clipboard text, which is what a routed paste — the
+    // defect class — would do.
+    const host = screen.getByTestId("input-editor");
+    const content = host.querySelector(".cm-content") as HTMLElement;
+    expect(content.getAttribute("contenteditable")).toBe("true");
+    pasteOn(content, "INJECTED");
+
+    // Native caret paste: clipboard text inserted, existing doc kept.
+    // (A routed paste would leave exactly "INJECTED" — full replacement.)
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor").textContent).toContain(
+        "INJECTED"
+      );
+    });
+    expect(screen.getByTestId("input-editor").textContent).toContain("00721");
   });
 
   it("routes to the JSON editor after a direction switch to JSON→CSV", async () => {
