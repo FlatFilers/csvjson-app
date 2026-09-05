@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   convertText,
   csvToJson,
+  DEFAULT_OPTIONS,
   jsonToJsonCsv,
   NonTabularJsonError,
   toJsonString,
 } from "../convert";
+import { parseCsvTable } from "../csvTable";
 
 const TRICKY_CSV = [
   "name,notes,quote",
@@ -246,5 +248,191 @@ describe("smart parse-numbers default (todo_PtV57hBw)", () => {
 
   it("JSON to CSV is unaffected — numbers serialize unquoted", () => {
     expect(jsonToJsonCsv([{ a: 5, b: "00721" }])).toBe('"a","b"\n5,"00721"');
+  });
+});
+
+// The R1 repro shape: nested arrays explode into rows under flatten and an
+// object-valued cell serializes to a JSON string. This is the exact
+// combination backslash-escaped quoting corrupted — the preview parser
+// misread the `\"` bytes and shifted every cell after the object. Shared by
+// the round-trip and count-parity suites below.
+const R1_CUSTOMERS = [
+  {
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    items: [{ sku: "SKU-1", qty: 1 }, { sku: "SKU-2", qty: 3 }],
+    note: { text: "ships expedited", priority: 1 },
+  },
+  {
+    name: "Grace Hopper",
+    email: "grace@example.com",
+    items: [{ sku: "SKU-3", qty: 2 }],
+    note: { text: "leave at desk", priority: 2 },
+  },
+];
+
+describe("lib output → preview table round-trip (art_afRt2cdg R1)", () => {
+
+  it("round-trips nested JSON cells through parseCsvTable with flatten", () => {
+    const csv = jsonToJsonCsv(R1_CUSTOMERS, { flatten: true });
+    const table = parseCsvTable(csv);
+    expect(table.headers).toEqual([
+      "name",
+      "email",
+      "note",
+      "items.sku",
+      "items.qty",
+    ]);
+    // Exploded rows repeat the scalars; the JSON cell arrives intact.
+    expect(table.rows).toEqual([
+      [
+        "Ada Lovelace",
+        "ada@example.com",
+        '{"text":"ships expedited","priority":1}',
+        "SKU-1",
+        "1",
+      ],
+      [
+        "Ada Lovelace",
+        "ada@example.com",
+        '{"text":"ships expedited","priority":1}',
+        "SKU-2",
+        "3",
+      ],
+      [
+        "Grace Hopper",
+        "grace@example.com",
+        '{"text":"leave at desk","priority":2}',
+        "SKU-3",
+        "2",
+      ],
+    ]);
+  });
+
+  it("round-trips nested JSON cells through parseCsvTable without flatten", () => {
+    const csv = jsonToJsonCsv(R1_CUSTOMERS);
+    const table = parseCsvTable(csv);
+    expect(table.headers).toEqual(["name", "email", "items", "note"]);
+    expect(table.rows).toHaveLength(2);
+    // Each JSON cell arrives byte-intact and parses back to the original value.
+    expect(JSON.parse(table.rows[0][2])).toEqual(R1_CUSTOMERS[0].items);
+    expect(JSON.parse(table.rows[0][3])).toEqual(R1_CUSTOMERS[0].note);
+    expect(JSON.parse(table.rows[1][2])).toEqual(R1_CUSTOMERS[1].items);
+    expect(JSON.parse(table.rows[1][3])).toEqual(R1_CUSTOMERS[1].note);
+  });
+
+  it("embedded newlines survive identically in string and JSON cells", () => {
+    // Plain strings keep raw newlines literal inside the quotes; JSON cells
+    // carry JSON's own \n escape. Neither is CSV-escaped — both arrive
+    // through the RFC-4180 reader exactly as sent, and csv2json reads the
+    // downloaded bytes back losslessly.
+    const csv = jsonToJsonCsv([{ s: "line1\nline2", o: { t: "line1\nline2" } }]);
+    const table = parseCsvTable(csv);
+    expect(table.rows).toHaveLength(1);
+    expect(table.rows[0][0]).toBe("line1\nline2");
+    expect(JSON.parse(table.rows[0][1])).toEqual({ t: "line1\nline2" });
+    expect(csvToJson(csv, { parseJSON: true })).toEqual([
+      { s: "line1\nline2", o: { t: "line1\nline2" } },
+    ]);
+  });
+
+  it("flattened output with JSON cells round-trips through csv2json", () => {
+    const csv = jsonToJsonCsv(R1_CUSTOMERS, { flatten: true });
+    // Dotted headers stay literal keys; the JSON cells come back as values.
+    expect(csvToJson(csv, { parseJSON: true })).toEqual([
+      {
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        note: { text: "ships expedited", priority: 1 },
+        "items.sku": "SKU-1",
+        "items.qty": 1,
+      },
+      {
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+        note: { text: "ships expedited", priority: 1 },
+        "items.sku": "SKU-2",
+        "items.qty": 3,
+      },
+      {
+        name: "Grace Hopper",
+        email: "grace@example.com",
+        note: { text: "leave at desk", priority: 2 },
+        "items.sku": "SKU-3",
+        "items.qty": 2,
+      },
+    ]);
+  });
+});
+
+describe("count parity — count == preview == download (art_afRt2cdg R1/R1b/R1c)", () => {
+  // convertText must count the PRODUCED table (parseCsvTable of the output
+  // text — what the preview renders and the download contains), never the
+  // raw input shape.
+  const R1B_CUSTOMERS = [
+    {
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      items: [{ sku: "SKU-1", qty: 1 }, { sku: "SKU-2", qty: 3 }],
+      note: "ships expedited",
+    },
+    {
+      name: "Grace Hopper",
+      email: "grace@example.com",
+      items: [{ sku: "SKU-3", qty: 2 }],
+      note: "leave at desk",
+    },
+  ];
+
+  it("R1 — flatten with an object-valued cell counts the exploded table", () => {
+    const result = convertText("json2csv", JSON.stringify(R1_CUSTOMERS), {
+      ...DEFAULT_OPTIONS,
+      flatten: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const table = parseCsvTable(result.text);
+    // 2 customers (one with 2 items) explode to 3 rows; dotted keys → 5 cols.
+    // The input shape said 2 rows · 4 cols — the defect.
+    expect(result.rows).toBe(3);
+    expect(result.cols).toBe(5);
+    expect(table.rows).toHaveLength(result.rows);
+    expect(table.headers).toHaveLength(result.cols);
+  });
+
+  it("R1b — flatten with a plain string note counts the same exploded table", () => {
+    const result = convertText("json2csv", JSON.stringify(R1B_CUSTOMERS), {
+      ...DEFAULT_OPTIONS,
+      flatten: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const table = parseCsvTable(result.text);
+    expect(result.rows).toBe(3);
+    expect(result.cols).toBe(5);
+    expect(table.rows).toHaveLength(result.rows);
+    expect(table.headers).toHaveLength(result.cols);
+  });
+
+  it("R1c — without flatten, JSON cells serialize and the count stays consistent", () => {
+    const result = convertText("json2csv", JSON.stringify(R1_CUSTOMERS), {
+      ...DEFAULT_OPTIONS,
+      flatten: false,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const table = parseCsvTable(result.text);
+    expect(result.rows).toBe(2);
+    expect(result.cols).toBe(4);
+    expect(table.rows).toHaveLength(result.rows);
+    expect(table.headers).toHaveLength(result.cols);
+  });
+
+  it("plain tabular input still counts its own output", () => {
+    const result = convertText("json2csv", '[{"a":1,"b":"x"},{"a":2,"b":"y"}]');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.rows).toBe(2);
+    expect(result.cols).toBe(2);
   });
 });
