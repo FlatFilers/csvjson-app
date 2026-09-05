@@ -230,6 +230,15 @@ describe("smart parse-numbers default (todo_PtV57hBw)", () => {
     expect(
       csvToJson("a,b\n5,true", { parseJSON: true, parseNumbers: false })
     ).toEqual([{ a: "5", b: true }]);
+    // The behavior the Parse-numbers hint promises: with parseNumbers off but
+    // Parse JSON on (the default), booleans, null, and containers still
+    // convert — only numeric cells stay strings.
+    expect(
+      csvToJson("a,b,c,d,e\n5,true,null,[],{\"k\":1}", {
+        parseJSON: true,
+        parseNumbers: false,
+      })
+    ).toEqual([{ a: "5", b: true, c: null, d: [], e: { k: 1 } }]);
     expect(
       csvToJson("a,b,c\n1e999,123456789012345678,00721", { parseJSON: true })
     ).toEqual([{ a: "1e999", b: "123456789012345678", c: "00721" }]);
