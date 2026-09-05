@@ -22,7 +22,7 @@ You can expect an acknowledgment within **48–72 hours** of filing an advisory.
 
 ## Scope notes
 
-The conversion tools run client-side — conversions execute entirely in your browser — with a thin server layer for page serving, telemetry (`POST /csv2json/instrument`), and saved permalinks. Script injection through crafted input and the handling of uploaded files are examples of in-scope areas; feel free to include anything else that looks wrong.
+Conversions run entirely client-side, in your browser. The server layer is thin: static serving and legacy redirects (`index.php`), feedback votes (`POST /api/feedback`), and browser-side S3 permalink hydration — legacy endpoints such as `/csv2json/instrument` and `/csv2json/upload` are gone (410). Script injection through crafted input is an example of an in-scope area; feel free to include anything else that looks wrong.
 
 ## Disclosure
 
