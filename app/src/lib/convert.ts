@@ -11,6 +11,19 @@ import { parseCsvTable } from "./csvTable";
  * coercion violates the smart contract — see csvToJson).
  */
 
+/**
+ * B1 (art_RfUU1oAy): "skip" drops empty cells from the output; "keep" — the
+ * default — emits them as "" (today's behavior).
+ */
+export type EmptyFields = "keep" | "skip";
+
+/**
+ * B1 (art_RfUU1oAy): "null" maps the exact, case-sensitive string "NULL"
+ * (SQL exports are uppercase) to JSON null; "string" — the default — leaves
+ * it a string. Lowercase null already parses via parseJSON.
+ */
+export type NullLiterals = "string" | "null";
+
 export type Csv2JsonOptions = {
   /** omitted → auto-detect over , ; \t */
   separator?: "," | ";" | "\t";
@@ -26,6 +39,17 @@ export type Csv2JsonOptions = {
    * values. Never produces numbers — numbers belong to parseNumbers.
    */
   parseJSON?: boolean;
+  /**
+   * B1 (fixes #65 #100 #46 #6): "skip" deletes every key whose value is
+   * exactly the empty string — a column empty in every row stops appearing.
+   * "keep" — the default — emits "".
+   */
+  emptyFields?: EmptyFields;
+  /**
+   * B1: "null" maps the exact, case-sensitive string "NULL" to JSON null;
+   * "string" — the default — leaves it a string.
+   */
+  nullLiterals?: NullLiterals;
   transpose?: boolean;
   hash?: boolean; // first column becomes the object key
 };
@@ -182,16 +206,20 @@ function joinScalarArrays(data: unknown): unknown {
  * Infinity and long IDs with precision loss before a wrapper could see the
  * strings).
  */
-function smartCellValue(
-  value: string,
-  parseJSON: boolean,
-  parseNumbers: boolean
-): unknown {
-  if (parseJSON) {
+/** Everything the per-cell post-pass needs, fully resolved from options. */
+type CellPass = {
+  parseJSON: boolean;
+  parseNumbers: boolean;
+  emptyFields: EmptyFields;
+  nullLiterals: NullLiterals;
+};
+
+function smartCellValue(value: string, pass: CellPass): unknown {
+  if (pass.parseJSON) {
     const parsed = tryParseJsonLiteral(value);
     if (parsed.ok && typeof parsed.value !== "number") return parsed.value;
   }
-  if (parseNumbers) return toSmartNumber(value);
+  if (pass.parseNumbers) return toSmartNumber(value);
   return value;
 }
 
@@ -202,17 +230,27 @@ function smartCellValue(
  */
 function applySmartValues(
   json: Record<string, unknown>[] | Record<string, unknown>,
-  parseJSON: boolean,
-  parseNumbers: boolean
+  pass: CellPass
 ): Record<string, unknown>[] | Record<string, unknown> {
   const convertRow = (row: Record<string, unknown>): Record<string, unknown> => {
     const converted: Record<string, unknown> = {};
     for (const key of Object.keys(row)) {
       const value = row[key];
-      converted[key] =
-        typeof value === "string"
-          ? smartCellValue(value, parseJSON, parseNumbers)
-          : value;
+      if (typeof value !== "string") {
+        // Non-strings pass through — the B1 matches below are string-exact.
+        converted[key] = value;
+        continue;
+      }
+      const smart = smartCellValue(value, pass);
+      // B1: "skip" deletes keys whose value is exactly the empty string.
+      if (pass.emptyFields === "skip" && smart === "") continue;
+      // B1: the exact uppercase NULL literal becomes null — case-sensitive,
+      // so Null stays a string; lowercase null is parseJSON's business.
+      if (pass.nullLiterals === "null" && smart === "NULL") {
+        converted[key] = null;
+        continue;
+      }
+      converted[key] = smart;
     }
     return converted;
   };
@@ -231,8 +269,13 @@ export function csvToJson(
   options: Csv2JsonOptions = {}
 ): Record<string, unknown>[] | Record<string, unknown> {
   // Smart parse-numbers defaults on; explicit false restores all-strings.
-  const parseNumbers = options.parseNumbers ?? true;
-  const parseJSON = options.parseJSON ?? false;
+  // The B1 defaults — "keep" / "string" — reproduce today's output exactly.
+  const pass: CellPass = {
+    parseNumbers: options.parseNumbers ?? true,
+    parseJSON: options.parseJSON ?? false,
+    emptyFields: options.emptyFields ?? "keep",
+    nullLiterals: options.nullLiterals ?? "string",
+  };
   // Belt and suspenders: the package tolerates a BOM, but stripping it here
   // guarantees header detection never sees it (spec: UTF-8 BOM stripped on input).
   const input = csv.startsWith(UTF8_BOM) ? csv.slice(UTF8_BOM.length) : csv;
@@ -247,7 +290,7 @@ export function csvToJson(
       parseNumbers: false,
       parseJSON: false,
     }) as Record<string, unknown>[] | Record<string, unknown>;
-    return applySmartValues(json, parseJSON, parseNumbers);
+    return applySmartValues(json, pass);
   } catch (e) {
     // The packages throw plain strings — rethrow as real Errors so callers
     // never see a swallowed or message-less failure.
@@ -300,6 +343,10 @@ export type ConverterOptions = {
   separator: "auto" | "," | ";" | "\t";
   parseNumbers: boolean;
   parseJSON: boolean;
+  /** B1: "skip" drops cells that are exactly the empty string. */
+  emptyFields: EmptyFields;
+  /** B1: "null" maps the exact uppercase NULL string to JSON null. */
+  nullLiterals: NullLiterals;
   transpose: boolean;
   hash: boolean;
   minify: boolean;
@@ -313,6 +360,8 @@ export const DEFAULT_OPTIONS: ConverterOptions = {
   // Parse numbers box, without its leading-zero mangling).
   parseNumbers: true,
   parseJSON: true,
+  emptyFields: "keep",
+  nullLiterals: "string",
   transpose: false,
   hash: false,
   minify: false,
@@ -473,6 +522,8 @@ export function convertText(
         separator: separatorFor(options.separator),
         parseNumbers: options.parseNumbers,
         parseJSON: options.parseJSON,
+        emptyFields: options.emptyFields,
+        nullLiterals: options.nullLiterals,
         transpose: options.transpose,
         hash: options.hash,
       };

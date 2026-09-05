@@ -96,3 +96,91 @@ describe("encoding select (spec B7 — issue #106)", () => {
     expect(screen.queryByTestId("opt-encoding")).not.toBeInTheDocument();
   });
 });
+
+describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
+  it("renders both toggles unchecked by default and reports the on states", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={onChange}
+      />
+    );
+    const skip = screen.getByRole("checkbox", { name: "Skip empty fields" });
+    const nulls = screen.getByRole("checkbox", { name: "NULL as null" });
+    expect(skip).not.toBeChecked();
+    expect(nulls).not.toBeChecked();
+    await user.click(skip);
+    expect(onChange).toHaveBeenLastCalledWith({ emptyFields: "skip" });
+    await user.click(nulls);
+    expect(onChange).toHaveBeenLastCalledWith({ nullLiterals: "null" });
+  });
+
+  it("reports the off states — keep and string — when starting checked", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={{
+          ...DEFAULT_OPTIONS,
+          emptyFields: "skip",
+          nullLiterals: "null",
+        }}
+        onChange={onChange}
+      />
+    );
+    expect(
+      screen.getByRole("checkbox", { name: "Skip empty fields" })
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "NULL as null" })
+    ).toBeChecked();
+    await user.click(
+      screen.getByRole("checkbox", { name: "Skip empty fields" })
+    );
+    expect(onChange).toHaveBeenLastCalledWith({ emptyFields: "keep" });
+    await user.click(screen.getByRole("checkbox", { name: "NULL as null" }));
+    expect(onChange).toHaveBeenLastCalledWith({ nullLiterals: "string" });
+  });
+
+  it("carries both hints in the DOM at load, hidden until clicked (SEO initial-DOM rule)", () => {
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+      />
+    );
+    const skipHint = screen.getByText(
+      "dropped from the output instead of becoming",
+      { exact: false }
+    );
+    expect(skipHint).toHaveAttribute("data-hint");
+    expect(skipHint).toHaveAttribute("hidden");
+    const nullHint = screen.getByText("Matching is exact and case-sensitive", {
+      exact: false,
+    });
+    expect(nullHint).toHaveAttribute("data-hint");
+    expect(nullHint).toHaveAttribute("hidden");
+    expect(nullHint.textContent).toContain("exact and case-sensitive");
+  });
+
+  it("hides both toggles in the json2csv direction", () => {
+    render(
+      <OptionsRow
+        direction="json2csv"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+      />
+    );
+    expect(
+      screen.queryByRole("checkbox", { name: "Skip empty fields" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: "NULL as null" })
+    ).not.toBeInTheDocument();
+  });
+});

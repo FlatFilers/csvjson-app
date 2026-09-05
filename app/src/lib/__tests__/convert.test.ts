@@ -735,3 +735,70 @@ describe("P2 — scalar arrays under Flatten (art_RfUU1oAy, fixes #80)", () => {
   });
 });
 
+// B1 (art_RfUU1oAy, fixes #65 #100 #46 #6): two independent post-pass
+// toggles in the convertRow walk the smart pass already uses — skip deletes
+// keys whose value is exactly the empty string, nullLiterals maps the exact
+// case-sensitive string NULL to null. Both default off; off is today's
+// output byte-for-byte.
+describe("skip-empty and NULL-as-null toggles (B1, fixes #65 #100 #46 #6)", () => {
+  it("skip drops empty cells in array mode", () => {
+    expect(
+      csvToJson("name,amount\nA,\nB,2", { emptyFields: "skip" })
+    ).toStrictEqual([{ name: "A" }, { name: "B", amount: 2 }]);
+  });
+
+  it("skip composes with hash mode", () => {
+    expect(
+      csvToJson("name,amount\nA,\nB,2", { hash: true, emptyFields: "skip" })
+    ).toStrictEqual({ A: {}, B: { amount: 2 } });
+  });
+
+  it("nullLiterals maps the exact uppercase NULL to null — case-sensitively", () => {
+    expect(csvToJson("name,flag\nA,NULL", { nullLiterals: "null" })).toEqual([
+      { name: "A", flag: null },
+    ]);
+    // Exact and case-sensitive: only the all-uppercase SQL literal converts.
+    expect(
+      csvToJson("a,b,c\nNull,null,NULL", { nullLiterals: "null" })
+    ).toStrictEqual([{ a: "Null", b: "null", c: null }]);
+  });
+
+  it("both off — the defaults — keep empty strings and the string NULL byte-for-byte", () => {
+    const csv = "name,amount\nA,\nB,NULL";
+    const defaults = csvToJson(csv);
+    expect(defaults).toStrictEqual([
+      { name: "A", amount: "" },
+      { name: "B", amount: "NULL" },
+    ]);
+    expect(
+      csvToJson(csv, { emptyFields: "keep", nullLiterals: "string" })
+    ).toStrictEqual(defaults);
+  });
+
+  it("both toggles compose", () => {
+    expect(
+      csvToJson("name,a,b\nA,NULL,\nB,1,NULL", {
+        emptyFields: "skip",
+        nullLiterals: "null",
+      })
+    ).toStrictEqual([
+      { name: "A", a: null },
+      { name: "B", a: 1, b: null },
+    ]);
+  });
+
+  it("a column skipped in every row is reflected in the row/col counts", () => {
+    const result = convertText("csv2json", "name,amount\nA,\nB,", {
+      ...DEFAULT_OPTIONS,
+      emptyFields: "skip",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.rows).toBe(2);
+    expect(result.cols).toBe(1);
+    expect(result.text).toBe(
+      JSON.stringify([{ name: "A" }, { name: "B" }], null, 2)
+    );
+  });
+});
+

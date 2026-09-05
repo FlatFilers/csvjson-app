@@ -82,8 +82,9 @@ function OptionHint({ text }: { text: string }) {
 
 /**
  * Bottom options bar, direction-conditional: CSV → JSON shows separator,
- * parse numbers, parse JSON, transpose, hash output, minify; JSON → CSV
- * shows separator and flatten (minify does not apply to CSV output).
+ * parse numbers, parse JSON, skip empty fields, NULL as null, transpose,
+ * hash output, minify; JSON → CSV shows separator and flatten (minify does
+ * not apply to CSV output).
  */
 export function OptionsRow({
   direction,
@@ -153,6 +154,24 @@ export function OptionsRow({
             checked={options.parseJSON}
             onChange={(parseJSON) => onChange({ parseJSON })}
             hint="Turns null, true, false, [] and {} into real JSON values instead of strings."
+          />
+          <ToggleOption
+            label="Skip empty fields"
+            checked={options.emptyFields === "skip"}
+            onChange={(skip) => onChange({ emptyFields: skip ? "skip" : "keep" })}
+            hint={
+              'Empty cells are dropped from the output instead of becoming "" — a column that is empty in every row disappears from the output and the counts.'
+            }
+          />
+          <ToggleOption
+            label="NULL as null"
+            checked={options.nullLiterals === "null"}
+            onChange={(asNull) =>
+              onChange({ nullLiterals: asNull ? "null" : "string" })
+            }
+            hint={
+              'The string NULL becomes JSON null. Matching is exact and case-sensitive — SQL exports write uppercase NULL; Null and nULL are untouched, and lowercase null already converts when Parse JSON is on.'
+            }
           />
           <ToggleOption
             label="Transpose"
