@@ -32,9 +32,11 @@ export type Csv2JsonOptions = {
   separator?: "," | ";" | "\t" | "|";
   /**
    * Smart number parsing — on by default. A cell becomes a JSON number only
-   * when it is a full JSON number literal (no surrounding whitespace), has
-   * no leading zeros in the integer part, is finite, and — when an integer —
-   * satisfies Number.isSafeInteger. `false` keeps every cell a string.
+   * when it is a full JSON number literal, has no leading zeros in the
+   * integer part, is finite, and — when an integer — satisfies
+   * Number.isSafeInteger. Surrounding whitespace does not block the parse:
+   * the numeric-adjacency guard trims before interpretation (B5), while
+   * non-numbers keep their padding. `false` keeps every cell a string.
    */
   parseNumbers?: boolean;
   /**
@@ -109,8 +111,9 @@ const UTF8_BOM = "\uFEFF";
 /**
  * Full-string JSON number literal: optional minus sign, an integer part with
  * no leading zeros (a lone 0 is allowed), optional fraction and exponent.
- * Anchored, so surrounding whitespace, thousands separators, or padding
- * never match.
+ * Anchored, so embedded whitespace and thousands separators never match.
+ * Surrounding whitespace is the caller's business — toSmartNumber trims
+ * before testing (numeric adjacency, B5) — never this pattern's.
  */
 const JSON_NUMBER_LITERAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
@@ -123,8 +126,12 @@ const JSON_NUMBER_LITERAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
  *   4. the result is finite ("1e999" stays a string).
  */
 function toSmartNumber(value: string): string | number {
-  if (!JSON_NUMBER_LITERAL.test(value)) return value;
-  const parsed = Number(value);
+  // Numeric adjacency (B5): with field whitespace preserved (trim:false),
+  // interpretation still ignores surrounding padding — " 5 " converts to 5.
+  // A non-number keeps the original padded string.
+  const literal = value.trim();
+  if (!JSON_NUMBER_LITERAL.test(literal)) return value;
+  const parsed = Number(literal);
   if (!Number.isFinite(parsed)) return value;
   if (Number.isInteger(parsed) && !Number.isSafeInteger(parsed)) return value;
   return parsed;
@@ -293,6 +300,12 @@ export function csvToJson(
       ...options,
       parseNumbers: false,
       parseJSON: false,
+      // B5 (fixes #87 #95): the package's unconditional field trim discarded
+      // leading/trailing whitespace RFC-4180 section 2.4 keeps part of the
+      // field — preservation is impossible app-side because the trim runs
+      // before the wrapper sees values. The patched trim option is pinned
+      // false here; the smart pass restores numeric adjacency (toSmartNumber).
+      trim: false,
     }) as Record<string, unknown>[] | Record<string, unknown>;
     return applySmartValues(json, pass);
   } catch (e) {
