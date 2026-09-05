@@ -32,6 +32,12 @@ function baseName(source: string): string {
   for (;;) {
     const dot = base.lastIndexOf(".");
     if (dot <= 0) break;
+    if (dot === base.length - 1) {
+      // A trailing bare dot ("data.") is punctuation, not an extension —
+      // drop it so the target extension lands cleanly ("data.json").
+      base = base.slice(0, dot);
+      continue;
+    }
     if (!DATA_EXTENSIONS.has(base.slice(dot + 1).toLowerCase())) break;
     base = base.slice(0, dot);
   }

@@ -49,4 +49,9 @@ describe("outputFilenameFor", () => {
   it("is case-insensitive on the extension", () => {
     expect(outputFilenameFor("AAA.CSV", "csv2json")).toBe("AAA.json");
   });
+
+  it("drops a trailing bare dot instead of doubling it", () => {
+    expect(outputFilenameFor("data.", "csv2json")).toBe("data.json");
+    expect(outputFilenameFor("export.csv.", "json2csv")).toBe("export.csv");
+  });
 });

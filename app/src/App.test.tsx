@@ -37,11 +37,13 @@ describe("direction flip", () => {
     fireEvent.click(screen.getByTestId("try-example"));
 
     // CSV → JSON: output is JSON for the two rows.
+    // Wait for the converted CONTENT, not just the pane — under a loaded
+    // runner the pane can mount before the async pipeline fills it.
+    let jsonOutput = "";
     await waitFor(() => {
-      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+      jsonOutput = screen.getByTestId("output-view").textContent ?? "";
+      expect(jsonOutput).toContain('"Elephant"');
     });
-    const jsonOutput = screen.getByTestId("output-view").textContent;
-    expect(jsonOutput).toContain('"Elephant"');
 
     // Flip: the JSON output becomes the input, panes swap roles.
     await flip();
@@ -108,9 +110,10 @@ describe("global paste routing (paste-anywhere)", () => {
     pasteOn(document.body, SAMPLE_CSV_INPUT);
 
     await waitFor(() => {
-      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        "Elephant"
+      );
     });
-    expect(screen.getByTestId("output-view").textContent).toContain("Elephant");
   });
 
   it("replaces existing input content on a body-level paste", async () => {
@@ -421,14 +424,23 @@ describe("output download naming", () => {
 
   it("derives the output name from the uploaded source file", async () => {
     render(<App />);
-    fireEvent.change(screen.getByTestId("file-input"), {
-      target: {
-        files: [
-          new File(["album,year\nElephant,2003"], "aaa.csv", {
-            type: "text/csv",
+    // jsdom's File lacks Blob.stream(); attach a real web ReadableStream
+    // over the bytes so the production decodeUpload path runs under test.
+    const bytes = new TextEncoder().encode("album,year\nElephant,2003");
+    const file = Object.assign(
+      new File([bytes], "aaa.csv", { type: "text/csv" }),
+      {
+        stream: () =>
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(bytes);
+              controller.close();
+            },
           }),
-        ],
-      },
+      }
+    ) as unknown as File;
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: { files: [file] },
     });
     await waitFor(() => {
       expect(screen.getByTestId("output-view")).toBeInTheDocument();
