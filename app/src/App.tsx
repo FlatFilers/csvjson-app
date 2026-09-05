@@ -26,7 +26,11 @@ import {
 } from "@/lib/convert";
 import { copyText } from "@/lib/clipboard";
 import { downloadText } from "@/lib/download";
-import { isTextFile } from "@/lib/files";
+import {
+  decodeUpload,
+  isTextFile,
+  type UploadEncoding,
+} from "@/lib/files";
 import { isEditablePasteTarget } from "@/lib/paste";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
 import { initialTheme, persistTheme } from "@/lib/theme";
@@ -70,6 +74,10 @@ export default function App() {
   const [filename, setFilename] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // Upload decode label (spec B7 — issue #106). Upload-scoped: pasted and
+  // typed text already arrived as decoded strings, so the select never
+  // touches them.
+  const [uploadEncoding, setUploadEncoding] = useState<UploadEncoding>("utf-8");
 
   // Latest converter state for the conversion-event validity predicate —
   // fires happen up to 2s after the last edit (or synchronously for a
@@ -200,9 +208,23 @@ export default function App() {
     );
   }, [hydratedState, tracker]);
 
-  // FileReader upload — files never touch the network (spec: Input; the
-  // legacy /upload endpoint is deleted).
-  const readFile = (file: File, source: "picker" | "drop") => {
+  // The upload still feeding the input — file, its ingest source, and the
+  // exact text its decode produced. The encoding select re-decodes the held
+  // file only while the input still IS that text: the mojibake-recovery
+  // flow (upload → mangled accents → switch label → fixed) works without a
+  // re-upload, while any edit, paste, flip, or clear quietly disarms it —
+  // a later encoding switch must never clobber text that moved on.
+  const uploadedRef = useRef<{
+    file: File;
+    source: "picker" | "drop";
+    text: string;
+  } | null>(null);
+
+  // Upload decode — files never touch the network (spec: Input; the legacy
+  // /upload endpoint is deleted). Bytes are decoded locally under the
+  // selected label (spec B7 — issue #106); the utf-8 default is the exact
+  // FileReader.readAsText behavior this replaced.
+  const readFile = async (file: File, source: "picker" | "drop") => {
     if (!isTextFile(file)) {
       setNotice(
         `Can't read "${file.name}" as text — drop a ${csvToJson ? ".csv / .tsv" : ".json"} file.`
@@ -211,9 +233,9 @@ export default function App() {
     }
     setNotice(null);
     setReading(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result ?? "");
+    try {
+      const text = await decodeUpload(file, uploadEncoding);
+      uploadedRef.current = { file, source, text };
       setInput(text);
       setFilename(file.name);
       setReading(false);
@@ -224,12 +246,35 @@ export default function App() {
         source === "drop" ? "drag" : "file",
         text
       );
-    };
-    reader.onerror = () => {
+    } catch {
       setReading(false);
       setNotice(`Couldn't read "${file.name}".`);
-    };
-    reader.readAsText(file);
+    }
+  };
+
+  const handleUploadEncodingChange = async (encoding: UploadEncoding) => {
+    const previous = uploadEncoding;
+    setUploadEncoding(encoding);
+    const uploaded = uploadedRef.current;
+    if (!uploaded || input !== uploaded.text) return;
+    setReading(true);
+    try {
+      const text = await decodeUpload(uploaded.file, encoding);
+      uploadedRef.current = { ...uploaded, text };
+      setInput(text);
+      setReading(false);
+      tracker.discrete(
+        csvToJson ? "csv_to_json" : "json_to_csv",
+        uploaded.source === "drop" ? "drag" : "file",
+        text
+      );
+    } catch {
+      setReading(false);
+      // The label must name the decode that produced the displayed text:
+      // the input still shows the previous decode, so revert the select.
+      setUploadEncoding(previous);
+      setNotice(`Couldn't read "${uploaded.file.name}".`);
+    }
   };
 
   // Shared input path — every text ingestion (typed, pasted in-pane, or
@@ -390,6 +435,8 @@ export default function App() {
         direction={direction}
         options={options}
         onChange={(patch) => setOptions((current) => ({ ...current, ...patch }))}
+        uploadEncoding={uploadEncoding}
+        onUploadEncodingChange={handleUploadEncodingChange}
           notice={largeInput ? "Large file — converting on pause" : null}
       />
       </div>
