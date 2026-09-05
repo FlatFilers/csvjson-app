@@ -20,7 +20,7 @@ const COLUMN_MIN_WIDTH = 110;
 
 type CsvTableProps = {
   text: string;
-  /** Forced separator (, ; \t) mirroring the converter's separator option; omitted → auto-detect. */
+  /** Forced separator (, ; \t |) mirroring the converter's separator option; omitted → auto-detect. */
   delimiter?: string;
   testId?: string;
 };

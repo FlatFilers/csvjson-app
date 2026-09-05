@@ -25,8 +25,11 @@ export type EmptyFields = "keep" | "skip";
 export type NullLiterals = "string" | "null";
 
 export type Csv2JsonOptions = {
-  /** omitted → auto-detect over , ; \t */
-  separator?: "," | ";" | "\t";
+  /**
+   * omitted → auto-detect over , ; \t. "|" is explicit-only (B2, #110): prose
+   * is full of pipes, so detection never picks it — pass it to split on them.
+   */
+  separator?: "," | ";" | "\t" | "|";
   /**
    * Smart number parsing — on by default. A cell becomes a JSON number only
    * when it is a full JSON number literal (no surrounding whitespace), has
@@ -55,7 +58,8 @@ export type Csv2JsonOptions = {
 };
 
 export type Json2CsvOptions = {
-  separator?: "," | ";" | "\t";
+  /** "|" is explicit-only — never auto-detected (B2, #110). */
+  separator?: "," | ";" | "\t" | "|";
   /**
    * Arrays of objects explode into extra rows with dotted keys; scalar
    * arrays join into a single column, elements separated by ", " (P2,
@@ -339,8 +343,8 @@ export type Direction = "csv2json" | "json2csv";
 
 /** The full option set shown in the bottom options bar (direction-conditional). */
 export type ConverterOptions = {
-  /** "auto" → package-side detection over , ; \t */
-  separator: "auto" | "," | ";" | "\t";
+  /** "auto" → package-side detection over , ; \t; "|" must be selected (B2, #110). */
+  separator: "auto" | "," | ";" | "\t" | "|";
   parseNumbers: boolean;
   parseJSON: boolean;
   /** B1: "skip" drops cells that are exactly the empty string. */
