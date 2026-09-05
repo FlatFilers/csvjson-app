@@ -3,6 +3,15 @@ import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 
 /**
+ * Shared compact action language (v0 port) — see InputPane's ActionButton.
+ * Output Copy/Download join the same quiet ghost treatment as every other
+ * pane action (spec: hierarchy — v0 unifies them); Revert and the freeze
+ * notice's Discard action share it too.
+ */
+const actionButtonClass =
+  "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-3.5";
+
+/**
  * Output pane (spec: States → Empty/Ready): a quiet placeholder while the
  * input is empty; otherwise the read-only JSON view (CodeMirror, linted) or
  * the dense CSV table. The last valid conversion stays visible through
@@ -73,7 +82,7 @@ export function OutputPane({
     <div
       data-testid="output-pane"
       data-surface="output"
-      className="flex min-h-0 min-w-0 flex-1 flex-col"
+      className="flex min-h-0 min-w-0 flex-1 flex-col bg-muted/30"
     >
       <PaneShell
         title={format}
@@ -94,7 +103,7 @@ export function OutputPane({
                 type="button"
                 data-testid="revert-output"
                 onClick={onRevert}
-                className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+                className={actionButtonClass}
               >
                 Revert
               </button>
@@ -113,16 +122,13 @@ export function OutputPane({
           )
         }
         actions={
-          // Output Copy/Download are the header's most prominent actions
-          // (spec: hierarchy) — sentence case, foreground color; the quiet
-          // tracked-uppercase treatment stays on input-pane utilities only.
           <>
             <button
               type="button"
               data-testid="copy-output"
               onClick={onCopy}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:bg-muted disabled:cursor-default disabled:opacity-50"
+              className={actionButtonClass}
             >
               Copy
             </button>
@@ -131,7 +137,7 @@ export function OutputPane({
               data-testid="download-output"
               onClick={onDownload}
               disabled={!outputText}
-              className="cursor-pointer rounded px-1 py-0.5 text-[11px] text-foreground transition-colors hover:bg-muted disabled:cursor-default disabled:opacity-50"
+              className={actionButtonClass}
             >
               Download
             </button>
@@ -151,7 +157,7 @@ export function OutputPane({
                   type="button"
                   data-testid="discard-reconvert"
                   onClick={onDiscardReconvert}
-                  className="ml-2 cursor-pointer rounded border border-border px-1.5 py-0.5 text-[11px] text-foreground transition-colors hover:bg-muted"
+                  className={actionButtonClass + " ml-2"}
                 >
                   Discard edits & reconvert
                 </button>

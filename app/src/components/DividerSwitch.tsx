@@ -44,7 +44,7 @@ export function DividerSwitch({ direction, onFlip }: DividerSwitchProps) {
       onDoubleClick={(event) => event.stopPropagation()}
       title={`Switch direction (currently ${directionLabel(direction)})`}
       aria-label={`Switch conversion direction (currently ${directionLabel(direction)})`}
-      className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-panel text-muted-foreground shadow-md transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+      className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground"
     >
       <SwapIcon flipped={direction === "json2csv"} />
     </button>

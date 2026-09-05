@@ -3,6 +3,7 @@ import { CsvTable } from "@/components/CsvTable";
 import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
+import { cn } from "@/lib/utils";
 
 /**
  * Input pane state machine (spec: Every pane state, including empty):
@@ -50,6 +51,13 @@ function ReadingSpinner() {
   );
 }
 
+/**
+ * Shared compact action language (v0 port): quiet 28px ghost chip used by
+ * every pane action — copy, clear, upload, download, revert, discard.
+ */
+const actionButtonClass =
+  "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-3.5";
+
 function ActionButton({
   label,
   testId,
@@ -67,7 +75,8 @@ function ActionButton({
       data-testid={testId}
       disabled={disabled}
       onClick={onClick}
-      className="cursor-pointer rounded px-1 py-0.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-default disabled:opacity-50"
+      title={label}
+      className={actionButtonClass}
     >
       {label}
     </button>
@@ -146,19 +155,19 @@ export function InputPane({
       data-testid="view-mode"
       role="group"
       aria-label="View mode"
-      className="flex overflow-hidden rounded border border-border text-[10px]"
+      className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted/60 p-0.5"
     >
       <button
         type="button"
         data-testid="view-table"
         aria-pressed={!rawMode}
         onClick={() => setRawMode(false)}
-        className={
-          "cursor-pointer px-2 py-0.5 " +
-          (!rawMode
-            ? "bg-muted font-semibold text-foreground"
-            : "text-muted-foreground hover:text-foreground")
-        }
+        className={cn(
+          "cursor-pointer rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+          rawMode
+            ? "text-muted-foreground hover:text-foreground"
+            : "bg-background text-foreground shadow-sm"
+        )}
       >
         Table
       </button>
@@ -167,12 +176,12 @@ export function InputPane({
         data-testid="raw-toggle"
         aria-pressed={rawMode}
         onClick={() => setRawMode(true)}
-        className={
-          "cursor-pointer px-2 py-0.5 " +
-          (rawMode
-            ? "bg-muted font-semibold text-foreground"
-            : "text-muted-foreground hover:text-foreground")
-        }
+        className={cn(
+          "cursor-pointer rounded-[7px] px-2.5 py-1 text-xs font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+          rawMode
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        )}
       >
         Raw
       </button>
@@ -201,10 +210,7 @@ export function InputPane({
       onDrop={onDrop}
       onPaste={onPaste}
       data-drag-over={dragOver || undefined}
-      className={
-        "flex min-h-0 min-w-0 flex-1 flex-col outline outline-2 -outline-offset-2 transition-[outline-color] " +
-        (dragOver ? "outline-sky-500 dark:outline-sky-400" : "outline-transparent")
-      }
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col"
     >
       <PaneShell
         title={format}
@@ -269,7 +275,7 @@ export function InputPane({
             value={input}
             onChange={(event) => onInputChange(event.target.value)}
             spellCheck={false}
-            className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-[12.5px] leading-relaxed focus:outline-none"
+            className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
           />
         ) : isCsv ? (
           <CsvTable text={input} delimiter={delimiter} testId="input-table" />
@@ -281,6 +287,14 @@ export function InputPane({
             testId="input-editor"
           />
         )}
+        {dragOver ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-3 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-primary/50 bg-background/80 backdrop-blur-sm"
+          >
+            <p className="text-sm font-medium text-foreground">Drop file to import</p>
+          </div>
+        ) : null}
       </PaneShell>
     </div>
   );

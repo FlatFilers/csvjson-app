@@ -26,19 +26,26 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {/* Wrap-and-tighten (spec: mobile toolbar compaction): the input
           pane's five controls reflow into tidy rows below the 768px JS
-          breakpoint instead of overflowing; counts stay attached to their
-          group and output exports stay visible without scrolling. */}
-      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3.5 py-2 max-md:gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-          {title}
-        </span>
-        <div className="flex min-w-0 flex-wrap items-center gap-2 max-md:gap-1.5">
-          {actions}
+          breakpoint instead of overflowing; counts stay attached to the
+          title group and output exports stay visible without scrolling.
+          Desktop (md+) is v0's fixed h-12 header; mobile keeps the
+          min-height so wrapped rows can grow. */}
+      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3 py-2 pl-5 max-md:gap-2 md:h-12 md:py-0">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
+            {title}
+          </span>
           {meta ? (
-            <span data-testid="pane-meta" className="text-xs text-muted-foreground">
+            <span
+              data-testid="pane-meta"
+              className="text-xs tabular-nums text-muted-foreground/70"
+            >
               {meta}
             </span>
           ) : null}
+        </div>
+        <div className="flex min-w-0 flex-wrap items-center gap-0.5 max-md:gap-1">
+          {actions}
         </div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
