@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_OPTIONS } from "@/lib/convert";
@@ -39,9 +39,11 @@ describe("OptionsRow option hints", () => {
         onChange={() => {}}
       />
     );
+    // The separator hint (B2, #110) precedes the parse-numbers hint in the
+    // DOM, so the parse-numbers info icon is index 1.
     const infoButton = screen.getAllByRole("button", {
       name: "What does this option do?",
-    })[0];
+    })[1];
     expect(infoButton).toHaveAttribute("aria-expanded", "false");
     await user.click(infoButton);
     expect(screen.getByText(/very long IDs stay strings/)).toBeVisible();
@@ -94,6 +96,44 @@ describe("encoding select (spec B7 — issue #106)", () => {
       />
     );
     expect(screen.queryByTestId("opt-encoding")).not.toBeInTheDocument();
+  });
+});
+
+describe("separator select (spec B2 — issue #110)", () => {
+  it("renders the Pipe option and reports its selection", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={onChange}
+      />
+    );
+    const select = screen.getByTestId("opt-separator");
+    expect(select).toHaveValue("auto");
+    const pipe = within(select).getByRole("option", { name: "Pipe" });
+    expect(pipe).toHaveValue("|");
+    await user.selectOptions(select, "|");
+    expect(onChange).toHaveBeenLastCalledWith({ separator: "|" });
+  });
+
+  it("carries the conservative auto-detect hint in the DOM at load, hidden until clicked (SEO initial-DOM rule)", () => {
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+      />
+    );
+    const hint = screen.getByText("Auto-detect is conservative", {
+      exact: false,
+    });
+    expect(hint).toHaveAttribute("data-hint");
+    expect(hint).toHaveAttribute("hidden");
+    expect(hint.textContent).toContain(
+      "pipe-separated text must be selected explicitly"
+    );
   });
 });
 

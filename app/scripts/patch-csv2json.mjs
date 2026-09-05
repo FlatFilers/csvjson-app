@@ -18,6 +18,15 @@
  * fallback fields strip exactly as before (same trim-strip order). Header
  * cleanup trims only; fallback headers are stripped at the source.
  *
+ * Also patches (B2, issue #110): the PEG grammar registers only , ; \t start
+ * rules, so a forced pipe separator resolved to `pegjsSeparatorNames["|"] ===
+ * undefined` and silently fell back to the default comma rule - pipe input
+ * never split. The three start rules are byte-identical apart from the rule
+ * name and the separator literal they set, so the patch clones the semicolon
+ * rule as a pipe rule and registers it in the parse dispatch and the
+ * separator→rule map. Detection (`separators` array) deliberately stays
+ * , ; \t - pipe is explicit-only because prose is full of pipes.
+ *
  * Wired as the app's `postinstall` (chained after patch-json2csv) so CI's
  * fresh `npm ci` gets the patch. Idempotent; fails loudly if the file or a
  * pattern is missing.
@@ -87,6 +96,60 @@ if (patched.includes(FALLBACK_STRIPPED)) {
   console.log("patch-csv2json: stray-quote strip moved into the unquoted fallback branch");
 } else {
   console.error("patch-csv2json: expected fallback action not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+if (patched !== source) writeFileSync(pkg, patched);
+
+// ---------------------------------------------------------------- B2 (#110)
+// Clone the semicolon start rule as a pipe rule. The generated file is CRLF;
+// the splice preserves that so the next patch cycle's anchors stay stable.
+if (patched.includes("function parse_pipe()")) {
+  console.log("patch-csv2json: pipe start rule already present");
+} else {
+  const semiDecl = "function parse_semicolon() {";
+  const declIdx = patched.indexOf(semiDecl);
+  const endMarker = "return result0;\r\n        }";
+  const endIdx = declIdx === -1 ? -1 : patched.indexOf(endMarker, declIdx);
+  if (declIdx === -1 || endIdx === -1) {
+    console.error("patch-csv2json: semicolon start rule not found - package changed upstream, investigate before shipping");
+    process.exit(1);
+  }
+  const block = patched.slice(declIdx, endIdx + endMarker.length);
+  const pipeBlock = block
+    .split("parse_semicolon").join("parse_pipe")
+    .split("separator = ';'").join("separator = '|'");
+  patched = patched
+    .split(block)
+    .join(block + "\r\n        \r\n        " + pipeBlock);
+  console.log("patch-csv2json: pipe start rule cloned from the semicolon rule");
+}
+
+// Register the rule in the parse dispatch and the separator→rule map. The
+// detection array (`separators = [",", ";", "\\t"]`) is deliberately NOT
+// touched — pipe must never auto-detect (false positives on prose).
+const TAB_ENTRY = `          "tab": parse_tab,`;
+const TAB_WITH_PIPE = `          "tab": parse_tab,\r\n          "pipe": parse_pipe,`;
+const NAMES_TAB = `        "\\t": "tab"`;
+const NAMES_TAB_WITH_PIPE = `        "\\t": "tab",\r\n        "|": "pipe"`;
+
+if (patched.includes(TAB_WITH_PIPE)) {
+  console.log("patch-csv2json: parse dispatch already registers pipe");
+} else if (patched.includes(TAB_ENTRY)) {
+  patched = patched.split(TAB_ENTRY).join(TAB_WITH_PIPE);
+  console.log("patch-csv2json: parse dispatch registers pipe");
+} else {
+  console.error("patch-csv2json: parse dispatch table not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
+if (patched.includes(NAMES_TAB_WITH_PIPE)) {
+  console.log("patch-csv2json: separator map already maps pipe");
+} else if (patched.includes(NAMES_TAB)) {
+  patched = patched.split(NAMES_TAB).join(NAMES_TAB_WITH_PIPE);
+  console.log("patch-csv2json: separator map maps | to the pipe rule");
+} else {
+  console.error("patch-csv2json: separator→rule map not found - package changed upstream, investigate before shipping");
   process.exit(1);
 }
 

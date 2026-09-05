@@ -18,6 +18,7 @@ const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: st
   { value: ",", label: "Comma" },
   { value: ";", label: "Semicolon" },
   { value: "\t", label: "Tab" },
+  { value: "|", label: "Pipe" },
 ];
 
 /**
@@ -100,23 +101,26 @@ export function OptionsRow({
       data-testid="options-row"
       className="flex flex-shrink-0 flex-wrap items-center gap-4 border-t border-border bg-panel px-4 py-2 text-[12.5px] text-muted-foreground"
     >
-      <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-        Separator
-        <select
-          data-testid="opt-separator"
-          value={options.separator}
-          onChange={(event) =>
-            onChange({ separator: event.target.value as ConverterOptions["separator"] })
-          }
-          className="cursor-pointer rounded border border-border bg-panel px-1.5 py-0.5 text-xs text-foreground"
-        >
-          {SEPARATOR_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <span className="inline-flex items-center gap-1">
+        <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+          Separator
+          <select
+            data-testid="opt-separator"
+            value={options.separator}
+            onChange={(event) =>
+              onChange({ separator: event.target.value as ConverterOptions["separator"] })
+            }
+            className="cursor-pointer rounded border border-border bg-panel px-1.5 py-0.5 text-xs text-foreground"
+          >
+            {SEPARATOR_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <OptionHint text="Auto-detect is conservative — it only picks comma, semicolon, or tab. Pipe never auto-detects because normal prose is full of pipes, so pipe-separated text must be selected explicitly." />
+      </span>
 
       {uploadEncoding && onUploadEncodingChange ? (
         <span className="inline-flex items-center gap-1">
