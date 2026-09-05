@@ -22,11 +22,15 @@ type PaneShellProps = {
 export function PaneShell({ title, meta, actions, status, children }: PaneShellProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="flex min-h-[42px] flex-shrink-0 items-center justify-between gap-3 border-b border-border px-3.5 py-2">
+      {/* Wrap-and-tighten (spec: mobile toolbar compaction): the input
+          pane's five controls reflow into tidy rows below the 768px JS
+          breakpoint instead of overflowing; counts stay attached to their
+          group and output exports stay visible without scrolling. */}
+      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3.5 py-2 max-md:gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           {title}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 max-md:gap-1.5">
           {actions}
           {meta ? (
             <span data-testid="pane-meta" className="text-xs text-muted-foreground">
