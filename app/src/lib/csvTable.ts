@@ -14,6 +14,8 @@ export type CsvTableData = {
   /** Data rows, padded to headers.length. Empty cells stay "" — never null. */
   rows: string[][];
   delimiter: string;
+  /** Raw field count per data row, before padding or truncation. */
+  rowWidths: number[];
 };
 
 const UTF8_BOM = "\uFEFF";
@@ -119,13 +121,17 @@ export function parseCsvTable(raw: string, forcedDelimiter?: string): CsvTableDa
 
   const headers = records.length > 0 ? records[0] : [];
   const width = headers.length;
-  const rows = records.slice(1).map((row) => {
+  // Raw widths survive the pad/truncate below — the malformed-CSV warning
+  // detector (convert.ts) compares them against the header width.
+  const rawRows = records.slice(1);
+  const rowWidths = rawRows.map((row) => row.length);
+  const rows = rawRows.map((row) => {
     if (row.length === width) return row;
     if (row.length > width) return row.slice(0, width);
     return [...row, ...Array<string>(width - row.length).fill("")];
   });
 
-  return { headers, rows, delimiter };
+  return { headers, rows, delimiter, rowWidths };
 }
 
 /**

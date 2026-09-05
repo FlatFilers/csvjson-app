@@ -46,7 +46,7 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
           className={
             status.kind === "error"
               ? "flex-shrink-0 px-3.5 pb-2 text-xs text-destructive"
-              : "flex-shrink-0 px-3.5 pb-2 text-xs text-muted-foreground"
+              : "flex-shrink-0 whitespace-pre-line px-3.5 pb-2 text-xs text-muted-foreground"
           }
           role="status"
         >
