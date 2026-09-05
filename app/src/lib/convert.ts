@@ -437,6 +437,25 @@ export function csvWarnings(
 }
 
 /**
+ * B4 (art_RfUU1oAy, fixes #143): hash mode keys each row's object by the
+ * first column's value, so repeated values silently collapse — the package
+ * overwrites (`json[hashKey] = row`, last row wins) with no signal. Collapse
+ * is often the point (dedupe), so this warns and never blocks — and only in
+ * hash mode: the array result keeps every row, so array mode has nothing to
+ * warn about. Both counts come from the conversion itself: expected rows
+ * from the array result (what hashing starts from), actual keys from the
+ * hash result.
+ */
+export function duplicateKeyWarning(
+  arrayRows: number,
+  hashKeys: number
+): string | null {
+  return hashKeys < arrayRows
+    ? `Duplicate keys collapsed: ${arrayRows} rows in, ${hashKeys} unique keys out — last row wins`
+    : null;
+}
+
+/**
  * The single conversion entry point the UI calls. Pure: string in, a
  * discriminated result out — never throws. Empty input converts to empty
  * output; failures carry the package/parser message verbatim so the pane can
@@ -450,14 +469,29 @@ export function convertText(
   if (input.trim() === "") return { ok: true, text: "", rows: 0, cols: 0 };
   try {
     if (direction === "csv2json") {
-      const json = csvToJson(input, {
+      const csv2jsonOptions = {
         separator: separatorFor(options.separator),
         parseNumbers: options.parseNumbers,
         parseJSON: options.parseJSON,
         transpose: options.transpose,
         hash: options.hash,
-      });
-      const warnings = csvWarnings(input, separatorFor(options.separator));
+      };
+      const json = csvToJson(input, csv2jsonOptions);
+      let warnings = csvWarnings(input, csv2jsonOptions.separator);
+      if (options.hash && !Array.isArray(json)) {
+        // The hash result carries no memory of how many rows went in (B4,
+        // #143) — count what hashing started from: the array result for the
+        // same input and options, minus hash. The parse is identical to the
+        // run above, so this cannot fail where it passed, and the displayed
+        // hash output stays exactly what the package produced.
+        const arrayJson = csvToJson(input, { ...csv2jsonOptions, hash: false });
+        const arrayRows = Array.isArray(arrayJson) ? arrayJson.length : 0;
+        const collapse = duplicateKeyWarning(
+          arrayRows,
+          Object.keys(json).length
+        );
+        if (collapse) warnings = warnings.concat(collapse);
+      }
       return {
         ok: true,
         text: toJsonString(json, { minify: options.minify }),

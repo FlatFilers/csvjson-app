@@ -580,6 +580,75 @@ describe("malformed-CSV warnings (todo_D8PMLUA1)", () => {
   });
 });
 
+// B4 (art_RfUU1oAy, fixes #143): hash mode keys each row by the first
+// column's value and the package overwrites duplicates — last row wins,
+// silently. The warning surfaces the collapse with exact counts through the
+// same non-blocking channel; array mode keeps every row and never warns.
+describe("hash duplicate-key warning (B4, fixes #143)", () => {
+  const REPRO = "name,amount\nA,1\nB,2\nA,3\nC,4\nA,5";
+
+  it("repro: 5 rows with repeated keys → 3 keys, warned with exact counts", () => {
+    const result = convertText("csv2json", REPRO, {
+      ...DEFAULT_OPTIONS,
+      hash: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Conversion semantics unchanged: 3 unique keys, the last A row wins,
+    // and the key column is lifted out of the row objects.
+    expect(result.text).toBe(
+      JSON.stringify({ A: { amount: 5 }, B: { amount: 2 }, C: { amount: 4 } }, null, 2)
+    );
+    expect(result.warnings).toEqual([
+      "Duplicate keys collapsed: 5 rows in, 3 unique keys out — last row wins",
+    ]);
+  });
+
+  it("clean hash — every first-column value unique — stays silent", () => {
+    const result = convertText("csv2json", "name,amount\nA,1\nB,2\nC,3", {
+      ...DEFAULT_OPTIONS,
+      hash: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
+  });
+
+  it("array mode never warns — the same duplicate-heavy input keeps every row", () => {
+    const result = convertText("csv2json", REPRO);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
+  });
+
+  it("blank lines do not inflate the expected row count — no false warning", () => {
+    // The package skips blank lines, so the array result has 2 rows here.
+    // Counting from the parsed table would over-report (blanks included)
+    // and warn where nothing collapsed — counting from the array result
+    // cannot.
+    const result = convertText("csv2json", "name,amount\n\nA,1\nB,2", {
+      ...DEFAULT_OPTIONS,
+      hash: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toBeUndefined();
+  });
+
+  it("composes with the malformed-CSV warnings, input-text findings first", () => {
+    const result = convertText("csv2json", "name,amount\nA,1\nA,2\nB,3,extra", {
+      ...DEFAULT_OPTIONS,
+      hash: true,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.warnings).toEqual([
+      "Row 3 has more fields than the header, extra fields dropped",
+      "Duplicate keys collapsed: 3 rows in, 2 unique keys out — last row wins",
+    ]);
+  });
+});
+
 describe("P2 — scalar arrays under Flatten (art_RfUU1oAy, fixes #80)", () => {
   it("acceptance — joins a scalar array into one column under Flatten", () => {
     const csv = jsonToJsonCsv([{ list: ["A", "B", "C"], n: 1 }], {
