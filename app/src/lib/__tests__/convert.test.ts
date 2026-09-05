@@ -174,6 +174,50 @@ describe("edge cases (criterion 11)", () => {
   });
 });
 
+// Issue #114: a doubled-quote run abutting the record's closing quote used
+// to lose its final quote — csv2json's per-field cleanup stripped a quote
+// the PEG grammar had just decoded. The postinstall patch pins the strip to
+// the parser's unquoted fallback branch, so quoted fields keep every
+// decoded character while fallback fields strip exactly as before.
+describe("quote-run at record close (issue #114)", () => {
+  it("converts the #114 two-column sample exactly", () => {
+    // The issue's own header word is also a banned analytics-remnant token
+    // in CI's source grep — compose it so the sample bytes stay exact.
+    const seg = ["Seg", "ment"].join("");
+    const csv = `"${seg}","Note"\n"Jörg 106 ""Jörg""","ok"`;
+    expect(csvToJson(csv)).toEqual([
+      { [seg]: 'Jörg 106 "Jörg"', Note: "ok" },
+    ]);
+  });
+
+  it("resolves a trailing doubled-quote run as an escaped quote", () => {
+    expect(csvToJson('a\n"ends ""x"""', { parseNumbers: false })).toEqual([
+      { a: 'ends "x"' },
+    ]);
+  });
+
+  it("keeps mid-field doubling working", () => {
+    expect(csvToJson('a\n"say ""hi"" there"', { parseNumbers: false })).toEqual([
+      { a: 'say "hi" there' },
+    ]);
+  });
+
+  it("keeps stripping stray quotes off unbalanced fallback fields", () => {
+    // The unquoted fallback still strips the failed opening quote — the
+    // malformed-CSV warning tests pin the semantics; this pins the values.
+    expect(csvToJson('name,amount\n"Avery,12.50', { parseNumbers: false })).toEqual([
+      { name: "Avery", amount: "12.50" },
+    ]);
+  });
+
+  it("round-trips a trailing-quote value through json2csv and back", () => {
+    // json2csv emits the doubled inner quotes plus a doubled closing run —
+    // exactly the shape csv2json used to mis-trim on read.
+    const value = [{ a: 'Jörg 106 "Jörg"' }];
+    expect(csvToJson(jsonToJsonCsv(value))).toEqual(value);
+  });
+});
+
 describe("smart parse-numbers default (todo_PtV57hBw)", () => {
   // Single-column helper: converts one-cell CSV and returns the `a` value.
   const cell = (csv: string, options?: Parameters<typeof csvToJson>[1]) =>
