@@ -108,8 +108,8 @@ describe("per-option behavior (criterion 2)", () => {
     expect(csv).toBe('"id","tags.t"\n1,"a"\n1,"b"');
   });
 
-  it("nested objects serialize as JSON strings without flatten", () => {
-    expect(jsonToJsonCsv([{ a: { b: 1 } }])).toBe('"a"\n"{\\"b\\":1}"');
+  it("nested objects serialize as RFC-4180 quoted JSON strings without flatten", () => {
+    expect(jsonToJsonCsv([{ a: { b: 1 } }])).toBe('"a"\n"{""b"":1}"');
   });
 });
 
