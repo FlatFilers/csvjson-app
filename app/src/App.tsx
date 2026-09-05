@@ -253,6 +253,7 @@ export default function App() {
   };
 
   const handleUploadEncodingChange = async (encoding: UploadEncoding) => {
+    const previous = uploadEncoding;
     setUploadEncoding(encoding);
     const uploaded = uploadedRef.current;
     if (!uploaded || input !== uploaded.text) return;
@@ -269,6 +270,9 @@ export default function App() {
       );
     } catch {
       setReading(false);
+      // The label must name the decode that produced the displayed text:
+      // the input still shows the previous decode, so revert the select.
+      setUploadEncoding(previous);
       setNotice(`Couldn't read "${uploaded.file.name}".`);
     }
   };

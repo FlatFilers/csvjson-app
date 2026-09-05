@@ -33,11 +33,28 @@ export type UploadEncoding = (typeof UPLOAD_ENCODINGS)[number]["value"];
  * visibly in the converted output but never blocks the upload. The
  * default "utf-8" label matches readAsText exactly — including stripping
  * a leading UTF-8 BOM — so existing uploads are byte-for-byte unchanged.
+ *
+ * Decoding streams through `file.stream()` so the event loop breathes
+ * between chunks instead of holding one synchronous main-thread pass over
+ * the whole file: `{ stream: true }` keeps partial multi-byte sequences
+ * buffered across chunk boundaries, and the final zero-arg `decode()`
+ * flushes the tail.
  */
 export async function decodeUpload(
   file: File,
   encoding: UploadEncoding
 ): Promise<string> {
-  const bytes = await file.arrayBuffer();
-  return new TextDecoder(encoding, { fatal: false }).decode(bytes);
+  const decoder = new TextDecoder(encoding, { fatal: false });
+  const reader = file.stream().getReader();
+  let decoded = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      decoded += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return decoded + decoder.decode();
 }

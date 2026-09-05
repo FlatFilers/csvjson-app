@@ -23,6 +23,26 @@ function textFile(name: string, content: string, type = "text/csv"): File {
 vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(600);
 vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(800);
 
+// jsdom's File lacks Blob.stream(); decodeUpload streams the decode through
+// it (lib/files.ts). Serve a real web ReadableStream over the file's bytes
+// so the production streaming path runs under test. A plain prototype
+// assignment survives the shared afterEach's restoreAllMocks().
+const fileProto = File.prototype as unknown as {
+  stream?: () => ReadableStream<Uint8Array>;
+};
+if (typeof fileProto.stream !== "function") {
+  function fileBytesStream(file: File): ReadableStream<Uint8Array> {
+    return new ReadableStream<Uint8Array>({
+      async start(controller) {
+        controller.enqueue(new Uint8Array(await file.arrayBuffer()));
+        controller.close();
+      },
+    });
+  }
+  fileProto.stream = function (this: File) {
+    return fileBytesStream(this);
+  };
+}
 
 beforeEach(() => {
   localStorage.clear();
@@ -359,5 +379,31 @@ describe("upload encoding (spec B7 — issue #106)", () => {
     const text = screen.getByTestId("input-table").textContent ?? "";
     expect(text).toContain("1");
     expect(text).not.toContain("Jürgen");
+  });
+
+  it("reverts the select label when the re-decode fails — label always names the shown decode", async () => {
+    render(<App />);
+    const legacy = byteFile(WIN1252_BYTES, "legacy.csv");
+    fireEvent.drop(screen.getByTestId("input-pane"), {
+      dataTransfer: { files: [legacy], types: ["Files"] },
+    });
+    await screen.findByTestId("input-table");
+    expect(screen.getByTestId("input-table").textContent).toContain("\uFFFD");
+
+    // The initial decode consumed one stream() call; break the next one so
+    // the re-decode fails while the input still shows the UTF-8 decode.
+    vi.spyOn(legacy, "stream").mockImplementation(() => {
+      throw new Error("stream unavailable");
+    });
+    fireEvent.change(screen.getByTestId("opt-encoding"), {
+      target: { value: "windows-1252" },
+    });
+
+    // Label reverts to the decode that produced the displayed text.
+    await waitFor(() => {
+      expect(screen.getByTestId("opt-encoding")).toHaveValue("utf-8");
+    });
+    expect(screen.getByTestId("input-table").textContent).toContain("\uFFFD");
+    expect(screen.getByText(/Couldn't read "legacy\.csv"/)).toBeInTheDocument();
   });
 });
