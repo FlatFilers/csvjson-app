@@ -275,6 +275,13 @@ export default function App() {
   // pane still shows that retained result — label it; never block or clear.
   const staleNotice =
     !result.ok && lastValidOutput ? "Last valid result — input has errors" : null;
+  // Malformed-CSV warnings (spec: silent reinterpretation) ride the output
+  // pane's notice status — same non-blocking channel as the validity label.
+  // They describe the CURRENT conversion, so an error result shows none.
+  const warnings =
+    result.ok && result.warnings && result.warnings.length > 0
+      ? result.warnings
+      : null;
   const largeInput = input.length > LARGE_INPUT_CHARS;
 
   // Every intentional copy/download is an export event; format is the
@@ -340,6 +347,7 @@ export default function App() {
       error={result.ok ? null : result.error}
       meta={meta}
       staleNotice={staleNotice}
+      warnings={warnings}
       dark={theme === "dark"}
       onCopy={copyOutput}
       onDownload={downloadOutput}

@@ -204,7 +204,6 @@ export function toJsonString(
   return JSON.stringify(json, null, options.minify ? undefined : 2);
 }
 
-
 /**
  * The two conversion directions of the converter page. Components stay
  * presentational; they only ever see this union and pass it back down.
@@ -237,7 +236,17 @@ export const DEFAULT_OPTIONS: ConverterOptions = {
 };
 
 export type ConversionResult =
-  | { ok: true; text: string; rows: number; cols: number }
+  | {
+      ok: true;
+      text: string;
+      rows: number;
+      cols: number;
+      /**
+       * Non-blocking observations about input the package silently
+       * reinterpreted — CSV→JSON direction only. Absent on clean input.
+       */
+      warnings?: string[];
+    }
   | { ok: false; error: string };
 
 /** Best-effort row/col counts for the pane headers. Empty cells → 0. */
@@ -266,6 +275,84 @@ const separatorFor = (
 ): Csv2JsonOptions["separator"] => (auto === "auto" ? undefined : auto);
 
 /**
+ * The 1-indexed line of the record whose quote never closed, or null when
+ * every record is quote-balanced. An in-quote-state scanner over the raw
+ * text: `""` doubling inside a quoted field never toggles state, and a
+ * newline inside a quoted field is literal — so a record ends only at a
+ * newline (or EOF) seen outside quotes. A record that ends while still
+ * inside a quote carries odd outside-quote parity: the package's quoted
+ * grammar failed, the field parsed as plain text, and stray quotes were
+ * stripped in post-processing (art_afRt2cdg §2). Parity never inspects
+ * separators, so it holds for , ; and \t alike.
+ */
+function unbalancedQuoteLine(text: string): number | null {
+  let inQuote = false;
+  let recordLine = 1;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"') {
+      // "" inside a quoted field is an escaped quote — one unit, no toggle.
+      if (inQuote && text[i + 1] === '"') i++;
+      else inQuote = !inQuote;
+    } else if (!inQuote && (char === "\n" || char === "\r")) {
+      // Record boundary outside quotes — the parity here was even.
+      if (char === "\r" && text[i + 1] === "\n") i++;
+      recordLine++;
+    }
+  }
+  // EOF closes the final record; still inside a quote → unbalanced.
+  return inQuote ? recordLine : null;
+}
+
+/**
+ * App-side warnings for the csv2json direction. The package reinterprets
+ * malformed CSV silently — it has no warnings channel of its own (its only
+ * throws are empty input, detection failure, empty header, and PEG syntax
+ * errors; art_afRt2cdg §2). Two detectors over the raw input:
+ *
+ * 1. Unbalanced quotes — see unbalancedQuoteLine; rendered as "parsed as
+ *    plain text" because that is exactly what the fallback does.
+ * 2. Ragged rows — the package pads short rows with empty cells and drops
+ *    extra cells without comment; parseCsvTable reports each data row's raw
+ *    field width to compare against the header width.
+ *
+ * Two suppressions keep the warnings truthful:
+ * - the record carrying an unbalanced quote is never width-checked — once
+ *    the quote state breaks, the quote-aware record split diverges from the
+ *    package's per-field unquoted fallback, so widths there are meaningless
+ *    (the package usually still splits at the field's own delimiters — e.g.
+ *    `name,amount\n"Avery,12.50` yields two fields, nothing padded);
+ * - all-empty single-field records are skipped — blank lines never become
+ *    rows in the package's output.
+ */
+export function csvWarnings(
+  input: string,
+  separator: Csv2JsonOptions["separator"]
+): string[] {
+  const warnings: string[] = [];
+  const quoteLine = unbalancedQuoteLine(input);
+  if (quoteLine !== null) {
+    warnings.push(
+      `Unbalanced quote on line ${quoteLine} — parsed as plain text`
+    );
+  }
+  const table = parseCsvTable(input, separator);
+  const suppressLastRow = quoteLine !== null && table.rows.length > 0;
+  table.rowWidths.forEach((width, index) => {
+    if (suppressLastRow && index === table.rowWidths.length - 1) return;
+    const row = table.rows[index];
+    if (width === 1 && row[0] === "") return;
+    if (width === table.headers.length) return;
+    warnings.push(
+      width < table.headers.length
+        ? `Row ${index + 1} has fewer fields than the header, padded`
+        : `Row ${index + 1} has more fields than the header, extra fields dropped`
+    );
+  });
+  return warnings;
+}
+
+/**
  * The single conversion entry point the UI calls. Pure: string in, a
  * discriminated result out — never throws. Empty input converts to empty
  * output; failures carry the package/parser message verbatim so the pane can
@@ -286,10 +373,14 @@ export function convertText(
         transpose: options.transpose,
         hash: options.hash,
       });
+      const warnings = csvWarnings(input, separatorFor(options.separator));
       return {
         ok: true,
         text: toJsonString(json, { minify: options.minify }),
         ...countShape(json),
+        // Warnings stay data-only here; the output pane renders them as a
+        // non-blocking notice. Omitted entirely on clean input.
+        ...(warnings.length > 0 ? { warnings } : {}),
       };
     }
     // The legacy tool parses the JSON text before handing it to the package

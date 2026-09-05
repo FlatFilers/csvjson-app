@@ -9,6 +9,20 @@ import { PaneShell } from "@/components/PaneShell";
  * invalid input (spec: Invalid input), labeled while it is stale.
  */
 
+/**
+ * Notice copy for malformed-input warnings: the first three warnings, one
+ * per line, then an overflow count. Warnings never block or replace the
+ * result — they ride the pane's quiet notice status (spec: non-blocking).
+ */
+const MAX_WARNINGS = 3;
+
+function formatWarnings(warnings: string[]): string {
+  const shown = warnings.slice(0, MAX_WARNINGS);
+  const overflow = warnings.length - shown.length;
+  const lines = overflow > 0 ? [...shown, `+${overflow} more`] : shown;
+  return lines.join("\n");
+}
+
 type OutputPaneProps = {
   format: "JSON" | "CSV";
   inputEmpty: boolean;
@@ -17,6 +31,8 @@ type OutputPaneProps = {
   meta: string | null;
   /** Validity label for the retained result; null while the input is valid. */
   staleNotice: string | null;
+  /** Malformed-input warnings (spec: silent reinterpretation) — never blocks. */
+  warnings: string[] | null;
   dark: boolean;
   onCopy: () => void;
   onDownload: () => void;
@@ -29,6 +45,7 @@ export function OutputPane({
   error,
   meta,
   staleNotice,
+  warnings,
   dark,
   onCopy,
   onDownload,
@@ -81,7 +98,13 @@ export function OutputPane({
             </button>
           </>
         }
-        status={error ? { kind: "error", message: error } : null}
+        status={
+          error
+            ? { kind: "error", message: error }
+            : warnings && warnings.length > 0
+              ? { kind: "notice", message: formatWarnings(warnings) }
+              : null
+        }
       >
         {inputEmpty ? (
           <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
