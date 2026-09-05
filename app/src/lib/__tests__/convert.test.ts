@@ -535,3 +535,90 @@ describe("malformed-CSV warnings (todo_D8PMLUA1)", () => {
     expect(result.warnings).toBeUndefined();
   });
 });
+
+describe("P2 — scalar arrays under Flatten (art_RfUU1oAy, fixes #80)", () => {
+  it("acceptance — joins a scalar array into one column under Flatten", () => {
+    const csv = jsonToJsonCsv([{ list: ["A", "B", "C"], n: 1 }], {
+      flatten: true,
+    });
+    expect(csv).toBe('"list","n"\n"A, B, C",1');
+  });
+
+  it("accepts the bare-object form of the acceptance input", () => {
+    expect(
+      jsonToJsonCsv({ list: ["A", "B", "C"], n: 1 }, { flatten: true })
+    ).toBe('"list","n"\n"A, B, C",1');
+  });
+
+  it("quotes the joined cell when elements contain commas", () => {
+    const csv = jsonToJsonCsv([{ list: ["A,B", "C"] }], { flatten: true });
+    expect(csv).toBe('"list"\n"A,B, C"');
+    // The quoting must survive a read-back as one cell.
+    expect(csvToJson(csv)).toEqual([{ list: "A,B, C" }]);
+  });
+
+  it("doubles embedded quotes per RFC-4180", () => {
+    const csv = jsonToJsonCsv([{ list: ['Say "hi"', "ok"] }], { flatten: true });
+    expect(csv).toBe('"list"\n"Say ""hi"", ok"');
+  });
+
+  it("joins numbers and booleans; nulls join as empty slots", () => {
+    expect(jsonToJsonCsv([{ nums: [1, 2, 3] }], { flatten: true })).toBe(
+      '"nums"\n"1, 2, 3"'
+    );
+    expect(jsonToJsonCsv([{ flags: [true, false] }], { flatten: true })).toBe(
+      '"flags"\n"true, false"'
+    );
+    expect(jsonToJsonCsv([{ vals: ["A", null, "C"] }], { flatten: true })).toBe(
+      '"vals"\n"A, , C"'
+    );
+  });
+
+  it("joins scalar arrays inside rows that explode into dotted-key rows", () => {
+    expect(
+      jsonToJsonCsv(
+        [
+          { id: 1, tags: ["a", "b"] },
+          { id: 2, tags: ["c"] },
+        ],
+        { flatten: true }
+      )
+    ).toBe('"id","tags"\n1,"a, b"\n2,"c"');
+  });
+
+  it("leaves arrays of objects exploding into rows (semantics unchanged)", () => {
+    const csv = jsonToJsonCsv([{ id: 1, tags: [{ t: "a" }, { t: "b" }] }], {
+      flatten: true,
+    });
+    expect(csv).toBe('"id","tags.t"\n1,"a"\n1,"b"');
+  });
+
+  it("keeps nested objects as lossless JSON cells — no join inside them", () => {
+    expect(
+      jsonToJsonCsv([{ meta: { tags: ["x", "y"] } }], { flatten: true })
+    ).toBe('"meta"\n"{""tags"":[""x"",""y""]}"');
+  });
+
+  it("never advises enabling Flatten when Flatten is on", () => {
+    // After the join, the remaining "item is not an object" cause is an
+    // array still holding plain values — the advice would be wrong here.
+    const mixed = [{ list: ["A", { x: 1 }] }];
+    expect(() => jsonToJsonCsv(mixed, { flatten: true })).toThrow(
+      NonTabularJsonError
+    );
+    expect(() => jsonToJsonCsv(mixed, { flatten: true })).toThrowError(
+      'Flatten is on, but an array still holds plain values where objects are needed — Item in array is not an object: "A"'
+    );
+    // A bare scalar can't be tabulated by any option — still no advice.
+    expect(() => jsonToJsonCsv(42, { flatten: true })).toThrowError(
+      "I need an array of objects to make a table"
+    );
+  });
+
+  it("keeps lossless JSON cells when Flatten is off — no error, no advice", () => {
+    // Without Flatten the package JSON-encodes the array into its cell;
+    // the "try enabling Flatten" advice belongs to top-level scalars only.
+    expect(jsonToJsonCsv([{ list: ["A"] }])).toBe('"list"\n"[""A""]"');
+  });
+});
+
