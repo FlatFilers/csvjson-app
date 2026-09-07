@@ -12,7 +12,7 @@ import { ChangelogButton } from "./ChangelogButton";
  */
 
 const STORAGE_KEY = "csvjson:changelog.v1";
-const NEWEST_ID = 5; // newest bundled entry (entries.test pins the list)
+const NEWEST_ID = 6; // newest bundled entry (entries.test pins the ids)
 
 function installAnalytics() {
   const gtag = vi.fn();
@@ -197,7 +197,7 @@ describe("ChangelogButton — popout interaction (criterion 3)", () => {
     const renderedIds = screen
       .getAllByTestId(/^changelog-entry-\d+$/)
       .map((node) => Number(node.dataset.testid?.replace("changelog-entry-", "")));
-    expect(renderedIds).toEqual([5, 4, 3, 2, 1]);
+    expect(renderedIds).toEqual([6, 5, 4, 3, 2, 1]);
     // Rows render tag chip, relative date, title, summary, and thumb pair.
     expect(screen.getByTestId("changelog-up-5")).toBeInTheDocument();
     expect(screen.getByTestId("changelog-down-5")).toBeInTheDocument();

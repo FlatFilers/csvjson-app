@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 6,
+    date: "2026-09-07",
+    tag: "new",
+    title: "Introducing the changelog",
+    summary:
+      "This changelog keeps you posted on what's new — recent updates appear here with an unseen dot when you come back. Feel free to vote on what you find useful.",
+  },
+  {
     id: 5,
     date: "2026-09-05",
     tag: "improvement",
