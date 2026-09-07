@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronDown, ChevronUp, Copy, Search, X } from "lucide-react";
-import { numericColumns, parseCsvTable } from "@/lib/csvTable";
+import { numericColumns, parseCsvTable, serializeCsvTable } from "@/lib/csvTable";
 import {
   filterRowIndices,
   serializeCsvRow,
@@ -32,6 +32,13 @@ import { cn } from "@/lib/utils";
  * to source rows, so the gutter always shows the source row number and
  * selection (a set of source indices) survives filtering and sorting. Both
  * the input and output tables are this one component.
+ *
+ * Cell editing (spec: PR B) exists only when `onCellCommit` is passed — the
+ * input table wires it to the raw-input handler, the output table stays
+ * strictly read-only (no editor, no editing affordance). A commit
+ * re-serializes the whole grid (lib/csvTable.ts serializeCsvTable) and hands
+ * the text up; the grid never persists state — the commit is exactly a
+ * raw-view keystroke of the serialized text.
  */
 
 const ROW_HEIGHT = 24;
@@ -46,15 +53,25 @@ type CsvTableProps = {
   /** Forced separator (, ; \t |) mirroring the converter's separator option; omitted → auto-detect. */
   delimiter?: string;
   testId?: string;
+  /**
+   * Cell-edit commit (input table only): called with the full grid
+   * re-serialized to CSV text after an inline edit lands. Wiring it to the
+   * raw-input handler routes the edit through the exact raw-view keystroke
+   * path — debounce, guarded re-conversion, everything downstream. Omitted
+   * → strictly read-only table: no editor opens, no editing affordance.
+   */
+  onCellCommit?: (nextText: string) => void;
 };
 
 type SortState = { col: number; dir: SortDir } | null;
+/** The cell the inline editor is open on — source row index + column. */
+type EditingCell = { row: number; col: number };
 
 /** Toolbar button classes — dense chrome matching the header strip. */
 const TOOLBAR_BUTTON =
   "inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
-export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProps) {
+export function CsvTable({ text, delimiter, testId = "csv-table", onCellCommit }: CsvTableProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -62,6 +79,11 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
   const [selected, setSelected] = useState<Set<number>>(() => new Set<number>());
   /** Source index of the last direct selection — the shift-click range anchor. */
   const anchorRef = useRef<number | null>(null);
+  /** Cell the inline editor is open on (input table only — onCellCommit). */
+  const [editing, setEditing] = useState<EditingCell | null>(null);
+  /** Tab/Shift+Tab direction queued for the commit-on-blur (see the editor's keydown). */
+  const advanceRef = useRef<-1 | 1 | null>(null);
+  const editable = onCellCommit !== undefined;
 
   const table = useMemo(() => parseCsvTable(text, delimiter), [text, delimiter]);
   const numeric = useMemo(() => numericColumns(table), [table]);
@@ -106,6 +128,59 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
     overscan: 10,
   });
   const virtualRows = virtualizer.getVirtualItems();
+
+  // Commit an open editor: splice the value into the parsed grid, serialize
+  // the whole grid back to text (RFC 4180), and hand it to onCellCommit —
+  // the same text pipeline a raw-view keystroke uses. An unchanged value
+  // skips the write entirely (Enter on an untouched cell is a no-op) but
+  // still moves to `next`, so Tab glides across cells without churn.
+  const commitEdit = (value: string, next: EditingCell | null) => {
+    if (!editing || !onCellCommit) return;
+    const { row, col } = editing;
+    if (value !== table.rows[row]?.[col]) {
+      const grid = table.rows.map((cells, r) =>
+        r === row ? [...cells.slice(0, col), value, ...cells.slice(col + 1)] : cells
+      );
+      onCellCommit(serializeCsvTable(table.headers, grid, table.delimiter));
+    }
+    setEditing(next);
+  };
+
+  // The adjacent cell in VIEW order — what the user sees. Tab walks columns
+  // then wraps to the next visible row's first cell; Shift+Tab reverses.
+  // Computed from the view snapshot at commit time; the effect below closes
+  // the editor if a post-commit re-filter or re-sort hides the target.
+  const adjacentCell = (cell: EditingCell, dir: -1 | 1): EditingCell | null => {
+    const position = view.indexOf(cell.row);
+    if (position === -1) return null;
+    const nextCol = cell.col + dir;
+    if (nextCol >= 0 && nextCol < columns) return { row: cell.row, col: nextCol };
+    const nextPosition = position + dir;
+    if (nextPosition < 0 || nextPosition >= view.length) return null;
+    return dir === 1
+      ? { row: view[nextPosition], col: 0 }
+      : { row: view[nextPosition], col: columns - 1 };
+  };
+
+  // The editor only exists while its cell is in view: a commit can filter or
+  // sort its row out (text is the source of truth), and a stale editing
+  // state would resurrect the editor on a later view change. Also keeps a
+  // Tab-advanced editor visible on tall grids.
+  useEffect(() => {
+    if (!editing) return;
+    const position = view.indexOf(editing.row);
+    if (position === -1) {
+      setEditing(null);
+      return;
+    }
+    const first = virtualRows[0]?.index;
+    const last = virtualRows[virtualRows.length - 1]?.index;
+    if (first === undefined || position < first || position > last) {
+      virtualizer.scrollToIndex(position, { align: "auto" });
+    }
+    // Runs on editor open/advance, not on scroll-driven virtualRows churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing, view]);
 
   if (columns === 0) {
     return (
@@ -351,38 +426,119 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                       </button>
                     </div>
                     {row.map((cell, c) => {
+                      const isEditing =
+                        editing?.row === sourceIndex && editing.col === c;
                       const parts = cell === "" || !isFiltered ? null : splitHighlight(cell, query);
                       return (
                         <div
                           key={c}
                           role="gridcell"
                           aria-colindex={c + 2}
+                          // Input table only: cells join the tab order and
+                          // open the editor on click or Enter. The output
+                          // table keeps zero editing affordances.
+                          tabIndex={editable ? 0 : undefined}
+                          onClick={
+                            editable
+                              ? () =>
+                                  setEditing((prev) =>
+                                    prev?.row === sourceIndex && prev.col === c
+                                      ? prev
+                                      : { row: sourceIndex, col: c }
+                                  )
+                              : undefined
+                          }
+                          onKeyDown={
+                            editable
+                              ? (event) => {
+                                  if (event.key === "Enter" && !isEditing) {
+                                    event.preventDefault();
+                                    setEditing({ row: sourceIndex, col: c });
+                                  }
+                                }
+                              : undefined
+                          }
                           className={
-                            "truncate px-2" +
-                            (cell === ""
-                              ? // Empty cells keep their em-dash purely visual via
-                                // ::after — copying the table yields empty strings.
-                                " after:content-['—'] after:text-muted-foreground/30"
-                              : numeric[c]
-                                ? " font-mono tabular-nums"
-                                : "")
+                            "truncate" +
+                            (editable ? " cursor-text" : "") +
+                            (isEditing
+                              ? // The editor input owns the box while open —
+                                // no cell padding or em-dash ghost under it.
+                                ""
+                              : " px-2" +
+                                (cell === ""
+                                  ? // Empty cells keep their em-dash purely visual via
+                                    // ::after — copying the table yields empty strings.
+                                    " after:content-['—'] after:text-muted-foreground/30"
+                                  : numeric[c]
+                                    ? " font-mono tabular-nums"
+                                    : ""))
                           }
                           title={cell}
                         >
-                          {parts
-                            ? parts.map((part, s) =>
-                                part.hit ? (
-                                  <mark
-                                    key={s}
-                                    className="rounded-[2px] bg-amber-100 text-foreground dark:bg-amber-400/30 dark:text-amber-100"
-                                  >
-                                    {part.text}
-                                  </mark>
-                                ) : (
-                                  <span key={s}>{part.text}</span>
-                                )
+                          {isEditing ? (
+                            <input
+                              key={`${sourceIndex}-${c}`}
+                              data-testid={`${testId}-cell-editor`}
+                              type="text"
+                              defaultValue={cell}
+                              aria-label={`Edit ${table.headers[c]}, row ${sourceIndex + 1}`}
+                              // Select-all on open — the spreadsheet pattern:
+                              // type replaces, arrows edit in place.
+                              autoFocus
+                              onFocus={(event) => event.currentTarget.select()}
+                              onBlur={(event) => {
+                                // Tab queues its direction before the blur;
+                                // a plain blur (click away, Enter on the
+                                // gutter) commits and closes.
+                                const dir = advanceRef.current;
+                                advanceRef.current = null;
+                                commitEdit(
+                                  event.currentTarget.value,
+                                  dir === null || !editing
+                                    ? null
+                                    : adjacentCell(editing, dir)
+                                );
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  commitEdit(event.currentTarget.value, null);
+                                } else if (event.key === "Escape") {
+                                  event.preventDefault();
+                                  // Cancel discards silently — the input
+                                  // unmounts and the cell renders its raw
+                                  // text again.
+                                  advanceRef.current = null;
+                                  setEditing(null);
+                                } else if (event.key === "Tab") {
+                                  // Commit happens in onBlur (the blur this
+                                  // triggers); only the advance direction is
+                                  // queued here so blur and Tab share one
+                                  // commit path.
+                                  event.preventDefault();
+                                  advanceRef.current = event.shiftKey ? -1 : 1;
+                                  event.currentTarget.blur();
+                                }
+                              }}
+                              className="h-full w-full min-w-0 bg-background px-2 font-mono text-[12px] outline-none ring-2 ring-inset ring-primary/50"
+                            />
+                          ) : parts ? (
+                            parts.map((part, s) =>
+                              part.hit ? (
+                                <mark
+                                  key={s}
+                                  className="rounded-[2px] bg-amber-100 text-foreground dark:bg-amber-400/30 dark:text-amber-100"
+                                >
+                                  {part.text}
+                                </mark>
+                              ) : (
+                                <span key={s}>{part.text}</span>
                               )
-                            : cell}
+                            )
+                          ) : (
+                            cell
+                          )}
                         </div>
                       );
                     })}

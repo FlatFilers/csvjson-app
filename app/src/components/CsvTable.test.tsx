@@ -345,3 +345,163 @@ describe("CsvTable selection and copy", () => {
     expect(document.querySelector('[aria-selected="true"]')).toBeNull();
   });
 });
+
+/* ── Cell editing (spec: CSV table superpowers, PR B — input table only) ─── */
+
+describe("CsvTable cell editing", () => {
+  it("opens an editor pre-filled with the raw cell text on click", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    expect(editor).toHaveValue("De Stijl");
+    expect(editor).toHaveAttribute("aria-label", "Edit album, row 1");
+  });
+
+  it("opens the editor with Enter on a focused cell", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    const cell = screen.getByTitle("Elephant");
+    cell.focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByTestId("csv-table-cell-editor")).toHaveValue("Elephant");
+  });
+
+  it("commits on Enter with the full grid re-serialized", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl II");
+    await user.keyboard("{Enter}");
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(
+      ["album,year", "De Stijl II,2000", "Elephant,2003", "White Blood Cells,2001", "Get Behind Me Satan,2005"].join("\n")
+    );
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+  });
+
+  it("cancels on Escape with no commit and the cell unchanged", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "junk");
+    await user.keyboard("{Escape}");
+    expect(onCellCommit).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+    expect(screen.getByTitle("De Stijl")).toBeInTheDocument();
+  });
+  it("commits on blur when clicking away", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl III");
+    await user.click(screen.getByTestId("csv-table-search"));
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(expect.stringContaining("De Stijl III,2000"));
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+  });
+
+  it("Tab commits and advances to the next cell", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl IV");
+    await user.keyboard("{Tab}");
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(expect.stringContaining("De Stijl IV,2000"));
+    // The editor reopened on the next cell of the same row (raw value).
+    const next = screen.getByTestId("csv-table-cell-editor");
+    expect(next).toHaveValue("2000");
+    expect(next).toHaveAttribute("aria-label", "Edit year, row 1");
+  });
+
+  it("Shift+Tab moves back to the previous cell without a write", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("2000")); // row 1, col year
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
+    expect(onCellCommit).not.toHaveBeenCalled(); // unchanged value skips the write
+    expect(screen.getByTestId("csv-table-cell-editor")).toHaveValue("De Stijl");
+  });
+
+  it("Tab on the last cell closes the editor", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("2005")); // last row, last column
+    await user.keyboard("{Tab}");
+    expect(onCellCommit).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+  });
+
+  it("wraps Tab from the last column to the next view row's first cell", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    await user.click(screen.getByTitle("2000")); // row 1, col year
+    await user.keyboard("{Tab}");
+    expect(screen.getByTestId("csv-table-cell-editor")).toHaveValue("Elephant");
+  });
+
+  it("serializes a committed cell containing the delimiter or quotes", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, 'Stijl, "v2"');
+    await user.keyboard("{Enter}");
+    expect(onCellCommit).toHaveBeenCalledWith(
+      expect.stringContaining('"Stijl, ""v2""",2000')
+    );
+  });
+
+  it("committing by clicking another cell opens the new cell's editor", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    await user.type(screen.getByTestId("csv-table-cell-editor"), " IX");
+    await user.click(screen.getByTitle("Elephant"));
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(expect.stringContaining("De Stijl IX,2000"));
+    expect(screen.getByTestId("csv-table-cell-editor")).toHaveValue("Elephant");
+  });
+
+  it("keeps editing usable while filtered, keyed to the source row", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    await user.type(screen.getByTestId("csv-table-search"), "2003");
+    await waitFor(() =>
+      expect(screen.getByTestId("csv-table-count")).toHaveTextContent("1 of 4")
+    );
+    await user.click(screen.getByTitle("Elephant"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    expect(editor).toHaveValue("Elephant");
+    expect(editor).toHaveAttribute("aria-label", "Edit album, row 2"); // source row, not view position
+  });
+
+  it("gives the output table zero editing affordances", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} testId="output-table" />);
+    await user.click(screen.getByTitle("De Stijl"));
+    expect(screen.queryByTestId("output-table-cell-editor")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+    const cell = screen.getByTitle("De Stijl");
+    expect(cell).not.toHaveAttribute("tabindex");
+    expect(cell.className).not.toContain("cursor-text");
+  });
+});
