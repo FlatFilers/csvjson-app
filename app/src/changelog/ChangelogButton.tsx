@@ -31,6 +31,8 @@ interface ChangelogState {
   lastSeenId: number | null;
   votes: Record<number, 1 | -1>;
   clientId?: string;
+  /** Entry ids whose POST has not succeeded yet — retried until it does. */
+  pendingIds?: number[];
 }
 
 type Vote = 1 | -1;
@@ -40,18 +42,45 @@ const NEWEST_ENTRY_ID = Math.max(...changelogEntries.map((entry) => entry.id), 0
 
 function isChangelogState(value: unknown): value is ChangelogState {
   if (typeof value !== "object" || value === null) return false;
-  const record = value as { lastSeenId?: unknown; votes?: unknown; clientId?: unknown };
+  const record = value as {
+    lastSeenId?: unknown;
+    votes?: unknown;
+    clientId?: unknown;
+    pendingIds?: unknown;
+  };
   if (record.lastSeenId !== null && typeof record.lastSeenId !== "number") return false;
   if (typeof record.votes !== "object" || record.votes === null) return false;
   for (const [key, vote] of Object.entries(record.votes)) {
     if (!/^\d+$/.test(key) || (vote !== 1 && vote !== -1)) return false;
   }
   if (record.clientId !== undefined && !isClientIdShape(record.clientId)) return false;
+  if (
+    record.pendingIds !== undefined &&
+    (!Array.isArray(record.pendingIds) ||
+      record.pendingIds.some((id) => typeof id !== "number" || !Number.isInteger(id) || id < 1))
+  ) {
+    return false;
+  }
   return true;
 }
 
 function isClientIdShape(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-fA-F-]{8,64}$/.test(value);
+}
+
+/** Deduped, sorted, bundled-range pending ids — junk ids can never be retried. */
+function normalizePending(ids: number[] | undefined): number[] {
+  if (ids === undefined) return [];
+  return [...new Set(ids)].filter((id) => id >= 1 && id <= NEWEST_ENTRY_ID).sort((a, b) => a - b);
+}
+
+/** Add or remove one entry's pending mark next to the state it belongs to. */
+function withPending(state: ChangelogState, entryId: number, pending: boolean): ChangelogState {
+  const current = normalizePending(state.pendingIds);
+  const pendingIds = pending
+    ? [...new Set([...current, entryId])].sort((a, b) => a - b)
+    : current.filter((id) => id !== entryId);
+  return { ...state, pendingIds };
 }
 
 /** Corrupted or blocked storage behaves as a first visit — never throws. */
@@ -60,7 +89,8 @@ function readStored(): ChangelogState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw === null) return { lastSeenId: null, votes: {} };
     const value: unknown = JSON.parse(raw);
-    return isChangelogState(value) ? value : { lastSeenId: null, votes: {} };
+    if (!isChangelogState(value)) return { lastSeenId: null, votes: {} };
+    return { ...value, pendingIds: normalizePending(value.pendingIds) };
   } catch {
     // Prerender (no window), private mode, corrupted JSON — the dot is lost
     // and votes are non-persistent, never a broken page.
@@ -184,16 +214,24 @@ function EntryRow({
 export function ChangelogButton() {
   const [stored, setStored] = useState<ChangelogState>(readStored);
   const [open, setOpen] = useState(false);
-  // Entries whose last POST failed — retried on the next interaction with
-  // the widget. In-memory on purpose: the stored shape (lastSeenId + votes)
-  // is the contract, and re-POSTing every stored vote on mount would burn
-  // the shared 10-writes-per-24h rate budget for votes the server already
-  // has. A reload while queued keeps the pressed thumb (the vote is in
-  // storage) and re-queues on the next interaction.
-  const [queued, setQueued] = useState<ReadonlySet<number>>(() => new Set<number>());
-  // Entries with a click-initiated POST in flight — suppresses the queued
-  // note for that window so a healthy submit never flashes failure copy.
+  // Entries whose last POST failed persist as pendingIds in the stored shape
+  // (FeedbackVote's pending-flag discipline, per entry): the queue re-seeds
+  // from storage on remount, so a reload while queued keeps the pressed
+  // thumb AND the queued note, and the mount effect re-submits without user
+  // action. Confirmed votes never re-POST — pending marks clear the moment
+  // a POST resolves ok, so only genuinely unsent votes ride the budget.
+  // Persisting alongside the vote keeps storage and render one-write apart.
+  const storedRef = useRef(stored);
+  const applyStored = useCallback((next: ChangelogState) => {
+    writeStored(next);
+    storedRef.current = next;
+    setStored(next);
+  }, []);
+  // Entries with a POST in flight — click flights mirror into state (the
+  // queued note hides while a click's POST runs), and every flight lands in
+  // the ref so retryQueued never double-POSTs an unsettled entry.
   const [inFlight, setInFlight] = useState<ReadonlySet<number>>(() => new Set<number>());
+  const inFlightRef = useRef(new Set<number>());
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   // Monotonic token per entry: a response that settles after a newer submit
@@ -219,45 +257,44 @@ export function ChangelogButton() {
     (entryId: number, vote: Vote, clientId: string, fromClick: boolean) => {
       const flight = (flightRef.current.get(entryId) ?? 0) + 1;
       flightRef.current.set(entryId, flight);
-      // This POST is now the entry's newest intent — drop any queued mark.
-      setQueued((prev) => {
-        if (!prev.has(entryId)) return prev;
-        const next = new Set(prev);
-        next.delete(entryId);
-        return next;
-      });
+      inFlightRef.current.add(entryId);
       if (fromClick) setInFlightFor(entryId, true);
       void postEntryVote(clientId, entryId, vote).then((outcome) => {
         if (flightRef.current.get(entryId) !== flight) return; // superseded
+        inFlightRef.current.delete(entryId);
         if (outcome === "ok") {
           trackChangelogVote({ entry_id: entryId, vote });
-        } else {
-          setQueued((prev) => new Set(prev).add(entryId));
+          // The pending mark lives only until a POST succeeds — confirmed
+          // votes never re-enter the retry queue or the write budget.
+          applyStored(withPending(storedRef.current, entryId, false));
         }
         if (fromClick) setInFlightFor(entryId, false);
       });
     },
-    [setInFlightFor],
+    [applyStored, setInFlightFor],
   );
 
   /**
-   * Retry every queued vote against its current standing vote. skipEntryId
+   * Retry every pending vote against its current standing vote. skipEntryId
    * excludes an entry whose fresh POST just superseded its queued intent —
-   * the closure's queued set predates that submit.
+   * the closure's pending list predates that submit.
    */
   const retryQueued = useCallback(
     (skipEntryId?: number) => {
-      if (queued.size === 0) return;
+      const { clientId, pendingIds, votes } = storedRef.current;
+      const pending = pendingIds ?? [];
+      if (pending.length === 0) return;
       // handleVote settles the vote identity before any POST, so retries
       // reuse it; without one there is nothing honest to send.
-      if (stored.clientId === undefined) return;
-      for (const entryId of queued) {
-        if (entryId === skipEntryId) continue;
-        const vote = stored.votes[entryId];
-        if (vote !== undefined) submitVote(entryId, vote, stored.clientId, false);
+      if (clientId === undefined) return;
+      for (const entryId of pending) {
+        // An unsettled POST is already that entry's newest intent.
+        if (entryId === skipEntryId || inFlightRef.current.has(entryId)) continue;
+        const vote = votes[entryId];
+        if (vote !== undefined) submitVote(entryId, vote, clientId, false);
       }
     },
-    [queued, stored, submitVote],
+    [submitVote],
   );
 
   const handleVote = (entryId: number, vote: Vote) => {
@@ -268,15 +305,15 @@ export function ChangelogButton() {
       return;
     }
     // Optimistic: settle the vote identity (first vote mints it), render the
-    // pressed thumb, persist, then POST.
+    // pressed thumb, persist vote + pending mark together, then POST.
     const clientId = stored.clientId ?? newClientId();
-    const next: ChangelogState = {
-      ...stored,
-      votes: { ...stored.votes, [entryId]: vote },
-      clientId,
-    };
-    writeStored(next);
-    setStored(next);
+    applyStored(
+      withPending(
+        { ...stored, votes: { ...stored.votes, [entryId]: vote }, clientId },
+        entryId,
+        true,
+      ),
+    );
     submitVote(entryId, vote, clientId, true);
     // Other queued votes ride along; this entry's fresh POST supersedes any
     // queued intent of its own.
@@ -288,9 +325,7 @@ export function ChangelogButton() {
     trackChangelogOpen();
     // Opening is the read receipt: the dot clears even if nothing changed.
     if (stored.lastSeenId !== NEWEST_ENTRY_ID) {
-      const next: ChangelogState = { ...stored, lastSeenId: NEWEST_ENTRY_ID };
-      writeStored(next);
-      setStored(next);
+      applyStored({ ...stored, lastSeenId: NEWEST_ENTRY_ID });
     }
     retryQueued();
   };
@@ -402,7 +437,7 @@ export function ChangelogButton() {
                 key={entry.id}
                 entry={entry}
                 vote={stored.votes[entry.id]}
-                queued={queued.has(entry.id)}
+                queued={stored.pendingIds?.includes(entry.id) ?? false}
                 inFlight={inFlight.has(entry.id)}
                 onVote={handleVote}
               />

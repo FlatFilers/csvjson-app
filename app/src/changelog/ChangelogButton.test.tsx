@@ -43,6 +43,7 @@ function storedState(): {
   lastSeenId?: number | null;
   votes?: Record<string, number>;
   clientId?: string;
+  pendingIds?: number[];
 } {
   const raw = window.localStorage.getItem(STORAGE_KEY);
   return raw === null ? {} : (JSON.parse(raw) as Record<string, never>);
@@ -376,6 +377,55 @@ describe("ChangelogButton — votes (criterion 4)", () => {
 
     await waitFor(() => expect(screen.getByTestId(`changelog-queued-${NEWEST_ID}`)).toBeInTheDocument());
     expect(screen.getByTestId(`changelog-up-${NEWEST_ID}`)).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("a failed vote survives a reload — the queue re-seeds from storage and re-submits without user action", async () => {
+    const { gtag } = installAnalytics();
+    let attempts = 0;
+    let releaseRetry: ((response: Response) => void) | undefined;
+    const fetchMock = vi.fn(() => {
+      attempts += 1;
+      if (attempts === 1) {
+        // First POST (entry 5) fails; the post-reload retry hangs until released.
+        return Promise.resolve({ ok: false, status: 503 } as Response);
+      }
+      return new Promise<Response>((resolve) => {
+        releaseRetry = resolve;
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    const { unmount } = render(<ChangelogButton />);
+
+    await openPopout(user);
+    await user.click(screen.getByTestId(`changelog-up-${NEWEST_ID}`));
+    await waitFor(() => expect(screen.getByTestId(`changelog-queued-${NEWEST_ID}`)).toBeInTheDocument());
+    // The pending mark is persisted next to the vote it belongs to.
+    expect(storedState().pendingIds).toEqual([NEWEST_ID]);
+
+    // Reload: full unmount/remount over the same localStorage — the memory
+    // queue is gone, so everything that comes back must come from storage.
+    unmount();
+    render(<ChangelogButton />);
+
+    // The mount effect re-submits the standing vote without user action…
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(sentPayload(fetchMock, 1)).toMatchObject({ entryId: NEWEST_ID, vote: 1 });
+    // …exactly once, even while it is still unresolved.
+    await openPopout(user);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // With the retry unsettled, the queued note re-renders from the
+    // persisted mark — not from any in-memory queue.
+    expect(screen.getByTestId(`changelog-queued-${NEWEST_ID}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`changelog-up-${NEWEST_ID}`)).toHaveAttribute("aria-pressed", "true");
+
+    // Success retires the pending mark and the note.
+    releaseRetry?.(okResponse());
+    await waitFor(() =>
+      expect(screen.queryByTestId(`changelog-queued-${NEWEST_ID}`)).not.toBeInTheDocument(),
+    );
+    expect(storedState().pendingIds).toEqual([]);
+    expect(voteEvents(gtag)).toHaveLength(1);
   });
 
   it("retries the queued vote on the next interaction without blocking the page", async () => {
