@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 7,
+    date: "2026-09-07",
+    tag: "fix",
+    title: "No more layout flash on load",
+    summary:
+      "The converter now renders side-by-side immediately on desktop, instead of stacking the panes and snapping into columns as the page loads.",
+  },
+  {
     id: 6,
     date: "2026-09-07",
     tag: "new",

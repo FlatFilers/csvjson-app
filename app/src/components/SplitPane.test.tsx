@@ -3,13 +3,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { SPLIT_MAX, SPLIT_MIN, SPLIT_RESET, clampSplit } from "@/lib/split";
-import { SplitPane } from "./SplitPane";
+import { SplitPane, type SplitLayout } from "./SplitPane";
 
-function Harness() {
+function Harness({ layout = "side-by-side" }: { layout?: SplitLayout }) {
   const [split, setSplit] = useState(50);
   return (
     <SplitPane
-      layout="side-by-side"
+      layout={layout}
       split={split}
       onSplitChange={setSplit}
       left={null}
@@ -139,6 +139,89 @@ describe("SplitPane seam dragging", () => {
 
     await user.keyboard("{Enter}");
     expect(splitValue()).toBe(SPLIT_RESET);
+  });
+});
+
+describe("SplitPane CSS-first orientation", () => {
+  function container() {
+    return screen.getByTestId("seam").parentElement as HTMLElement;
+  }
+  function classList(el: Element): string[] {
+    return el.className.split(/\s+/);
+  }
+
+  it("renders identical direction classes for both layouts", () => {
+    // Orientation must not be a JS decision: the same classes ship in the
+    // prerendered HTML and paint correctly in either viewport before React
+    // mounts (fix for the stacked→columns first-paint flash on desktop).
+    for (const layout of ["stacked", "side-by-side"] as const) {
+      const { unmount } = render(<Harness layout={layout} />);
+      const classes = classList(container());
+      expect(classes).toContain("flex-col");
+      expect(classes).toContain("md:flex-row");
+      expect(classes).not.toContain("flex-row");
+      unmount();
+    }
+  });
+
+  it("sizes panes via responsive var classes in both layouts", () => {
+    for (const layout of ["stacked", "side-by-side"] as const) {
+      const { unmount } = render(<Harness layout={layout} />);
+      const classes = classList(screen.getByTestId("pane-left"));
+      expect(classes).toContain("h-[var(--split)]");
+      expect(classes).toContain("md:h-auto");
+      expect(classes).toContain("md:w-[var(--split)]");
+      expect(classes).toContain("border-b");
+      expect(classes).toContain("md:border-b-0");
+      expect(classes).toContain("md:border-r");
+      unmount();
+    }
+  });
+
+  it("exposes the split position as a --split custom property on panes and seam", () => {
+    render(<Harness />);
+    for (const el of [screen.getByTestId("pane-left"), screen.getByTestId("seam")]) {
+      expect((el as HTMLElement).style.getPropertyValue("--split")).toBe("50%");
+    }
+  });
+
+  it("keeps orientation-ternary inline geometry out of the markup", () => {
+    // Inline width/height/top/left styles baked one orientation into the
+    // prerendered HTML; only the orientation-neutral --split var and
+    // touch-action may stay inline.
+    render(<Harness />);
+    const pane = screen.getByTestId("pane-left") as HTMLElement;
+    const seam = screen.getByTestId("seam") as HTMLElement;
+    expect(pane.style.height).toBe("");
+    expect(pane.style.width).toBe("");
+    expect(seam.style.top).toBe("");
+    expect(seam.style.left).toBe("");
+    expect(seam.style.touchAction).toBe("none");
+  });
+
+  it("keeps cursor and aria-orientation following the layout prop", () => {
+    // aria-orientation is not a first-paint visual concern — JS-driven is fine.
+    const stacked = render(<Harness layout="stacked" />);
+    expect(screen.getByTestId("seam").getAttribute("aria-orientation")).toBe("horizontal");
+    expect(classList(screen.getByTestId("seam"))).toContain("cursor-row-resize");
+    stacked.unmount();
+
+    render(<Harness layout="side-by-side" />);
+    // Re-query: the second mount renders fresh DOM nodes.
+    expect(screen.getByTestId("seam").getAttribute("aria-orientation")).toBe("vertical");
+    expect(classList(screen.getByTestId("seam"))).toContain("md:cursor-col-resize");
+  });
+
+  it("drag updates the --split custom property the CSS consumes", async () => {
+    render(<Harness />);
+    stubContainerWidth();
+    const seam = screen.getByTestId("seam");
+
+    await dragSeamTo(seam, 350);
+    expect(
+      (screen.getByTestId("pane-left") as HTMLElement).style
+        .getPropertyValue("--split")
+    ).toBe("35%");
   });
 });
 

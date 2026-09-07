@@ -124,6 +124,9 @@ export default function App() {
   }
   const tracker = trackerRef.current;
 
+  // Responsive orientation is CSS-first in SplitPane (flex-col md:flex-row);
+  // this query feeds only drag math and aria-orientation. Keep the 768px
+  // breakpoint in sync with the md: variants in SplitPane.tsx.
   const desktop = useMediaQuery("(min-width: 768px)");
   const layout: SplitLayout = desktop ? "side-by-side" : "stacked";
 
