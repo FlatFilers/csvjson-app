@@ -84,6 +84,8 @@ jobs:
           php -l feedback-db.php
           php -l feedback-api.php
           php -l feedback-admin.php
+          php -l changelog-db.php
+          php -l changelog-vote-api.php
 
 
       # Spec criterion 8, amended 2026-09-01 (David): analytics are restored
@@ -94,7 +96,7 @@ jobs:
       # anywhere in the shipped frontend or the PHP shim. Fail on any hit.
       - name: No promotional or telemetry remnants
         run: |
-          targets=(index.php .htaccess sitemap.xml robots.txt feedback-db.php feedback-api.php feedback-admin.php app/index.html app/src)
+          targets=(index.php .htaccess sitemap.xml robots.txt feedback-db.php feedback-api.php feedback-admin.php changelog-db.php changelog-vote-api.php app/index.html app/src)
           # Same zero-tolerance rule for surviving webroot image assets:
           # promotional filenames must not ship, even unreferenced.
           if find img -type f 2>/dev/null | grep -iE 'flatfile|obvious|_ad|sponsor'; then
@@ -126,13 +128,15 @@ jobs:
       # resolving — read-only): no write verbs may ever appear in the SPA.
       - name: No write API usage in the SPA
         run: |
-          # The feedback vote widget's fetch is the one sanctioned write (it
-          # POSTs /api/feedback): strip the lines carrying that endpoint, then
-          # re-grep — same carve-out discipline as the sanctioned banner URL.
+          # The feedback vote widget's and the changelog widget's fetches are
+          # the two sanctioned writes (they POST /api/feedback and
+          # /api/changelog-vote): strip the lines carrying those endpoints,
+          # then re-grep — same carve-out discipline as the sanctioned
+          # banner URL.
           if grep -rniE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']' app/src \
-              | sed '/\/api\/feedback/d' \
+              | sed -e '/\/api\/feedback/d' -e '/\/api\/changelog-vote/d' \
               | grep -iE 'putObject|deleteObject|copyObject|method:\s*["'"'"'](POST|PUT|PATCH|DELETE)["'"'"']'; then
-            echo "::error::Write API usage found in app/src — the SPA must be read-only (/api/feedback is the one sanctioned write)"
+            echo "::error::Write API usage found in app/src — the SPA must be read-only (/api/feedback and /api/changelog-vote are the sanctioned writes)"
             exit 1
           fi
 
@@ -148,3 +152,15 @@ jobs:
           FEEDBACK_SALT: ci-smoke-salt-not-a-secret
           ADMIN_TOKEN: ci-smoke-admin-token-not-a-secret
         run: bash scripts/smoke-feedback.sh
+
+      # The changelog-vote endpoint gets the same treatment: success paths
+      # asserted in the database itself, every 4xx class, the rate limit,
+      # the 503 no-database path, and the admin readout. It provisions its
+      # own disposable changelog_smoke database — the shared per-IP write
+      # log is per-database, so the two smokes must not share one.
+      - name: Changelog endpoint smoke test (Postgres)
+        env:
+          DATABASE_URL: postgresql://postgres:smoke@127.0.0.1:5432/feedback_smoke
+          FEEDBACK_SALT: ci-smoke-salt-not-a-secret
+          ADMIN_TOKEN: ci-smoke-admin-token-not-a-secret
+        run: bash scripts/smoke-changelog.sh

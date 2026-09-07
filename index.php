@@ -9,8 +9,10 @@ declare(strict_types=1);
  * The legacy CodeIgniter app is gone: no server-side conversion, no
  * upload endpoint, no save endpoint, no telemetry, no ad views. Legacy
  * Legacy permalink data is read directly from S3 by the browser; nothing
- * conversion-related is stored server-side. The one sanctioned write path
- * is the feedback vote endpoint (/api/feedback, see feedback-api.php).
+ * conversion-related is stored server-side. The two sanctioned write paths
+ * are the vote endpoints: /api/feedback (feedback-api.php) and
+ * /api/changelog-vote (changelog-vote-api.php) — both rate-limited through
+ * the shared feedback_write_log table.
  *
  * On Apache, real files (img/, favicon.ico) are served before PHP runs and
  * everything else is rewritten here (.htaccess). Under `php -S` this same
@@ -180,6 +182,11 @@ if (PHP_SAPI === 'cli-server' && $path !== '/' && is_file(__DIR__ . $path)) {
 // exercises the real code path either way.
 if ($path === '/api/feedback') {
     require __DIR__ . '/feedback-api.php';
+    exit; // The endpoint always answers for itself; never fall through to the 404.
+}
+
+if ($path === '/api/changelog-vote') {
+    require __DIR__ . '/changelog-vote-api.php';
     exit; // The endpoint always answers for itself; never fall through to the 404.
 }
 

@@ -27,7 +27,10 @@ export function TopBar({ theme, onToggleTheme, slot }: TopBarProps) {
   return (
     <header
       data-testid="topbar"
-      className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-border bg-panel px-5"
+      // Positioning context for small-screen popouts: the slot widgets go
+      // static on mobile, so their panels anchor to this header and can
+      // span the viewport instead of overflowing off their button.
+      className="relative flex h-14 flex-shrink-0 items-center gap-3 border-b border-border bg-panel px-5"
     >
       <div className="flex items-baseline gap-2">
         <span className="text-[15px] font-semibold tracking-tight text-foreground whitespace-nowrap">

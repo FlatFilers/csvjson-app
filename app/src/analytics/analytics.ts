@@ -56,3 +56,29 @@ export function trackPermalinkView(): void {
   window.gtag?.("event", "permalink_view");
   window.plausible?.("Permalink View");
 }
+
+/**
+ * The changelog popout was opened (spec: CSVJSON changelog widget,
+ * art_YzASNds2). An engagement fact, not a pageview — never a second one.
+ */
+export function trackChangelogOpen(): void {
+  window.gtag?.("event", "changelog_open");
+  window.plausible?.("Changelog Open");
+}
+
+export interface ChangelogVoteProps {
+  /** The voted entry id. */
+  entry_id: number;
+  /** Recorded vote: 1 = up, -1 = down. */
+  vote: 1 | -1;
+}
+
+/**
+ * One changelog vote the server confirmed — success-only, so a queued or
+ * failing POST never counts as engagement (the vote re-fires when its retry
+ * eventually lands).
+ */
+export function trackChangelogVote(props: ChangelogVoteProps): void {
+  window.gtag?.("event", "changelog_vote", { ...props });
+  window.plausible?.("Changelog Vote", { props: { ...props } });
+}
