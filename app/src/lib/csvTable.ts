@@ -135,6 +135,33 @@ export function parseCsvTable(raw: string, forcedDelimiter?: string): CsvTableDa
 }
 
 /**
+ * Serialize a parsed grid back to CSV text — the cell-edit commit's write
+ * path (spec: CSV table superpowers, PR B). RFC 4180: any cell containing a
+ * quote, the delimiter, CR or LF is wrapped in quotes with inner quotes
+ * doubled; everything else passes through. No trailing newline is added, so
+ * parse(serialize(parse(text))) yields the same grid and re-serializes to
+ * the same text — the round-trip is stable. Total: any string arrays in, a
+ * string out; it cannot fail by construction.
+ *
+ * The optional delimiter (default ",") serializes back with the table's own
+ * detected or forced separator, so editing a cell in a TSV never rewrites
+ * the file as comma-CSV. When the delimiter is not comma, cells containing
+ * that delimiter are quoted too — the grid must re-parse identically.
+ */
+export function serializeCsvTable(headers: string[], rows: string[][], delimiter = ","): string {
+  const escape = (cell: string): string => {
+    if (cell.includes('"')) return `"${cell.replaceAll('"', '""')}"`;
+    if (cell.includes(delimiter) || cell.includes("\n") || cell.includes("\r")) {
+      return `"${cell}"`;
+    }
+    return cell;
+  };
+  return [headers, ...rows]
+    .map((record) => record.map(escape).join(delimiter))
+    .join("\n");
+}
+
+/**
  * Columns whose non-empty cells all parse as numbers (and at least one is)
  * render monospace with tabular figures — the spec's "monospace numerics".
  */
