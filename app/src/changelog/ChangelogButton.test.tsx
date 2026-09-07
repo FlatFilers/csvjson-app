@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChangelogButton } from "./ChangelogButton";
+import { changelogEntries, newestFirst } from "./entries";
 
 /**
  * Behaviour tests for the header changelog widget (spec: CSVJSON changelog
@@ -12,7 +13,9 @@ import { ChangelogButton } from "./ChangelogButton";
  */
 
 const STORAGE_KEY = "csvjson:changelog.v1";
-const NEWEST_ID = 5; // newest bundled entry (entries.test pins the list)
+// Derived from the bundle so adding an entry never means bumping these tests.
+const NEWEST_ID = Math.max(...changelogEntries.map((entry) => entry.id));
+const RENDERED_IDS = newestFirst(changelogEntries).map((entry) => entry.id);
 
 function installAnalytics() {
   const gtag = vi.fn();
@@ -197,7 +200,7 @@ describe("ChangelogButton — popout interaction (criterion 3)", () => {
     const renderedIds = screen
       .getAllByTestId(/^changelog-entry-\d+$/)
       .map((node) => Number(node.dataset.testid?.replace("changelog-entry-", "")));
-    expect(renderedIds).toEqual([5, 4, 3, 2, 1]);
+    expect(renderedIds).toEqual(RENDERED_IDS);
     // Rows render tag chip, relative date, title, summary, and thumb pair.
     expect(screen.getByTestId("changelog-up-5")).toBeInTheDocument();
     expect(screen.getByTestId("changelog-down-5")).toBeInTheDocument();

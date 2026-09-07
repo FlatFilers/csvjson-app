@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { History, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { trackChangelogOpen, trackChangelogVote } from "@/analytics/analytics";
-import { changelogEntries, type ChangelogEntry } from "./entries";
+import { changelogEntries, newestFirst, type ChangelogEntry } from "./entries";
 import { relativeDate } from "./relativeDate";
 
 const STORAGE_KEY = "csvjson:changelog.v1";
@@ -37,8 +37,11 @@ interface ChangelogState {
 
 type Vote = 1 | -1;
 
-/** Newest id in the bundled set (entries are newest first; max() guards order). */
+/** Newest id in the bundled set (ids drive ordering; max() guards authoring order). */
 const NEWEST_ENTRY_ID = Math.max(...changelogEntries.map((entry) => entry.id), 0);
+
+/** Rendered list: newest id first, regardless of authoring order in the bundle. */
+const RENDERED_ENTRIES = newestFirst(changelogEntries);
 
 function isChangelogState(value: unknown): value is ChangelogState {
   if (typeof value !== "object" || value === null) return false;
@@ -432,7 +435,7 @@ export function ChangelogButton() {
             </button>
           </div>
           <div className="max-h-96 divide-y divide-border overflow-y-auto">
-            {changelogEntries.map((entry) => (
+            {RENDERED_ENTRIES.map((entry) => (
               <EntryRow
                 key={entry.id}
                 entry={entry}
