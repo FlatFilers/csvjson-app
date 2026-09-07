@@ -1,68 +1,53 @@
 # CSVJSON — FlatFilers/csvjson-app
 
-Source for www.csvjson.com: browser-based data conversion tools (CSV↔JSON, SQL→JSON, JSON validate/beautify, CSVJSON to JSON, Data Janitor). All conversions run client-side in JavaScript; PHP serves pages, telemetry, and permalink storage.
+Source for www.csvjson.com: a minimal React SPA for in-browser data conversion (CSV↔JSON, SQL→JSON, validate/beautify, CSVJSON to JSON) served by a thin PHP front controller on Heroku. All conversions run client-side; the PHP shim serves the SPA, handles redirects/legacy permalinks, and exposes exactly two sanctioned write APIs (feedback votes, changelog votes) backed by PostgreSQL.
 
 ## Stack
 
-- **Language:** PHP 8.4 (CodeIgniter 2.1.4 framework code written for PHP 5.x — see Gotchas)
-- **Framework:** CodeIgniter 2.1.4 (`system/`, unmodified), app code in `application/`
-- **Frontend:** jQuery 2, Bootstrap 3, Underscore/Backbone/Backgrid; conversion libraries in `js/csvjson/`, UI drivers in `js/src/`
-- **Database:** MariaDB 11.8 — used only by telemetry endpoint `POST /csv2json/instrument` (database `csvjson`, table `csv`). No migrations exist.
-- **Optional external service:** AWS S3 for saved-permalink storage (env vars `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `S3_BUCKET`). Without them the app stores permalinks in the local `data/` directory. Not required for local dev; S3 mode is broken on PHP 8 (see Gotchas).
-- **Package manager:** none. No composer.json/package.json; all dependencies are vendored in the repo.
+- **Frontend:** React 19 + Vite + TypeScript + Tailwind 4 (app/). CodeMirror for the editable JSON surface, lucide-react for icons, @tanstack/react-virtual for large tables. Dependencies are pinned; dependency behavior changes land as postinstall patches (`app/scripts/patch-*.mjs`), never as forkes.
+- **PHP shim:** plain PHP 8.4 files at the repo root — `index.php` (front controller: SPA serving, 301 redirect map, legacy permalink hydration, route registration), `feedback-db.php` / `feedback-api.php` / `feedback-admin.php`, `changelog-db.php` / `changelog-vote-api.php`. No framework, no composer.
+- **Database:** PostgreSQL via `DATABASE_URL` (Heroku/Neon `postgres://` URL parsed to a libpq DSN). Tables self-create on first use (`feedback_ensure_schema`, `changelog_ensure_schema`, `feedback_ensure_write_log`) — there are no migrations. Locally anything runs without a database; the write endpoints answer 503.
+- **Build artifacts:** `app/dist` is committed. CI hash-guards it against a fresh `npm run build` — always rebuild and commit `app/dist` when `app/` changes.
 
 ## Commands
 
 | Task | Command |
 |---|---|
-| Start MariaDB | `sudo service mariadb start` |
-| Start dev server | `nohup php -S 127.0.0.1:8080 router.php > /tmp/php-server.log 2>&1 &` |
-| App URL | http://127.0.0.1:8080/ |
-| PHP syntax check | `find application -name '*.php' -exec php -l {} \;` |
-| Production bundle | Visit `/build` in a browser (minifies + concatenates js/css; built assets are committed to git) |
-| Tests / lint | None in repo — no test suite, no linter config |
+| Install | `cd app && npm ci` (postinstall patches the conversion deps) |
+| Dev server | `cd app && npm run dev` |
+| Lint | `cd app && npm run lint` |
+| Typecheck | `cd app && npx tsc -b --noEmit` |
+| Tests (346 as of the changelog PR) | `cd app && npm test` |
+| Production build (incl. prerender) | `cd app && npm run build` |
+| PHP syntax check | `php -l index.php feedback-db.php feedback-api.php feedback-admin.php changelog-db.php changelog-vote-api.php` |
+| API smoke tests | `FEEDBACK_SALT=… ADMIN_TOKEN=… DATABASE_URL=postgres://…/disposable_db bash scripts/smoke-feedback.sh` (same pattern for `scripts/smoke-changelog.sh`) |
+| SEO verification | `bash .github/scripts/verify-seo.sh` (after a build) |
+| Shim verification | `bash .github/scripts/verify-shim.sh` |
 
-Tool pages: `/csv2json`, `/json2csv`, `/sql2json`, `/json_validator`, `/json_beautifier`, `/csvjson2json`, `/datajanitor`. Home: `/`.
+The smoke tests need PHP 8.4 with pdo_pgsql, a reachable Postgres, and a **disposable** database each — the per-IP rate limit makes their write-count asserts one-shot, and each script provisions its own tables. `smoke-changelog.sh` creates its own `changelog_smoke` database from `DATABASE_URL`'s server; `smoke-feedback.sh` expects the database at `DATABASE_URL` to exist.
 
-## Local dev environment (sandbox)
+## Architecture rules
 
-The sandbox ships with PHP 8.4 + extensions, MariaDB (db `csvjson`, user `csvjson`/`csvjson`), chromium, and these repo-local files. They are untracked or gitignored — never commit them:
+- **Exactly two sanctioned writes:** `POST /api/feedback` and `POST /api/changelog-vote`. Everything else in the SPA is read-only; CI fails on any other `method: POST/PUT/PATCH/DELETE` or S3 write call (the two endpoints are carved out by line-level `sed` in `.github/workflows/ci.yml`). Vote totals are private: admin-only readout, no GET endpoint.
+- **Shared rate-limit table:** both vote endpoints log writes to `feedback_write_log` and enforce the same per-IP/24h and global/hour caps. Rejected or over-limit attempts roll back and leave no trace. `feedback_ensure_write_log()` exists separately so a fresh database never depends on one endpoint running before the other.
+- **Client identity:** vote clients send a persisted UUID (`csvjson:feedback.v1` / `csvjson:changelog.v1` localStorage, type-guarded and try-caught — storage failure degrades to no dot / non-persistent votes, never a broken page). IPs are stored only as a truncated HMAC-SHA256 keyed by `FEEDBACK_SALT`.
+- **Changelog entries are bundled:** `app/src/changelog/entries.ts`, newest first, monotonic ids, ISO dates, 1–2 sentence summaries, optional tag (`new` | `fix` | `improvement`). The schema is validated by tests; the DB enforces `entry_id ≤ 1000000`.
+- **Analytics are success-only Plausible manual events** (`changelog_open`, `changelog_vote`) alongside the restored gtag/Plausible/GA4 loader conventions in `app/src/analytics/`.
+- **`/feedback-admin`** is the only readout surface: HTTP Basic with `ADMIN_TOKEN`, `X-Robots-Tag: noindex`, escaped output. `robots.txt` disallows `/api/` as a prefix, which covers both vote endpoints.
+- **SEO:** routes are prerendered into `app/dist` (`scripts/prerender.mjs`); `verify-seo.sh` gates the build. Client-side rendering starts from `createRoot`, so prerendered HTML must match what React renders first paint.
 
-- `router.php` (untracked) — built-in-server router mirroring `.htaccess`: serves static files, blocks `system/`, `application/`, `.git`, `README.md`, redirects `/dataclean` → `/datajanitor`, routes the rest to `index.php`.
-- `application/config/development/config.php` (gitignored) — local `base_url` + `error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT)`.
-- `application/config/development/database.php` (gitignored) — local DB credentials.
-- `application/config/development/aws_s3.php` (gitignored) — disk-based permalinks, no `$_ENV` access.
-- `data/` (gitignored) — local permalink storage.
+## Conventions
 
-To recreate this environment from a fresh clone, follow `.obvious/skills/local-dev/SKILL.md`.
+- **User-facing PRs add their own changelog entry.** Any PR that changes the product's user-visible behavior adds a bundled entry to `app/src/changelog/entries.ts` in the same PR (id = previous max + 1, today's UTC date, honest 1–2 sentence summary). The unseen-dot logic makes the entry the user-facing announcement — there is no separate release-notes channel.
+- Accessibility: every control has an accessible name; widget testids follow the established `data-testid` patterns (`changelog-toggle`, `changelog-popout`, `changelog-up-{id}`, `changelog-down-{id}`); dialogs use `role="dialog"` + focus return.
+- Keep the test suite green — it is the primary local gate; CI is the final gate.
 
-## Codebase map
+## CI (`.github/workflows/ci.yml`)
 
-See [codebase-map.md](codebase-map.md).
-
-## Local Verification Summary
-
-Verified 2026-08-24 on the sandbox (PHP 8.4.24, MariaDB 11.8.6, Debian 13):
-
-- **Pages:** home + all 7 tool pages return HTTP 200 with zero PHP error output and a clean `<!DOCTYPE html>` start.
-- **Assets:** all 39 development asset files referenced in `application/config/assets.php` exist and serve HTTP 200.
-- **Primary user flow (browser E2E, Chromium 151 + puppeteer-core):** loaded `/csv2json`, typed CSV into `#csv`, clicked `#convert`, `#result` contained the correct JSON; zero browser console errors. Screenshot: `/tmp/shots/csv2json-converted.png`.
-- **Conversion library (node):** `js/csvjson/csv2json.js` produces correct output in array and hash modes.
-- **Database:** `POST /csv2json/instrument` writes rows to MariaDB `csvjson.csv` (verified by SELECT).
-- **Syntax:** `php -l` over all 63 `application/` and 127 `system/` PHP files — 2 pre-existing PHP 8 parse errors in code paths not used in local dev (see Gotchas).
-- **Security:** `/system/...`, `/.git/...`, `/README.md` return 403 via `router.php`.
-
-## Sandbox snapshot
-
-- **Snapshot ID:** `ob0wxtf01k11upr6a1dv:default` (sandbox `i01p5umk7ly564q1bj9mc`)
-- **Captured:** 2026-08-24T16:23:53.945Z
-- **State:** PHP dev server running on 127.0.0.1:8080, MariaDB running with `csvjson` database seeded, dev config overrides and `router.php` in place.
+Two jobs. **Frontend:** lint → typecheck → vitest → production build with `app/dist` parity check → `verify-seo.sh`. **PHP shim:** `php -l` over all six root PHP files → `verify-shim.sh` (redirect table, permalinks, removed endpoints) → promotional/telemetry remnant scan → no-write-API scan (carve-outs: `/api/feedback`, `/api/changelog-vote`) → both Postgres smoke tests with fresh disposable databases.
 
 ## Gotchas
 
-- **PHP 8 deprecations:** CI 2.1.4 emits ~44 deprecation notices per request on PHP 8 (dynamic properties, E_STRICT). They are suppressed for display via `error_reporting` in `application/config/development/config.php`; they still appear in `application/logs/`.
-- **S3 library is PHP 5 only:** `application/libraries/s3.php` has a parse error on PHP 8 (`$value{0}` curly-brace offset, line 2582). It is only loaded when `AWS_S3_URL` is defined (S3 mode). Local dev uses disk mode and never loads it.
-- **Profiler library is PHP 5 only:** `system/libraries/Profiler.php` line 70 has the same parse error; profiler is not enabled in dev.
-- **File upload path is PHP 5 era:** `js/src/csv2json.js` posts to `/csv2json/upload`; the request reaches `csvjson_helper.php` expecting `$_FILES["file"]`, and a bare POST emits a pre-existing PHP 8 warning ("Undefined array key \"file\""). Type/paste CSV instead of uploading files.
-- **Base URL:** production `base_url` is hardcoded to `https://csvjson.com/` in `application/config/config.php`; the development override points it at `http://127.0.0.1:8080/`.
-- **ENVIRONMENT:** `index.php` picks `production` when `SERVER_NAME` contains `csvjson.com`, else `development`. Localhost always gets development (unminified assets from `js/src/`).
+- The vitest environment is jsdom with `@testing-library/user-event` — for outside-click + focus-return flows, use `click` (not `mousedown`) listeners and let userEvent's blur settle before asserting focus, or the jsdom act warnings will eat the assertion.
+- The vote endpoints' Origin check compares `Origin` host against `HTTP_HOST` — under `php -S` in smokes, send `Origin: http://127.0.0.1:<same port>`; cross-origin is 403.
+- Heroku auto-deploys on merge to master; the DB credentials live in `SECRET_CSVJSON_FEEDBACK_DB_URL` in the Obvious workspace (Neon, TLS negotiated by libpq defaults).
