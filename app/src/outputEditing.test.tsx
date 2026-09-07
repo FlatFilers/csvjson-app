@@ -76,6 +76,13 @@ const outputContent = () =>
 async function populate() {
   fireEvent.click(screen.getByTestId("try-example"));
   await screen.findByTestId("output-view");
+  // The EditorView mounts from a passive effect after the host div commits;
+  // wait for it so editor lookups can't race the mount on slow CI runners.
+  await waitFor(() =>
+    expect(
+      screen.getByTestId("output-view").querySelector(".cm-editor")
+    ).not.toBeNull(),
+  );
 }
 
 /** Lets any (wrongly) scheduled regeneration land before an is-unchanged assertion. */
