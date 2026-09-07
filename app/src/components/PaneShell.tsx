@@ -25,7 +25,7 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {/* Wrap-and-tighten (spec: mobile toolbar compaction): the input
-          pane's five controls reflow into tidy rows below the 768px JS
+          pane's five controls reflow into tidy rows below the md:
           breakpoint instead of overflowing; counts stay attached to the
           title group and output exports stay visible without scrolling.
           Desktop (md+) is v0's fixed h-12 header; mobile keeps the

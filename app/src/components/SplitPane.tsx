@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
@@ -10,8 +11,13 @@ import { cn } from "@/lib/utils";
 
 /**
  * "side-by-side": input left, output right, seam is a vertical line.
- * "stacked": below 768px the panes stack vertically and the seam becomes a
+ * "stacked": below Tailwind's md: breakpoint (48rem — 768px at the 16px
+ * default font) the panes stack vertically and the seam becomes a
  * horizontal drag strip (spec: Split screen with a direction switch).
+ *
+ * The visible orientation is CSS-first (`flex-col md:flex-row` + `--split`),
+ * so the prerendered HTML paints correctly before React mounts. `layout`
+ * only steers drag math and aria-orientation — never first-paint styling.
  */
 export type SplitLayout = "side-by-side" | "stacked";
 
@@ -36,6 +42,13 @@ export function SplitPane({
 }: SplitPaneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
+  // CSS-first orientation: media queries own the visible layout so the
+  // prerendered HTML paints correctly without JS (no stacked→columns flash
+  // on desktop). `stacked` survives only for drag math (clientY vs clientX)
+  // and aria-orientation. The breakpoint lives in App.tsx as
+  // useMediaQuery("(min-width: 48rem)") — the same units as Tailwind's
+  // `md:` (min-width: 48rem), so the two can never diverge when the
+  // browser's default font size changes.
   const stacked = layout === "stacked";
 
   // Pointer Events cover mouse, touch, and pen in one path; touch-action:
@@ -97,7 +110,8 @@ export function SplitPane({
       ref={containerRef}
       className={cn(
         "relative flex min-h-0 flex-1",
-        stacked ? "flex-col" : "flex-row",
+        // Orientation is CSS-first — see the note on `stacked` above.
+        "flex-col md:flex-row",
         // Text must stay selectable in every pane (table cells, editors,
         // read-only output). The suppression is only for an active seam drag
         // so pointer drags don't highlight content — never a standing rule.
@@ -107,10 +121,12 @@ export function SplitPane({
       {/* Left pane gets the border — that 1px line IS the flush seam (no gutter). */}
       <div
         data-testid="pane-left"
-        style={stacked ? { height: `${split}%` } : { width: `${split}%` }}
+        style={{ "--split": `${split}%` } as CSSProperties}
         className={cn(
           "flex min-h-0 min-w-0 flex-col border-border bg-panel",
-          stacked ? "border-b" : "border-r"
+          // Stacked: --split sizes the pane's height; side-by-side: its width.
+          "h-[var(--split)] border-b",
+          "md:h-auto md:w-[var(--split)] md:border-b-0 md:border-r"
         )}
       >
         {left}
@@ -144,21 +160,23 @@ export function SplitPane({
         onPointerUp={() => setDragging(false)}
         onDoubleClick={() => onSplitChange(SPLIT_RESET)}
         onKeyDown={onKeyDown}
-        style={
-          stacked
-            ? { top: `${split}%`, height: 0, touchAction: "none" }
-            : { left: `${split}%`, width: 0, touchAction: "none" }
-        }
+        style={{ "--split": `${split}%`, touchAction: "none" } as CSSProperties}
         className={cn(
           "absolute z-10",
-          stacked ? "inset-x-0 cursor-row-resize" : "inset-y-0 cursor-col-resize"
+          // Stacked: a zero-height horizontal strip across the full width.
+          "top-[var(--split)] left-0 right-0 h-0 cursor-row-resize",
+          // Side-by-side: a zero-width vertical strip down the full height.
+          "md:top-0 md:right-auto md:bottom-0 md:left-[var(--split)] md:h-auto md:w-0 md:cursor-col-resize"
         )}
       >
         {/* 12px invisible hit area so the 1px seam is grabbable */}
         <div
           className={cn(
             "absolute",
-            stacked ? "inset-x-0 -top-1.5 h-3" : "inset-y-0 -left-1.5 w-3"
+            // Stacked: 12px tall, centered on the zero-height strip.
+            "left-0 right-0 -top-1.5 h-3",
+            // Side-by-side: 12px wide, centered on the zero-width strip.
+            "md:top-0 md:right-auto md:bottom-0 md:-left-1.5 md:h-auto md:w-3"
           )}
         />
         {children ? (

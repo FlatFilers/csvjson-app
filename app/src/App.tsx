@@ -124,7 +124,13 @@ export default function App() {
   }
   const tracker = trackerRef.current;
 
-  const desktop = useMediaQuery("(min-width: 768px)");
+  // Responsive orientation is CSS-first in SplitPane (flex-col md:flex-row);
+  // this query feeds only drag math and aria-orientation. It must stay in
+  // the same units as the md: variants there: Tailwind's md: compiles to
+  // @media (min-width: 48rem), and in media queries rem resolves against
+  // the browser's initial font size — a px query would drift from the CSS
+  // breakpoint whenever the default font size differs from 16px.
+  const desktop = useMediaQuery("(min-width: 48rem)");
   const layout: SplitLayout = desktop ? "side-by-side" : "stacked";
 
   const csvToJson = direction === "csv2json";
