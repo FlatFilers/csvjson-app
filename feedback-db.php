@@ -75,6 +75,27 @@ function feedback_db_connect(): ?PDO
 }
 
 /**
+ * The write log alone (the rate-limit table both sanctioned endpoints share).
+ * Split from feedback_ensure_schema() so an endpoint can bootstrap it without
+ * also creating the feedback vote store it never touches — a fresh database
+ * must not depend on one endpoint having run before another.
+ */
+function feedback_ensure_write_log(PDO $pdo): void
+{
+    $pdo->exec('CREATE TABLE IF NOT EXISTS feedback_write_log (
+        id         BIGSERIAL PRIMARY KEY,
+        ip_hash    TEXT        NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )');
+    $pdo->exec(
+        'CREATE INDEX IF NOT EXISTS feedback_write_log_ip_idx ON feedback_write_log (ip_hash, created_at)'
+    );
+    $pdo->exec(
+        'CREATE INDEX IF NOT EXISTS feedback_write_log_created_idx ON feedback_write_log (created_at)'
+    );
+}
+
+/**
  * The vote store (schema fixed by the spec) plus the write log that backs
  * the rate limits — a rate limit counts writes, not surviving rows, so
  * upsert-heavy vote switching cannot evade it and rejected writes are not
@@ -97,17 +118,7 @@ function feedback_ensure_schema(PDO $pdo): void
     $pdo->exec(
         'CREATE INDEX IF NOT EXISTS feedback_votes_ip_idx ON feedback_votes (ip_hash, created_at)'
     );
-    $pdo->exec('CREATE TABLE IF NOT EXISTS feedback_write_log (
-        id         BIGSERIAL PRIMARY KEY,
-        ip_hash    TEXT        NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-    )');
-    $pdo->exec(
-        'CREATE INDEX IF NOT EXISTS feedback_write_log_ip_idx ON feedback_write_log (ip_hash, created_at)'
-    );
-    $pdo->exec(
-        'CREATE INDEX IF NOT EXISTS feedback_write_log_created_idx ON feedback_write_log (created_at)'
-    );
+    feedback_ensure_write_log($pdo);
 }
 
 /**
