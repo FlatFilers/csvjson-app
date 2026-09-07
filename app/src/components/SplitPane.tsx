@@ -11,7 +11,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * "side-by-side": input left, output right, seam is a vertical line.
- * "stacked": below 768px the panes stack vertically and the seam becomes a
+ * "stacked": below Tailwind's md: breakpoint (48rem — 768px at the 16px
+ * default font) the panes stack vertically and the seam becomes a
  * horizontal drag strip (spec: Split screen with a direction switch).
  *
  * The visible orientation is CSS-first (`flex-col md:flex-row` + `--split`),
@@ -44,8 +45,10 @@ export function SplitPane({
   // CSS-first orientation: media queries own the visible layout so the
   // prerendered HTML paints correctly without JS (no stacked→columns flash
   // on desktop). `stacked` survives only for drag math (clientY vs clientX)
-  // and aria-orientation. The md: breakpoint (768px) must stay in sync with
-  // App.tsx's useMediaQuery("(min-width: 768px)").
+  // and aria-orientation. The breakpoint lives in App.tsx as
+  // useMediaQuery("(min-width: 48rem)") — the same units as Tailwind's
+  // `md:` (min-width: 48rem), so the two can never diverge when the
+  // browser's default font size changes.
   const stacked = layout === "stacked";
 
   // Pointer Events cover mouse, touch, and pen in one path; touch-action:
