@@ -11,6 +11,9 @@
 
 export type SortDir = "asc" | "desc";
 
+/** Integer-shaped cells with 16+ digits can exceed Number's exact range. */
+const BIG_INT_RE = /^[+-]?\d{16,}$/;
+
 /**
  * Rows matching `query` as a case-insensitive substring across any cell.
  * An empty query is the identity — every row, in source order. Matching rows
@@ -62,6 +65,14 @@ export function sortRowIndices(
         // themselves they keep source order (0 → stable).
         if (aNan && bNan) return 0;
         return aNan ? 1 : -1;
+      }
+      // Integers beyond 2^53 lose precision as doubles — 64-bit id columns
+      // (Snowflake/Dynamo/Slack exports) collapse to the same value and
+      // mis-sort silently. Compare big integer-shaped cells exactly.
+      if (BIG_INT_RE.test(cellA) && BIG_INT_RE.test(cellB)) {
+        const ba = BigInt(cellA);
+        const bb = BigInt(cellB);
+        return factor * (ba < bb ? -1 : ba > bb ? 1 : 0);
       }
       return factor * (na - nb);
     }

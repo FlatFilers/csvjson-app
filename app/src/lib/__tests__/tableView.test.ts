@@ -67,6 +67,14 @@ describe("sortRowIndices", () => {
     expect(order).toEqual([2, 1]); // 2001 < 2003
   });
 
+  it("compares integers beyond Number.MAX_SAFE_INTEGER exactly", () => {
+    const ids = [["9007199254740993"], ["9007199254740994"]];
+    // Both round to the same double, so a Number-based comparator ties and
+    // stable sort would keep the input order — the reversed input detects it.
+    expect(sortRowIndices([1, 0], ids, 0, "asc", true)).toEqual([0, 1]);
+    expect(sortRowIndices([0, 1], ids, 0, "desc", true)).toEqual([1, 0]);
+  });
+
   it("does not mutate the input index array", () => {
     const indices = [2, 0, 1];
     sortRowIndices(indices, rows, 0, "asc", false);

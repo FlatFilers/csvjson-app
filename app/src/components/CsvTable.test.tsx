@@ -269,6 +269,27 @@ describe("CsvTable selection and copy", () => {
     expect(screen.getByTestId("csv-table-selected-count")).toHaveTextContent("1 selected");
   });
 
+  it("chip and clipboard agree when the filter hides selected rows", async () => {
+    const user = userEvent.setup();
+    const writeText = stubClipboard();
+    render(<CsvTable text={FIXTURE} />);
+    const gutters = screen.getAllByTestId("csv-table-row-select");
+    fireEvent.click(gutters[1], { metaKey: true }); // Elephant (source 2)
+    fireEvent.click(gutters[3], { metaKey: true }); // Satan (source 4)
+    expect(screen.getByTestId("csv-table-selected-count")).toHaveTextContent("2 selected");
+
+    // Filter keeps Elephant (2003) but hides Satan (2005): the chip counts
+    // only the selected row still in view — exactly what Copy will emit.
+    await user.type(screen.getByTestId("csv-table-search"), "2003");
+    await waitFor(() =>
+      expect(screen.getByTestId("csv-table-count")).toHaveTextContent("1 of 4")
+    );
+    expect(screen.getByTestId("csv-table-selected-count")).toHaveTextContent("1 selected");
+    await user.click(screen.getByTestId("csv-table-copy"));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText).toHaveBeenCalledWith("album,year\nElephant,2003");
+  });
+
   it("selection survives filter and sort; copy emits view-ordered CSV with headers", async () => {
     const user = userEvent.setup();
     const writeText = stubClipboard();
@@ -295,6 +316,17 @@ describe("CsvTable selection and copy", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
     expect(writeText).toHaveBeenCalledWith(
       ["album,year", "Get Behind Me Satan,2005", "Elephant,2003"].join("\n")
+    );
+  });
+
+  it("wires aria-rowindex and aria-colindex for the virtualized grid", () => {
+    render(<CsvTable text={FIXTURE} />);
+    expect(screen.getByRole("columnheader", { name: "album" })).toHaveAttribute("aria-colindex", "2");
+    const row0 = document.querySelector('[data-testid="csv-table"] [data-source-index="0"]');
+    expect(row0).toHaveAttribute("aria-rowindex", "2"); // header row is 1
+    expect(row0?.querySelector('[data-testid="csv-table-row-select"]')).toHaveAttribute(
+      "aria-colindex",
+      "1"
     );
   });
 

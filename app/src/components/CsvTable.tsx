@@ -162,11 +162,16 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
     anchorRef.current = null;
   };
 
+  // Selected rows currently visible in the view. The chip counts THESE —
+  // never the raw selection set — so the number always matches what
+  // Copy as CSV emits. Selection itself stays keyed by source index, so a
+  // hidden selection comes back when the filter clears.
+  const selectedInView = view.filter((index) => selected.has(index));
+
   const copySelection = () => {
-    const rowsInView = view.filter((index) => selected.has(index));
     const lines = [
       serializeCsvRow(table.headers, table.delimiter),
-      ...rowsInView.map((index) => serializeCsvRow(table.rows[index], table.delimiter)),
+      ...selectedInView.map((index) => serializeCsvRow(table.rows[index], table.delimiter)),
     ];
     navigator.clipboard?.writeText(lines.join("\n")).catch(() => {
       // Clipboard denial (permission, insecure context) degrades to a no-op —
@@ -220,13 +225,13 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             ? `${view.length.toLocaleString()} of ${total.toLocaleString()}`
             : `${total.toLocaleString()} rows`}
         </span>
-        {selected.size > 0 && (
+        {selectedInView.length > 0 && (
           <span className="flex items-center gap-1.5">
             <span
               data-testid={`${testId}-selected-count`}
               className="text-[11px] font-medium tabular-nums text-muted-foreground"
             >
-              {selected.size.toLocaleString()} selected
+              {selectedInView.length.toLocaleString()} selected
             </span>
             <button type="button" data-testid={`${testId}-copy`} onClick={copySelection} className={TOOLBAR_BUTTON}>
               <Copy aria-hidden="true" className="size-3" />
@@ -262,6 +267,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             className="sticky top-0 z-10 grid items-center border-b border-border bg-panel font-mono text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
             style={{ height: HEADER_HEIGHT, gridTemplateColumns: gridTemplate }}
             role="row"
+            aria-rowindex={1}
           >
             <div
               className="truncate px-2 py-1 text-right font-normal text-muted-foreground/50 leading-[14px]"
@@ -276,6 +282,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                   key={`${header}-${index}`}
                   type="button"
                   role="columnheader"
+                  aria-colindex={index + 2}
                   aria-sort={activeSort ? (activeSort.dir === "asc" ? "ascending" : "descending") : undefined}
                   onClick={() => cycleSort(index)}
                   title={header}
@@ -318,6 +325,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                     data-row-index={virtualRow.index}
                     data-source-index={sourceIndex}
                     role="row"
+                    aria-rowindex={virtualRow.index + 2}
                     aria-selected={isSelected}
                     className={cn(
                       "absolute inset-x-0 grid items-center border-b border-border/60 text-[12px] leading-none transition-colors hover:bg-muted/50",
@@ -333,6 +341,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                       type="button"
                       data-testid={`${testId}-row-select`}
                       aria-label={`Select row ${sourceIndex + 1}`}
+                      aria-colindex={1}
                       onClick={(event) => onGutterClick(event, sourceIndex)}
                       className="cursor-pointer select-none truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40 outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
@@ -343,6 +352,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                       return (
                         <div
                           key={c}
+                          aria-colindex={c + 2}
                           className={
                             "truncate px-2" +
                             (cell === ""
