@@ -324,10 +324,14 @@ describe("CsvTable selection and copy", () => {
     expect(screen.getByRole("columnheader", { name: "album" })).toHaveAttribute("aria-colindex", "2");
     const row0 = document.querySelector('[data-testid="csv-table"] [data-source-index="0"]');
     expect(row0).toHaveAttribute("aria-rowindex", "2"); // header row is 1
-    expect(row0?.querySelector('[data-testid="csv-table-row-select"]')).toHaveAttribute(
-      "aria-colindex",
-      "1"
-    );
+    // Every child of the row is a real cell role, so AT can traverse the
+    // grid cell-by-cell: gutter + 2 columns.
+    const cells = row0?.querySelectorAll('[role="gridcell"]');
+    expect(cells?.length).toBe(3);
+    expect(cells?.[0]).toHaveAttribute("aria-colindex", "1");
+    expect(cells?.[1]).toHaveAttribute("aria-colindex", "2");
+    // The gutter button keeps its own semantics inside its cell.
+    expect(cells?.[0].querySelector("button")).toHaveAttribute("aria-label", "Select row 1");
   });
 
   it("clear empties the selection", async () => {

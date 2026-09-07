@@ -4,3 +4,5 @@
 
 /vendor/
 .env
+# Local browser-debug captures (probe screenshots, evidence temp copies)
+/*.png

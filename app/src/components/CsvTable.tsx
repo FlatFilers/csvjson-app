@@ -270,8 +270,10 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             aria-rowindex={1}
           >
             <div
-              className="truncate px-2 py-1 text-right font-normal text-muted-foreground/50 leading-[14px]"
+              role="gridcell"
+              aria-colindex={1}
               aria-hidden="true"
+              className="truncate px-2 py-1 text-right font-normal text-muted-foreground/50 leading-[14px]"
             >
               #
             </div>
@@ -337,21 +339,23 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                       gridTemplateColumns: gridTemplate,
                     }}
                   >
-                    <button
-                      type="button"
-                      data-testid={`${testId}-row-select`}
-                      aria-label={`Select row ${sourceIndex + 1}`}
-                      aria-colindex={1}
-                      onClick={(event) => onGutterClick(event, sourceIndex)}
-                      className="cursor-pointer select-none truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40 outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-                    >
-                      {sourceIndex + 1}
-                    </button>
+                    <div role="gridcell" aria-colindex={1} className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        data-testid={`${testId}-row-select`}
+                        aria-label={`Select row ${sourceIndex + 1}`}
+                        onClick={(event) => onGutterClick(event, sourceIndex)}
+                        className="cursor-pointer select-none truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40 outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+                      >
+                        {sourceIndex + 1}
+                      </button>
+                    </div>
                     {row.map((cell, c) => {
                       const parts = cell === "" || !isFiltered ? null : splitHighlight(cell, query);
                       return (
                         <div
                           key={c}
+                          role="gridcell"
                           aria-colindex={c + 2}
                           className={
                             "truncate px-2" +
