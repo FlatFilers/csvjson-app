@@ -303,7 +303,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             >
               <span>No rows matching “{query}”.</span>
               <button type="button" onClick={clearSearch} className={TOOLBAR_BUTTON}>
-                Clear search
+                Show all rows
               </button>
             </div>
           ) : (
