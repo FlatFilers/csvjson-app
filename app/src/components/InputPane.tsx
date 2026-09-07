@@ -282,7 +282,11 @@ export function InputPane({
             className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
           />
         ) : isCsv ? (
-          <CsvTable text={input} delimiter={delimiter} testId="input-table" />
+          // The input table's cell commits re-serialize the grid and feed the
+          // same onInputChange path as the raw textarea — one input pipeline,
+          // so edits pick up the debounce, analytics, and guarded output
+          // regeneration exactly as a raw-view keystroke would.
+          <CsvTable text={input} delimiter={delimiter} testId="input-table" onCellCommit={onInputChange} />
         ) : (
           <JsonCodeMirror
             value={input}

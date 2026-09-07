@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 9,
+    date: "2026-09-07",
+    tag: "new",
+    title: "Edit cells right in the input table",
+    summary:
+      'Click any cell in the input table to edit it inline — Enter commits, Tab moves to the next cell, Esc backs out. Edits re-convert your data just like typing in the raw view, with proper CSV quoting handled for you.',
+  },
+  {
     id: 8,
     date: "2026-09-07",
     tag: "new",

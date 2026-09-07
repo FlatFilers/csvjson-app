@@ -628,3 +628,41 @@ describe("output download naming", () => {
     );
   });
 });
+
+describe("input-table cell editing", () => {
+  // The virtualizer needs a real viewport to render any rows.
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(600);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(800);
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("routes a cell commit through the raw-input path — text and output update together", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => SAMPLE_CSV_INPUT },
+    });
+
+    await user.click(within(screen.getByTestId("input-table")).getByTitle("2003"));
+    const editor = screen.getByTestId("input-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "2004");
+    await user.keyboard("{Enter}");
+
+    // Consistency invariant: the Raw view holds the re-serialized grid —
+    // the exact text a keystroke-by-keystroke raw edit would produce.
+    await user.click(screen.getByTestId("raw-toggle"));
+    expect(screen.getByTestId("input-editor") as HTMLTextAreaElement).toHaveValue(
+      "album,year\nElephant,2004\nDe Stijl,2000"
+    );
+
+    // The guarded re-conversion followed the edit after its debounce.
+    await user.click(screen.getByTestId("view-table"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain("2004");
+    });
+  });
+});

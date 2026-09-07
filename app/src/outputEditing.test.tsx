@@ -410,3 +410,54 @@ describe("editable window", () => {
     });
   });
 });
+
+describe("guarded regeneration interplay (input-table cell edits)", () => {
+  // The virtualizer needs a real viewport to render any rows.
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(600);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(800);
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("keeps the hand-edited output frozen while a table cell edit updates the input", async () => {
+    render(<App />);
+    await populate();
+
+    // Hand-edit the output — the freeze guard holds from here on.
+    await editOutput(replaceDoc(EDITED_TEXT));
+    expect(screen.getByTestId("edited-badge")).toBeInTheDocument();
+
+    // A cell edit on the input table rides the same guarded path as any
+    // input keystroke: the input moves, the edited output never clobbers.
+    const user = userEvent.setup();
+    await user.click(
+      within(screen.getByTestId("input-table")).getByTitle("De Stijl")
+    );
+    const editor = screen.getByTestId("input-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl II");
+    await user.keyboard("{Enter}");
+    await settle();
+
+    expect(screen.getByTestId("edited-badge")).toBeInTheDocument();
+    expect(outputEditorView().state.doc.toString()).toBe(EDITED_TEXT);
+
+    // The input DID change — the Raw view shows the serialized edit, so
+    // both views render the same data (text is the single source of truth).
+    fireEvent.click(screen.getByTestId("raw-toggle"));
+    const textarea = screen.getByTestId("input-editor") as HTMLTextAreaElement;
+    expect(textarea.value).toContain("De Stijl II");
+
+    // The explicit way out: Discard & reconvert regenerates from the
+    // CURRENT input — the cell edit included.
+    fireEvent.click(screen.getByTestId("discard-reconvert"));
+    const expected = expectConverted("csv2json", textarea.value);
+    await waitFor(() => {
+      expect(outputEditorView().state.doc.toString()).toBe(expected);
+    });
+    expect(outputEditorView().state.doc.toString()).toContain("De Stijl II");
+    expect(screen.queryByTestId("edited-badge")).not.toBeInTheDocument();
+  });
+});
