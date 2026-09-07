@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import { numericColumns, parseCsvTable } from "@/lib/csvTable";
-import { filterRowIndices, splitHighlight } from "@/lib/tableView";
+import { filterRowIndices, sortRowIndices, splitHighlight, type SortDir } from "@/lib/tableView";
 
 /**
  * Dense full-bleed CSV/TSV table (spec: CSV pane — sticky header, compact
@@ -41,6 +41,8 @@ type CsvTableProps = {
   testId?: string;
 };
 
+type SortState = { col: number; dir: SortDir } | null;
+
 /** Toolbar button classes — dense chrome matching the header strip. */
 const TOOLBAR_BUTTON =
   "inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
@@ -49,6 +51,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
   const scrollRef = useRef<HTMLDivElement>(null);
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState>(null);
 
   const table = useMemo(() => parseCsvTable(text, delimiter), [text, delimiter]);
   const numeric = useMemo(() => numericColumns(table), [table]);
@@ -63,7 +66,11 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
 
   // Pure view: filter, then sort. Memoized on (table, query, sort) — typing
   // never re-parses the source text, and sorting composes on filtered indices.
-  const view = useMemo(() => filterRowIndices(table.rows, query), [table, query]);
+  const view = useMemo(() => {
+    const filtered = filterRowIndices(table.rows, query);
+    if (!sort) return filtered;
+    return sortRowIndices(filtered, table.rows, sort.col, sort.dir, numeric[sort.col] ?? false);
+  }, [table, query, sort, numeric]);
 
   // The virtualizer counts view rows, not source rows — the window renderer
   // maps each view slot back to its source row via view[virtualRow.index].
@@ -92,6 +99,14 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
     setSearchInput("");
     setQuery("");
   };
+
+  // Tri-state: asc → desc → natural (null), restarting at asc for a new column.
+  const cycleSort = (col: number) =>
+    setSort((prev) => {
+      if (!prev || prev.col !== col) return { col, dir: "asc" };
+      if (prev.dir === "asc") return { col, dir: "desc" };
+      return null;
+    });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -166,15 +181,31 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             >
               #
             </div>
-            {table.headers.map((header, index) => (
-              <div
-                key={`${header}-${index}`}
-                className="truncate px-2 py-1 leading-[14px]"
-                title={header}
-              >
-                {header}
-              </div>
-            ))}
+            {table.headers.map((header, index) => {
+              const activeSort = sort?.col === index ? sort : null;
+              return (
+                <button
+                  key={`${header}-${index}`}
+                  type="button"
+                  role="columnheader"
+                  aria-sort={activeSort ? (activeSort.dir === "asc" ? "ascending" : "descending") : undefined}
+                  onClick={() => cycleSort(index)}
+                  title={header}
+                  className="cursor-pointer truncate px-2 py-1 text-left leading-[14px] outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <span className="inline-flex items-center gap-0.5">
+                    {header}
+                    {activeSort && (
+                      activeSort.dir === "asc" ? (
+                        <ChevronUp aria-hidden="true" className="size-3" />
+                      ) : (
+                        <ChevronDown aria-hidden="true" className="size-3" />
+                      )
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
           {view.length === 0 && isFiltered ? (
             <div
