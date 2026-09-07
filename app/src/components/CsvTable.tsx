@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, Search, X } from "lucide-react";
 import { numericColumns, parseCsvTable } from "@/lib/csvTable";
-import { filterRowIndices, sortRowIndices, splitHighlight, type SortDir } from "@/lib/tableView";
+import {
+  filterRowIndices,
+  serializeCsvRow,
+  sortRowIndices,
+  splitHighlight,
+  type SortDir,
+} from "@/lib/tableView";
+import { cn } from "@/lib/utils";
 
 /**
  * Dense full-bleed CSV/TSV table (spec: CSV pane — sticky header, compact
@@ -52,6 +59,9 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortState>(null);
+  const [selected, setSelected] = useState<Set<number>>(() => new Set<number>());
+  /** Source index of the last direct selection — the shift-click range anchor. */
+  const anchorRef = useRef<number | null>(null);
 
   const table = useMemo(() => parseCsvTable(text, delimiter), [text, delimiter]);
   const numeric = useMemo(() => numericColumns(table), [table]);
@@ -63,6 +73,21 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
     const timer = window.setTimeout(() => setQuery(searchInput), 150);
     return () => window.clearTimeout(timer);
   }, [searchInput]);
+
+  // Selection is a set of source row indices; a new parse can shrink the
+  // grid. Drop indices that no longer exist so the toolbar count stays
+  // honest (copy filters through the view anyway).
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = new Set<number>();
+      let dropped = false;
+      for (const index of prev) {
+        if (index < table.rows.length) next.add(index);
+        else dropped = true;
+      }
+      return dropped ? next : prev;
+    });
+  }, [table]);
 
   // Pure view: filter, then sort. Memoized on (table, query, sort) — typing
   // never re-parses the source text, and sorting composes on filtered indices.
@@ -100,13 +125,54 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
     setQuery("");
   };
 
-  // Tri-state: asc → desc → natural (null), restarting at asc for a new column.
   const cycleSort = (col: number) =>
     setSort((prev) => {
       if (!prev || prev.col !== col) return { col, dir: "asc" };
       if (prev.dir === "asc") return { col, dir: "desc" };
       return null;
     });
+
+  const onGutterClick = (event: ReactMouseEvent<HTMLButtonElement>, sourceIndex: number) => {
+    const anchor = anchorRef.current;
+    if (event.shiftKey && anchor !== null && anchor !== sourceIndex) {
+      // Range spans the current view order between the anchor and this row.
+      const anchorPos = view.indexOf(anchor);
+      const clickPos = view.indexOf(sourceIndex);
+      const from = anchorPos === -1 ? clickPos : anchorPos;
+      const [lo, hi] = from <= clickPos ? [from, clickPos] : [clickPos, from];
+      const next = event.metaKey || event.ctrlKey ? new Set(selected) : new Set<number>();
+      for (let p = lo; p <= hi; p++) next.add(view[p]);
+      setSelected(next);
+      return;
+    }
+    if (event.metaKey || event.ctrlKey) {
+      const next = new Set(selected);
+      if (next.has(sourceIndex)) next.delete(sourceIndex);
+      else next.add(sourceIndex);
+      setSelected(next);
+      anchorRef.current = sourceIndex;
+      return;
+    }
+    setSelected(new Set([sourceIndex]));
+    anchorRef.current = sourceIndex;
+  };
+
+  const clearSelection = () => {
+    setSelected(new Set<number>());
+    anchorRef.current = null;
+  };
+
+  const copySelection = () => {
+    const rowsInView = view.filter((index) => selected.has(index));
+    const lines = [
+      serializeCsvRow(table.headers, table.delimiter),
+      ...rowsInView.map((index) => serializeCsvRow(table.rows[index], table.delimiter)),
+    ];
+    navigator.clipboard?.writeText(lines.join("\n")).catch(() => {
+      // Clipboard denial (permission, insecure context) degrades to a no-op —
+      // same posture as the localStorage vote ids, never a broken page.
+    });
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -154,6 +220,28 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
             ? `${view.length.toLocaleString()} of ${total.toLocaleString()}`
             : `${total.toLocaleString()} rows`}
         </span>
+        {selected.size > 0 && (
+          <span className="flex items-center gap-1.5">
+            <span
+              data-testid={`${testId}-selected-count`}
+              className="text-[11px] font-medium tabular-nums text-muted-foreground"
+            >
+              {selected.size.toLocaleString()} selected
+            </span>
+            <button type="button" data-testid={`${testId}-copy`} onClick={copySelection} className={TOOLBAR_BUTTON}>
+              <Copy aria-hidden="true" className="size-3" />
+              Copy as CSV
+            </button>
+            <button
+              type="button"
+              data-testid={`${testId}-clear-selection`}
+              onClick={clearSelection}
+              className={TOOLBAR_BUTTON}
+            >
+              Clear
+            </button>
+          </span>
+        )}
       </div>
       <div
         ref={scrollRef}
@@ -223,24 +311,33 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
               {virtualRows.map((virtualRow) => {
                 const sourceIndex = view[virtualRow.index];
                 const row = table.rows[sourceIndex];
+                const isSelected = selected.has(sourceIndex);
                 return (
                   <div
                     key={virtualRow.key}
                     data-row-index={virtualRow.index}
                     data-source-index={sourceIndex}
                     role="row"
-                    className="absolute inset-x-0 grid items-center border-b border-border/60 text-[12px] leading-none transition-colors hover:bg-muted/50"
+                    aria-selected={isSelected}
+                    className={cn(
+                      "absolute inset-x-0 grid items-center border-b border-border/60 text-[12px] leading-none transition-colors hover:bg-muted/50",
+                      isSelected && "bg-muted"
+                    )}
                     style={{
                       top: virtualRow.start,
                       height: ROW_HEIGHT,
                       gridTemplateColumns: gridTemplate,
                     }}
                   >
-                    <div
-                      className="truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40"
+                    <button
+                      type="button"
+                      data-testid={`${testId}-row-select`}
+                      aria-label={`Select row ${sourceIndex + 1}`}
+                      onClick={(event) => onGutterClick(event, sourceIndex)}
+                      className="cursor-pointer select-none truncate px-2 text-right font-mono text-[11px] tabular-nums text-muted-foreground/40 outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
                       {sourceIndex + 1}
-                    </div>
+                    </button>
                     {row.map((cell, c) => {
                       const segments = cell === "" || !isFiltered ? null : splitHighlight(cell, query);
                       return (
