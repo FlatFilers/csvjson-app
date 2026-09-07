@@ -15,6 +15,7 @@ import { OutputPane } from "@/components/OutputPane";
 import { PermalinkNotice } from "@/components/PermalinkNotice";
 import { SplitPane, type SplitLayout } from "@/components/SplitPane";
 import { TopBar } from "@/components/TopBar";
+import { ChangelogButton } from "@/changelog/ChangelogButton";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useLegacyPermalink } from "@/hooks/useLegacyPermalink";
@@ -497,7 +498,18 @@ export default function App() {
         {/* Launch-week banner sits above the TopBar inside the h-svh column,
             so the flex panes absorb its height instead of overflowing. */}
         <FeedbackBanner />
-        <TopBar theme={theme} onToggleTheme={toggleTheme} slot={<FeedbackVote />} />
+        <TopBar
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          // The slot holds both header widgets on one row (each renders a
+          // block-level root, so without the flex wrapper they would stack).
+          slot={
+            <div className="flex items-center gap-1">
+              <ChangelogButton />
+              <FeedbackVote />
+            </div>
+          }
+        />
       {permalinkPath &&
       (permalink.phase === "loading" ||
         permalink.phase === "not-found" ||
