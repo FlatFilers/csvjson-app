@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 8,
+    date: "2026-09-07",
+    tag: "new",
+    title: "Search, sort, and select in the data table",
+    summary:
+      "The CSV table now has a search bar with a live row count, click-to-sort columns, and row selection with copy-as-CSV — on both the input and output tables.",
+  },
+  {
     id: 7,
     date: "2026-09-07",
     tag: "fix",
