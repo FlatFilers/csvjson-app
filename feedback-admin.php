@@ -16,6 +16,7 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/feedback-db.php';
+require_once __DIR__ . '/changelog-db.php';
 
 /**
  * The Basic password for this request. PHP_AUTH_PW is populated under
@@ -66,6 +67,7 @@ if ($pdo === null) {
         . '<p>The feedback store is not configured (DATABASE_URL is unset or unreachable).</p>');
 }
 feedback_ensure_schema($pdo);
+changelog_ensure_schema($pdo);
 
 /**
  * Up/down totals, downvote reason breakdown, the last 100 entries, and
@@ -124,6 +126,26 @@ $reasonLabels = [
     'looks_worse' => 'Looks worse',
     'other' => 'Other',
 ];
+
+/**
+ * Changelog votes (spec: CSVJSON changelog widget, art_YzASNds2): per-entry
+ * up/down totals — newest entry first — and the last 100 votes as a feed.
+ * Reads run through prepared statements; every value that reaches the HTML
+ * below passes through feedback_admin_escape().
+ */
+$changelogTotals = $pdo->query(
+    'SELECT entry_id,
+            COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) AS up,
+            COALESCE(SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END), 0) AS down
+     FROM changelog_votes
+     GROUP BY entry_id
+     ORDER BY entry_id DESC'
+)->fetchAll();
+
+$changelogRecent = $pdo->query(
+    'SELECT created_at, entry_id, vote FROM changelog_votes
+     ORDER BY created_at DESC, id DESC LIMIT 100'
+)->fetchAll();
 ?>
 <!doctype html>
 <html lang="en">
@@ -202,6 +224,37 @@ $reasonLabels = [
     </tr>
     <?php endforeach; ?>
 </table>
+<?php endif; ?>
+<h2>Changelog votes</h2>
+<?php if ($changelogTotals === [] && $changelogRecent === []) : ?>
+    <p class="empty">No changelog votes recorded yet.</p>
+<?php else : ?>
+<?php if ($changelogTotals !== []) : ?>
+<h3>Per entry</h3>
+<table>
+    <tr><th>Entry</th><th>Up</th><th>Down</th></tr>
+    <?php foreach ($changelogTotals as $entryTotal) : ?>
+    <tr>
+        <td>Entry #<?= (int) $entryTotal['entry_id'] ?></td>
+        <td><span class="pos"><?= (int) $entryTotal['up'] ?></span></td>
+        <td><span class="neg"><?= (int) $entryTotal['down'] ?></span></td>
+    </tr>
+    <?php endforeach; ?>
+</table>
+<?php endif; ?>
+<?php if ($changelogRecent !== []) : ?>
+<h3>Recent votes</h3>
+<table>
+    <tr><th>Recorded (UTC)</th><th>Entry</th><th>Vote</th></tr>
+    <?php foreach ($changelogRecent as $changelogRow) : ?>
+    <tr>
+        <td><?= feedback_admin_escape(substr((string) $changelogRow['created_at'], 0, 16)) ?></td>
+        <td>Entry #<?= (int) $changelogRow['entry_id'] ?></td>
+        <td><?= ((int) $changelogRow['vote']) === 1 ? '<span class="pos">up</span>' : '<span class="neg">down</span>' ?></td>
+    </tr>
+    <?php endforeach; ?>
+</table>
+<?php endif; ?>
 <?php endif; ?>
 </body>
 </html>
