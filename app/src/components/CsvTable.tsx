@@ -339,7 +339,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                       {sourceIndex + 1}
                     </button>
                     {row.map((cell, c) => {
-                      const segments = cell === "" || !isFiltered ? null : splitHighlight(cell, query);
+                      const parts = cell === "" || !isFiltered ? null : splitHighlight(cell, query);
                       return (
                         <div
                           key={c}
@@ -355,17 +355,17 @@ export function CsvTable({ text, delimiter, testId = "csv-table" }: CsvTableProp
                           }
                           title={cell}
                         >
-                          {segments
-                            ? segments.map((segment, s) =>
-                                segment.hit ? (
+                          {parts
+                            ? parts.map((part, s) =>
+                                part.hit ? (
                                   <mark
                                     key={s}
                                     className="rounded-[2px] bg-amber-100 text-foreground dark:bg-amber-400/30 dark:text-amber-100"
                                   >
-                                    {segment.text}
+                                    {part.text}
                                   </mark>
                                 ) : (
-                                  <span key={s}>{segment.text}</span>
+                                  <span key={s}>{part.text}</span>
                                 )
                               )
                             : cell}

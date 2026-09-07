@@ -89,7 +89,7 @@ describe("sortRowIndices", () => {
 });
 
 describe("splitHighlight", () => {
-  it("empty query yields one literal segment", () => {
+  it("empty query yields one literal part", () => {
     expect(splitHighlight("abc", "")).toEqual([{ text: "abc", hit: false }]);
   });
 
@@ -117,7 +117,7 @@ describe("splitHighlight", () => {
     ]);
   });
 
-  it("returns no segments for an empty cell", () => {
+  it("returns no parts for an empty cell", () => {
     expect(splitHighlight("", "x")).toEqual([]);
   });
 });

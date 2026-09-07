@@ -70,9 +70,9 @@ export function sortRowIndices(
 }
 
 /**
- * Split `text` into a copyable sequence of literal and match segments for
+ * Split `text` into a copyable sequence of literal and match parts for
  * in-cell highlight rendering. Case-insensitive, literal (no regex — the
- * query is user text). An empty query yields a single literal segment.
+ * query is user text). An empty query yields a single literal part.
  */
 export function splitHighlight(text: string, query: string): { text: string; hit: boolean }[] {
   if (query === "") return text === "" ? [] : [{ text, hit: false }];
@@ -81,17 +81,17 @@ export function splitHighlight(text: string, query: string): { text: string; hit
   if (needle === "" || !haystack.includes(needle)) {
     return text === "" ? [] : [{ text, hit: false }];
   }
-  const segments: { text: string; hit: boolean }[] = [];
+  const parts: { text: string; hit: boolean }[] = [];
   let cursor = 0;
   for (;;) {
     const at = haystack.indexOf(needle, cursor);
     if (at === -1) break;
-    if (at > cursor) segments.push({ text: text.slice(cursor, at), hit: false });
-    segments.push({ text: text.slice(at, at + needle.length), hit: true });
+    if (at > cursor) parts.push({ text: text.slice(cursor, at), hit: false });
+    parts.push({ text: text.slice(at, at + needle.length), hit: true });
     cursor = at + needle.length;
   }
-  if (cursor < text.length) segments.push({ text: text.slice(cursor), hit: false });
-  return segments;
+  if (cursor < text.length) parts.push({ text: text.slice(cursor), hit: false });
+  return parts;
 }
 
 /**
