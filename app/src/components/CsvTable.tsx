@@ -19,7 +19,7 @@ import {
 import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
-import { serializeTableWithoutColumns, serializeTableWithoutRows } from "@/lib/tableDeletion";
+import { deleteColumns, deleteRows } from "@/lib/tableDeletion";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
 import { serializeGridSelection } from "@/lib/tableSelection";
 
@@ -441,13 +441,14 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     return () => window.removeEventListener("copy", onCopy, { capture: true });
   }, []);
 
-  // Deletion commit path (input table only): a deletion mutates the parsed
-  // table, re-serializes the whole grid, and hands the text to the same
-  // guarded reconversion a cell edit takes — the raw CSV stays the single
-  // source of truth. A deletion changes row/column counts, so the
-  // selection (keyed by source indices that shift or vanish) is cleared
-  // with the commit; filter, sort, and the count chip re-derive from the
-  // new parse.
+  // Deletion commit path (input table only): a deletion splices the raw
+  // CSV text byte-preserving — the same fidelity contract a cell edit
+  // takes, so untouched rows keep their exact bytes (line endings, BOM,
+  // trailing newline, ragged fields) — and hands the text to the same
+  // guarded reconversion, the raw CSV staying the single source of truth.
+  // A deletion changes row/column counts, so the selection (keyed by
+  // source indices that shift or vanish) is cleared with the commit;
+  // filter, sort, and the count chip re-derive from the new parse.
   const commitDeletion = useCallback(
     (nextText: string) => {
       clearSelection();
@@ -460,13 +461,13 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
 
   const deleteSelectedRows = () => {
     if (!editable || selectedInView.length === 0) return;
-    commitDeletion(serializeTableWithoutRows(latestRef.current.table, selectedInView));
+    commitDeletion(deleteRows(latestRef.current.text, latestRef.current.table, selectedInView));
   };
 
   const deleteSelectedColumns = () => {
     // Last-column guard: the serializer needs ≥1 column to reconvert.
     if (!editable || allColumnsSelected || selectedDataColumns.length === 0) return;
-    commitDeletion(serializeTableWithoutColumns(latestRef.current.table, selectedDataColumns));
+    commitDeletion(deleteColumns(latestRef.current.text, latestRef.current.table, selectedDataColumns));
   };
 
   // Keyboard Delete/Backspace (Glide onDelete, verified against the pinned
@@ -481,7 +482,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     (selection: GridSelection): boolean => {
       const commit = onCellCommit;
       if (!commit) return false;
-      const { table: current } = latestRef.current;
+      const { text: sourceText, table: current } = latestRef.current;
       const view = viewRef.current;
 
       if (selection.rows.length > 0) {
@@ -489,7 +490,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
           .map((viewRow) => view[viewRow])
           .filter((source): source is number => source !== undefined);
         if (sources.length > 0) {
-          commitDeletion(serializeTableWithoutRows(current, sources));
+          commitDeletion(deleteRows(sourceText, current, sources));
           return false;
         }
       }
@@ -499,7 +500,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
           .map((c) => c - GUTTER_COLUMNS);
         // Last-column guard — same rule as the toolbar action.
         if (dataCols.length > 0 && dataCols.length < current.headers.length) {
-          commitDeletion(serializeTableWithoutColumns(current, dataCols));
+          commitDeletion(deleteColumns(sourceText, current, dataCols));
         }
         return false;
       }
@@ -517,7 +518,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         }
       }
       if (sources.length > 0) {
-        commitDeletion(serializeTableWithoutRows(current, sources));
+        commitDeletion(deleteRows(sourceText, current, sources));
       }
       return false;
     },
