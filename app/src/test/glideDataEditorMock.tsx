@@ -31,6 +31,8 @@ interface MockGridProps {
     newValues: readonly { location: readonly [number, number]; value: { kind: string; data: string } }[]
   ) => void;
   onGridSelectionChange?: (newSelection: GridSelection) => void;
+  onDelete?: (selection: GridSelection) => boolean | GridSelection;
+  gridSelection?: GridSelection;
 }
 
 /** GridCell unions include LoadingCell, which carries no data. */
@@ -129,11 +131,14 @@ vi.mock("@glideapps/glide-data-grid", async (importOriginal) => {
           key: `colsel${x}`,
           type: "button",
           "data-testid": `glide-select-column-${x}`,
-          onClick: () => {
+          onClick: (event: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }) => {
             const empty = actual.CompactSelection.empty();
+            // The real grid blends columns on ctrl/cmd+click.
+            const columns =
+              event.ctrlKey || event.metaKey ? (props.gridSelection?.columns ?? empty).add(x) : empty.add(x);
             props.onGridSelectionChange?.({
               current: undefined,
-              columns: empty.add(x),
+              columns,
               rows: empty,
             });
           },
@@ -142,11 +147,57 @@ vi.mock("@glideapps/glide-data-grid", async (importOriginal) => {
       )
     );
 
+    // Keyboard-path triggers. Canvas gestures can't be simulated, but the
+    // component's real handlers can: one button injects a 1x2 range
+    // selection through the controlled onGridSelectionChange (what the real
+    // grid produces for a two-row drag), and one fires the onDelete
+    // contract with the live gridSelection — recording its return value so
+    // tests can assert the component suppresses Glide's own cell-clearing.
+    const emptySelection = actual.CompactSelection.empty();
+    const keyTriggers = React.createElement(
+      "div",
+      { "data-testid": "glide-key-triggers" },
+      React.createElement(
+        "button",
+        {
+          type: "button",
+          "data-testid": "glide-select-range",
+          onClick: () =>
+            props.onGridSelectionChange?.({
+              current: { cell: [1, 0], range: { x: 1, y: 0, width: 1, height: 2 }, rangeStack: [] },
+              rows: emptySelection,
+              columns: emptySelection,
+            }),
+        },
+        "select-range"
+      ),
+      React.createElement(
+        "button",
+        {
+          type: "button",
+          "data-testid": "glide-delete-key",
+          onClick: (event: { currentTarget: { dataset: { deleteResult?: string } } }) => {
+            if (!props.onDelete) return;
+            const result = props.onDelete(
+              props.gridSelection ?? {
+                current: undefined,
+                rows: emptySelection,
+                columns: emptySelection,
+              }
+            );
+            event.currentTarget.dataset.deleteResult = result === false ? "false" : String(result);
+          },
+        },
+        "delete-key"
+      )
+    );
+
     return React.createElement(
       "div",
       { "data-testid": "glide-grid-mock", tabIndex: 0 },
       React.createElement("div", { "data-testid": "glide-grid-headers" }, headerCells),
       React.createElement("div", { "data-testid": "glide-column-selects" }, columnSelectButtons),
+      keyTriggers,
       bodyRows
     );
   };

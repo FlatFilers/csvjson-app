@@ -17,8 +17,9 @@ import {
   ImageWindowLoaderImpl,
 } from "@glideapps/glide-data-grid";
 import "@glideapps/glide-data-grid/dist/index.css";
-import { Copy, Search, X } from "lucide-react";
+import { Copy, Search, Trash2, X } from "lucide-react";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
+import { serializeTableWithoutColumns, serializeTableWithoutRows } from "@/lib/tableDeletion";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
 import { serializeGridSelection } from "@/lib/tableSelection";
 
@@ -38,11 +39,14 @@ import { serializeGridSelection } from "@/lib/tableSelection";
  * virtualization, drag/keyboard range selection, cell editors, the fill
  * handle, paste splitting, and column resizing. Ours stays everything the
  * canvas can't take from the raw text: the search toolbar, the numeric-
- * aware sort (BigInt-safe), RFC 4180 copy serialization, and the guarded
+ * aware sort (BigInt-safe), RFC 4180 copy serialization, the guarded
  * reconversion path — every cell edit splices the edited row's exact bytes
  * and hands the result to onCellCommit, so the raw CSV is the single
- * source of truth. The output pane renders this same component with no
- * onCellCommit: strictly read-only, no editor, no editing affordances.
+ * source of truth — and, on the input table only, row/column deletion
+ * (toolbar buttons and the keyboard Delete path via Glide's onDelete),
+ * which mutates the parsed table and reconverts through the same guard.
+ * The output pane renders this same component with no onCellCommit:
+ * strictly read-only, no editor, no editing or deletion affordances.
  */
 
 const ROW_HEIGHT = 24;
@@ -85,7 +89,20 @@ type GutterClickEvent = { shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boole
 const TOOLBAR_BUTTON =
   "inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
-/** Canvas has no CSS variables — resolve the palette per theme explicitly. */
+/** Canvas has no CSS variables — resolve the palette per theme explicitly.
+ *
+ * Selected-header contract (contrast fix, 2026-09-08): Glide pre-fills a
+ * selected column header with `accentColor` before the drawHeader callback
+ * runs, and paints the title text in `textHeaderSelected`. Those two must
+ * therefore CONTRAST — but both were mapped to the theme's inverted ink
+ * (dark: near-white; light: near-black), so a selected header rendered as
+ * a solid inverted block with invisible same-on-same text. The fix is the
+ * wash treatment in drawHeader: an opaque `bgHeaderHovered` fill painted
+ * over the accentColor block plus an `accentColor` bottom border, which
+ * makes the existing textHeaderSelected values (kept as-is) genuinely
+ * contrasting in both themes. accentColor itself stays untouched — cell
+ * ranges, row markers, and the fill handle still use it.
+ */
 function buildTheme(dark: boolean): Partial<Theme> {
   if (dark) {
     return {
@@ -259,6 +276,13 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     });
   }, [view]);
 
+  // A column deletion (or any column-shrinking edit) can strand the sort
+  // state past the last header — drop it rather than keep a glyph target
+  // that no longer exists. Filter/search re-derive on their own.
+  useEffect(() => {
+    setSort((prev) => (prev !== null && prev.col >= columnsCount ? null : prev));
+  }, [columnsCount]);
+
   const isFiltered = query !== "";
   const total = table.rows.length;
 
@@ -327,12 +351,12 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     }));
   }, []);
 
-  const clearSelection = () => {
+  const clearSelection = useCallback(() => {
     anchorRef.current = null;
     selectedSourcesRef.current = new Set();
     setSelectedSources(new Set());
     setGridSelection(undefined);
-  };
+  }, []);
 
   const handleGridSelectionChange = useCallback((next: GridSelection) => {
     const sources = new Set<number>();
@@ -347,14 +371,24 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
 
   const handleSelectionCleared = useCallback(() => {
     clearSelection();
-  }, []);
+  }, [clearSelection]);
 
   // Selected rows currently visible in the view. The chip counts THESE —
   // never the raw selection set — so the number always matches what Copy
   // as CSV emits. Hidden selections stay keyed by source index and come
   // back when the filter clears.
   const selectedInView = useMemo(() => view.filter((source) => selectedSources.has(source)), [view, selectedSources]);
-  const selectedColumnCount = gridSelection?.columns.length ?? 0;
+  // Selected columns as 0-based DATA column indices (the grid selection
+  // counts the gutter as column 0, and the gutter is not a data column —
+  // the chip, Copy, and deletion all count data columns only).
+  const selectedDataColumns = useMemo(
+    () =>
+      [...(gridSelection?.columns ?? [])]
+        .filter((c) => c >= GUTTER_COLUMNS)
+        .map((c) => c - GUTTER_COLUMNS),
+    [gridSelection]
+  );
+  const selectedColumnCount = selectedDataColumns.length;
   const showSelectionChip = selectedInView.length > 0 || selectedColumnCount > 0;
 
   const copySelection = () => {
@@ -406,6 +440,89 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     window.addEventListener("copy", onCopy, { capture: true });
     return () => window.removeEventListener("copy", onCopy, { capture: true });
   }, []);
+
+  // Deletion commit path (input table only): a deletion mutates the parsed
+  // table, re-serializes the whole grid, and hands the text to the same
+  // guarded reconversion a cell edit takes — the raw CSV stays the single
+  // source of truth. A deletion changes row/column counts, so the
+  // selection (keyed by source indices that shift or vanish) is cleared
+  // with the commit; filter, sort, and the count chip re-derive from the
+  // new parse.
+  const commitDeletion = useCallback(
+    (nextText: string) => {
+      clearSelection();
+      onCellCommit?.(nextText);
+    },
+    [clearSelection, onCellCommit]
+  );
+
+  const allColumnsSelected = columnsCount > 0 && selectedDataColumns.length >= columnsCount;
+
+  const deleteSelectedRows = () => {
+    if (!editable || selectedInView.length === 0) return;
+    commitDeletion(serializeTableWithoutRows(latestRef.current.table, selectedInView));
+  };
+
+  const deleteSelectedColumns = () => {
+    // Last-column guard: the serializer needs ≥1 column to reconvert.
+    if (!editable || allColumnsSelected || selectedDataColumns.length === 0) return;
+    commitDeletion(serializeTableWithoutColumns(latestRef.current.table, selectedDataColumns));
+  };
+
+  // Keyboard Delete/Backspace (Glide onDelete, verified against the pinned
+  // 6.0.3 source): whole selected rows first, then whole selected columns,
+  // then the rows spanned by the current cell range(s). Returns false in
+  // every case — a boolean true would make Glide ALSO clear the selection's
+  // cells by splicing empty strings through onCellsEdited over the fresh
+  // text, and a returned GridSelection would re-target stale geometry.
+  // In 6.0.3, `onDelete` returning false is the documented way to say
+  // "already handled — do nothing further".
+  const onDeleteSelection = useCallback(
+    (selection: GridSelection): boolean => {
+      const commit = onCellCommit;
+      if (!commit) return false;
+      const { table: current } = latestRef.current;
+      const view = viewRef.current;
+
+      if (selection.rows.length > 0) {
+        const sources = [...selection.rows]
+          .map((viewRow) => view[viewRow])
+          .filter((source): source is number => source !== undefined);
+        if (sources.length > 0) {
+          commitDeletion(serializeTableWithoutRows(current, sources));
+          return false;
+        }
+      }
+      if (selection.columns.length > 0) {
+        const dataCols = [...selection.columns]
+          .filter((c) => c >= GUTTER_COLUMNS && c < GUTTER_COLUMNS + current.headers.length)
+          .map((c) => c - GUTTER_COLUMNS);
+        // Last-column guard — same rule as the toolbar action.
+        if (dataCols.length > 0 && dataCols.length < current.headers.length) {
+          commitDeletion(serializeTableWithoutColumns(current, dataCols));
+        }
+        return false;
+      }
+      // A plain cell range (drag or shift+arrow) deletes the rows it
+      // spans — the primary range plus any stacked multi-rect ranges.
+      const ranges =
+        selection.current === undefined ? [] : [selection.current.range, ...selection.current.rangeStack];
+      const sources: number[] = [];
+      for (const range of ranges) {
+        const from = Math.max(0, Math.min(range.y, view.length));
+        const to = Math.max(0, Math.min(range.y + range.height, view.length));
+        for (let v = from; v < to; v++) {
+          const source = view[v];
+          if (source !== undefined && !sources.includes(source)) sources.push(source);
+        }
+      }
+      if (sources.length > 0) {
+        commitDeletion(serializeTableWithoutRows(current, sources));
+      }
+      return false;
+    },
+    [commitDeletion, onCellCommit]
+  );
 
   // Cell-edit commit path: splice each edited row's exact byte span out of
   // the source and hand the new text to onCellCommit — the same guarded
@@ -518,16 +635,27 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
   }, [table.headers, numeric, columnWidth]);
 
   // Header strip: mono uppercase muted text, sort glyph on the sorted
-  // column, right-aligned "#" in the gutter.
+  // column, right-aligned "#" in the gutter. A selected column header
+  // gets the wash treatment — see the buildTheme contract note: Glide
+  // pre-fills it with accentColor (inverted ink), so paint the opaque
+  // bgHeaderHovered wash over that block plus a 2px accentColor bottom
+  // border; the title then draws in textHeaderSelected, which contrasts
+  // with the wash in both themes.
   const drawHeader = useCallback<DrawHeaderCallback>(
     (args, drawContent) => {
-      const { ctx, columnIndex, rect, theme } = args;
+      const { ctx, columnIndex, rect, theme, isSelected } = args;
       ctx.save();
       try {
         (ctx as unknown as WithLetterSpacing).letterSpacing = "0.5px";
+        if (isSelected) {
+          ctx.fillStyle = theme.bgHeaderHovered;
+          ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+          ctx.fillStyle = theme.accentColor;
+          ctx.fillRect(rect.x, rect.y + rect.height - 2, rect.width, 2);
+        }
         if (columnIndex < GUTTER_COLUMNS) {
           ctx.fillStyle = theme.bgHeader;
-          ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+          if (!isSelected) ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
           ctx.fillStyle = theme.textLight;
           ctx.fillText("#", rect.x + rect.width - 8, rect.y + rect.height / 2 + 0.5);
           return;
@@ -537,7 +665,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         if (sortDir !== null) {
           const cx = rect.x + rect.width - 11;
           const cy = rect.y + rect.height / 2;
-          ctx.fillStyle = theme.textHeader;
+          ctx.fillStyle = isSelected ? theme.textHeaderSelected : theme.textHeader;
           ctx.beginPath();
           if (sortDir === "asc") {
             ctx.moveTo(cx, cy - 2.5);
@@ -683,6 +811,41 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
               <Copy aria-hidden="true" className="size-3" />
               Copy as CSV
             </button>
+            {editable && selectedInView.length > 0 && (
+              <button
+                type="button"
+                data-testid={`${testId}-delete-rows`}
+                onClick={deleteSelectedRows}
+                title={`Deletes the ${selectedInView.length} selected ${
+                  selectedInView.length === 1 ? "row" : "rows"
+                } from the source CSV`}
+                className={TOOLBAR_BUTTON}
+              >
+                <Trash2 aria-hidden="true" className="size-3" />
+                Delete {selectedInView.length.toLocaleString()}{" "}
+                {selectedInView.length === 1 ? "row" : "rows"}
+              </button>
+            )}
+            {editable && selectedColumnCount > 0 && (
+              <button
+                type="button"
+                data-testid={`${testId}-delete-columns`}
+                onClick={deleteSelectedColumns}
+                disabled={allColumnsSelected}
+                title={
+                  allColumnsSelected
+                    ? "At least one column must remain — the converter needs a column to detect"
+                    : `Deletes the ${selectedColumnCount} selected ${
+                        selectedColumnCount === 1 ? "column" : "columns"
+                      } from the source CSV`
+                }
+                className={`${TOOLBAR_BUTTON} disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                <Trash2 aria-hidden="true" className="size-3" />
+                Delete {selectedColumnCount.toLocaleString()}{" "}
+                {selectedColumnCount === 1 ? "column" : "columns"}
+              </button>
+            )}
             <button
               type="button"
               data-testid={`${testId}-clear-selection`}
@@ -713,6 +876,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
             getCellContent={getCellContent}
             getCellsForSelection={getCellsForSelection}
             onCellsEdited={editable ? onCellsEdited : undefined}
+            onDelete={editable ? onDeleteSelection : undefined}
             onCellClicked={onCellClicked}
             onHeaderClicked={cycleSort}
             onGridSelectionChange={handleGridSelectionChange}
@@ -746,6 +910,17 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
             <button type="button" onClick={clearSearch} className={TOOLBAR_BUTTON}>
               Show all rows
             </button>
+          </div>
+        )}
+        {/* Input-pane guidance only — the read-only output pane accepts
+            neither paste nor upload, so headers-only output (what deleting
+            all input rows produces) shows no overlay at all. */}
+        {editable && !isFiltered && view.length === 0 && (
+          <div
+            data-testid={`${testId}-empty-rows`}
+            className="absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-6 text-sm text-muted-foreground"
+          >
+            <span>No rows. Paste or upload data to start over.</span>
           </div>
         )}
       </div>
