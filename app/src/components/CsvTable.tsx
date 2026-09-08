@@ -50,6 +50,9 @@ const HEADER_HEIGHT = 26;
 const COLUMN_MIN_WIDTH = 110;
 /** Width of the leading row-number gutter column. */
 const GUTTER_WIDTH = 40;
+
+/** Mobile panes can squeeze the grid below its natural height; the wrapper floors at this many rows. */
+const MAX_VISIBLE_ROWS = 12;
 /** The gutter is grid column 0; data columns start after it. */
 const GUTTER_COLUMNS = 1;
 
@@ -257,6 +260,12 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
 
   const isFiltered = query !== "";
   const total = table.rows.length;
+
+  // The stacked mobile layout can squeeze this pane below the grid's natural
+  // height (the old DOM table overflowed visibly in the same case). Floor the
+  // wrapper at the header plus a usable window of rows — flex-1 still fills
+  // taller panes, and Glide scrolls internally for the rest.
+  const gridMinHeight = HEADER_HEIGHT + Math.min(view.length, MAX_VISIBLE_ROWS) * ROW_HEIGHT;
 
   const clearSearch = () => {
     setSearchInput("");
@@ -690,6 +699,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         role="grid"
         aria-rowcount={view.length + 1}
         className="relative min-h-0 flex-1"
+        style={{ minHeight: gridMinHeight }}
       >
         <div className="absolute inset-0">
           <DataEditorCore

@@ -95,6 +95,12 @@ describe("CsvTable search toolbar", () => {
     }
   });
 
+  it("floors the grid wrapper at the header plus a usable window of rows", () => {
+    // 4 data rows: 26px header + 4 x 24px rows = 122px, even if the pane squeezes.
+    render(<CsvTable text={FIXTURE} testId="input-table" />);
+    expect(screen.getByTestId("input-table")).toHaveStyle({ minHeight: "122px" });
+  });
+
   it("filters rows with a live count chip and follows the filtered view", async () => {
     const user = userEvent.setup();
     render(<CsvTable text={FIXTURE} />);
