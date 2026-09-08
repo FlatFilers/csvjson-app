@@ -1,6 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import "../test/glideDataEditorMock";
 import { CsvTable } from "./CsvTable";
 
@@ -356,5 +357,181 @@ describe("CsvTable editing (input table only)", () => {
     expect(screen.getByTestId("input-table").querySelector('[data-testid^="glide-edit-"]')).not.toBeNull();
     // Output instance: strictly read-only — no edit affordance at all.
     expect(screen.getByTestId("output-table").querySelector('[data-testid^="glide-edit-"]')).toBeNull();
+  });
+});
+
+describe("CsvTable deletion actions (input table only)", () => {
+  /** Harness owning the text, so a committed deletion actually re-parses. */
+  function DeletionHarness({ initial, editable = true }: { initial: string; editable?: boolean }) {
+    const [text, setText] = useState(initial);
+    return editable ? <CsvTable text={text} onCellCommit={setText} /> : <CsvTable text={text} />;
+  }
+
+  it("shows no delete actions without a selection", () => {
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    expect(screen.queryByTestId("csv-table-delete-rows")).toBeNull();
+    expect(screen.queryByTestId("csv-table-delete-columns")).toBeNull();
+  });
+
+  it("renders delete actions for the input table but never the output table", () => {
+    render(
+      <>
+        <CsvTable text={FIXTURE} testId="input-table" onCellCommit={() => {}} />
+        <CsvTable text={FIXTURE} testId="output-table" />
+      </>
+    );
+    // The toolbar is a sibling of the grid element, not a child.
+    const inputToolbar = screen.getByTestId("input-table-toolbar");
+    fireEvent.click(within(screen.getByTestId("input-table")).getByTestId("glide-row-select-0"));
+    expect(within(inputToolbar).getByTestId("input-table-delete-rows")).toBeInTheDocument();
+
+    const outputToolbar = screen.getByTestId("output-table-toolbar");
+    fireEvent.click(within(screen.getByTestId("output-table")).getByTestId("glide-row-select-0"));
+    // Same selection state, no deletion affordance: the output is read-only.
+    expect(within(outputToolbar).getByTestId("output-table-selected-count")).toBeInTheDocument();
+    expect(outputToolbar.querySelector('[data-testid$="-delete-rows"]')).toBeNull();
+    expect(outputToolbar.querySelector('[data-testid$="-delete-columns"]')).toBeNull();
+  });
+
+  it("deletes a selected row from the source and clears the selection", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-row-select-1")); // Elephant, source row 2
+    expect(screen.getByTestId("csv-table-delete-rows")).toHaveTextContent("Delete 1 row");
+    await user.click(screen.getByTestId("csv-table-delete-rows"));
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("3 rows"));
+    // The raw text re-parsed: source row numbers renumber to the new text.
+    expect(viewSourceRows()).toEqual([1, 2, 3]);
+    expect(cellText(0, 1)).toBe("De Stijl");
+    expect(cellText(1, 1)).toBe("White Blood Cells");
+    expect(screen.queryByTestId("csv-table-selected-count")).toBeNull();
+  });
+
+  it("deletes a multi-row view range (source rows 1-3)", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-row-select-0"));
+    // Modifier clicks go through fireEvent — the established convention in
+    // this suite (userEvent does not deliver shiftKey to the mock's onClick).
+    fireEvent.click(screen.getByTestId("glide-row-select-2"), { shiftKey: true });
+    expect(screen.getByTestId("csv-table-delete-rows")).toHaveTextContent("Delete 3 rows");
+    await user.click(screen.getByTestId("csv-table-delete-rows"));
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("1 row"));
+    expect(viewSourceRows()).toEqual([1]);
+    expect(cellText(0, 1)).toBe("Get Behind Me Satan");
+  });
+
+  it("deletes the correct source rows when the view is sorted", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-header-2")); // year asc: De Stijl first
+    await user.click(screen.getByTestId("glide-row-select-0")); // view row 0 = source row 1
+    await user.click(screen.getByTestId("csv-table-delete-rows"));
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("3 rows"));
+    // Source row 1 (De Stijl, first in the sorted view) was dropped — not
+    // view row 0's post-parse neighbor. The year-ascending sort persists,
+    // so the surviving rows re-sort into the same view order.
+    expect(screen.getByTestId("csv-table").textContent).not.toContain("De Stijl");
+    expect(cellText(0, 1)).toBe("White Blood Cells");
+    expect(cellText(1, 1)).toBe("Elephant");
+    expect(cellText(2, 1)).toBe("Get Behind Me Satan");
+  });
+
+  it("deletes a selected column's header and every row's cell", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    // Grid column 2 = the YEAR data column (the gutter is grid column 0).
+    await user.click(screen.getByTestId("glide-select-column-2"));
+    expect(screen.getByTestId("csv-table-delete-columns")).toHaveTextContent("Delete 1 column");
+    await user.click(screen.getByTestId("csv-table-delete-columns"));
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("4 rows"));
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
+    expect(screen.getByTestId("glide-grid-headers")).not.toHaveTextContent("YEAR");
+    expect(cellText(0, 1)).toBe("De Stijl");
+  });
+
+  it("blocks deleting the last remaining column with a disabled action and tooltip", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={"album\nDe Stijl\nElephant"} />);
+    // Grid column 1 is the table's only DATA column (grid column 0 is the
+    // gutter, which is not a data column and never counts).
+    await user.click(screen.getByTestId("glide-select-column-1"));
+    const deleteColumns = screen.getByTestId("csv-table-delete-columns");
+    expect(deleteColumns).toBeDisabled();
+    expect(deleteColumns).toHaveAttribute(
+      "title",
+      "At least one column must remain — the converter needs a column to detect"
+    );
+    await user.click(deleteColumns); // no-op
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
+  });
+
+  it("disables column deletion when every column is selected", () => {
+    render(<DeletionHarness initial={FIXTURE} />);
+    // Blend-select both DATA columns (grid columns 1-2; the gutter is 0).
+    fireEvent.click(screen.getByTestId("glide-select-column-1"), { metaKey: true });
+    fireEvent.click(screen.getByTestId("glide-select-column-2"), { metaKey: true });
+    const deleteColumns = screen.getByTestId("csv-table-delete-columns");
+    expect(deleteColumns).toHaveTextContent("Delete 2 columns");
+    expect(deleteColumns).toBeDisabled();
+  });
+
+  it("keyboard Delete on selected rows deletes them via onDelete and suppresses cell-clearing", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-row-select-0"));
+    fireEvent.click(screen.getByTestId("glide-row-select-2"), { shiftKey: true }); // rows 0-2
+    const deleteKey = screen.getByTestId("glide-delete-key");
+    fireEvent.click(deleteKey);
+    // false tells Glide the handler owns the deletion: no cell-clearing pass.
+    expect(deleteKey.getAttribute("data-delete-result")).toBe("false");
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("1 row"));
+    expect(cellText(0, 1)).toBe("Get Behind Me Satan");
+  });
+
+  it("keyboard Delete on a selected column deletes it", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-select-column-2")); // YEAR data column
+    fireEvent.click(screen.getByTestId("glide-delete-key"));
+    await waitFor(() =>
+      expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM")
+    );
+    expect(screen.getByTestId("glide-grid-headers")).not.toHaveTextContent("YEAR");
+  });
+
+  it("keyboard Delete over a cell range deletes the encompassed rows", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-select-range")); // 1x2 range: view rows 0-1
+    const deleteKey = screen.getByTestId("glide-delete-key");
+    fireEvent.click(deleteKey);
+    expect(deleteKey.getAttribute("data-delete-result")).toBe("false");
+    await waitFor(() => expect(screen.getByTestId("csv-table-count")).toHaveTextContent("2 rows"));
+    expect(cellText(0, 1)).toBe("White Blood Cells");
+    expect(cellText(1, 1)).toBe("Get Behind Me Satan");
+  });
+
+  it("keyboard Delete refuses to delete the only column", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={"album\nDe Stijl\nElephant"} />);
+    await user.click(screen.getByTestId("glide-select-column-1")); // the only data column
+    fireEvent.click(screen.getByTestId("glide-delete-key"));
+    expect(screen.getByTestId("glide-delete-key").getAttribute("data-delete-result")).toBe("false");
+    // Nothing committed: same headers, same rows, no empty-column state.
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
+    expect(screen.getByTestId("csv-table-count")).toHaveTextContent("2 rows");
+  });
+
+  it("falls through to the empty state when every row is deleted", async () => {
+    const user = userEvent.setup();
+    render(<DeletionHarness initial={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-row-select-0"));
+    fireEvent.click(screen.getByTestId("glide-row-select-3"), { shiftKey: true });
+    await user.click(screen.getByTestId("csv-table-delete-rows"));
+    expect(await screen.findByTestId("csv-table-empty-rows")).toHaveTextContent("No rows");
+    // Headers survive: a headers-only table is valid and still convertible.
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUMYEAR");
+    expect(screen.getByTestId("csv-table-count")).toHaveTextContent("0 rows");
   });
 });

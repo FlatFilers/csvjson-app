@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 10,
+    date: "2026-09-08",
+    tag: "new",
+    title: "Delete rows and columns from the table",
+    summary:
+      "Select rows or columns in the input table and delete them by button or the Delete key — the raw CSV updates and reconverts in place, with at least one column always kept. Selected column headers are also readable again in both themes.",
+  },
+  {
     id: 9,
     date: "2026-09-08",
     tag: "new",

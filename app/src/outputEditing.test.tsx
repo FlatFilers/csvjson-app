@@ -252,6 +252,28 @@ describe("freeze while edited", () => {
     expect(outputStatus()).toHaveTextContent(/Output edited/);
   });
 
+  it("table row deletion does not regenerate the output", async () => {
+    render(<App />);
+    await populate();
+    await editOutput(replaceDoc(EDITED_TEXT));
+
+    // A deletion is an input change: the guard must treat it exactly like a
+    // cell edit — the frozen edited output stays untouched. The toolbar is
+    // a sibling of the grid element, so query it separately.
+    const inputToolbar = within(screen.getByTestId("input-pane")).getByTestId("input-table-toolbar");
+    fireEvent.click(within(screen.getByTestId("input-table")).getByTestId("glide-row-select-0"));
+    fireEvent.click(within(inputToolbar).getByTestId("input-table-delete-rows"));
+    await waitFor(() =>
+      expect(within(screen.getByTestId("input-pane")).getByTestId("input-table-count")).toHaveTextContent(
+        "5 rows"
+      )
+    );
+    await settle();
+
+    expect(outputEditorView().state.doc.toString()).toBe(EDITED_TEXT);
+    expect(outputStatus()).toHaveTextContent(/Output edited/);
+  });
+
   it("uploads do not regenerate the output", async () => {
     render(<App />);
     await populate();
