@@ -109,15 +109,8 @@ export function splitHighlight(text: string, query: string): { text: string; hit
  * Serialize one CSV record: fields containing the delimiter, a quote, CR or
  * LF are RFC 4180 quoted with doubled inner quotes; everything else passes
  * through verbatim so copied cells stay byte-identical to the source.
+ *
+ * Canonical implementation lives in the CSV codec (lib/csvTable.ts) — the
+ * cell-edit commit serializes rows with the same primitive copy uses.
  */
-export function serializeCsvRow(cells: string[], delimiter: string): string {
-  return cells
-    .map((cell) => {
-      if (cell.includes('"')) return `"${cell.replaceAll('"', '""')}"`;
-      if (cell.includes(delimiter) || cell.includes("\n") || cell.includes("\r")) {
-        return `"${cell}"`;
-      }
-      return cell;
-    })
-    .join(delimiter);
-}
+export { serializeCsvRow } from "./csvTable";

@@ -504,4 +504,82 @@ describe("CsvTable cell editing", () => {
     expect(cell).not.toHaveAttribute("tabindex");
     expect(cell.className).not.toContain("cursor-text");
   });
+
+  it("commit rewrites only the edited row's bytes — ragged neighbors survive", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    const ragged = ["album,year", "De Stijl,2000,extra,more", "Elephant,2003"].join("\n");
+    render(<CsvTable text={ragged} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl II");
+    await user.keyboard("{Enter}");
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    // The wide row keeps ",extra,more" and the short row gains no padding.
+    expect(onCellCommit).toHaveBeenCalledWith(
+      ["album,year", "De Stijl II,2000,extra,more", "Elephant,2003"].join("\n")
+    );
+  });
+
+  it("editing a padded cell of a short row writes just that field", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    const ragged = ["album,year", "De Stijl,2000", "Elephant"].join("\n");
+    render(<CsvTable text={ragged} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("")); // the padded, displayed-empty cell
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.type(editor, "2003");
+    await user.keyboard("{Enter}");
+    expect(onCellCommit).toHaveBeenCalledWith(
+      ["album,year", "De Stijl,2000", "Elephant,2003"].join("\n")
+    );
+  });
+
+  it("commit keeps the file's CRLF endings and trailing newline", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    const crlf = ["album,year", "De Stijl,2000", "Elephant,2003"].join("\r\n") + "\r\n";
+    render(<CsvTable text={crlf} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const editor = screen.getByTestId("csv-table-cell-editor");
+    await user.clear(editor);
+    await user.type(editor, "De Stijl II");
+    await user.keyboard("{Enter}");
+    expect(onCellCommit).toHaveBeenCalledWith(
+      ["album,year", "De Stijl II,2000", "Elephant,2003"].join("\r\n") + "\r\n"
+    );
+  });
+
+  it("returns focus to the cell on Enter commit", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} onCellCommit={() => {}} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const cell = screen.getByTitle("De Stijl").closest('[role="gridcell"]');
+    await user.type(screen.getByTestId("csv-table-cell-editor"), "{Enter}");
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(cell);
+  });
+
+  it("returns focus to the cell on Escape cancel without committing", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+    await user.click(screen.getByTitle("De Stijl"));
+    const cell = screen.getByTitle("De Stijl").closest('[role="gridcell"]');
+    await user.type(screen.getByTestId("csv-table-cell-editor"), "junk{Escape}");
+    expect(onCellCommit).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("csv-table-cell-editor")).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(cell);
+  });
+
+  it("falls back to the column number in the editor label when a header is empty", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={"album,\nDe Stijl,2000"} onCellCommit={() => {}} />);
+    await user.click(screen.getByTitle("2000")); // column 2 — its header is the empty field after the trailing delimiter
+    expect(screen.getByTestId("csv-table-cell-editor")).toHaveAttribute(
+      "aria-label",
+      "Edit column 2, row 1"
+    );
+  });
 });

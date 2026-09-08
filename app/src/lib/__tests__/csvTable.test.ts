@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   detectDelimiter,
   numericColumns,
+  parseCsvRecord,
   parseCsvTable,
+  serializeCsvRow,
   serializeCsvTable,
 } from "../csvTable";
 
@@ -158,5 +160,68 @@ describe("serializeCsvTable", () => {
     const quoted = serializeCsvTable(grid.headers, grid.rows, "\t");
     expect(quoted).toBe('a\tb\n1\t"x\ty"');
     expect(parseCsvTable(quoted, "\t").rows).toEqual(grid.rows);
+  });
+});
+
+describe("parseCsvTable row spans", () => {
+  it("maps each data row to its exact byte span, terminators excluded", () => {
+    const text = "album,year\nDe Stijl,2000\nElephant,2003\n";
+    const table = parseCsvTable(text);
+    expect(table.rowSpans).toHaveLength(2);
+    expect(text.slice(table.rowSpans[0].start, table.rowSpans[0].end)).toBe("De Stijl,2000");
+    expect(text.slice(table.rowSpans[1].start, table.rowSpans[1].end)).toBe("Elephant,2003");
+  });
+
+  it("keeps CRLF and the trailing newline outside the spans", () => {
+    const text = "album,year\r\nDe Stijl,2000\r\nElephant,2003\r\n";
+    const table = parseCsvTable(text);
+    expect(text.slice(table.rowSpans[0].start, table.rowSpans[0].end)).toBe("De Stijl,2000");
+    expect(text.slice(table.rowSpans[1].start, table.rowSpans[1].end)).toBe("Elephant,2003");
+  });
+
+  it("reports spans over the caller's text even with a leading BOM", () => {
+    const text = "﻿album,year\nDe Stijl,2000";
+    const table = parseCsvTable(text);
+    expect(text.slice(table.rowSpans[0].start, table.rowSpans[0].end)).toBe("De Stijl,2000");
+  });
+
+  it("covers quoted fields with embedded newlines inside one span", () => {
+    const text = 'a,b\n"multi\nline",1';
+    const table = parseCsvTable(text);
+    expect(table.rowSpans).toHaveLength(1);
+    expect(text.slice(table.rowSpans[0].start, table.rowSpans[0].end)).toBe('"multi\nline",1');
+  });
+});
+
+describe("parseCsvRecord", () => {
+  it("returns a wide row's true cells — no truncation to header width", () => {
+    expect(parseCsvRecord("De Stijl,2000,extra,more")).toEqual([
+      "De Stijl",
+      "2000",
+      "extra",
+      "more",
+    ]);
+  });
+
+  it("returns a short row's true cells — no padding", () => {
+    expect(parseCsvRecord("Elephant,2003")).toEqual(["Elephant", "2003"]);
+  });
+
+  it("honors a forced delimiter from the table instead of re-detecting", () => {
+    // A quoted semicolon must not flip detection away from the table's comma.
+    expect(parseCsvRecord('"a;b",c', ",")).toEqual(["a;b", "c"]);
+  });
+});
+
+describe("serializeCsvRow", () => {
+  it("quotes only cells that need it and round-trips through the parser", () => {
+    const cells = ["plain", "has, comma", 'has "quote"', "has\nnewline", ""];
+    const row = serializeCsvRow(cells);
+    expect(row).toBe('plain,"has, comma","has ""quote""","has\nnewline",');
+    expect(parseCsvRecord(row)).toEqual(cells);
+  });
+
+  it("quotes cells containing the active non-comma delimiter", () => {
+    expect(serializeCsvRow(["1", "x\ty"], "\t")).toBe('1\t"x\ty"');
   });
 });

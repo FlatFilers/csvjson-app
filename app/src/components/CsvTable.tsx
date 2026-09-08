@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronDown, ChevronUp, Copy, Search, X } from "lucide-react";
-import { numericColumns, parseCsvTable, serializeCsvTable } from "@/lib/csvTable";
+import { numericColumns, parseCsvRecord, parseCsvTable } from "@/lib/csvTable";
 import {
   filterRowIndices,
   serializeCsvRow,
@@ -35,10 +35,11 @@ import { cn } from "@/lib/utils";
  *
  * Cell editing (spec: PR B) exists only when `onCellCommit` is passed — the
  * input table wires it to the raw-input handler, the output table stays
- * strictly read-only (no editor, no editing affordance). A commit
- * re-serializes the whole grid (lib/csvTable.ts serializeCsvTable) and hands
- * the text up; the grid never persists state — the commit is exactly a
- * raw-view keystroke of the serialized text.
+ * strictly read-only (no editor, no editing affordance). A commit splices
+ * the edited row's bytes back into the source text (parseCsvRecord +
+ * serializeCsvRow in lib/csvTable.ts) and hands the text up; the grid never
+ * persists state — the commit is exactly a raw-view keystroke that touches
+ * one row.
  */
 
 const ROW_HEIGHT = 24;
@@ -83,6 +84,13 @@ export function CsvTable({ text, delimiter, testId = "csv-table", onCellCommit }
   const [editing, setEditing] = useState<EditingCell | null>(null);
   /** Tab/Shift+Tab direction queued for the commit-on-blur (see the editor's keydown). */
   const advanceRef = useRef<-1 | 1 | null>(null);
+  /**
+   * Enter/Escape exit in progress. Refocusing the cell before the editor
+   * unmounts fires the input's blur — which would otherwise re-commit (or,
+   * on Escape, commit the typed value). The blur sees this ref and stands
+   * down; Tab and plain click-away blurs leave it null.
+   */
+  const exitRef = useRef<"committed" | "cancelled" | null>(null);
   const editable = onCellCommit !== undefined;
 
   const table = useMemo(() => parseCsvTable(text, delimiter), [text, delimiter]);
@@ -129,19 +137,30 @@ export function CsvTable({ text, delimiter, testId = "csv-table", onCellCommit }
   });
   const virtualRows = virtualizer.getVirtualItems();
 
-  // Commit an open editor: splice the value into the parsed grid, serialize
-  // the whole grid back to text (RFC 4180), and hand it to onCellCommit —
-  // the same text pipeline a raw-view keystroke uses. An unchanged value
-  // skips the write entirely (Enter on an untouched cell is a no-op) but
-  // still moves to `next`, so Tab glides across cells without churn.
+  // Commit an open editor: splice the new value into the edited row's exact
+  // byte span of the source text and hand the result to onCellCommit — the
+  // same text pipeline a raw-view keystroke uses. Only the edited row's
+  // bytes change: untouched rows keep their exact text, so a ragged row's
+  // extra fields, the file's CRLF endings, and the trailing newline all
+  // survive an edit anywhere else. An unchanged value skips the write
+  // entirely (Enter on an untouched cell is a no-op) but still moves to
+  // `next`, so Tab glides across cells without churn.
   const commitEdit = (value: string, next: EditingCell | null) => {
     if (!editing || !onCellCommit) return;
     const { row, col } = editing;
     if (value !== table.rows[row]?.[col]) {
-      const grid = table.rows.map((cells, r) =>
-        r === row ? [...cells.slice(0, col), value, ...cells.slice(col + 1)] : cells
-      );
-      onCellCommit(serializeCsvTable(table.headers, grid, table.delimiter));
+      const span = table.rowSpans[row];
+      if (span) {
+        // The display grid is padded/truncated to the header width; the
+        // row's true cells come from its own span, so a wide row keeps its
+        // extra fields. Writing past a short row's width adds the fields.
+        const cells = parseCsvRecord(text.slice(span.start, span.end), table.delimiter);
+        while (cells.length <= col) cells.push("");
+        cells[col] = value;
+        onCellCommit(
+          text.slice(0, span.start) + serializeCsvRow(cells, table.delimiter) + text.slice(span.end)
+        );
+      }
     }
     setEditing(next);
   };
@@ -482,15 +501,22 @@ export function CsvTable({ text, delimiter, testId = "csv-table", onCellCommit }
                               data-testid={`${testId}-cell-editor`}
                               type="text"
                               defaultValue={cell}
-                              aria-label={`Edit ${table.headers[c]}, row ${sourceIndex + 1}`}
+                              aria-label={`Edit ${table.headers[c] || `column ${c + 1}`}, row ${sourceIndex + 1}`}
                               // Select-all on open — the spreadsheet pattern:
                               // type replaces, arrows edit in place.
                               autoFocus
                               onFocus={(event) => event.currentTarget.select()}
                               onBlur={(event) => {
-                                // Tab queues its direction before the blur;
-                                // a plain blur (click away, Enter on the
-                                // gutter) commits and closes.
+                                // An Enter/Escape exit refocused the cell;
+                                // that blur already committed (or cancelled)
+                                // and must not fire again. Tab queues its
+                                // direction before the blur; a plain blur
+                                // (click away, Enter on the gutter) commits
+                                // and closes.
+                                if (exitRef.current) {
+                                  exitRef.current = null;
+                                  return;
+                                }
                                 const dir = advanceRef.current;
                                 advanceRef.current = null;
                                 commitEdit(
@@ -503,13 +529,22 @@ export function CsvTable({ text, delimiter, testId = "csv-table", onCellCommit }
                               onKeyDown={(event) => {
                                 if (event.key === "Enter") {
                                   event.preventDefault();
+                                  // Commit here, then return focus to the
+                                  // cell (ARIA grid editing pattern). The
+                                  // refocus blur is suppressed via exitRef —
+                                  // the write below already happened.
+                                  exitRef.current = "committed";
+                                  event.currentTarget.closest<HTMLElement>('[role="gridcell"]')?.focus();
                                   commitEdit(event.currentTarget.value, null);
                                 } else if (event.key === "Escape") {
                                   event.preventDefault();
                                   // Cancel discards silently — the input
                                   // unmounts and the cell renders its raw
-                                  // text again.
-                                  advanceRef.current = null;
+                                  // text again. Focus returns to the cell;
+                                  // the refocus blur must not commit the
+                                  // typed value (exitRef).
+                                  exitRef.current = "cancelled";
+                                  event.currentTarget.closest<HTMLElement>('[role="gridcell"]')?.focus();
                                   setEditing(null);
                                 } else if (event.key === "Tab") {
                                   // Commit happens in onBlur (the blur this
