@@ -536,7 +536,10 @@ describe("CsvTable deletion actions (input table only)", () => {
   });
 
   it("keeps the empty-rows overlay out of the read-only output table", () => {
-    render(<DeletionHarness initial={"album\nDe Stijl\nElephant"} editable={false} />);
+    // Headers-only fixture: view.length === 0, so the ungated code WOULD
+    // render the overlay here — this pins the editable gate.
+    render(<DeletionHarness initial={"album"} editable={false} />);
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
     expect(screen.queryByTestId("csv-table-empty-rows")).toBeNull();
   });
 });
