@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DataEditorCore,
+  AllCellRenderers,
   GridCellKind,
   CompactSelection,
   getMiddleCenterBias,
@@ -704,6 +705,9 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         <div className="absolute inset-0">
           <DataEditorCore
             imageWindowLoader={imageWindowLoaderRef.current}
+            // DataEditorCore builds no renderer map on its own — without this
+            // the overlay editor mounts an empty shell (no text editor).
+            renderers={AllCellRenderers}
             columns={columns}
             rows={view.length}
             getCellContent={getCellContent}
