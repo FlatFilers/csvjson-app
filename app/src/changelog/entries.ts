@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 9,
+    date: "2026-09-08",
+    tag: "new",
+    title: "Spreadsheet-grade data table",
+    summary:
+      "The rebuilt data table adds drag-to-select ranges, Shift+Arrow range extension, fill, and spreadsheet-style cell editing — with copy/paste always producing clean CSV.",
+  },
+  {
     id: 8,
     date: "2026-09-07",
     tag: "new",

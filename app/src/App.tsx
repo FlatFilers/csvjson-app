@@ -445,6 +445,7 @@ export default function App() {
       format={inputFormat}
       input={input}
       onInputChange={handleInputChange}
+      onCellCommit={handleInputChange}
       onFile={readFile}
       onTryExample={() => {
         setNotice(null);
