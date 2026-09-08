@@ -1,12 +1,14 @@
 /**
- * Pure view transforms for the CSV table (spec: CSV table superpowers,
- * PR A — view powers). Index mappings over the already-parsed grid: the raw
- * CSV text stays the single source of truth and the table never re-parses on
- * interaction — filtering and sorting only rearrange row indices.
+ * Pure view transforms for the CSV table (spec: CSV table superpowers).
+ * Index mappings over the already-parsed grid: the raw CSV text stays the
+ * single source of truth and the table never re-parses on interaction —
+ * filtering and sorting only rearrange row indices.
  *
- * Everything here is pure and synchronous so the virtualizer can render the
- * mapped window exactly as before; CsvTable maps
- * sourceIndex = view[virtualRow.index] and keeps the fixed 24px row height.
+ * The grid renders through @glideapps/glide-data-grid (canvas); these
+ * transforms feed it: the derived view array maps each grid row back to its
+ * source row so the gutter shows source row numbers and selection survives
+ * filtering and sorting. Glide does not sort — the comparator below is the
+ * single sort authority, shared by header clicks and tests.
  */
 
 export type SortDir = "asc" | "desc";
@@ -81,9 +83,11 @@ export function sortRowIndices(
 }
 
 /**
- * Split `text` into a copyable sequence of literal and match parts for
- * in-cell highlight rendering. Case-insensitive, literal (no regex — the
- * query is user text). An empty query yields a single literal part.
+ * Split `text` into a sequence of literal and match parts for in-cell
+ * highlight rendering. Case-insensitive, literal (no regex — the query is
+ * user text). An empty query yields a single literal part. The canvas cell
+ * renderer uses the part offsets to paint the amber match wash behind the
+ * text.
  */
 export function splitHighlight(text: string, query: string): { text: string; hit: boolean }[] {
   if (query === "") return text === "" ? [] : [{ text, hit: false }];
@@ -103,21 +107,4 @@ export function splitHighlight(text: string, query: string): { text: string; hit
   }
   if (cursor < text.length) parts.push({ text: text.slice(cursor), hit: false });
   return parts;
-}
-
-/**
- * Serialize one CSV record: fields containing the delimiter, a quote, CR or
- * LF are RFC 4180 quoted with doubled inner quotes; everything else passes
- * through verbatim so copied cells stay byte-identical to the source.
- */
-export function serializeCsvRow(cells: string[], delimiter: string): string {
-  return cells
-    .map((cell) => {
-      if (cell.includes('"')) return `"${cell.replaceAll('"', '""')}"`;
-      if (cell.includes(delimiter) || cell.includes("\n") || cell.includes("\r")) {
-        return `"${cell}"`;
-      }
-      return cell;
-    })
-    .join(delimiter);
 }
