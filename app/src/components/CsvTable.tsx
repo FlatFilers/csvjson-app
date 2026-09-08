@@ -912,7 +912,10 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
             </button>
           </div>
         )}
-        {!isFiltered && view.length === 0 && (
+        {/* Input-pane guidance only — the read-only output pane accepts
+            neither paste nor upload, so headers-only output (what deleting
+            all input rows produces) shows no overlay at all. */}
+        {editable && !isFiltered && view.length === 0 && (
           <div
             data-testid={`${testId}-empty-rows`}
             className="absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-6 text-sm text-muted-foreground"

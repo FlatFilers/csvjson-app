@@ -534,4 +534,9 @@ describe("CsvTable deletion actions (input table only)", () => {
     expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUMYEAR");
     expect(screen.getByTestId("csv-table-count")).toHaveTextContent("0 rows");
   });
+
+  it("keeps the empty-rows overlay out of the read-only output table", () => {
+    render(<DeletionHarness initial={"album\nDe Stijl\nElephant"} editable={false} />);
+    expect(screen.queryByTestId("csv-table-empty-rows")).toBeNull();
+  });
 });
