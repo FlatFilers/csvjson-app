@@ -1,3 +1,4 @@
+import "@/test/glideDataEditorMock";
 import {
   act,
   fireEvent,
@@ -275,13 +276,14 @@ describe("freeze while edited", () => {
     await editOutput(replaceDoc(EDITED_TEXT));
 
     // Distinctive headers prove the routed paste landed (the dense table
-    // renders cells without commas — never assert on "1,2").
+    // renders cells without commas — never assert on "1,2"). Headers render
+    // uppercase via the canvas grid.
     fireEvent.paste(screen.getByTestId("output-pane"), {
       clipboardData: { getData: () => "fever,dog\n1,2" },
     });
     await waitFor(() => {
       expect(screen.getByTestId("input-table").textContent).toContain(
-        "feverdog"
+        "FEVERDOG"
       );
     });
 
@@ -321,9 +323,11 @@ describe("flip interplay while edited", () => {
     await screen.findByTestId("output-table");
     expect(screen.getByTestId("input-editor").textContent).toBe(EDITED_TEXT);
     await waitFor(() => {
-      expect(screen.getByTestId("output-table").textContent).toContain(
-        "custom"
-      );
+      // Headers render uppercase via the canvas grid; assert on the header
+      // text plus the rendered data row.
+      const table = screen.getByTestId("output-table").textContent;
+      expect(table).toContain("CUSTOM");
+      expect(table).toContain("edited");
     });
     expect(screen.queryByTestId("edited-badge")).not.toBeInTheDocument();
     expect(

@@ -33,6 +33,8 @@ type InputPaneProps = {
   /** Forced separator mirroring the converter's separator option. */
   delimiter?: string;
   dark: boolean;
+  /** Cell-edit sink for the table view — feeds the guarded reconversion path. */
+  onCellCommit?: (nextText: string) => void;
 };
 
 function ReadingSpinner() {
@@ -98,6 +100,7 @@ export function InputPane({
   notice,
   dark,
   delimiter,
+  onCellCommit,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -282,7 +285,7 @@ export function InputPane({
             className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
           />
         ) : isCsv ? (
-          <CsvTable text={input} delimiter={delimiter} testId="input-table" />
+          <CsvTable text={input} delimiter={delimiter} testId="input-table" dark={dark} onCellCommit={onCellCommit} />
         ) : (
           <JsonCodeMirror
             value={input}

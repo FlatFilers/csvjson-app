@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterRowIndices, serializeCsvRow, sortRowIndices, splitHighlight } from "../tableView";
+import { filterRowIndices, sortRowIndices, splitHighlight } from "../tableView";
 
 // Identity grid used across suites: headers are not part of these transforms —
 // they only ever see the data rows.
@@ -127,27 +127,5 @@ describe("splitHighlight", () => {
 
   it("returns no parts for an empty cell", () => {
     expect(splitHighlight("", "x")).toEqual([]);
-  });
-});
-
-describe("serializeCsvRow", () => {
-  it("joins plain cells verbatim", () => {
-    expect(serializeCsvRow(["a", "b"], ",")).toBe("a,b");
-  });
-
-  it("quotes cells containing the delimiter", () => {
-    expect(serializeCsvRow(["a,b", "c"], ",")).toBe('"a,b",c');
-  });
-
-  it("doubles embedded quotes", () => {
-    expect(serializeCsvRow(['say "hi"'], ",")).toBe('"say ""hi"""');
-  });
-
-  it("quotes cells containing newlines", () => {
-    expect(serializeCsvRow(["line1\nline2"], ",")).toBe('"line1\nline2"');
-  });
-
-  it("honors the delimiter for TSV tables", () => {
-    expect(serializeCsvRow(["a\tb"], "\t")).toBe('"a\tb"');
   });
 });

@@ -1,3 +1,4 @@
+import "./test/glideDataEditorMock";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -208,8 +209,9 @@ describe("global paste routing (paste-anywhere)", () => {
     expect(outputView.textContent).toContain("Elephant");
 
     // The input never saw the paste; the edited state took over the pane.
+    // (Headers render uppercase via the canvas grid; assert on row data.)
     expect(screen.getByTestId("input-table").textContent).toContain(
-      "US_peak_chart_post"
+      "The White Stripes"
     );
     await screen.findByTestId("edited-badge");
     expect(
@@ -335,11 +337,11 @@ describe("global paste routing (paste-anywhere)", () => {
       );
     });
     // The output converted the new input: the CSV table rebuilt around the
-    // "color" key. (The table virtualizes its body rows under jsdom — the
-    // header is the reliable full-render surface, per the flip tests.)
+    // "color" key. Headers render uppercase via the canvas grid; the data
+    // row is the reliable full-render surface.
     await waitFor(() => {
       expect(screen.getByTestId("output-table").textContent).toContain(
-        "color"
+        "blue"
       );
     });
   });

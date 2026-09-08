@@ -181,7 +181,7 @@ export function OutputPane({
               testId="output-view"
             />
           ) : (
-            <CsvTable text={outputText} testId="output-table" />
+            <CsvTable text={outputText} testId="output-table" dark={dark} />
           )
         ) : (
           <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
