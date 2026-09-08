@@ -1,3 +1,4 @@
+import "@/test/glideDataEditorMock";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -60,7 +61,8 @@ describe("legacy permalink hydration", () => {
     await waitFor(() => {
       expect(screen.getByTestId("input-table")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("input-table").textContent).toContain("album");
+    // Headers render uppercase via the canvas grid; assert on row data.
+    expect(screen.getByTestId("input-table").textContent).toContain("Elephant");
     await waitFor(() => {
       expect(screen.getByTestId("output-view").textContent).toContain(
         '"Elephant"'
@@ -95,8 +97,8 @@ describe("legacy permalink hydration", () => {
     expect(screen.getByTestId("input-editor").textContent).toContain(
       '"Elephant"'
     );
-    // Virtualized output rows: assert via the sticky headers.
-    expect(screen.getByTestId("output-table").textContent).toContain("album");
+    // Virtualized output rows: assert via the canvas-rendered row data.
+    expect(screen.getByTestId("output-table").textContent).toContain("Elephant");
   });
 
   it("shows the not-found notice for a missing id, with a link home", async () => {
@@ -138,7 +140,8 @@ describe("legacy permalink hydration", () => {
     await waitFor(() => {
       expect(screen.getByTestId("input-table")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("input-table").textContent).toContain("album");
+    // Headers render uppercase via the canvas grid; assert on row data.
+    expect(screen.getByTestId("input-table").textContent).toContain("Elephant");
     expect(window.location.pathname).toBe(`/csv2json/${ID}`);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
