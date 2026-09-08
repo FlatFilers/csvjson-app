@@ -55,8 +55,9 @@ type CsvTableProps = {
   delimiter?: string;
   testId?: string;
   /**
-   * Cell-edit commit (input table only): called with the full grid
-   * re-serialized to CSV text after an inline edit lands. Wiring it to the
+   * Cell-edit commit (input table only): called with the source text
+   * after an inline edit lands — only the edited row's bytes are spliced
+   * (parseCsvRecord + serializeCsvRow); every other byte is preserved. Wiring it to the
    * raw-input handler routes the edit through the exact raw-view keystroke
    * path — debounce, guarded re-conversion, everything downstream. Omitted
    * → strictly read-only table: no editor opens, no editing affordance.

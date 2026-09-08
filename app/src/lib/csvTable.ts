@@ -188,6 +188,11 @@ export function serializeCsvRow(cells: string[], delimiter = ","): string {
  * parse(serialize(parse(text))) yields the same grid and re-serializes to
  * the same text — the round-trip is stable. Total: any string arrays in, a
  * string out; it cannot fail by construction.
+ *
+ * Deliberate codec primitive: the editing commit path splices per-row
+ * (serializeCsvRow around rowSpans) to preserve untouched bytes, so the
+ * grid-level serializer has no production consumer yet — it stays exported
+ * for whole-grid round-trip testing and future whole-grid operations.
  */
 export function serializeCsvTable(headers: string[], rows: string[][], delimiter = ","): string {
   return [headers, ...rows]
