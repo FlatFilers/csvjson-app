@@ -24,13 +24,14 @@ done
 
 fail=0
 
-expect_redirect() { # $1 = path
+expect_redirect() { # $1 = path, $2 = expected target (default /)
+  local target="${2:-/}"
   local res
   res=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "http://127.0.0.1:8080$1")
-  if [[ "$res" == "301 http://127.0.0.1:8080/" ]]; then
-    echo "ok: $1 -> 301 /"
+  if [[ "$res" == "301 http://127.0.0.1:8080$target" ]]; then
+    echo "ok: $1 -> 301 $target"
   else
-    echo "FAIL: $1 -> expected 301 to /, got: $res"
+    echo "FAIL: $1 -> expected 301 to $target, got: $res"
     fail=1
   fi
 }
@@ -46,9 +47,16 @@ expect_status() { # $1 = path, $2 = expected status
   fi
 }
 
-# Every retired tool root and sub-route 301s to / (spec redirect table).
+# Every retired tool root and sub-route 301s home (spec redirect table).
+# The two converter tool roots deep-link the direction instead (defect
+# fix: legacy /json2csv regulars land in JSON→CSV mode); sub-routes of
+# every tool still go straight home.
 for tool in csv2json json2csv json_validator json_beautifier sql2json csvjson2json datajanitor; do
-  expect_redirect "/$tool"
+  case "$tool" in
+    csv2json) expect_redirect "/$tool" "/?direction=csv2json" ;;
+    json2csv) expect_redirect "/$tool" "/?direction=json2csv" ;;
+    *)        expect_redirect "/$tool" ;;
+  esac
   expect_redirect "/$tool/sub/route"
 done
 expect_redirect /dataclean

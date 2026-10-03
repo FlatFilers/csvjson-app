@@ -36,6 +36,7 @@ import { isEditablePasteTarget } from "@/lib/paste";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
 import { initialTheme, persistTheme } from "@/lib/theme";
 import { parsePermalinkPath } from "@/lib/permalink";
+import { directionFromSearch } from "@/lib/direction";
 
 /** Past this size, live conversion stretches its debounce (spec: Throttled). */
 const LARGE_INPUT_CHARS = 2 * 1024 * 1024;
@@ -77,7 +78,15 @@ export default function App() {
       return next;
     });
 
-  const [direction, setDirection] = useState<Direction>("csv2json");
+  // Entry-point deep link (?direction= — the legacy /json2csv 301s land
+  // here). Read once on mount; unknown or absent keeps the csv2json
+  // default. The switch never rewrites the URL, and permalink hydration
+  // parses the pathname only, so this param never leaks into either.
+  const [direction, setDirection] = useState<Direction>(() =>
+    typeof window === "undefined"
+      ? "csv2json"
+      : directionFromSearch(window.location.search)
+  );
   const [input, setInput] = useState("");
   const [options, setOptions] = useState<ConverterOptions>(DEFAULT_OPTIONS);
   const [split, setSplit] = useState(50);

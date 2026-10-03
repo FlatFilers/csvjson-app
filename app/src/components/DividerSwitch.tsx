@@ -34,9 +34,13 @@ export function DividerSwitch({ direction, onFlip }: DividerSwitchProps) {
       onDoubleClick={(event) => event.stopPropagation()}
       title={`Switch direction (currently ${directionLabel(direction)})`}
       aria-label={`Switch conversion direction (currently ${directionLabel(direction)})`}
-      className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+      // The visible label states the CURRENT direction (defect fix: the
+      // icon alone left JSON → CSV undiscoverable); the aria-label keeps
+      // describing the ACTION, so the accessible name stays coherent.
+      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-background px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground"
     >
       <SwapIcon flipped={direction === "json2csv"} />
+      <span data-testid="divider-switch-label">{directionLabel(direction)}</span>
     </button>
   );
 }
