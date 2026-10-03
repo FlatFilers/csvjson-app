@@ -116,9 +116,9 @@ function serve_spa(): void
     serve_dist_file('/index.html');
 }
 
-function redirect_home(): void
+function redirect_home(string $target = '/'): void
 {
-    header('Location: /', true, 301);
+    header('Location: ' . $target, true, 301);
     exit;
 }
 
@@ -224,6 +224,14 @@ if ($path === '/favicon.ico' && is_file(__DIR__ . '/img/favicon.ico')) {
 // hydrate the stored object read-only from S3 — no redirect, URL unchanged.
 if (preg_match('#^/(?:' . implode('|', PERMALINK_TOOLS) . ')/[0-9a-f]{32}/?$#i', $path)) {
     serve_spa();
+}
+
+// Bare roots of the two converter tools deep-link the direction (defect
+// fix: /json2csv regulars landed in the csv2json default with no hint).
+// Every other legacy root and every sub-route still redirects straight
+// home; permalinks above never reach this.
+if (preg_match('#^/(csv2json|json2csv)/?$#i', $path, $m)) {
+    redirect_home('/?direction=' . strtolower($m[1]));
 }
 
 // Everything left on a retired tool URL — root or any sub-route —

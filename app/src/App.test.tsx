@@ -630,3 +630,82 @@ describe("output download naming", () => {
     );
   });
 });
+
+describe("direction deep link (?direction=)", () => {
+  const ID = "000c44f43e2f62cc15c48d9d7c5a4582";
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("initializes JSON → CSV from ?direction=json2csv", () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "JSON → CSV"
+    );
+  });
+
+  it("keeps CSV → JSON for an explicit ?direction=csv2json", () => {
+    window.history.pushState({}, "", "/?direction=csv2json");
+    render(<App />);
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "CSV → JSON"
+    );
+  });
+
+  it("keeps the csv2json default for an unknown or absent param", () => {
+    window.history.pushState({}, "", "/?direction=bogus");
+    const { unmount } = render(<App />);
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "CSV → JSON"
+    );
+    unmount();
+
+    window.history.pushState({}, "", "/");
+    render(<App />);
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "CSV → JSON"
+    );
+  });
+
+  it("shows the active direction as visible text and updates it on flip", async () => {
+    render(<App />);
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "CSV → JSON"
+    );
+    await flip();
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "JSON → CSV"
+    );
+    await flip();
+    expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+      "CSV → JSON"
+    );
+  });
+
+  it("ignores ?direction during permalink hydration — the payload wins", async () => {
+    // A json2csv permalink carrying ?direction=csv2json: hydration parses
+    // the pathname only, so the legacy payload's json2csv direction must
+    // survive — the param never overrides it.
+    window.history.pushState(
+      {},
+      "",
+      `/json2csv/${ID}?direction=csv2json`
+    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ json: '{"album":"Elephant"}' }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByTestId("divider-switch-label")).toHaveTextContent(
+        "JSON → CSV"
+      );
+    });
+  });
+});

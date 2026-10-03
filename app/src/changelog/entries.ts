@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 11,
+    date: "2026-10-03",
+    tag: "improvement",
+    title: "The switch names the direction",
+    summary:
+      "The ⇄ switch now labels the active conversion, and legacy /json2csv links land you in JSON → CSV mode again — it never left.",
+  },
+  {
     id: 10,
     date: "2026-09-08",
     tag: "new",
