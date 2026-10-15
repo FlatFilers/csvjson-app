@@ -61,7 +61,22 @@ vi.mock("@glideapps/glide-data-grid", async (importOriginal) => {
           key: `h${x}`,
           type: "button",
           "data-testid": `glide-header-${x}`,
-          onClick: () => props.onHeaderClicked?.(x),
+          onClick: (event: { detail?: number }) =>
+            props.onHeaderClicked?.(x, {
+              isDoubleClick: (event.detail ?? 1) >= 2,
+              bounds: { x: x * 120, y: 0, width: 120, height: 26 },
+            }),
+          onDoubleClick: (event: { detail?: number }) => {
+            // Direct fireEvent.dblClick calls in tests have detail === 0 and do
+            // not emit preceding click events, whereas userEvent.dblClick fires
+            // two clicks (the second with detail === 2) before dblclick.
+            if ((event.detail ?? 0) === 0) {
+              props.onHeaderClicked?.(x, {
+                isDoubleClick: true,
+                bounds: { x: x * 120, y: 0, width: 120, height: 26 },
+              });
+            }
+          },
         },
         String(column.title ?? "")
       )

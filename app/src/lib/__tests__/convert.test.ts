@@ -5,8 +5,11 @@ import {
   csvToJson,
   csvWarnings,
   DEFAULT_OPTIONS,
+  detectIndexedHeaderGroups,
+  detectJsonWrapperCandidates,
   jsonToJsonCsv,
   NonTabularJsonError,
+  resolveJsonFormatToggle,
   toJsonString,
 } from "../convert";
 import { parseCsvTable } from "../csvTable";
@@ -78,6 +81,23 @@ describe("per-option behavior (criterion 2)", () => {
     expect(csvToJson(csv, { separator: "|" })).toEqual([
       { album: "De Stijl", year: 2000 },
     ]);
+  });
+
+  it("convertText json2csv with pipe separator reports accurate multi-column cols and rows (AC-1)", () => {
+    const input = JSON.stringify([
+      { album: "De Stijl", year: 2000, band: "The White Stripes" },
+      { album: "Elephant", year: 2003, band: "The White Stripes" },
+    ]);
+    const result = convertText("json2csv", input, {
+      ...DEFAULT_OPTIONS,
+      separator: "|",
+    });
+    expect(result).toEqual({
+      ok: true,
+      text: '"album"|"year"|"band"\n"De Stijl"|2000|"The White Stripes"\n"Elephant"|2003|"The White Stripes"',
+      rows: 2,
+      cols: 3,
+    });
   });
 
   it("auto-detect never picks pipe — commas win and pipe-only input stays unsplit (B2, #110)", () => {
@@ -905,4 +925,252 @@ describe("skip-empty and NULL-as-null toggles (B1, fixes #65 #100 #46 #6)", () =
     );
   });
 });
+
+describe("JSONL / NDJSON automatic parsing & wrapper candidates (AC-4, art_MJHTha6X)", () => {
+  it("converts multi-line JSONL / NDJSON objects into CSV automatically", () => {
+    const jsonl = [
+      '{"id":1,"name":"Ada Lovelace"}',
+      '{"id":2,"name":"Grace Hopper"}',
+    ].join("\n");
+    const result = convertText("json2csv", jsonl);
+    expect(result).toEqual({
+      ok: true,
+      text: '"id","name"\n1,"Ada Lovelace"\n2,"Grace Hopper"',
+      rows: 2,
+      cols: 2,
+    });
+  });
+
+  it("tolerates CRLF line endings and blank lines in JSONL input", () => {
+    const jsonl = '\r\n{"id":1,"role":"eng"}\r\n\r\n{"id":2,"role":"ops"}\r\n';
+    const result = convertText("json2csv", jsonl);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.rows).toBe(2);
+    expect(result.cols).toBe(2);
+    expect(result.text).toBe('"id","role"\n1,"eng"\n2,"ops"');
+  });
+
+  it("preserves the existing Invalid JSON error message when any line is malformed or primitive", () => {
+    const malformed = '{"id":1,"name":"Ada"}\n{"id":2,bad}';
+    const result = convertText("json2csv", malformed);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/^Invalid JSON — /);
+    }
+
+    const primitives = "123\n456";
+    const primResult = convertText("json2csv", primitives);
+    expect(primResult.ok).toBe(false);
+    if (!primResult.ok) {
+      expect(primResult.error).toMatch(/^Invalid JSON — /);
+    }
+  });
+
+  it("detectJsonWrapperCandidates finds array-of-object keys and prioritizes common wrapper keys", () => {
+    const wrapped = JSON.stringify({
+      meta: { total: 2 },
+      extra: [{ k: "x" }],
+      results: [{ id: 10 }, { id: 20 }, { id: 30 }],
+      data: [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      tags: ["a", "b"],
+      empty: [],
+    });
+    const candidates = detectJsonWrapperCandidates(wrapped);
+    expect(candidates.map((c) => ({ key: c.key, rowCount: c.rowCount }))).toEqual([
+      { key: "data", rowCount: 2 },
+      { key: "results", rowCount: 3 },
+      { key: "extra", rowCount: 1 },
+    ]);
+    expect(JSON.parse(candidates[0].unwrappedJson)).toEqual([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+  });
+
+  it("detectJsonWrapperCandidates returns empty array for top-level arrays, invalid JSON, or flat objects", () => {
+    expect(detectJsonWrapperCandidates("")).toEqual([]);
+    expect(detectJsonWrapperCandidates("not json")).toEqual([]);
+    expect(detectJsonWrapperCandidates('[{"id":1}]')).toEqual([]);
+    expect(detectJsonWrapperCandidates('{"id":1,"tags":["a","b"]}')).toEqual([]);
+  });
+
+  it("resolveJsonFormatToggle returns Format for minified JSON/JSONL, Minify for 2-space formatted JSON, and null for empty/invalid", () => {
+    expect(resolveJsonFormatToggle("")).toBeNull();
+    expect(resolveJsonFormatToggle("   ")).toBeNull();
+    expect(resolveJsonFormatToggle("{invalid json")).toBeNull();
+
+    const minified = '[{"id":1,"name":"Ada"},{"id":2,"name":"Grace"}]';
+    const formatted = JSON.stringify(
+      [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      null,
+      2
+    );
+
+    expect(resolveJsonFormatToggle(minified)).toEqual({
+      label: "Format",
+      nextInput: formatted,
+    });
+    expect(resolveJsonFormatToggle(formatted)).toEqual({
+      label: "Minify",
+      nextInput: minified,
+    });
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    expect(resolveJsonFormatToggle(jsonl)).toEqual({
+      label: "Format",
+      nextInput: formatted,
+    });
+  });
+});
+
+describe("indexed CSV header array collapse (feat/csv-indexed-arrays)", () => {
+  it("detectIndexedHeaderGroups detects 0-based and 1-based contiguous dot and bracket groups and nested object-in-array groups", () => {
+    expect(
+      detectIndexedHeaderGroups(["id", "code.0", "code.1", "code.2", "name"])
+    ).toEqual([
+      {
+        prefix: "code",
+        indices: [0, 1, 2],
+        columns: ["code.0", "code.1", "code.2"],
+      },
+    ]);
+
+    expect(detectIndexedHeaderGroups(["id", "code[0]", "code[1]"])).toEqual([
+      {
+        prefix: "code",
+        indices: [0, 1],
+        columns: ["code[0]", "code[1]"],
+      },
+    ]);
+
+    expect(detectIndexedHeaderGroups(["id", "tag.1", "tag.2"])).toEqual([
+      {
+        prefix: "tag",
+        indices: [1, 2],
+        columns: ["tag.1", "tag.2"],
+      },
+    ]);
+
+    expect(
+      detectIndexedHeaderGroups([
+        "id",
+        "items.0.sku",
+        "items.0.qty",
+        "items.1.sku",
+        "items.1.qty",
+      ])
+    ).toEqual([
+      {
+        prefix: "items",
+        indices: [0, 1],
+        columns: ["items.0.sku", "items.0.qty", "items.1.sku", "items.1.qty"],
+      },
+    ]);
+
+    // Ignores single dotted headers like v1.0, non-numeric dotted headers like price.usd, and non-contiguous indices
+    expect(
+      detectIndexedHeaderGroups(["id", "v1.0", "price.usd", "gap.0", "gap.2"])
+    ).toEqual([]);
+  });
+
+  it("collapses code.0, code.1, code.2 and code[0], code[1] into arrays while preserving key order", () => {
+    const dotCsv = "id,code.0,code.1,code.2,status\n1,a,b,c,active";
+    const dotResult = csvToJson(dotCsv);
+    expect(dotResult).toEqual([
+      { id: 1, code: ["a", "b", "c"], status: "active" },
+    ]);
+    expect(Object.keys((dotResult as Record<string, unknown>[])[0])).toEqual([
+      "id",
+      "code",
+      "status",
+    ]);
+
+    const bracketCsv = "id,code[0],code[1]\n1,alpha,beta";
+    expect(csvToJson(bracketCsv)).toEqual([
+      { id: 1, code: ["alpha", "beta"] },
+    ]);
+  });
+
+  it("omits ragged / trailing empty slots without padding empty strings, including when emptyFields is skip", () => {
+    const raggedCsv = "id,code.0,code.1,code.2\n1,a,b,c\n2,x,,\n3,,,";
+    expect(csvToJson(raggedCsv)).toEqual([
+      { id: 1, code: ["a", "b", "c"] },
+      { id: 2, code: ["x"] },
+      { id: 3, code: [] },
+    ]);
+
+    expect(csvToJson(raggedCsv, { emptyFields: "skip" })).toEqual([
+      { id: 1, code: ["a", "b", "c"] },
+      { id: 2, code: ["x"] },
+      { id: 3 },
+    ]);
+  });
+
+  it("collapses nested object-in-array headers (items.0.sku, items.0.qty, items.1.sku, items.1.qty)", () => {
+    const nestedCsv = [
+      "id,items.0.sku,items.0.qty,items.1.sku,items.1.qty",
+      "1,SKU-A,2,SKU-B,5",
+      "2,SKU-C,1,,",
+    ].join("\n");
+    expect(csvToJson(nestedCsv)).toEqual([
+      {
+        id: 1,
+        items: [
+          { sku: "SKU-A", qty: 2 },
+          { sku: "SKU-B", qty: 5 },
+        ],
+      },
+      {
+        id: 2,
+        items: [{ sku: "SKU-C", qty: 1 }],
+      },
+    ]);
+  });
+
+  it("leaves literal v1.0 and price.usd headers untouched and respects collapseIndexedArrays: false", () => {
+    const literalCsv = "id,v1.0,price.usd\n1,release,19.99";
+    expect(csvToJson(literalCsv)).toEqual([
+      { id: 1, "v1.0": "release", "price.usd": 19.99 },
+    ]);
+
+    const indexedCsv = "id,code.0,code.1\n1,a,b";
+    expect(csvToJson(indexedCsv, { collapseIndexedArrays: false })).toEqual([
+      { id: 1, "code.0": "a", "code.1": "b" },
+    ]);
+    const convertedFlat = convertText("csv2json", indexedCsv, {
+      ...DEFAULT_OPTIONS,
+      collapseIndexedArrays: false,
+    });
+    expect(convertedFlat.ok).toBe(true);
+    if (convertedFlat.ok) {
+      expect(JSON.parse(convertedFlat.text)).toEqual([
+        { id: 1, "code.0": "a", "code.1": "b" },
+      ]);
+      expect(convertedFlat.cols).toBe(3);
+    }
+  });
+
+  it("composes with hash: true, parseNumbers, and parseJSON", () => {
+    const csv = "key,val.0,val.1,val.2\nrow1,10,true,{\"ok\":1}\nrow2,00721,false,";
+    expect(
+      csvToJson(csv, {
+        hash: true,
+        parseNumbers: true,
+        parseJSON: true,
+      })
+    ).toEqual({
+      row1: { val: [10, true, { ok: 1 }] },
+      row2: { val: ["00721", false] },
+    });
+  });
+});
+
+
 

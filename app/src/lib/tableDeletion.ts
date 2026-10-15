@@ -127,3 +127,27 @@ export function deleteColumns(raw: string, table: CsvTableData, dataCols: readon
   }
   return spliceAll(raw, splices);
 }
+
+/**
+ * Rename one header column (0-based DATA column index) in `raw`, splicing
+ * ONLY the header record (record 0, after any leading UTF-8 BOM and before
+ * the header's own line terminator). Every data row, line ending (CRLF, LF,
+ * CR), BOM, trailing newline, and ragged field in the body remains 100%
+ * byte-identical. Out-of-range column indices and no-op renames return `raw`
+ * unchanged.
+ */
+export function renameHeader(
+  raw: string,
+  table: CsvTableData,
+  colIndex: number,
+  nextName: string
+): string {
+  if (!raw || colIndex < 0 || colIndex >= table.headers.length) return raw;
+  const span = headerSpanOf(raw, table);
+  const cells = parseCsvRecord(raw.slice(span.start, span.end), table.delimiter);
+  if (colIndex >= cells.length || cells[colIndex] === nextName) return raw;
+  const nextHeaders = cells.map((cell, idx) => (idx === colIndex ? nextName : cell));
+  const replacement = serializeCsvRow(nextHeaders, table.delimiter);
+  return raw.slice(0, span.start) + replacement + raw.slice(span.end);
+}
+

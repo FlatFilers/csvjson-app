@@ -1,10 +1,16 @@
-import { useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
-import { Braces, Copy, Download, FileUp, Table, Trash2, type LucideIcon } from "lucide-react";
+import { useMemo, useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
+import { Braces, Copy, Download, FileUp, Redo2, Table, Trash2, Undo2, type LucideIcon } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
 import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
+import {
+  detectIndexedHeaderGroups,
+  detectJsonWrapperCandidates,
+  resolveJsonFormatToggle,
+} from "@/lib/convert";
+import { parseCsvTable } from "@/lib/csvTable";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,6 +41,12 @@ type InputPaneProps = {
   dark: boolean;
   /** Cell-edit sink for the table view — feeds the guarded reconversion path. */
   onCellCommit?: (nextText: string) => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  collapseIndexedArrays?: boolean;
+  onToggleCollapseIndexedArrays?: () => void;
 };
 
 function ReadingSpinner() {
@@ -101,6 +113,12 @@ export function InputPane({
   dark,
   delimiter,
   onCellCommit,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
+  collapseIndexedArrays = true,
+  onToggleCollapseIndexedArrays,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -108,6 +126,19 @@ export function InputPane({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputEmpty = input.trim() === "";
   const isCsv = format === "CSV";
+  const indexedHeaderGroups = useMemo(() => {
+    if (!isCsv || inputEmpty) return [];
+    const table = parseCsvTable(input, delimiter);
+    return detectIndexedHeaderGroups(table.headers.map((h) => h.trim()));
+  }, [isCsv, inputEmpty, input, delimiter]);
+  const wrapperCandidates = useMemo(
+    () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
+    [isCsv, inputEmpty, input]
+  );
+  const jsonFormatAction = useMemo(
+    () => (isCsv || inputEmpty ? null : resolveJsonFormatToggle(input)),
+    [isCsv, inputEmpty, input]
+  );
 
   const onDragEnter = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -222,6 +253,40 @@ export function InputPane({
         actions={
           <>
             {rawToggle}
+            {isCsv && (canUndo || canRedo) ? (
+              <>
+                <button
+                  type="button"
+                  data-testid="csv-undo-button"
+                  aria-label="Undo"
+                  title="Undo"
+                  disabled={!canUndo}
+                  onClick={() => onUndo?.()}
+                  className={actionButtonClass}
+                >
+                  <Undo2 aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  data-testid="csv-redo-button"
+                  aria-label="Redo"
+                  title="Redo"
+                  disabled={!canRedo}
+                  onClick={() => onRedo?.()}
+                  className={actionButtonClass}
+                >
+                  <Redo2 aria-hidden="true" />
+                </button>
+              </>
+            ) : null}
+            {jsonFormatAction ? (
+              <ActionButton
+                label={jsonFormatAction.label}
+                testId="json-format-toggle"
+                onClick={() => onInputChange(jsonFormatAction.nextInput)}
+                Icon={Braces}
+              />
+            ) : null}
             <input
               ref={fileInputRef}
               type="file"
@@ -276,23 +341,84 @@ export function InputPane({
             onBrowse={() => fileInputRef.current?.click()}
             onTryExample={onTryExample}
           />
-        ) : isCsv && rawMode ? (
-          <textarea
-            data-testid="input-editor"
-            value={input}
-            onChange={(event) => onInputChange(event.target.value)}
-            spellCheck={false}
-            className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
-          />
         ) : isCsv ? (
-          <CsvTable text={input} delimiter={delimiter} testId="input-table" dark={dark} onCellCommit={onCellCommit} />
+          <>
+            {indexedHeaderGroups.length > 0 ? (
+              <div
+                data-testid="csv-indexed-array-bar"
+                className="flex flex-shrink-0 flex-wrap items-center justify-between gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  {`Indexed columns (${indexedHeaderGroups.map((g) => `${g.prefix}[${g.indices.length}]`).join(", ")}):`}
+                </span>
+                <button
+                  type="button"
+                  data-testid="csv-indexed-array-pill"
+                  aria-pressed={collapseIndexedArrays}
+                  onClick={() => onToggleCollapseIndexedArrays?.()}
+                  className={cn(
+                    "inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-xs font-medium shadow-2xs transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    collapseIndexedArrays
+                      ? "border-border bg-background text-foreground hover:bg-muted"
+                      : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {collapseIndexedArrays
+                    ? "Arrays: .0, .1 → []"
+                    : "Keep flat keys (.0, .1)"}
+                </button>
+              </div>
+            ) : null}
+            {rawMode ? (
+              <textarea
+                data-testid="input-editor"
+                value={input}
+                onChange={(event) => onInputChange(event.target.value)}
+                spellCheck={false}
+                className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
+              />
+            ) : (
+              <CsvTable
+                text={input}
+                delimiter={delimiter}
+                testId="input-table"
+                dark={dark}
+                onCellCommit={onCellCommit}
+                onUndo={onUndo}
+                onRedo={onRedo}
+              />
+            )}
+          </>
         ) : (
-          <JsonCodeMirror
-            value={input}
-            onChange={onInputChange}
-            dark={dark}
-            testId="input-editor"
-          />
+          <>
+            {wrapperCandidates.length > 0 ? (
+              <div
+                data-testid="json-unwrap-bar"
+                className="flex flex-shrink-0 flex-wrap items-center gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  Nested array detected:
+                </span>
+                {wrapperCandidates.map((candidate) => (
+                  <button
+                    key={candidate.key}
+                    type="button"
+                    data-testid={`json-unwrap-pill-${candidate.key}`}
+                    onClick={() => onInputChange(candidate.unwrappedJson)}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground shadow-2xs transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {`Unwrap .${candidate.key} (${candidate.rowCount} ${candidate.rowCount === 1 ? "row" : "rows"})`}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <JsonCodeMirror
+              value={input}
+              onChange={onInputChange}
+              dark={dark}
+              testId="input-editor"
+            />
+          </>
         )}
         {dragOver ? (
           <div

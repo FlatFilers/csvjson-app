@@ -19,7 +19,8 @@ import {
 import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
-import { deleteColumns, deleteRows } from "@/lib/tableDeletion";
+import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
+import { matchHistoryShortcut } from "@/lib/csvHistory";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
 import { serializeGridSelection } from "@/lib/tableSelection";
 
@@ -79,9 +80,28 @@ type CsvTableProps = {
    * path as any keystroke in the raw view. Omit for read-only grids.
    */
   onCellCommit?: (nextText: string) => void;
+  /** Undo/redo handlers invoked on Mod+Z and Mod+Shift+Z / Mod+Y inside the grid. */
+  onUndo?: () => void;
+  onRedo?: () => void;
 };
 
+function isTextEntryElement(node: EventTarget | Element | null): boolean {
+  if (!(node instanceof HTMLElement)) return false;
+  const tag = node.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || node.isContentEditable;
+}
+
 type SortState = { col: number; dir: SortDir } | null;
+
+type HeaderClickEvent = {
+  isDoubleClick?: boolean;
+  bounds?: Rectangle;
+};
+
+type EditingHeaderState = {
+  col: number;
+  bounds: Rectangle;
+};
 
 type GutterClickEvent = { shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boolean };
 
@@ -175,7 +195,15 @@ function highlightColor(dark: boolean): string {
 
 type WithLetterSpacing = { letterSpacing?: string };
 
-export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, onCellCommit }: CsvTableProps) {
+export function CsvTable({
+  text,
+  delimiter,
+  testId = "csv-table",
+  dark = false,
+  onCellCommit,
+  onUndo,
+  onRedo,
+}: CsvTableProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const gridWrapRef = useRef<HTMLDivElement>(null);
   /** Source index of the last direct selection — the shift-click range anchor. */
@@ -183,6 +211,12 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortState>(null);
+  const sortRef = useRef<SortState>(sort);
+  sortRef.current = sort;
+  const preClickSortRef = useRef<SortState>(null);
+  const [editingHeader, setEditingHeader] = useState<EditingHeaderState | null>(null);
+  const [headerDraft, setHeaderDraft] = useState("");
+  const headerInputRef = useRef<HTMLInputElement>(null);
   const [gridSelection, setGridSelection] = useState<GridSelection | undefined>(undefined);
   /** Selected rows as SOURCE indices — survives filter and sort. */
   const [selectedSources, setSelectedSources] = useState<Set<number>>(() => new Set<number>());
@@ -281,6 +315,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
   // that no longer exists. Filter/search re-derive on their own.
   useEffect(() => {
     setSort((prev) => (prev !== null && prev.col >= columnsCount ? null : prev));
+    setEditingHeader((prev) => (prev !== null && prev.col >= columnsCount ? null : prev));
   }, [columnsCount]);
 
   const isFiltered = query !== "";
@@ -299,16 +334,70 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
 
   // Header clicks sort with our comparator (Glide renders no sort logic of
   // its own); the same click selects the column through the grid's native
-  // column selection.
-  const cycleSort = useCallback((colIndex: number) => {
-    if (colIndex < GUTTER_COLUMNS) return; // the gutter header is not sortable
-    const col = colIndex - GUTTER_COLUMNS;
-    setSort((prev) => {
-      if (!prev || prev.col !== col) return { col, dir: "asc" };
-      if (prev.dir === "asc") return { col, dir: "desc" };
-      return null;
-    });
+  // column selection. On a double-click in editable mode, restore the
+  // pre-first-click sort state and open an inline header rename input over
+  // the header bounds.
+  const handleHeaderClicked = useCallback(
+    (colIndex: number, event?: HeaderClickEvent) => {
+      if (colIndex < GUTTER_COLUMNS) return; // the gutter header is not sortable or editable
+      const col = colIndex - GUTTER_COLUMNS;
+      if (editable && event?.isDoubleClick) {
+        setSort(preClickSortRef.current);
+        const currentHeader = latestRef.current.table.headers[col] ?? "";
+        const wrapRect = gridWrapRef.current?.getBoundingClientRect();
+        const rawBounds = event.bounds;
+        const bounds: Rectangle =
+          rawBounds && wrapRect && (wrapRect.width > 0 || wrapRect.height > 0)
+            ? {
+                x: Math.max(0, rawBounds.x - wrapRect.left),
+                y: Math.max(0, rawBounds.y - wrapRect.top),
+                width: rawBounds.width,
+                height: rawBounds.height,
+              }
+            : rawBounds ?? {
+                x: GUTTER_WIDTH + col * columnWidth,
+                y: 0,
+                width: columnWidth,
+                height: HEADER_HEIGHT,
+              };
+        setHeaderDraft(currentHeader);
+        setEditingHeader({ col, bounds });
+        return;
+      }
+      preClickSortRef.current = sortRef.current;
+      setEditingHeader(null);
+      setSort((prev) => {
+        if (!prev || prev.col !== col) return { col, dir: "asc" };
+        if (prev.dir === "asc") return { col, dir: "desc" };
+        return null;
+      });
+    },
+    [editable, columnWidth]
+  );
+
+  const commitHeaderRename = useCallback(() => {
+    if (!editingHeader) return;
+    const { col } = editingHeader;
+    setEditingHeader(null);
+    if (!onCellCommit) return;
+    const { text: sourceText, table: current } = latestRef.current;
+    const nextText = renameHeader(sourceText, current, col, headerDraft);
+    if (nextText !== sourceText) {
+      onCellCommit(nextText);
+    }
+  }, [editingHeader, headerDraft, onCellCommit]);
+
+  const cancelHeaderRename = useCallback(() => {
+    setEditingHeader(null);
   }, []);
+
+  useEffect(() => {
+    if (!editingHeader) return;
+    const input = headerInputRef.current;
+    if (!input) return;
+    input.focus();
+    input.select();
+  }, [editingHeader]);
 
   // Gutter clicks select rows. Plain click replaces, cmd/ctrl toggles, and
   // shift extends a range across the current view order — the same contract
@@ -441,6 +530,34 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     return () => window.removeEventListener("copy", onCopy, { capture: true });
   }, []);
 
+  // Keyboard Undo/Redo while focus is inside the grid container, yielding to
+  // native text editing when an inline cell-editor, header-rename, or search
+  // input/textarea holds focus.
+  useEffect(() => {
+    if (!onUndo && !onRedo) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const root = rootRef.current;
+      if (!root) return;
+      const targetInRoot = event.target instanceof Node && root.contains(event.target);
+      const activeInRoot =
+        document.activeElement instanceof Node && root.contains(document.activeElement);
+      if (!targetInRoot && !activeInRoot) return;
+      if (isTextEntryElement(event.target) || isTextEntryElement(document.activeElement)) {
+        return;
+      }
+      const action = matchHistoryShortcut(event);
+      if (action === "undo" && onUndo) {
+        event.preventDefault();
+        onUndo();
+      } else if (action === "redo" && onRedo) {
+        event.preventDefault();
+        onRedo();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onUndo, onRedo]);
+
   // Deletion commit path (input table only): a deletion splices the raw
   // CSV text byte-preserving — the same fidelity contract a cell edit
   // takes, so untouched rows keep their exact bytes (line endings, BOM,
@@ -451,8 +568,15 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
   // filter, sort, and the count chip re-derive from the new parse.
   const commitDeletion = useCallback(
     (nextText: string) => {
+      const hadFocus =
+        rootRef.current !== null &&
+        document.activeElement instanceof Node &&
+        rootRef.current.contains(document.activeElement);
       clearSelection();
       onCellCommit?.(nextText);
+      if (hadFocus) {
+        gridWrapRef.current?.focus({ preventScroll: true });
+      }
     },
     [clearSelection, onCellCommit]
   );
@@ -862,8 +986,9 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         ref={gridWrapRef}
         data-testid={testId}
         role="grid"
+        tabIndex={-1}
         aria-rowcount={view.length + 1}
-        className="relative min-h-0 flex-1"
+        className="relative min-h-0 flex-1 outline-none"
         style={{ minHeight: gridMinHeight }}
       >
         <div className="absolute inset-0">
@@ -879,7 +1004,7 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
             onCellsEdited={editable ? onCellsEdited : undefined}
             onDelete={editable ? onDeleteSelection : undefined}
             onCellClicked={onCellClicked}
-            onHeaderClicked={cycleSort}
+            onHeaderClicked={handleHeaderClicked}
             onGridSelectionChange={handleGridSelectionChange}
             onSelectionCleared={handleSelectionCleared}
             gridSelection={gridSelection}
@@ -902,6 +1027,35 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
             verticalBorder={false}
           />
         </div>
+        {editingHeader !== null && (
+          <input
+            ref={headerInputRef}
+            type="text"
+            data-testid="csv-header-rename-input"
+            aria-label={`Rename column ${table.headers[editingHeader.col] ?? ""}`}
+            value={headerDraft}
+            onChange={(event) => setHeaderDraft(event.target.value)}
+            onBlur={commitHeaderRename}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                event.stopPropagation();
+                commitHeaderRename();
+              } else if (event.key === "Escape") {
+                event.preventDefault();
+                event.stopPropagation();
+                cancelHeaderRename();
+              }
+            }}
+            style={{
+              left: editingHeader.bounds.x,
+              top: editingHeader.bounds.y,
+              width: Math.max(60, editingHeader.bounds.width),
+              height: editingHeader.bounds.height,
+            }}
+            className="absolute z-20 border border-ring bg-background px-2 font-mono text-[11px] font-semibold tracking-wider text-foreground outline-none ring-2 ring-ring/50"
+          />
+        )}
         {isFiltered && view.length === 0 && (
           <div
             data-testid={`${testId}-empty-filter`}

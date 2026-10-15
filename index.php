@@ -226,12 +226,16 @@ if (preg_match('#^/(?:' . implode('|', PERMALINK_TOOLS) . ')/[0-9a-f]{32}/?$#i',
     serve_spa();
 }
 
-// Bare roots of the two converter tools deep-link the direction (defect
-// fix: /json2csv regulars landed in the csv2json default with no hint).
+// Bare roots of the converter and JSON-input legacy tools deep-link the
+// direction (defect fix: /json2csv, /json_beautifier, and /json_validator
+// regulars land in JSON→CSV mode with the JSON editor and Format/Minify).
 // Every other legacy root and every sub-route still redirects straight
 // home; permalinks above never reach this.
-if (preg_match('#^/(csv2json|json2csv)/?$#i', $path, $m)) {
-    redirect_home('/?direction=' . strtolower($m[1]));
+if (preg_match('#^/csv2json/?$#i', $path)) {
+    redirect_home('/?direction=csv2json');
+}
+if (preg_match('#^/(?:json2csv|json_beautifier|json_validator)/?$#i', $path)) {
+    redirect_home('/?direction=json2csv');
 }
 
 // Everything left on a retired tool URL — root or any sub-route —

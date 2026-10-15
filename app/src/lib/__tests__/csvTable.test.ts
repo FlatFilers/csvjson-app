@@ -65,6 +65,17 @@ describe("parseCsvTable", () => {
     expect(table.rowWidths).toEqual([2, 1, 1]);
     expect(table.rows[0]).toEqual(["x\ny", "1"]);
   });
+
+  it("splits pipe-separated CSV when forcedDelimiter is '|' (AC-1)", () => {
+    const pipeCsv = '"album"|"year"\n"De Stijl"|2000\n"Elephant"|2003';
+    const table = parseCsvTable(pipeCsv, "|");
+    expect(table.delimiter).toBe("|");
+    expect(table.headers).toEqual(["album", "year"]);
+    expect(table.rows).toEqual([
+      ["De Stijl", "2000"],
+      ["Elephant", "2003"],
+    ]);
+  });
 });
 
 describe("parseCsvTable line endings", () => {

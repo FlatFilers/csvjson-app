@@ -709,3 +709,346 @@ describe("direction deep link (?direction=)", () => {
     });
   });
 });
+
+describe("JSON → CSV pipe separator output preview (AC-1)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("splits pipe-separated CSV output into columns and reports accurate cols count in OutputPane", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    fireEvent.change(screen.getByTestId("opt-separator"), {
+      target: { value: "|" },
+    });
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: {
+        getData: () =>
+          JSON.stringify([
+            { album: "De Stijl", year: 2000 },
+            { album: "Elephant", year: 2003 },
+          ]),
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toBeInTheDocument();
+    });
+
+    const outputPane = screen.getByTestId("output-pane");
+    expect(within(outputPane).getByTestId("pane-meta")).toHaveTextContent(
+      "2 rows · 2 cols"
+    );
+
+    const outputTable = screen.getByTestId("output-table");
+    // Column 0 is the row-number gutter; columns 1 and 2 are the split data columns.
+    expect(within(outputTable).getByTestId("glide-header-1")).toHaveTextContent(
+      "ALBUM"
+    );
+    expect(within(outputTable).getByTestId("glide-header-2")).toHaveTextContent(
+      "YEAR"
+    );
+    const firstRow = within(outputTable).getByTestId("glide-row-0");
+    expect(firstRow).toHaveTextContent("De Stijl");
+    expect(firstRow).toHaveTextContent("2000");
+  });
+});
+
+describe("contextual JSON wrapper unwrap & JSONL in JSON → CSV (AC-4)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("shows json-unwrap-pill-data on wrapped JSON and unwraps the array on click", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const wrappedJson = JSON.stringify({
+      data: [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      meta: { total: 2 },
+    });
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => wrappedJson },
+    });
+
+    const pill = await screen.findByTestId("json-unwrap-pill-data");
+    expect(pill).toHaveTextContent("Unwrap .data (2 rows)");
+
+    fireEvent.click(pill);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("json-unwrap-pill-data")
+      ).not.toBeInTheDocument();
+      expect(
+        within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+      ).toHaveTextContent("2 rows · 2 cols");
+    });
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenLastCalledWith('"id","name"\n1,"Ada"\n2,"Grace"');
+  });
+
+  it("converts pasted multi-line JSONL in JSON → CSV mode without error", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => jsonl },
+    });
+
+    await waitFor(() => {
+      expect(
+        within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+      ).toHaveTextContent("2 rows · 2 cols");
+    });
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenLastCalledWith('"id","name"\n1,"Ada"\n2,"Grace"');
+  });
+});
+
+describe("contextual JSON Format / Minify toggle in JSON → CSV (AC-5)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("hides json-format-toggle when empty, in CSV → JSON mode, or when JSON is invalid", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    // Hidden while empty.
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+
+    // Paste invalid JSON — stays hidden.
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => "{broken: json" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+
+    // Switch to CSV → JSON mode — stays hidden even with valid content.
+    window.history.pushState({}, "", "/");
+    fireEvent.click(screen.getByTestId("clear-input"));
+    await flip();
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => SAMPLE_CSV_INPUT },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-table")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+  });
+
+  it("formats minified JSON to 2-space pretty-print and toggles to Minify", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const minified = '[{"id":1,"name":"Ada"},{"id":2,"name":"Grace"}]';
+    const formatted = JSON.stringify(JSON.parse(minified), null, 2);
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => minified },
+    });
+
+    const toggle = await screen.findByTestId("json-format-toggle");
+    expect(toggle).toHaveTextContent("Format");
+
+    // Click Format → input becomes 2-space pretty-printed JSON and label flips to Minify.
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Minify"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(formatted);
+
+    // Click Minify → input compacts back to single-line JSON and label flips to Format.
+    fireEvent.click(screen.getByTestId("json-format-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Format"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(minified);
+  });
+
+  it("shows Format for valid multi-line JSONL and formats it into a 2-space JSON array", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    const expectedFormatted = JSON.stringify(
+      [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      null,
+      2
+    );
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => jsonl },
+    });
+
+    const toggle = await screen.findByTestId("json-format-toggle");
+    expect(toggle).toHaveTextContent("Format");
+
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Minify"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(expectedFormatted);
+  });
+});
+
+describe("bounded Undo / Redo for CSV grid mutations (AC-2)", () => {
+  it("steps backward and forward across cell edits, row deletions, and Clear via header buttons and shortcuts", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Initial empty state and initial sample seed do not show undo/redo chrome.
+    expect(screen.queryByTestId("csv-undo-button")).toBeNull();
+    expect(screen.queryByTestId("csv-redo-button")).toBeNull();
+
+    await user.click(screen.getByTestId("try-example"));
+    const inputTable = await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("csv-undo-button")).toBeNull();
+    expect(screen.queryByTestId("csv-redo-button")).toBeNull();
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "The White Stripes"
+    );
+
+    // Step 1: edit row 0, col 1 via Glide mock commit button ("EDITED").
+    await user.click(within(inputTable).getByTestId("glide-edit-0-1"));
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+
+    const undoBtn = screen.getByTestId("csv-undo-button");
+    const redoBtn = screen.getByTestId("csv-redo-button");
+    expect(undoBtn).not.toBeDisabled();
+    expect(redoBtn).toBeDisabled();
+
+    // Step 2: select row 0 and delete it.
+    await user.click(within(inputTable).getByTestId("glide-row-select-0"));
+    await user.click(screen.getByTestId("input-table-delete-rows"));
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "De Stijl"
+    );
+
+    // Undo deletion via keyboard shortcut Mod+Z inside the grid.
+    fireEvent.keyDown(inputTable, { key: "z", ctrlKey: true });
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+    expect(undoBtn).not.toBeDisabled();
+    expect(redoBtn).not.toBeDisabled();
+
+    // Undo cell edit via header button -> back to initial sample CSV.
+    await user.click(undoBtn);
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "The White Stripes"
+    );
+    expect(undoBtn).toBeDisabled();
+    expect(redoBtn).not.toBeDisabled();
+
+    // Redo cell edit via header button, then redo row deletion via Mod+Shift+Z.
+    await user.click(redoBtn);
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+    fireEvent.keyDown(inputTable, {
+      key: "z",
+      metaKey: true,
+      shiftKey: true,
+    });
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "De Stijl"
+    );
+    expect(redoBtn).toBeDisabled();
+  });
+});
+
+describe("contextual CSV indexed array toggle pill (feat/csv-indexed-arrays)", () => {
+  it("renders zero extra UI when no indexed header groups exist, and toggles between collapsed JSON arrays and flat keys when present", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Empty state has no indexed array pill
+    expect(screen.queryByTestId("csv-indexed-array-pill")).toBeNull();
+
+    // Sample CSV (album, year, US_peak_chart_post) has no indexed headers -> no pill
+    await user.click(screen.getByTestId("try-example"));
+    await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("csv-indexed-array-pill")).toBeNull();
+
+    // Paste CSV with indexed columns id,code.0,code.1,code.2
+    const indexedCsv = "id,code.0,code.1,code.2\n1,a,b,c\n2,x,,";
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => indexedCsv },
+    });
+
+    const pill = await screen.findByTestId("csv-indexed-array-pill");
+    expect(pill).toHaveAttribute("aria-pressed", "true");
+    expect(pill).toHaveTextContent("Arrays: .0, .1 → []");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code": ['
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(JSON.parse(vi.mocked(copyText).mock.lastCall?.[0] ?? "null")).toEqual([
+      { id: 1, code: ["a", "b", "c"] },
+      { id: 2, code: ["x"] },
+    ]);
+
+    // Click the contextual pill -> switches to flat literal keys ("code.0", "code.1", "code.2")
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "false");
+    expect(pill).toHaveTextContent("Keep flat keys (.0, .1)");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code.0": "a"'
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(JSON.parse(vi.mocked(copyText).mock.lastCall?.[0] ?? "null")).toEqual([
+      { id: 1, "code.0": "a", "code.1": "b", "code.2": "c" },
+      { id: 2, "code.0": "x", "code.1": "", "code.2": "" },
+    ]);
+
+    // Click the contextual pill again -> switches back to collapsed JSON arrays
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code": ['
+      );
+    });
+  });
+});
+
+
+
