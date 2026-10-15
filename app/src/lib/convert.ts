@@ -405,6 +405,11 @@ export interface JsonWrapperCandidate {
   unwrappedJson: string;
 }
 
+export interface JsonFormatToggleAction {
+  label: "Format" | "Minify";
+  nextInput: string;
+}
+
 const PRIORITY_WRAPPER_KEYS = [
   "data",
   "items",
@@ -486,6 +491,43 @@ function tryParseJsonLines(input: string): unknown[] | null {
     }
   }
   return parsedLines;
+}
+
+/**
+ * Determine the contextual Format / Minify action for the JSON→CSV input pane.
+ * Returns null when `input` is empty or neither valid JSON nor valid multi-line
+ * JSONL/NDJSON. When valid:
+ * - Returns `{ label: "Minify", nextInput: JSON.stringify(parsed) }` when
+ *   `input.trim() === JSON.stringify(parsed, null, 2)`.
+ * - Returns `{ label: "Format", nextInput: JSON.stringify(parsed, null, 2) }`
+ *   otherwise (minified JSON, inconsistently indented JSON, or multi-line JSONL).
+ */
+export function resolveJsonFormatToggle(
+  input: string
+): JsonFormatToggleAction | null {
+  const trimmed = input.trim();
+  if (trimmed === "") return null;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    const jsonlData = tryParseJsonLines(trimmed);
+    if (jsonlData === null) return null;
+    parsed = jsonlData;
+  }
+
+  const formatted = JSON.stringify(parsed, null, 2);
+  if (trimmed === formatted) {
+    return {
+      label: "Minify",
+      nextInput: JSON.stringify(parsed),
+    };
+  }
+  return {
+    label: "Format",
+    nextInput: formatted,
+  };
 }
 
 /** Best-effort row/col counts for the pane headers. Empty cells → 0. */

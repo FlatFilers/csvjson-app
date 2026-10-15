@@ -5,7 +5,10 @@ import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
-import { detectJsonWrapperCandidates } from "@/lib/convert";
+import {
+  detectJsonWrapperCandidates,
+  resolveJsonFormatToggle,
+} from "@/lib/convert";
 import { cn } from "@/lib/utils";
 
 /**
@@ -111,6 +114,10 @@ export function InputPane({
   const isCsv = format === "CSV";
   const wrapperCandidates = useMemo(
     () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
+    [isCsv, inputEmpty, input]
+  );
+  const jsonFormatAction = useMemo(
+    () => (isCsv || inputEmpty ? null : resolveJsonFormatToggle(input)),
     [isCsv, inputEmpty, input]
   );
 
@@ -227,6 +234,14 @@ export function InputPane({
         actions={
           <>
             {rawToggle}
+            {jsonFormatAction ? (
+              <ActionButton
+                label={jsonFormatAction.label}
+                testId="json-format-toggle"
+                onClick={() => onInputChange(jsonFormatAction.nextInput)}
+                Icon={Braces}
+              />
+            ) : null}
             <input
               ref={fileInputRef}
               type="file"

@@ -8,6 +8,7 @@ import {
   detectJsonWrapperCandidates,
   jsonToJsonCsv,
   NonTabularJsonError,
+  resolveJsonFormatToggle,
   toJsonString,
 } from "../convert";
 import { parseCsvTable } from "../csvTable";
@@ -994,6 +995,37 @@ describe("JSONL / NDJSON automatic parsing & wrapper candidates (AC-4, art_MJHTh
     expect(detectJsonWrapperCandidates("not json")).toEqual([]);
     expect(detectJsonWrapperCandidates('[{"id":1}]')).toEqual([]);
     expect(detectJsonWrapperCandidates('{"id":1,"tags":["a","b"]}')).toEqual([]);
+  });
+
+  it("resolveJsonFormatToggle returns Format for minified JSON/JSONL, Minify for 2-space formatted JSON, and null for empty/invalid", () => {
+    expect(resolveJsonFormatToggle("")).toBeNull();
+    expect(resolveJsonFormatToggle("   ")).toBeNull();
+    expect(resolveJsonFormatToggle("{invalid json")).toBeNull();
+
+    const minified = '[{"id":1,"name":"Ada"},{"id":2,"name":"Grace"}]';
+    const formatted = JSON.stringify(
+      [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      null,
+      2
+    );
+
+    expect(resolveJsonFormatToggle(minified)).toEqual({
+      label: "Format",
+      nextInput: formatted,
+    });
+    expect(resolveJsonFormatToggle(formatted)).toEqual({
+      label: "Minify",
+      nextInput: minified,
+    });
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    expect(resolveJsonFormatToggle(jsonl)).toEqual({
+      label: "Format",
+      nextInput: formatted,
+    });
   });
 });
 
