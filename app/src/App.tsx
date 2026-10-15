@@ -516,6 +516,13 @@ export default function App() {
       canRedo={canRedo}
       onUndo={handleUndo}
       onRedo={handleRedo}
+      collapseIndexedArrays={options.collapseIndexedArrays ?? true}
+      onToggleCollapseIndexedArrays={() =>
+        setOptions((current) => ({
+          ...current,
+          collapseIndexedArrays: !(current.collapseIndexedArrays ?? true),
+        }))
+      }
       filename={filename}
       reading={reading}
       meta={meta}

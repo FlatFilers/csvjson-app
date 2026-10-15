@@ -51,8 +51,8 @@ describe("changelogEntries", () => {
     for (const entry of changelogEntries) {
       expect(entry.title.trim()).not.toBe("");
       expect(entry.summary.trim()).not.toBe("");
-      // The spec's 1–2 sentence budget for summaries.
-      expect(entry.summary.split(/[.!?]+/).filter((s) => s.trim() !== "").length).toBeLessThanOrEqual(2);
+      // The spec's 1–2 sentence budget for summaries (split on sentence-ending punctuation, not inline `.0, .1` tokens).
+      expect(entry.summary.split(/[.!?]+(?:\s|$)/).filter((s) => s.trim() !== "").length).toBeLessThanOrEqual(2);
     }
   });
 
