@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseCsvTable } from "../csvTable";
 import { csvWarnings } from "../convert";
-import { deleteColumns, deleteRows } from "../tableDeletion";
+import { deleteColumns, deleteRows, renameHeader } from "../tableDeletion";
 
 describe("deleteRows (byte-preserving splice)", () => {
   it("removes a middle row and its own terminator, byte-exact", () => {
@@ -157,3 +157,60 @@ describe("malformed-CSV warning persistence across deletion", () => {
     ]);
   });
 });
+
+describe("renameHeader (byte-preserving record-0 splice)", () => {
+  it("renames a column header and keeps CRLF data rows and trailing newline byte-identical", () => {
+    const raw = "album,year\r\nDe Stijl,2000\r\nElephant,2003\r\n";
+    const next = renameHeader(raw, parseCsvTable(raw), 0, "record_title");
+    expect(next).toBe("record_title,year\r\nDe Stijl,2000\r\nElephant,2003\r\n");
+  });
+
+  it("preserves a leading UTF-8 BOM and mixed line endings in data rows", () => {
+    const raw = "\uFEFFa,b,c\r\n1,2,3\n4,5,6\r\n7,8,9";
+    const next = renameHeader(raw, parseCsvTable(raw), 1, "beta");
+    expect(next).toBe("\uFEFFa,beta,c\r\n1,2,3\n4,5,6\r\n7,8,9");
+  });
+
+  it("quotes the new header name when it contains delimiters, quotes, or newlines", () => {
+    const raw = 'a,b\n"1,2",3';
+    expect(renameHeader(raw, parseCsvTable(raw), 0, "first, name")).toBe(
+      '"first, name",b\n"1,2",3'
+    );
+    expect(renameHeader(raw, parseCsvTable(raw), 1, 'val "x"')).toBe(
+      'a,"val ""x"""\n"1,2",3'
+    );
+  });
+
+  it("preserves ragged extra fields and short rows byte-for-byte", () => {
+    const raw = "x,y,z\n1,2\nr,s,t,EXTRA1,EXTRA2\n4,5,6";
+    const next = renameHeader(raw, parseCsvTable(raw), 2, "zeta");
+    expect(next).toBe("x,y,zeta\n1,2\nr,s,t,EXTRA1,EXTRA2\n4,5,6");
+    expect(csvWarnings(next, ",")).toEqual([
+      "Row 1 has fewer fields than the header, padded",
+      "Row 2 has more fields than the header, extra fields dropped",
+    ]);
+  });
+
+  it("respects non-comma delimiters (TSV and semicolon)", () => {
+    const tsv = "a\tb\r\n1\t2";
+    expect(renameHeader(tsv, parseCsvTable(tsv), 1, "col_b")).toBe("a\tcol_b\r\n1\t2");
+    const semi = "a;b\n1;2";
+    expect(renameHeader(semi, parseCsvTable(semi, ";"), 0, "first;col")).toBe(
+      '"first;col";b\n1;2'
+    );
+  });
+
+  it("handles a headers-only table with or without a trailing newline", () => {
+    expect(renameHeader("a,b,c", parseCsvTable("a,b,c"), 1, "B")).toBe("a,B,c");
+    expect(renameHeader("a,b,c\r\n", parseCsvTable("a,b,c\r\n"), 2, "C")).toBe("a,b,C\r\n");
+  });
+
+  it("returns the original string for out-of-range indices or a no-op rename", () => {
+    const raw = "a,b\n1,2";
+    const table = parseCsvTable(raw);
+    expect(renameHeader(raw, table, -1, "z")).toBe(raw);
+    expect(renameHeader(raw, table, 5, "z")).toBe(raw);
+    expect(renameHeader(raw, table, 0, "a")).toBe(raw);
+  });
+});
+

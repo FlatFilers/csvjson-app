@@ -19,7 +19,7 @@ import {
 import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
-import { deleteColumns, deleteRows } from "@/lib/tableDeletion";
+import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
 import { matchHistoryShortcut } from "@/lib/csvHistory";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
 import { serializeGridSelection } from "@/lib/tableSelection";
@@ -92,6 +92,16 @@ function isTextEntryElement(node: EventTarget | Element | null): boolean {
 }
 
 type SortState = { col: number; dir: SortDir } | null;
+
+type HeaderClickEvent = {
+  isDoubleClick?: boolean;
+  bounds?: Rectangle;
+};
+
+type EditingHeaderState = {
+  col: number;
+  bounds: Rectangle;
+};
 
 type GutterClickEvent = { shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boolean };
 
@@ -201,6 +211,12 @@ export function CsvTable({
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortState>(null);
+  const sortRef = useRef<SortState>(sort);
+  sortRef.current = sort;
+  const preClickSortRef = useRef<SortState>(null);
+  const [editingHeader, setEditingHeader] = useState<EditingHeaderState | null>(null);
+  const [headerDraft, setHeaderDraft] = useState("");
+  const headerInputRef = useRef<HTMLInputElement>(null);
   const [gridSelection, setGridSelection] = useState<GridSelection | undefined>(undefined);
   /** Selected rows as SOURCE indices — survives filter and sort. */
   const [selectedSources, setSelectedSources] = useState<Set<number>>(() => new Set<number>());
@@ -299,6 +315,7 @@ export function CsvTable({
   // that no longer exists. Filter/search re-derive on their own.
   useEffect(() => {
     setSort((prev) => (prev !== null && prev.col >= columnsCount ? null : prev));
+    setEditingHeader((prev) => (prev !== null && prev.col >= columnsCount ? null : prev));
   }, [columnsCount]);
 
   const isFiltered = query !== "";
@@ -317,16 +334,70 @@ export function CsvTable({
 
   // Header clicks sort with our comparator (Glide renders no sort logic of
   // its own); the same click selects the column through the grid's native
-  // column selection.
-  const cycleSort = useCallback((colIndex: number) => {
-    if (colIndex < GUTTER_COLUMNS) return; // the gutter header is not sortable
-    const col = colIndex - GUTTER_COLUMNS;
-    setSort((prev) => {
-      if (!prev || prev.col !== col) return { col, dir: "asc" };
-      if (prev.dir === "asc") return { col, dir: "desc" };
-      return null;
-    });
+  // column selection. On a double-click in editable mode, restore the
+  // pre-first-click sort state and open an inline header rename input over
+  // the header bounds.
+  const handleHeaderClicked = useCallback(
+    (colIndex: number, event?: HeaderClickEvent) => {
+      if (colIndex < GUTTER_COLUMNS) return; // the gutter header is not sortable or editable
+      const col = colIndex - GUTTER_COLUMNS;
+      if (editable && event?.isDoubleClick) {
+        setSort(preClickSortRef.current);
+        const currentHeader = latestRef.current.table.headers[col] ?? "";
+        const wrapRect = gridWrapRef.current?.getBoundingClientRect();
+        const rawBounds = event.bounds;
+        const bounds: Rectangle =
+          rawBounds && wrapRect && (wrapRect.width > 0 || wrapRect.height > 0)
+            ? {
+                x: Math.max(0, rawBounds.x - wrapRect.left),
+                y: Math.max(0, rawBounds.y - wrapRect.top),
+                width: rawBounds.width,
+                height: rawBounds.height,
+              }
+            : rawBounds ?? {
+                x: GUTTER_WIDTH + col * columnWidth,
+                y: 0,
+                width: columnWidth,
+                height: HEADER_HEIGHT,
+              };
+        setHeaderDraft(currentHeader);
+        setEditingHeader({ col, bounds });
+        return;
+      }
+      preClickSortRef.current = sortRef.current;
+      setEditingHeader(null);
+      setSort((prev) => {
+        if (!prev || prev.col !== col) return { col, dir: "asc" };
+        if (prev.dir === "asc") return { col, dir: "desc" };
+        return null;
+      });
+    },
+    [editable, columnWidth]
+  );
+
+  const commitHeaderRename = useCallback(() => {
+    if (!editingHeader) return;
+    const { col } = editingHeader;
+    setEditingHeader(null);
+    if (!onCellCommit) return;
+    const { text: sourceText, table: current } = latestRef.current;
+    const nextText = renameHeader(sourceText, current, col, headerDraft);
+    if (nextText !== sourceText) {
+      onCellCommit(nextText);
+    }
+  }, [editingHeader, headerDraft, onCellCommit]);
+
+  const cancelHeaderRename = useCallback(() => {
+    setEditingHeader(null);
   }, []);
+
+  useEffect(() => {
+    if (!editingHeader) return;
+    const input = headerInputRef.current;
+    if (!input) return;
+    input.focus();
+    input.select();
+  }, [editingHeader]);
 
   // Gutter clicks select rows. Plain click replaces, cmd/ctrl toggles, and
   // shift extends a range across the current view order — the same contract
@@ -933,7 +1004,7 @@ export function CsvTable({
             onCellsEdited={editable ? onCellsEdited : undefined}
             onDelete={editable ? onDeleteSelection : undefined}
             onCellClicked={onCellClicked}
-            onHeaderClicked={cycleSort}
+            onHeaderClicked={handleHeaderClicked}
             onGridSelectionChange={handleGridSelectionChange}
             onSelectionCleared={handleSelectionCleared}
             gridSelection={gridSelection}
@@ -956,6 +1027,35 @@ export function CsvTable({
             verticalBorder={false}
           />
         </div>
+        {editingHeader !== null && (
+          <input
+            ref={headerInputRef}
+            type="text"
+            data-testid="csv-header-rename-input"
+            aria-label={`Rename column ${table.headers[editingHeader.col] ?? ""}`}
+            value={headerDraft}
+            onChange={(event) => setHeaderDraft(event.target.value)}
+            onBlur={commitHeaderRename}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                event.stopPropagation();
+                commitHeaderRename();
+              } else if (event.key === "Escape") {
+                event.preventDefault();
+                event.stopPropagation();
+                cancelHeaderRename();
+              }
+            }}
+            style={{
+              left: editingHeader.bounds.x,
+              top: editingHeader.bounds.y,
+              width: Math.max(60, editingHeader.bounds.width),
+              height: editingHeader.bounds.height,
+            }}
+            className="absolute z-20 border border-ring bg-background px-2 font-mono text-[11px] font-semibold tracking-wider text-foreground outline-none ring-2 ring-ring/50"
+          />
+        )}
         {isFiltered && view.length === 0 && (
           <div
             data-testid={`${testId}-empty-filter`}

@@ -612,3 +612,135 @@ describe("CsvTable deletion actions (input table only)", () => {
     expect(inputUndo.defaultPrevented).toBe(false);
   });
 });
+
+describe("CsvTable double-click header rename (input table only)", () => {
+  it("opens csv-header-rename-input on double-click, restores pre-click sortState, and commits on Enter", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+
+    // Sort by year ascending first: [1, 3, 2, 4]
+    await user.click(screen.getByTestId("glide-header-2"));
+    expect(viewSourceRows()).toEqual([1, 3, 2, 4]);
+
+    // Double-click the album header (grid column 1 = data col 0).
+    // user.dblClick fires click 1 (which temporarily flips sort to col 0 asc)
+    // followed by click 2 + dblclick (which restores pre-first-click sort).
+    await user.dblClick(screen.getByTestId("glide-header-1"));
+
+    // Pre-first-click sort (year asc) is restored immediately.
+    expect(viewSourceRows()).toEqual([1, 3, 2, 4]);
+
+    const input = screen.getByTestId("csv-header-rename-input") as HTMLInputElement;
+    expect(input).toHaveValue("album");
+
+    await user.clear(input);
+    await user.type(input, "record_title{Enter}");
+
+    expect(screen.queryByTestId("csv-header-rename-input")).toBeNull();
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(
+      "record_title,year\nDe Stijl,2000\nElephant,2003\nWhite Blood Cells,2001\nGet Behind Me Satan,2005"
+    );
+  });
+
+  it("commits header rename on blur", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+
+    await user.dblClick(screen.getByTestId("glide-header-2"));
+    const input = screen.getByTestId("csv-header-rename-input");
+    expect(input).toHaveValue("year");
+
+    await user.clear(input);
+    await user.type(input, "release_year");
+    fireEvent.blur(input);
+
+    expect(screen.queryByTestId("csv-header-rename-input")).toBeNull();
+    expect(onCellCommit).toHaveBeenCalledTimes(1);
+    expect(onCellCommit).toHaveBeenCalledWith(
+      "album,release_year\nDe Stijl,2000\nElephant,2003\nWhite Blood Cells,2001\nGet Behind Me Satan,2005"
+    );
+  });
+
+  it("cancels header rename on Escape without committing changes", async () => {
+    const user = userEvent.setup();
+    const onCellCommit = vi.fn();
+    render(<CsvTable text={FIXTURE} onCellCommit={onCellCommit} />);
+
+    await user.dblClick(screen.getByTestId("glide-header-1"));
+    const input = screen.getByTestId("csv-header-rename-input");
+    await user.clear(input);
+    await user.type(input, "discarded_name{Escape}");
+
+    expect(screen.queryByTestId("csv-header-rename-input")).toBeNull();
+    expect(onCellCommit).not.toHaveBeenCalled();
+  });
+
+  it("yields Mod+Z to native text undo while the header rename input is focused, then supports grid undo/redo after commit", async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    function HistoryHarness() {
+      const [history, setHistory] = useState({ past: [] as string[], present: FIXTURE, future: [] as string[] });
+      return (
+        <CsvTable
+          text={history.present}
+          onCellCommit={(next) =>
+            setHistory((h) => ({ past: [...h.past, h.present], present: next, future: [] }))
+          }
+          onUndo={() => {
+            onUndo();
+            setHistory((h) => {
+              if (h.past.length === 0) return h;
+              const prev = h.past[h.past.length - 1];
+              return { past: h.past.slice(0, -1), present: prev, future: [h.present, ...h.future] };
+            });
+          }}
+        />
+      );
+    }
+
+    render(<HistoryHarness />);
+    await user.dblClick(screen.getByTestId("glide-header-1"));
+    const input = screen.getByTestId("csv-header-rename-input");
+    input.focus();
+
+    // Mod+Z inside the active rename input does not trigger grid undo.
+    const inInputUndo = new KeyboardEvent("keydown", {
+      key: "z",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(inInputUndo);
+    expect(onUndo).not.toHaveBeenCalled();
+    expect(inInputUndo.defaultPrevented).toBe(false);
+
+    await user.clear(input);
+    await user.type(input, "lp_title{Enter}");
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#LP_TITLEYEAR");
+
+    // Now Mod+Z on the grid undoes the header rename.
+    const grid = screen.getByTestId("csv-table");
+    const gridUndo = new KeyboardEvent("keydown", {
+      key: "z",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid.dispatchEvent(gridUndo);
+    expect(onUndo).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUMYEAR")
+    );
+  });
+
+  it("does not open header rename in read-only mode (output table)", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} />);
+    await user.dblClick(screen.getByTestId("glide-header-1"));
+    expect(screen.queryByTestId("csv-header-rename-input")).toBeNull();
+  });
+});
+
