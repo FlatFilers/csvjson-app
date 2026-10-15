@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 12,
+    date: "2026-10-15",
+    tag: "improvement",
+    title: "Table undo, header rename, and smarter JSON input",
+    summary:
+      "Undo or redo CSV table edits and double-click any column header to rename it in place. JSON → CSV now formats or minifies JSON in one click, unwraps nested record arrays, parses JSONL, and previews pipe-delimited output accurately.",
+  },
+  {
     id: 11,
     date: "2026-10-03",
     tag: "improvement",
