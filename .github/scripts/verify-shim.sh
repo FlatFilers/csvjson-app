@@ -48,14 +48,15 @@ expect_status() { # $1 = path, $2 = expected status
 }
 
 # Every retired tool root and sub-route 301s home (spec redirect table).
-# The two converter tool roots deep-link the direction instead (defect
-# fix: legacy /json2csv regulars land in JSON→CSV mode); sub-routes of
-# every tool still go straight home.
+# The converter and JSON-input tool roots deep-link the direction instead
+# (defect fix: legacy /json2csv, /json_beautifier, and /json_validator
+# regulars land in JSON→CSV mode); sub-routes of every tool still go
+# straight home.
 for tool in csv2json json2csv json_validator json_beautifier sql2json csvjson2json datajanitor; do
   case "$tool" in
-    csv2json) expect_redirect "/$tool" "/?direction=csv2json" ;;
-    json2csv) expect_redirect "/$tool" "/?direction=json2csv" ;;
-    *)        expect_redirect "/$tool" ;;
+    csv2json)                                    expect_redirect "/$tool" "/?direction=csv2json" ;;
+    json2csv|json_validator|json_beautifier)     expect_redirect "/$tool" "/?direction=json2csv" ;;
+    *)                                           expect_redirect "/$tool" ;;
   esac
   expect_redirect "/$tool/sub/route"
 done

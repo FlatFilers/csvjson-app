@@ -814,4 +814,111 @@ describe("contextual JSON wrapper unwrap & JSONL in JSON → CSV (AC-4)", () => 
   });
 });
 
+describe("contextual JSON Format / Minify toggle in JSON → CSV (AC-5)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("hides json-format-toggle when empty, in CSV → JSON mode, or when JSON is invalid", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    // Hidden while empty.
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+
+    // Paste invalid JSON — stays hidden.
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => "{broken: json" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-editor")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+
+    // Switch to CSV → JSON mode — stays hidden even with valid content.
+    window.history.pushState({}, "", "/");
+    fireEvent.click(screen.getByTestId("clear-input"));
+    await flip();
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => SAMPLE_CSV_INPUT },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("input-table")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("json-format-toggle")
+    ).not.toBeInTheDocument();
+  });
+
+  it("formats minified JSON to 2-space pretty-print and toggles to Minify", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const minified = '[{"id":1,"name":"Ada"},{"id":2,"name":"Grace"}]';
+    const formatted = JSON.stringify(JSON.parse(minified), null, 2);
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => minified },
+    });
+
+    const toggle = await screen.findByTestId("json-format-toggle");
+    expect(toggle).toHaveTextContent("Format");
+
+    // Click Format → input becomes 2-space pretty-printed JSON and label flips to Minify.
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Minify"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(formatted);
+
+    // Click Minify → input compacts back to single-line JSON and label flips to Format.
+    fireEvent.click(screen.getByTestId("json-format-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Format"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(minified);
+  });
+
+  it("shows Format for valid multi-line JSONL and formats it into a 2-space JSON array", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    const expectedFormatted = JSON.stringify(
+      [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      null,
+      2
+    );
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => jsonl },
+    });
+
+    const toggle = await screen.findByTestId("json-format-toggle");
+    expect(toggle).toHaveTextContent("Format");
+
+    fireEvent.click(toggle);
+    await waitFor(() => {
+      expect(screen.getByTestId("json-format-toggle")).toHaveTextContent(
+        "Minify"
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(copyText).toHaveBeenLastCalledWith(expectedFormatted);
+  });
+});
+
 
