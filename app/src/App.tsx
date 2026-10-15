@@ -494,6 +494,7 @@ export default function App() {
       warnings={warnings}
       edited={outputEdited}
       editable={outputEditable}
+      delimiter={options.separator === "auto" ? undefined : options.separator}
       dark={theme === "dark"}
       onCopy={copyOutput}
       onDownload={downloadOutput}

@@ -42,6 +42,8 @@ type OutputPaneProps = {
    * editor; the retained invalid-input result stays read-only.
    */
   editable: boolean;
+  /** Forced separator (, ; \t |) mirroring the converter's separator option; omitted → auto-detect. */
+  delimiter?: string;
   dark: boolean;
   onCopy: () => void;
   onDownload: () => void;
@@ -63,6 +65,7 @@ export function OutputPane({
   warnings,
   edited,
   editable,
+  delimiter,
   dark,
   onCopy,
   onDownload,
@@ -181,7 +184,12 @@ export function OutputPane({
               testId="output-view"
             />
           ) : (
-            <CsvTable text={outputText} testId="output-table" dark={dark} />
+            <CsvTable
+              text={outputText}
+              delimiter={delimiter}
+              testId="output-table"
+              dark={dark}
+            />
           )
         ) : (
           <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
