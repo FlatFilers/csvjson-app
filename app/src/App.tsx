@@ -36,6 +36,12 @@ import { isEditablePasteTarget } from "@/lib/paste";
 import { SAMPLE_CSV, SAMPLE_JSON } from "@/lib/samples";
 import { initialTheme, persistTheme } from "@/lib/theme";
 import { parsePermalinkPath } from "@/lib/permalink";
+import {
+  createCsvHistory,
+  pushCsvHistory,
+  redoCsvHistory,
+  undoCsvHistory,
+} from "@/lib/csvHistory";
 import { directionFromSearch } from "@/lib/direction";
 
 /** Past this size, live conversion stretches its debounce (spec: Throttled). */
@@ -87,7 +93,8 @@ export default function App() {
       ? "csv2json"
       : directionFromSearch(window.location.search)
   );
-  const [input, setInput] = useState("");
+  const [inputHistory, setInputHistory] = useState(() => createCsvHistory(""));
+  const input = inputHistory.present;
   const [options, setOptions] = useState<ConverterOptions>(DEFAULT_OPTIONS);
   const [split, setSplit] = useState(50);
   // Upload bookkeeping: source filename, reader spinner, rejection notice.
@@ -228,6 +235,34 @@ export default function App() {
     setEditedOutput(null);
   }, [direction, input, options]);
 
+  const commitInput = useCallback(
+    (value: string) => {
+      setInputHistory((current) =>
+        csvToJson ? pushCsvHistory(current, value) : createCsvHistory(value)
+      );
+    },
+    [csvToJson]
+  );
+
+  const canUndo = csvToJson && inputHistory.past.length > 0;
+  const canRedo = csvToJson && inputHistory.future.length > 0;
+
+  const handleUndo = useCallback(() => {
+    if (!csvToJson || inputHistory.past.length === 0) return;
+    const next = undoCsvHistory(inputHistory);
+    setNotice(null);
+    setInputHistory(next);
+    tracker.edit("csv_to_json", next.present);
+  }, [csvToJson, inputHistory, tracker]);
+
+  const handleRedo = useCallback(() => {
+    if (!csvToJson || inputHistory.future.length === 0) return;
+    const next = redoCsvHistory(inputHistory);
+    setNotice(null);
+    setInputHistory(next);
+    tracker.edit("csv_to_json", next.present);
+  }, [csvToJson, inputHistory, tracker]);
+
   const handleFlip = () => {
     if (outputEdited) {
       // Flip with an edited output: adopt the edited text as the new input
@@ -235,7 +270,9 @@ export default function App() {
       // untouched). Either way the output fully regenerates in the new
       // direction, so the edited state clears.
       const edited = editedOutput ?? "";
-      if (isParsableJson(edited)) setInput(edited);
+      setInputHistory((current) =>
+        createCsvHistory(isParsableJson(edited) ? edited : current.present)
+      );
       setDirection((current) =>
         current === "csv2json" ? "json2csv" : "csv2json"
       );
@@ -250,7 +287,9 @@ export default function App() {
     // files), so using it here could wipe a freshly typed value.
     if (!inputEmpty) {
       const current = convertText(direction, input, options);
-      if (current.ok) setInput(current.text);
+      setInputHistory(createCsvHistory(current.ok ? current.text : input));
+    } else {
+      setInputHistory(createCsvHistory(""));
     }
   };
   // Hydration applies exactly once per fetch, like a paste: direction,
@@ -275,7 +314,7 @@ export default function App() {
       ).ok,
     };
     setDirection(hydratedState.direction);
-    setInput(hydratedState.input);
+    setInputHistory(createCsvHistory(hydratedState.input));
     setOptions((current) => ({ ...current, ...hydratedState.options }));
     // Hydration fully regenerates the output — any edited state is gone.
     setOutputEdited(false);
@@ -319,7 +358,7 @@ export default function App() {
     try {
       const text = await decodeUpload(file, uploadEncoding);
       uploadedRef.current = { file, source, text };
-      setInput(text);
+      commitInput(text);
       setFilename(file.name);
       setReading(false);
       // A completed upload/drop is a discrete conversion input — fire
@@ -344,7 +383,7 @@ export default function App() {
     try {
       const text = await decodeUpload(uploaded.file, encoding);
       uploadedRef.current = { ...uploaded, text };
-      setInput(text);
+      setInputHistory((current) => ({ ...current, present: text }));
       setReading(false);
       tracker.discrete(
         csvToJson ? "csv_to_json" : "json_to_csv",
@@ -366,10 +405,10 @@ export default function App() {
   const handleInputChange = useCallback(
     (value: string) => {
       setNotice(null);
-      setInput(value);
+      commitInput(value);
       tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", value);
     },
-    [csvToJson, tracker]
+    [commitInput, csvToJson, tracker]
   );
 
   // Global paste routing (spec: paste-anywhere). Paste used to work only
@@ -459,11 +498,11 @@ export default function App() {
       onTryExample={() => {
         setNotice(null);
         const sample = csvToJson ? SAMPLE_CSV : SAMPLE_JSON;
-        setInput(sample);
+        commitInput(sample);
         tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", sample);
       }}
       onClear={() => {
-        setInput("");
+        commitInput("");
         setFilename(null);
         // Clearing the input fully regenerates the output (empty state) —
         // the edited state has nothing to stay attached to.
@@ -473,6 +512,10 @@ export default function App() {
       }}
       onCopy={copyInput}
       onDownload={downloadInput}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      onUndo={handleUndo}
+      onRedo={handleRedo}
       filename={filename}
       reading={reading}
       meta={meta}

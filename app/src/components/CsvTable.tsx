@@ -20,6 +20,7 @@ import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
 import { deleteColumns, deleteRows } from "@/lib/tableDeletion";
+import { matchHistoryShortcut } from "@/lib/csvHistory";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
 import { serializeGridSelection } from "@/lib/tableSelection";
 
@@ -79,7 +80,16 @@ type CsvTableProps = {
    * path as any keystroke in the raw view. Omit for read-only grids.
    */
   onCellCommit?: (nextText: string) => void;
+  /** Undo/redo handlers invoked on Mod+Z and Mod+Shift+Z / Mod+Y inside the grid. */
+  onUndo?: () => void;
+  onRedo?: () => void;
 };
+
+function isTextEntryElement(node: EventTarget | Element | null): boolean {
+  if (!(node instanceof HTMLElement)) return false;
+  const tag = node.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || node.isContentEditable;
+}
 
 type SortState = { col: number; dir: SortDir } | null;
 
@@ -175,7 +185,15 @@ function highlightColor(dark: boolean): string {
 
 type WithLetterSpacing = { letterSpacing?: string };
 
-export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, onCellCommit }: CsvTableProps) {
+export function CsvTable({
+  text,
+  delimiter,
+  testId = "csv-table",
+  dark = false,
+  onCellCommit,
+  onUndo,
+  onRedo,
+}: CsvTableProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const gridWrapRef = useRef<HTMLDivElement>(null);
   /** Source index of the last direct selection — the shift-click range anchor. */
@@ -441,6 +459,34 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
     return () => window.removeEventListener("copy", onCopy, { capture: true });
   }, []);
 
+  // Keyboard Undo/Redo while focus is inside the grid container, yielding to
+  // native text editing when an inline cell-editor, header-rename, or search
+  // input/textarea holds focus.
+  useEffect(() => {
+    if (!onUndo && !onRedo) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const root = rootRef.current;
+      if (!root) return;
+      const targetInRoot = event.target instanceof Node && root.contains(event.target);
+      const activeInRoot =
+        document.activeElement instanceof Node && root.contains(document.activeElement);
+      if (!targetInRoot && !activeInRoot) return;
+      if (isTextEntryElement(event.target) || isTextEntryElement(document.activeElement)) {
+        return;
+      }
+      const action = matchHistoryShortcut(event);
+      if (action === "undo" && onUndo) {
+        event.preventDefault();
+        onUndo();
+      } else if (action === "redo" && onRedo) {
+        event.preventDefault();
+        onRedo();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onUndo, onRedo]);
+
   // Deletion commit path (input table only): a deletion splices the raw
   // CSV text byte-preserving — the same fidelity contract a cell edit
   // takes, so untouched rows keep their exact bytes (line endings, BOM,
@@ -451,8 +497,15 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
   // filter, sort, and the count chip re-derive from the new parse.
   const commitDeletion = useCallback(
     (nextText: string) => {
+      const hadFocus =
+        rootRef.current !== null &&
+        document.activeElement instanceof Node &&
+        rootRef.current.contains(document.activeElement);
       clearSelection();
       onCellCommit?.(nextText);
+      if (hadFocus) {
+        gridWrapRef.current?.focus({ preventScroll: true });
+      }
     },
     [clearSelection, onCellCommit]
   );
@@ -862,8 +915,9 @@ export function CsvTable({ text, delimiter, testId = "csv-table", dark = false, 
         ref={gridWrapRef}
         data-testid={testId}
         role="grid"
+        tabIndex={-1}
         aria-rowcount={view.length + 1}
-        className="relative min-h-0 flex-1"
+        className="relative min-h-0 flex-1 outline-none"
         style={{ minHeight: gridMinHeight }}
       >
         <div className="absolute inset-0">
