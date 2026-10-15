@@ -542,4 +542,73 @@ describe("CsvTable deletion actions (input table only)", () => {
     expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
     expect(screen.queryByTestId("csv-table-empty-rows")).toBeNull();
   });
+
+  it("handles Mod+Z, Mod+Shift+Z, and Mod+Y inside the grid while yielding when an input is focused", () => {
+    const onUndo = vi.fn();
+    const onRedo = vi.fn();
+    render(
+      <CsvTable
+        text={FIXTURE}
+        onCellCommit={() => {}}
+        onUndo={onUndo}
+        onRedo={onRedo}
+      />
+    );
+
+    const grid = screen.getByTestId("csv-table");
+
+    const undoCtrl = new KeyboardEvent("keydown", {
+      key: "z",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid.dispatchEvent(undoCtrl);
+    expect(onUndo).toHaveBeenCalledTimes(1);
+    expect(undoCtrl.defaultPrevented).toBe(true);
+
+    const undoMeta = new KeyboardEvent("keydown", {
+      key: "z",
+      metaKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid.dispatchEvent(undoMeta);
+    expect(onUndo).toHaveBeenCalledTimes(2);
+    expect(undoMeta.defaultPrevented).toBe(true);
+
+    const redoShiftZ = new KeyboardEvent("keydown", {
+      key: "z",
+      metaKey: true,
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid.dispatchEvent(redoShiftZ);
+    expect(onRedo).toHaveBeenCalledTimes(1);
+    expect(redoShiftZ.defaultPrevented).toBe(true);
+
+    const redoY = new KeyboardEvent("keydown", {
+      key: "y",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid.dispatchEvent(redoY);
+    expect(onRedo).toHaveBeenCalledTimes(2);
+    expect(redoY.defaultPrevented).toBe(true);
+
+    // Focusing the search input (or any overlay <input>/<textarea>) yields to native text undo.
+    const searchInput = screen.getByTestId("csv-table-search");
+    searchInput.focus();
+    const inputUndo = new KeyboardEvent("keydown", {
+      key: "z",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    searchInput.dispatchEvent(inputUndo);
+    expect(onUndo).toHaveBeenCalledTimes(2);
+    expect(inputUndo.defaultPrevented).toBe(false);
+  });
 });

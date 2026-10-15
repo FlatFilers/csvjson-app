@@ -921,4 +921,72 @@ describe("contextual JSON Format / Minify toggle in JSON → CSV (AC-5)", () => 
   });
 });
 
+describe("bounded Undo / Redo for CSV grid mutations (AC-2)", () => {
+  it("steps backward and forward across cell edits, row deletions, and Clear via header buttons and shortcuts", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Initial empty state and initial sample seed do not show undo/redo chrome.
+    expect(screen.queryByTestId("csv-undo-button")).toBeNull();
+    expect(screen.queryByTestId("csv-redo-button")).toBeNull();
+
+    await user.click(screen.getByTestId("try-example"));
+    const inputTable = await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("csv-undo-button")).toBeNull();
+    expect(screen.queryByTestId("csv-redo-button")).toBeNull();
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "The White Stripes"
+    );
+
+    // Step 1: edit row 0, col 1 via Glide mock commit button ("EDITED").
+    await user.click(within(inputTable).getByTestId("glide-edit-0-1"));
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+
+    const undoBtn = screen.getByTestId("csv-undo-button");
+    const redoBtn = screen.getByTestId("csv-redo-button");
+    expect(undoBtn).not.toBeDisabled();
+    expect(redoBtn).toBeDisabled();
+
+    // Step 2: select row 0 and delete it.
+    await user.click(within(inputTable).getByTestId("glide-row-select-0"));
+    await user.click(screen.getByTestId("input-table-delete-rows"));
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "De Stijl"
+    );
+
+    // Undo deletion via keyboard shortcut Mod+Z inside the grid.
+    fireEvent.keyDown(inputTable, { key: "z", ctrlKey: true });
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+    expect(undoBtn).not.toBeDisabled();
+    expect(redoBtn).not.toBeDisabled();
+
+    // Undo cell edit via header button -> back to initial sample CSV.
+    await user.click(undoBtn);
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "The White Stripes"
+    );
+    expect(undoBtn).toBeDisabled();
+    expect(redoBtn).not.toBeDisabled();
+
+    // Redo cell edit via header button, then redo row deletion via Mod+Shift+Z.
+    await user.click(redoBtn);
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "EDITED"
+    );
+    fireEvent.keyDown(inputTable, {
+      key: "z",
+      metaKey: true,
+      shiftKey: true,
+    });
+    expect(within(inputTable).getByTestId("glide-row-0")).toHaveTextContent(
+      "De Stijl"
+    );
+    expect(redoBtn).toBeDisabled();
+  });
+});
+
 

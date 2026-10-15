@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
-import { Braces, Copy, Download, FileUp, Table, Trash2, type LucideIcon } from "lucide-react";
+import { Braces, Copy, Download, FileUp, Redo2, Table, Trash2, Undo2, type LucideIcon } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
 import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
@@ -39,6 +39,10 @@ type InputPaneProps = {
   dark: boolean;
   /** Cell-edit sink for the table view — feeds the guarded reconversion path. */
   onCellCommit?: (nextText: string) => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 };
 
 function ReadingSpinner() {
@@ -105,6 +109,10 @@ export function InputPane({
   dark,
   delimiter,
   onCellCommit,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -234,6 +242,32 @@ export function InputPane({
         actions={
           <>
             {rawToggle}
+            {isCsv && (canUndo || canRedo) ? (
+              <>
+                <button
+                  type="button"
+                  data-testid="csv-undo-button"
+                  aria-label="Undo"
+                  title="Undo"
+                  disabled={!canUndo}
+                  onClick={() => onUndo?.()}
+                  className={actionButtonClass}
+                >
+                  <Undo2 aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  data-testid="csv-redo-button"
+                  aria-label="Redo"
+                  title="Redo"
+                  disabled={!canRedo}
+                  onClick={() => onRedo?.()}
+                  className={actionButtonClass}
+                >
+                  <Redo2 aria-hidden="true" />
+                </button>
+              </>
+            ) : null}
             {jsonFormatAction ? (
               <ActionButton
                 label={jsonFormatAction.label}
@@ -305,7 +339,15 @@ export function InputPane({
             className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
           />
         ) : isCsv ? (
-          <CsvTable text={input} delimiter={delimiter} testId="input-table" dark={dark} onCellCommit={onCellCommit} />
+          <CsvTable
+            text={input}
+            delimiter={delimiter}
+            testId="input-table"
+            dark={dark}
+            onCellCommit={onCellCommit}
+            onUndo={onUndo}
+            onRedo={onRedo}
+          />
         ) : (
           <>
             {wrapperCandidates.length > 0 ? (
