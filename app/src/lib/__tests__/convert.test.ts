@@ -80,6 +80,23 @@ describe("per-option behavior (criterion 2)", () => {
     ]);
   });
 
+  it("convertText json2csv with pipe separator reports accurate multi-column cols and rows (AC-1)", () => {
+    const input = JSON.stringify([
+      { album: "De Stijl", year: 2000, band: "The White Stripes" },
+      { album: "Elephant", year: 2003, band: "The White Stripes" },
+    ]);
+    const result = convertText("json2csv", input, {
+      ...DEFAULT_OPTIONS,
+      separator: "|",
+    });
+    expect(result).toEqual({
+      ok: true,
+      text: '"album"|"year"|"band"\n"De Stijl"|2000|"The White Stripes"\n"Elephant"|2003|"The White Stripes"',
+      rows: 2,
+      cols: 3,
+    });
+  });
+
   it("auto-detect never picks pipe — commas win and pipe-only input stays unsplit (B2, #110)", () => {
     // Commas present: the pipe is treated as data, comma is detected.
     expect(csvToJson("a|b,c\n1|2,3")).toEqual([{ "a|b": "1|2", c: 3 }]);

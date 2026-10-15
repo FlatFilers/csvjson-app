@@ -709,3 +709,49 @@ describe("direction deep link (?direction=)", () => {
     });
   });
 });
+
+describe("JSON → CSV pipe separator output preview (AC-1)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("splits pipe-separated CSV output into columns and reports accurate cols count in OutputPane", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    fireEvent.change(screen.getByTestId("opt-separator"), {
+      target: { value: "|" },
+    });
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: {
+        getData: () =>
+          JSON.stringify([
+            { album: "De Stijl", year: 2000 },
+            { album: "Elephant", year: 2003 },
+          ]),
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toBeInTheDocument();
+    });
+
+    const outputPane = screen.getByTestId("output-pane");
+    expect(within(outputPane).getByTestId("pane-meta")).toHaveTextContent(
+      "2 rows · 2 cols"
+    );
+
+    const outputTable = screen.getByTestId("output-table");
+    // Column 0 is the row-number gutter; columns 1 and 2 are the split data columns.
+    expect(within(outputTable).getByTestId("glide-header-1")).toHaveTextContent(
+      "ALBUM"
+    );
+    expect(within(outputTable).getByTestId("glide-header-2")).toHaveTextContent(
+      "YEAR"
+    );
+    const firstRow = within(outputTable).getByTestId("glide-row-0");
+    expect(firstRow).toHaveTextContent("De Stijl");
+    expect(firstRow).toHaveTextContent("2000");
+  });
+});
+

@@ -580,18 +580,20 @@ export function convertText(
         error: `Invalid JSON — ${e instanceof Error ? e.message : String(e)}`,
       };
     }
+    const separator = separatorFor(options.separator);
     const csv = jsonToJsonCsv(data, {
-      separator: separatorFor(options.separator),
+      separator,
       flatten: options.flatten,
     });
     // Count the PRODUCED CSV, not the raw input: with flatten on, nested
     // arrays explode into extra rows and dotted keys add columns, so the
     // input shape understates the output (art_afRt2cdg, root cause A).
     // Parsing the same string the preview and the download consume makes
-    // count ≡ preview ≡ download by construction — with the delimiter
-    // auto-detected exactly as the preview table detects it. The csv2json
+    // count ≡ preview ≡ download by construction — forwarding the active
+    // separator (or auto-detecting when set to auto) so pipe-delimited
+    // output splits identically in counts and preview. The csv2json
     // branch already counts its converted output; both directions agree.
-    const table = parseCsvTable(csv);
+    const table = parseCsvTable(csv, separator);
     return {
       ok: true,
       text: csv,
