@@ -1,10 +1,11 @@
-import { useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
+import { useMemo, useRef, useState, type ClipboardEvent as ReactClipboardEvent, type DragEvent } from "react";
 import { Braces, Copy, Download, FileUp, Table, Trash2, type LucideIcon } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
 import { Dropzone } from "@/components/Dropzone";
 import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
+import { detectJsonWrapperCandidates } from "@/lib/convert";
 import { cn } from "@/lib/utils";
 
 /**
@@ -108,6 +109,10 @@ export function InputPane({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputEmpty = input.trim() === "";
   const isCsv = format === "CSV";
+  const wrapperCandidates = useMemo(
+    () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
+    [isCsv, inputEmpty, input]
+  );
 
   const onDragEnter = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -287,12 +292,35 @@ export function InputPane({
         ) : isCsv ? (
           <CsvTable text={input} delimiter={delimiter} testId="input-table" dark={dark} onCellCommit={onCellCommit} />
         ) : (
-          <JsonCodeMirror
-            value={input}
-            onChange={onInputChange}
-            dark={dark}
-            testId="input-editor"
-          />
+          <>
+            {wrapperCandidates.length > 0 ? (
+              <div
+                data-testid="json-unwrap-bar"
+                className="flex flex-shrink-0 flex-wrap items-center gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  Nested array detected:
+                </span>
+                {wrapperCandidates.map((candidate) => (
+                  <button
+                    key={candidate.key}
+                    type="button"
+                    data-testid={`json-unwrap-pill-${candidate.key}`}
+                    onClick={() => onInputChange(candidate.unwrappedJson)}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground shadow-2xs transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {`Unwrap .${candidate.key} (${candidate.rowCount} ${candidate.rowCount === 1 ? "row" : "rows"})`}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <JsonCodeMirror
+              value={input}
+              onChange={onInputChange}
+              dark={dark}
+              testId="input-editor"
+            />
+          </>
         )}
         {dragOver ? (
           <div

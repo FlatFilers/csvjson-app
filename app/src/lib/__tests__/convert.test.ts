@@ -5,6 +5,7 @@ import {
   csvToJson,
   csvWarnings,
   DEFAULT_OPTIONS,
+  detectJsonWrapperCandidates,
   jsonToJsonCsv,
   NonTabularJsonError,
   toJsonString,
@@ -922,4 +923,78 @@ describe("skip-empty and NULL-as-null toggles (B1, fixes #65 #100 #46 #6)", () =
     );
   });
 });
+
+describe("JSONL / NDJSON automatic parsing & wrapper candidates (AC-4, art_MJHTha6X)", () => {
+  it("converts multi-line JSONL / NDJSON objects into CSV automatically", () => {
+    const jsonl = [
+      '{"id":1,"name":"Ada Lovelace"}',
+      '{"id":2,"name":"Grace Hopper"}',
+    ].join("\n");
+    const result = convertText("json2csv", jsonl);
+    expect(result).toEqual({
+      ok: true,
+      text: '"id","name"\n1,"Ada Lovelace"\n2,"Grace Hopper"',
+      rows: 2,
+      cols: 2,
+    });
+  });
+
+  it("tolerates CRLF line endings and blank lines in JSONL input", () => {
+    const jsonl = '\r\n{"id":1,"role":"eng"}\r\n\r\n{"id":2,"role":"ops"}\r\n';
+    const result = convertText("json2csv", jsonl);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.rows).toBe(2);
+    expect(result.cols).toBe(2);
+    expect(result.text).toBe('"id","role"\n1,"eng"\n2,"ops"');
+  });
+
+  it("preserves the existing Invalid JSON error message when any line is malformed or primitive", () => {
+    const malformed = '{"id":1,"name":"Ada"}\n{"id":2,bad}';
+    const result = convertText("json2csv", malformed);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/^Invalid JSON — /);
+    }
+
+    const primitives = "123\n456";
+    const primResult = convertText("json2csv", primitives);
+    expect(primResult.ok).toBe(false);
+    if (!primResult.ok) {
+      expect(primResult.error).toMatch(/^Invalid JSON — /);
+    }
+  });
+
+  it("detectJsonWrapperCandidates finds array-of-object keys and prioritizes common wrapper keys", () => {
+    const wrapped = JSON.stringify({
+      meta: { total: 2 },
+      extra: [{ k: "x" }],
+      results: [{ id: 10 }, { id: 20 }, { id: 30 }],
+      data: [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      tags: ["a", "b"],
+      empty: [],
+    });
+    const candidates = detectJsonWrapperCandidates(wrapped);
+    expect(candidates.map((c) => ({ key: c.key, rowCount: c.rowCount }))).toEqual([
+      { key: "data", rowCount: 2 },
+      { key: "results", rowCount: 3 },
+      { key: "extra", rowCount: 1 },
+    ]);
+    expect(JSON.parse(candidates[0].unwrappedJson)).toEqual([
+      { id: 1, name: "Ada" },
+      { id: 2, name: "Grace" },
+    ]);
+  });
+
+  it("detectJsonWrapperCandidates returns empty array for top-level arrays, invalid JSON, or flat objects", () => {
+    expect(detectJsonWrapperCandidates("")).toEqual([]);
+    expect(detectJsonWrapperCandidates("not json")).toEqual([]);
+    expect(detectJsonWrapperCandidates('[{"id":1}]')).toEqual([]);
+    expect(detectJsonWrapperCandidates('{"id":1,"tags":["a","b"]}')).toEqual([]);
+  });
+});
+
 
