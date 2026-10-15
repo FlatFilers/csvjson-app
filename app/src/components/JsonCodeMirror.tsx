@@ -20,6 +20,29 @@ import { cn } from "@/lib/utils";
  * editability tests.
  */
 export const LINT_MAX_CHARS = 512 * 1024;
+/**
+ * Above this size, skip the Lezer `json()` syntax parser so multi-megabyte
+ * JSON strings mount in plain-text virtualized mode without blocking the main
+ * thread for seconds.
+ */
+export const LARGE_DOC_MAX_CHARS = 512 * 1024;
+/**
+ * Above this size in read-only output mode, cap the in-editor document
+ * preview to the first `LARGE_DOC_MAX_CHARS` characters (aligned to a line
+ * boundary) and display a notice banner while Copy and Download still export
+ * the complete output string.
+ */
+export const LARGE_OUTPUT_PREVIEW_MAX_CHARS = 2_000_000;
+
+function slicePreviewOnLineBoundary(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  const lastNewline = text.lastIndexOf("\n", maxChars);
+  if (lastNewline > maxChars * 0.5) {
+    return text.slice(0, lastNewline);
+  }
+  return text.slice(0, maxChars);
+}
+
 const sizeGatedJsonLinter = (view: EditorView): Diagnostic[] =>
   view.state.doc.length > LINT_MAX_CHARS ? [] : jsonParseLinter()(view);
 
@@ -97,8 +120,16 @@ export function JsonCodeMirror({
   const darkRef = useRef(dark);
   const themeCompartmentRef = useRef<Compartment | null>(null);
   const editabilityCompartmentRef = useRef<Compartment | null>(null);
+  const languageCompartmentRef = useRef<Compartment | null>(null);
   const editableProp = editable ?? onChange !== undefined;
   const wasEditableRef = useRef(editableProp);
+  const isLargeDoc = value.length > LARGE_DOC_MAX_CHARS;
+  const wasLargeDocRef = useRef(isLargeDoc);
+  const isPreviewTruncated =
+    !editableProp && value.length > LARGE_OUTPUT_PREVIEW_MAX_CHARS;
+  const editorValue = isPreviewTruncated
+    ? slicePreviewOnLineBoundary(value, LARGE_DOC_MAX_CHARS)
+    : value;
   // True while the value-sync effect applies an external value: that
   // transaction must not echo back through the update listener as a user
   // edit — it would mark the output edited on every derived regeneration.
@@ -107,7 +138,7 @@ export function JsonCodeMirror({
   // One extension bundle per role; the compartment swaps it at runtime.
   // Stable identity: it only touches refs, and the effects below key on it.
   const editabilityExtensions = useCallback(
-    (canEdit: boolean): Extension[] =>
+    (canEdit: boolean, largeDoc: boolean): Extension[] =>
       canEdit
         ? [
             EditorView.updateListener.of((update) => {
@@ -115,7 +146,7 @@ export function JsonCodeMirror({
                 onChangeRef.current?.(update.state.doc.toString());
               }
             }),
-            linter(sizeGatedJsonLinter, { delay: 300 }),
+            ...(largeDoc ? [] : [linter(sizeGatedJsonLinter, { delay: 300 })]),
           ]
         : [EditorState.readOnly.of(true), EditorView.editable.of(false)],
     []
@@ -126,23 +157,25 @@ export function JsonCodeMirror({
     if (!host) return;
     const themeCompartment = new Compartment();
     const editabilityCompartment = new Compartment();
+    const languageCompartment = new Compartment();
 
     const state = EditorState.create({
-      doc: value,
+      doc: editorValue,
       extensions: [
-        json(),
+        languageCompartment.of(isLargeDoc ? [] : json()),
         EditorView.lineWrapping,
         history(),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         baseTheme,
         themeCompartment.of(syntaxHighlighting(jsonHighlight(dark))),
-        editabilityCompartment.of(editabilityExtensions(editableProp)),
+        editabilityCompartment.of(editabilityExtensions(editableProp, isLargeDoc)),
         ...(placeholder ? [cmPlaceholder(placeholder)] : []),
       ],
     });
     const view = new EditorView({ state, parent: host });
     themeCompartmentRef.current = themeCompartment;
     editabilityCompartmentRef.current = editabilityCompartment;
+    languageCompartmentRef.current = languageCompartment;
     onReady?.(view);
     viewRef.current = view;
     return () => {
@@ -157,16 +190,36 @@ export function JsonCodeMirror({
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
-    if (view.state.doc.toString() === value) return;
+    const languageCompartment = languageCompartmentRef.current;
+    const editabilityCompartment = editabilityCompartmentRef.current;
+    const effects = [];
+    if (isLargeDoc !== wasLargeDocRef.current) {
+      wasLargeDocRef.current = isLargeDoc;
+      if (languageCompartment) {
+        effects.push(languageCompartment.reconfigure(isLargeDoc ? [] : json()));
+      }
+      if (editabilityCompartment) {
+        effects.push(
+          editabilityCompartment.reconfigure(
+            editabilityExtensions(editableProp, isLargeDoc)
+          )
+        );
+      }
+    }
+    const currentDoc = view.state.doc.toString();
+    if (currentDoc === editorValue && effects.length === 0) return;
     applyingExternalRef.current = true;
     try {
       view.dispatch({
-        changes: { from: 0, to: view.state.doc.length, insert: value },
+        ...(currentDoc !== editorValue
+          ? { changes: { from: 0, to: view.state.doc.length, insert: editorValue } }
+          : {}),
+        ...(effects.length > 0 ? { effects } : {}),
       });
     } finally {
       applyingExternalRef.current = false;
     }
-  }, [value]);
+  }, [editorValue, isLargeDoc, editableProp, editabilityExtensions]);
 
   // Runtime editability swap (output editor: editable on a valid result,
   // read-only for a retained invalid-input result).
@@ -177,9 +230,11 @@ export function JsonCodeMirror({
     if (editableProp === wasEditableRef.current) return;
     wasEditableRef.current = editableProp;
     view.dispatch({
-      effects: compartment.reconfigure(editabilityExtensions(editableProp)),
+      effects: compartment.reconfigure(
+        editabilityExtensions(editableProp, isLargeDoc)
+      ),
     });
-  }, [editableProp, editabilityExtensions]);
+  }, [editableProp, isLargeDoc, editabilityExtensions]);
 
   // Dark-mode token palette swap.
   useEffect(() => {
@@ -197,9 +252,24 @@ export function JsonCodeMirror({
       // font-mono consumes the --font-mono theme token (index.css): JSON must
       // render fixed-width in the editor AND the read-only output, in both
       // themes. The CodeMirror content inherits it (fontFamily: inherit).
-      // px-5 py-4 is the v0 text-surface padding (matches the raw textarea).
-      className={cn("min-h-0 flex-1 overflow-hidden px-5 py-4 font-mono", className)}
-      ref={hostRef}
-    />
+      className={cn(
+        "flex min-h-0 flex-1 flex-col overflow-hidden font-mono",
+        className
+      )}
+    >
+      {isPreviewTruncated ? (
+        <div
+          data-testid="large-output-preview-banner"
+          role="status"
+          className="border-b border-border bg-muted/40 px-5 py-1.5 font-sans text-xs text-muted-foreground"
+        >
+          Showing first 512 KB preview in editor — Copy and Download include the full output
+        </div>
+      ) : null}
+      <div
+        ref={hostRef}
+        className="min-h-0 flex-1 overflow-hidden px-5 py-4"
+      />
+    </div>
   );
 }

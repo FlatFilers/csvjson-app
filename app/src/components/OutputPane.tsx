@@ -1,6 +1,9 @@
 import { Copy, Download, RotateCcw } from "lucide-react";
 import { CsvTable } from "@/components/CsvTable";
-import { JsonCodeMirror } from "@/components/JsonCodeMirror";
+import {
+  JsonCodeMirror,
+  LARGE_OUTPUT_PREVIEW_MAX_CHARS,
+} from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
 
@@ -178,7 +181,9 @@ export function OutputPane({
           isJson ? (
             <JsonCodeMirror
               value={outputText}
-              editable={editable}
+              editable={
+                editable && outputText.length <= LARGE_OUTPUT_PREVIEW_MAX_CHARS
+              }
               onChange={onOutputChange}
               dark={dark}
               testId="output-view"
@@ -191,9 +196,16 @@ export function OutputPane({
               dark={dark}
             />
           )
-        ) : (
+        ) : error ? (
           <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
             Resolve the error to see output.
+          </div>
+        ) : (
+          <div
+            data-testid="output-converting-placeholder"
+            className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground"
+          >
+            Converting…
           </div>
         )}
       </PaneShell>

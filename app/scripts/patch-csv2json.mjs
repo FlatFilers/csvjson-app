@@ -233,4 +233,37 @@ if (patched.includes(NAMES_TAB_WITH_PIPE)) {
   process.exit(1);
 }
 
+// ------------------------------------------------ Stack-safe transpose (AC-7)
+// `if (options.transpose) a = zip.apply(this, a);` spreads every row of `a`
+// onto the JS call stack as a function argument, throwing `RangeError: Maximum
+// call stack size exceeded` above ~125k rows. Replace with an iterative loop.
+const TRANSPOSE_CALL = `    if (options.transpose) a = zip.apply(this, a);`;
+const TRANSPOSE_SAFE = [
+  `    if (options.transpose) {`,
+  `      var maxCols = 0;`,
+  `      for (var r = 0; r < a.length; r++) {`,
+  `        if (a[r].length > maxCols) maxCols = a[r].length;`,
+  `      }`,
+  `      var transposed = new Array(maxCols);`,
+  `      for (var c = 0; c < maxCols; c++) {`,
+  `        var col = new Array(a.length);`,
+  `        for (var r2 = 0; r2 < a.length; r2++) {`,
+  `          col[r2] = a[r2][c];`,
+  `        }`,
+  `        transposed[c] = col;`,
+  `      }`,
+  `      a = transposed;`,
+  `    }`,
+].join("\r\n");
+
+if (patched.includes(TRANSPOSE_SAFE)) {
+  console.log("patch-csv2json: transpose already stack-safe");
+} else if (patched.includes(TRANSPOSE_CALL)) {
+  patched = patched.split(TRANSPOSE_CALL).join(TRANSPOSE_SAFE);
+  console.log("patch-csv2json: replaced zip.apply transpose with iterative loop");
+} else {
+  console.error("patch-csv2json: transpose call not found - package changed upstream, investigate before shipping");
+  process.exit(1);
+}
+
 if (patched !== source) writeFileSync(pkg, patched);

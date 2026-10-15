@@ -96,6 +96,39 @@ function ActionButton({
   );
 }
 
+/**
+ * Extract only the first CSV record (plus a tiny sample of subsequent lines so
+ * `detectSeparator` has context when `delimiter` is auto) without parsing
+ * tens of thousands of rows just to inspect column headers.
+ */
+function sliceFirstCsvRecord(csv: string): string {
+  const maxScan = Math.min(csv.length, 64 * 1024);
+  let inQuotes = false;
+  let recordsFound = 0;
+  for (let i = 0; i < maxScan; i += 1) {
+    const ch = csv[i];
+    if (ch === '"') {
+      if (inQuotes && csv[i + 1] === '"') {
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (!inQuotes && (ch === "\n" || ch === "\r")) {
+      if (ch === "\r" && csv[i + 1] === "\n") {
+        i += 1;
+      }
+      recordsFound += 1;
+      // Keep up to 3 records so auto-separator detection still sees sample rows.
+      if (recordsFound >= 3) {
+        return csv.slice(0, i + 1);
+      }
+    }
+  }
+  return csv.slice(0, maxScan);
+}
+
 export function InputPane({
   format,
   input,
@@ -128,7 +161,8 @@ export function InputPane({
   const isCsv = format === "CSV";
   const indexedHeaderGroups = useMemo(() => {
     if (!isCsv || inputEmpty) return [];
-    const table = parseCsvTable(input, delimiter);
+    const headerSlice = sliceFirstCsvRecord(input);
+    const table = parseCsvTable(headerSlice, delimiter);
     return detectIndexedHeaderGroups(table.headers.map((h) => h.trim()));
   }, [isCsv, inputEmpty, input, delimiter]);
   const wrapperCandidates = useMemo(

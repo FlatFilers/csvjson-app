@@ -146,11 +146,25 @@ function toSmartNumber(value: string): string | number {
 function tryParseJsonLiteral(
   value: string
 ): { ok: true; value: unknown } | { ok: false } {
-  try {
-    return { ok: true, value: JSON.parse(value) };
-  } catch {
-    return { ok: false };
+  const trimmed = value.trim();
+  if (trimmed === "") return { ok: false };
+  if (trimmed === "true") return { ok: true, value: true };
+  if (trimmed === "false") return { ok: true, value: false };
+  if (trimmed === "null") return { ok: true, value: null };
+  const first = trimmed[0];
+  const last = trimmed[trimmed.length - 1];
+  if (
+    (first === "{" && last === "}") ||
+    (first === "[" && last === "]") ||
+    (first === '"' && last === '"' && trimmed.length >= 2)
+  ) {
+    try {
+      return { ok: true, value: JSON.parse(trimmed) };
+    } catch {
+      return { ok: false };
+    }
   }
+  return { ok: false };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

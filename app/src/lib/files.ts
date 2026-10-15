@@ -44,17 +44,52 @@ export async function decodeUpload(
   file: File,
   encoding: UploadEncoding
 ): Promise<string> {
-  const decoder = new TextDecoder(encoding, { fatal: false });
   const reader = file.stream().getReader();
   let decoded = "";
   try {
+    const initialChunks: Uint8Array[] = [];
+    let initialBytes = 0;
+    while (initialBytes < 2) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value && value.byteLength > 0) {
+        initialChunks.push(value);
+        initialBytes += value.byteLength;
+      }
+    }
+
+    let firstChunk: Uint8Array | null = null;
+    if (initialChunks.length === 1) {
+      firstChunk = initialChunks[0];
+    } else if (initialChunks.length > 1) {
+      firstChunk = new Uint8Array(initialBytes);
+      let offset = 0;
+      for (const chunk of initialChunks) {
+        firstChunk.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+    }
+
+    let effectiveEncoding: string = encoding;
+    if (encoding === "utf-8" && firstChunk && firstChunk.byteLength >= 2) {
+      if (firstChunk[0] === 0xff && firstChunk[1] === 0xfe) {
+        effectiveEncoding = "utf-16le";
+      } else if (firstChunk[0] === 0xfe && firstChunk[1] === 0xff) {
+        effectiveEncoding = "utf-16be";
+      }
+    }
+
+    const decoder = new TextDecoder(effectiveEncoding, { fatal: false });
+    if (firstChunk) {
+      decoded += decoder.decode(firstChunk, { stream: true });
+    }
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
       decoded += decoder.decode(value, { stream: true });
     }
+    return decoded + decoder.decode();
   } finally {
     reader.releaseLock();
   }
-  return decoded + decoder.decode();
 }

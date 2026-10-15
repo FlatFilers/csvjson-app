@@ -158,6 +158,29 @@ export default function App() {
     input.length > LARGE_INPUT_CHARS ? LARGE_INPUT_DEBOUNCE_MS : DEBOUNCE_MS;
   const debouncedInput = useDebouncedValue(input, inputEmpty ? 0 : debounceMs);
 
+  // The upload still feeding the input — file, its ingest source, and the
+  // exact text its decode produced. The encoding select re-decodes the held
+  // file only while the input still IS that text: the mojibake-recovery
+  // flow (upload → mangled accents → switch label → fixed) works without a
+  // re-upload, while any edit, paste, flip, or clear quietly disarms it —
+  // a later encoding switch must never clobber text that moved on.
+  const uploadedRef = useRef<{
+    file: File;
+    source: "picker" | "drop";
+    text: string;
+  } | null>(null);
+  const pendingDiscreteEventRef = useRef<{
+    direction: "csv_to_json" | "json_to_csv";
+    via: "file" | "drag";
+    text: string;
+  } | null>(null);
+
+  // Discrete file uploads and encoding switches already have their complete
+  // payload — convert immediately instead of waiting for the typing pause
+  // debounce (which would leave `debouncedInput` empty for up to 1s).
+  const isDiscreteUploadInput =
+    input !== "" && uploadedRef.current?.text === input;
+  const effectiveInput = isDiscreteUploadInput ? input : debouncedInput;
 
   // Legacy permalinks: /<tool>/<32-hex-id> hydrates the converter from the
   // S3 object, read-only. The URL is never rewritten; edits behave normally
@@ -175,25 +198,34 @@ export default function App() {
   const permalink = useLegacyPermalink(permalinkPath);
 
   const result = useMemo(
-    () => convertText(direction, debouncedInput, options),
-    [direction, debouncedInput, options]
+    () => convertText(direction, effectiveInput, options),
+    [direction, effectiveInput, options]
   );
   // Fire-time validity reads this; assigned after the memo so it always
   // holds the freshest state (see the tracker's isValid above).
   converterStateRef.current = {
     direction,
     options,
-    input,
+    input: effectiveInput,
     resultOk: result.ok,
   };
+
+  useEffect(() => {
+    const pending = pendingDiscreteEventRef.current;
+    if (!pending || pending.text !== effectiveInput) return;
+    pendingDiscreteEventRef.current = null;
+    tracker.discrete(pending.direction, pending.via, pending.text);
+  }, [effectiveInput, result, tracker]);
 
   // The last valid output survives parse failures (spec: States → Invalid
   // input, Direction flip rule).
   const [lastValidOutput, setLastValidOutput] = useState<string | null>(null);
   useEffect(() => {
-    if (debouncedInput.trim() === "") return;
+    if (effectiveInput.trim() === "") return;
     if (result.ok) setLastValidOutput(result.text);
-  }, [result, debouncedInput]);
+  }, [result, effectiveInput]);
+  const currentValidOutput =
+    effectiveInput.trim() !== "" && result.ok ? result.text : lastValidOutput;
 
   // Editable output (edited-state machine, David-approved Option 2): the
   // first user modification freezes regeneration — input and option changes
@@ -202,7 +234,7 @@ export default function App() {
   // reconvert, a valid flip, and paths that fully regenerate the output.
   const [outputEdited, setOutputEdited] = useState(false);
   const [editedOutput, setEditedOutput] = useState<string | null>(null);
-  const displayedOutput = outputEdited ? editedOutput : lastValidOutput;
+  const displayedOutput = outputEdited ? editedOutput : currentValidOutput;
   // Editable window: CSV→JSON with a valid result — or an edited output,
   // which stays editable even after the input breaks (the freeze notice,
   // not a lockout, is the guard). Retained invalid-input results and the
@@ -214,7 +246,7 @@ export default function App() {
   // that happen to land back on the derived text, which is not an edit.
   const handleOutputEdit = useCallback(
     (value: string) => {
-      if (value === lastValidOutput) {
+      if (value === currentValidOutput) {
         setOutputEdited(false);
         setEditedOutput(null);
         return;
@@ -222,7 +254,7 @@ export default function App() {
       setOutputEdited(true);
       setEditedOutput(value);
     },
-    [lastValidOutput]
+    [currentValidOutput]
   );
 
   // Revert and Discard & reconvert both restore the derived output by
@@ -330,18 +362,6 @@ export default function App() {
     );
   }, [hydratedState, tracker]);
 
-  // The upload still feeding the input — file, its ingest source, and the
-  // exact text its decode produced. The encoding select re-decodes the held
-  // file only while the input still IS that text: the mojibake-recovery
-  // flow (upload → mangled accents → switch label → fixed) works without a
-  // re-upload, while any edit, paste, flip, or clear quietly disarms it —
-  // a later encoding switch must never clobber text that moved on.
-  const uploadedRef = useRef<{
-    file: File;
-    source: "picker" | "drop";
-    text: string;
-  } | null>(null);
-
   // Upload decode — files never touch the network (spec: Input; the legacy
   // /upload endpoint is deleted). Bytes are decoded locally under the
   // selected label (spec B7 — issue #106); the utf-8 default is the exact
@@ -358,16 +378,14 @@ export default function App() {
     try {
       const text = await decodeUpload(file, uploadEncoding);
       uploadedRef.current = { file, source, text };
+      pendingDiscreteEventRef.current = {
+        direction: csvToJson ? "csv_to_json" : "json_to_csv",
+        via: source === "drop" ? "drag" : "file",
+        text,
+      };
       commitInput(text);
       setFilename(file.name);
       setReading(false);
-      // A completed upload/drop is a discrete conversion input — fire
-      // immediately (the tracker still gates on a valid result + 2s window).
-      tracker.discrete(
-        csvToJson ? "csv_to_json" : "json_to_csv",
-        source === "drop" ? "drag" : "file",
-        text
-      );
     } catch {
       setReading(false);
       setNotice(`Couldn't read "${file.name}".`);
@@ -383,13 +401,13 @@ export default function App() {
     try {
       const text = await decodeUpload(uploaded.file, encoding);
       uploadedRef.current = { ...uploaded, text };
+      pendingDiscreteEventRef.current = {
+        direction: csvToJson ? "csv_to_json" : "json_to_csv",
+        via: uploaded.source === "drop" ? "drag" : "file",
+        text,
+      };
       setInputHistory((current) => ({ ...current, present: text }));
       setReading(false);
-      tracker.discrete(
-        csvToJson ? "csv_to_json" : "json_to_csv",
-        uploaded.source === "drop" ? "drag" : "file",
-        text
-      );
     } catch {
       setReading(false);
       // The label must name the decode that produced the displayed text:
