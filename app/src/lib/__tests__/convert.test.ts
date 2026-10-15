@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import csv2json from "csvjson-csv2json";
 import {
   convertText,
@@ -1171,6 +1171,56 @@ describe("indexed CSV header array collapse (feat/csv-indexed-arrays)", () => {
     });
   });
 });
+
+describe("CSV upload performance & resilience guards (AC-7 / art_cPIu3u6a)", () => {
+  it("guards tryParseJsonLiteral by first/last character so plain cells, numbers, booleans, and null never invoke JSON.parse", () => {
+    const parseSpy = vi.spyOn(JSON, "parse");
+    try {
+      const csv = [
+        "id,name,date,active,empty,unfinished,obj,arr,quoted",
+        '1,Alice,2026-10-15,true,null,{not_json,"{""k"":1}","[1,2]","""hello"""',
+      ].join("\n");
+      const out = csvToJson(csv, { parseNumbers: true, parseJSON: true });
+      expect(out).toEqual([
+        {
+          id: 1,
+          name: "Alice",
+          date: "2026-10-15",
+          active: true,
+          empty: null,
+          unfinished: "{not_json",
+          obj: { k: 1 },
+          arr: [1, 2],
+          quoted: "hello",
+        },
+      ]);
+      // Only the 3 bracketed/quoted JSON cells ("{\"k\":1}", "[1,2]", "\"hello\"")
+      // should reach JSON.parse — none of the scalar, boolean, null, or plain cells!
+      expect(parseSpy).toHaveBeenCalledTimes(3);
+    } finally {
+      parseSpy.mockRestore();
+    }
+  });
+
+  it("transposes >130,000 rows without overflowing the V8 call stack (iterative transpose)", () => {
+    const rowCount = 130_000;
+    const lines = ["k,v"];
+    for (let i = 0; i < rowCount; i += 1) {
+      lines.push(`r${i},${i}`);
+    }
+    const largeCsv = lines.join("\n");
+    const transposed = csvToJson(largeCsv, {
+      transpose: true,
+      parseNumbers: false,
+      parseJSON: false,
+    }) as Array<Record<string, unknown>>;
+    expect(transposed).toHaveLength(1);
+    expect(transposed[0].k).toBe("v");
+    expect(transposed[0].r0).toBe("0");
+    expect(transposed[0][`r${rowCount - 1}`]).toBe(String(rowCount - 1));
+  });
+});
+
 
 
 

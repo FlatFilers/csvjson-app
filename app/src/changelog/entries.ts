@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 13,
+    date: "2026-10-15",
+    tag: "fix",
+    title: "Faster large CSV uploads without page freezes",
+    summary:
+      "Uploading large CSV files now converts in a single pass without freezing the tab or flashing a false error state, previews multi-megabyte JSON outputs smoothly while keeping full Copy and Download, and decodes UTF-16 CSV exports automatically.",
+  },
+  {
     id: 12,
     date: "2026-10-15",
     tag: "improvement",

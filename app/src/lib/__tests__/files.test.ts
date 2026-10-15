@@ -85,4 +85,33 @@ describe("decodeUpload (spec B7 — issue #106)", () => {
       decodeUpload(chunkFile([[0xef, 0xbb, 0xbf, 0x61], [0x2c, 0x62]]), "utf-8")
     ).resolves.toBe("a,b");
   });
+
+  it("auto-detects UTF-16LE BOM (0xFF 0xFE) when utf-8 is selected and decodes without NUL bytes", async () => {
+    // UTF-16LE BOM (0xFF, 0xFE) + "id,name\n1,Jürgen"
+    const text = "id,name\n1,Jürgen";
+    const utf16leBytes = [0xff, 0xfe];
+    for (let i = 0; i < text.length; i += 1) {
+      const code = text.charCodeAt(i);
+      utf16leBytes.push(code & 0xff, (code >> 8) & 0xff);
+    }
+    const decoded = await decodeUpload(
+      chunkFile([[utf16leBytes[0]], utf16leBytes.slice(1)]),
+      "utf-8"
+    );
+    expect(decoded).toBe(text);
+    expect(decoded).not.toContain("\u0000");
+  });
+
+  it("auto-detects UTF-16BE BOM (0xFE 0xFF) when utf-8 is selected and decodes without NUL bytes", async () => {
+    // UTF-16BE BOM (0xFE, 0xFF) + "id,name\n1,Köln"
+    const text = "id,name\n1,Köln";
+    const utf16beBytes = [0xfe, 0xff];
+    for (let i = 0; i < text.length; i += 1) {
+      const code = text.charCodeAt(i);
+      utf16beBytes.push((code >> 8) & 0xff, code & 0xff);
+    }
+    const decoded = await decodeUpload(byteFile(utf16beBytes), "utf-8");
+    expect(decoded).toBe(text);
+    expect(decoded).not.toContain("\u0000");
+  });
 });

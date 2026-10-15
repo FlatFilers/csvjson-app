@@ -16,8 +16,17 @@ vi.mock("@/lib/download", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/download")>()),
   downloadText: vi.fn(),
 }));
+vi.mock("@/lib/convert", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/convert")>();
+  return {
+    ...actual,
+    convertText: vi.fn(actual.convertText),
+  };
+});
 import { copyText } from "@/lib/clipboard";
+import { convertText } from "@/lib/convert";
 import { downloadText } from "@/lib/download";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 async function flip() {
   const user = userEvent.setup();
@@ -1049,6 +1058,151 @@ describe("contextual CSV indexed array toggle pill (feat/csv-indexed-arrays)", (
     });
   });
 });
+
+function createStreamableFile(
+  name: string,
+  content: string,
+  type = "text/csv"
+): File {
+  const bytes = new TextEncoder().encode(content);
+  const file = new File([bytes], name, { type });
+  return Object.assign(file, {
+    stream: () =>
+      new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      }),
+  }) as unknown as File;
+}
+
+describe("CSV upload responsiveness & blank-page resilience (AC-7 / art_cPIu3u6a)", () => {
+  it("runs convertText at most ONCE for an uploaded CSV file and renders output immediately without flashing 'Resolve the error to see output.'", async () => {
+    render(<App />);
+    vi.mocked(convertText).mockClear();
+
+    const uploadedCsv = "id,album,year\n1,Elephant,2003\n2,De Stijl,2000";
+    const file = createStreamableFile("albums.csv", uploadedCsv);
+
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"Elephant"'
+      );
+    });
+
+    // Must never display the false error placeholder when error is null
+    expect(
+      screen.queryByText("Resolve the error to see output.")
+    ).not.toBeInTheDocument();
+
+    // convertText must be invoked at most ONCE with the uploaded CSV text
+    const callsForUploadedCsv = vi
+      .mocked(convertText)
+      .mock.calls.filter(([, text]) => text === uploadedCsv);
+    expect(callsForUploadedCsv).toHaveLength(1);
+  });
+
+  it("shows 'Converting…' (output-converting-placeholder) instead of 'Resolve the error to see output.' while typing debounce is pending", () => {
+    render(<App />);
+
+    // Trigger a paste so input becomes non-empty synchronously while
+    // debouncedInput is still "" during the 150ms debounce window.
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => "name,score\nAda,100" },
+    });
+
+    expect(
+      screen.getByTestId("output-converting-placeholder")
+    ).toHaveTextContent("Converting…");
+    expect(
+      screen.queryByText("Resolve the error to see output.")
+    ).not.toBeInTheDocument();
+  });
+
+  it("caps ultra-large JSON output preview in CodeMirror with large-output-preview-banner while Copy and Download preserve the full output", async () => {
+    render(<App />);
+
+    // Build a CSV whose pretty-printed JSON exceeds READONLY_PREVIEW_MAX_CHARS (2,000,000 chars)
+    const rowLine =
+      "100001,The White Stripes,Elephant,2003, XL Recordings ,Alternative Rock,true\n";
+    const rowCount = 12_500;
+    const largeCsv =
+      "id,artist,album,year,label,genre,active\n" + rowLine.repeat(rowCount);
+    const file = createStreamableFile("catalog-large.csv", largeCsv);
+
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: { files: [file] },
+    });
+
+    const banner = await screen.findByTestId("large-output-preview-banner");
+    expect(banner).toHaveTextContent(
+      /Showing first 512 KB preview in editor — Copy and Download include the full output/
+    );
+
+    // Editor DOM stays capped around 512 KB while Copy & Download receive the full >2 MB JSON
+    const editorText = screen.getByTestId("output-view").textContent ?? "";
+    expect(editorText.length).toBeLessThan(600 * 1024);
+
+    vi.mocked(copyText).mockClear();
+    fireEvent.click(screen.getByTestId("copy-output"));
+    const copiedText = vi.mocked(copyText).mock.lastCall?.[0] ?? "";
+    expect(copiedText.length).toBeGreaterThan(2_000_000);
+
+    vi.mocked(downloadText).mockClear();
+    fireEvent.click(screen.getByTestId("download-output"));
+    const downloadedText = vi.mocked(downloadText).mock.lastCall?.[0] ?? "";
+    expect(downloadedText).toBe(copiedText);
+  });
+
+  it("recovers from an unexpected pane render throw via ErrorBoundary instead of unmounting to a blank page", () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      let shouldThrow = true;
+      function BombPane() {
+        if (shouldThrow) {
+          throw new Error("Simulated canvas assertion failure");
+        }
+        return <div data-testid="recovered-pane">Pane recovered cleanly</div>;
+      }
+
+      const onReset = vi.fn(() => {
+        shouldThrow = false;
+      });
+
+      render(
+        <ErrorBoundary
+          fallbackTitle="CSV input encountered a display error."
+          onReset={onReset}
+        >
+          <BombPane />
+        </ErrorBoundary>
+      );
+
+      expect(screen.getByTestId("error-boundary-fallback")).toHaveTextContent(
+        "CSV input encountered a display error."
+      );
+      expect(screen.getByTestId("error-boundary-fallback")).toHaveTextContent(
+        "Simulated canvas assertion failure"
+      );
+
+      fireEvent.click(screen.getByTestId("error-boundary-reset"));
+      expect(onReset).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("recovered-pane")).toHaveTextContent(
+        "Pane recovered cleanly"
+      );
+    } finally {
+      consoleErrorSpy.mockRestore();
+    }
+  });
+});
+
 
 
 
