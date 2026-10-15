@@ -399,6 +399,95 @@ export type ConversionResult =
     }
   | { ok: false; error: string };
 
+export interface JsonWrapperCandidate {
+  key: string;
+  rowCount: number;
+  unwrappedJson: string;
+}
+
+const PRIORITY_WRAPPER_KEYS = [
+  "data",
+  "items",
+  "results",
+  "records",
+  "rows",
+] as const;
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * When `input` parses as a plain object (not an array), find top-level keys
+ * whose value is a non-empty Array of plain objects (`Record<string, unknown>`),
+ * prioritizing common REST wrapper keys (`data`, `items`, `results`, `records`, `rows`)
+ * before remaining keys in declaration order.
+ */
+export function detectJsonWrapperCandidates(
+  input: string
+): JsonWrapperCandidate[] {
+  const trimmed = input.trim();
+  if (trimmed === "" || !trimmed.startsWith("{")) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    return [];
+  }
+  if (!isPlainRecord(parsed)) return [];
+
+  const allKeys = Object.keys(parsed);
+  const prioritySet = new Set<string>(PRIORITY_WRAPPER_KEYS);
+  const orderedKeys = [
+    ...PRIORITY_WRAPPER_KEYS.filter((k) => allKeys.includes(k)),
+    ...allKeys.filter((k) => !prioritySet.has(k)),
+  ];
+
+  const candidates: JsonWrapperCandidate[] = [];
+  for (const key of orderedKeys) {
+    const val = parsed[key];
+    if (
+      Array.isArray(val) &&
+      val.length > 0 &&
+      val.every((item) => isPlainRecord(item))
+    ) {
+      candidates.push({
+        key,
+        rowCount: val.length,
+        unwrappedJson: JSON.stringify(val, null, 2),
+      });
+    }
+  }
+  return candidates;
+}
+
+/**
+ * Attempt to parse multi-line JSONL / NDJSON when standard `JSON.parse` fails.
+ * Succeeds only when `input` has 2 or more non-empty lines and every non-empty
+ * line parses via `JSON.parse(line)` into a non-null object or array.
+ */
+function tryParseJsonLines(input: string): unknown[] | null {
+  const nonEmptyLines = input
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (nonEmptyLines.length < 2) return null;
+
+  const parsedLines: unknown[] = [];
+  for (const line of nonEmptyLines) {
+    try {
+      const val: unknown = JSON.parse(line);
+      if (typeof val !== "object" || val === null) {
+        return null;
+      }
+      parsedLines.push(val);
+    } catch {
+      return null;
+    }
+  }
+  return parsedLines;
+}
+
 /** Best-effort row/col counts for the pane headers. Empty cells → 0. */
 function countShape(json: unknown): { rows: number; cols: number } {
   const collectKeys = (rows: unknown[]): Set<string> => {
@@ -575,10 +664,15 @@ export function convertText(
     try {
       data = JSON.parse(input);
     } catch (e) {
-      return {
-        ok: false,
-        error: `Invalid JSON — ${e instanceof Error ? e.message : String(e)}`,
-      };
+      const jsonlData = tryParseJsonLines(input);
+      if (jsonlData !== null) {
+        data = jsonlData;
+      } else {
+        return {
+          ok: false,
+          error: `Invalid JSON — ${e instanceof Error ? e.message : String(e)}`,
+        };
+      }
     }
     const separator = separatorFor(options.separator);
     const csv = jsonToJsonCsv(data, {

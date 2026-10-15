@@ -755,3 +755,63 @@ describe("JSON → CSV pipe separator output preview (AC-1)", () => {
   });
 });
 
+describe("contextual JSON wrapper unwrap & JSONL in JSON → CSV (AC-4)", () => {
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+  });
+
+  it("shows json-unwrap-pill-data on wrapped JSON and unwraps the array on click", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const wrappedJson = JSON.stringify({
+      data: [
+        { id: 1, name: "Ada" },
+        { id: 2, name: "Grace" },
+      ],
+      meta: { total: 2 },
+    });
+
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => wrappedJson },
+    });
+
+    const pill = await screen.findByTestId("json-unwrap-pill-data");
+    expect(pill).toHaveTextContent("Unwrap .data (2 rows)");
+
+    fireEvent.click(pill);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("json-unwrap-pill-data")
+      ).not.toBeInTheDocument();
+      expect(
+        within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+      ).toHaveTextContent("2 rows · 2 cols");
+    });
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenLastCalledWith('"id","name"\n1,"Ada"\n2,"Grace"');
+  });
+
+  it("converts pasted multi-line JSONL in JSON → CSV mode without error", async () => {
+    window.history.pushState({}, "", "/?direction=json2csv");
+    render(<App />);
+
+    const jsonl = '{"id":1,"name":"Ada"}\n{"id":2,"name":"Grace"}';
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => jsonl },
+    });
+
+    await waitFor(() => {
+      expect(
+        within(screen.getByTestId("output-pane")).getByTestId("pane-meta")
+      ).toHaveTextContent("2 rows · 2 cols");
+    });
+
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenLastCalledWith('"id","name"\n1,"Ada"\n2,"Grace"');
+  });
+});
+
+
