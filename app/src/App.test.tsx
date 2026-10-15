@@ -989,4 +989,66 @@ describe("bounded Undo / Redo for CSV grid mutations (AC-2)", () => {
   });
 });
 
+describe("contextual CSV indexed array toggle pill (feat/csv-indexed-arrays)", () => {
+  it("renders zero extra UI when no indexed header groups exist, and toggles between collapsed JSON arrays and flat keys when present", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Empty state has no indexed array pill
+    expect(screen.queryByTestId("csv-indexed-array-pill")).toBeNull();
+
+    // Sample CSV (album, year, US_peak_chart_post) has no indexed headers -> no pill
+    await user.click(screen.getByTestId("try-example"));
+    await screen.findByTestId("input-table");
+    expect(screen.queryByTestId("csv-indexed-array-pill")).toBeNull();
+
+    // Paste CSV with indexed columns id,code.0,code.1,code.2
+    const indexedCsv = "id,code.0,code.1,code.2\n1,a,b,c\n2,x,,";
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => indexedCsv },
+    });
+
+    const pill = await screen.findByTestId("csv-indexed-array-pill");
+    expect(pill).toHaveAttribute("aria-pressed", "true");
+    expect(pill).toHaveTextContent("Arrays: .0, .1 → []");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code": ['
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(JSON.parse(vi.mocked(copyText).mock.lastCall?.[0] ?? "null")).toEqual([
+      { id: 1, code: ["a", "b", "c"] },
+      { id: 2, code: ["x"] },
+    ]);
+
+    // Click the contextual pill -> switches to flat literal keys ("code.0", "code.1", "code.2")
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "false");
+    expect(pill).toHaveTextContent("Keep flat keys (.0, .1)");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code.0": "a"'
+      );
+    });
+    fireEvent.click(screen.getByTestId("copy-output"));
+    expect(JSON.parse(vi.mocked(copyText).mock.lastCall?.[0] ?? "null")).toEqual([
+      { id: 1, "code.0": "a", "code.1": "b", "code.2": "c" },
+      { id: 2, "code.0": "x", "code.1": "", "code.2": "" },
+    ]);
+
+    // Click the contextual pill again -> switches back to collapsed JSON arrays
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"code": ['
+      );
+    });
+  });
+});
+
+
 

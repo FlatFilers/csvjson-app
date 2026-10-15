@@ -40,7 +40,7 @@ export const changelogEntries: ChangelogEntry[] = [
     tag: "improvement",
     title: "Table undo, header rename, and smarter JSON input",
     summary:
-      "Undo or redo CSV table edits and double-click any column header to rename it in place. JSON → CSV now formats or minifies JSON in one click, unwraps nested record arrays, parses JSONL, and previews pipe-delimited output accurately.",
+      "Undo or redo CSV table edits, double-click any column header to rename it in place, and collapse .0, .1 indexed columns into JSON arrays. JSON → CSV now formats or minifies JSON in one click, unwraps nested record arrays, parses JSONL, and previews pipe-delimited output accurately.",
   },
   {
     id: 11,

@@ -6,9 +6,11 @@ import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
 import {
+  detectIndexedHeaderGroups,
   detectJsonWrapperCandidates,
   resolveJsonFormatToggle,
 } from "@/lib/convert";
+import { parseCsvTable } from "@/lib/csvTable";
 import { cn } from "@/lib/utils";
 
 /**
@@ -43,6 +45,8 @@ type InputPaneProps = {
   canRedo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
+  collapseIndexedArrays?: boolean;
+  onToggleCollapseIndexedArrays?: () => void;
 };
 
 function ReadingSpinner() {
@@ -113,6 +117,8 @@ export function InputPane({
   canRedo = false,
   onUndo,
   onRedo,
+  collapseIndexedArrays = true,
+  onToggleCollapseIndexedArrays,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -120,6 +126,11 @@ export function InputPane({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputEmpty = input.trim() === "";
   const isCsv = format === "CSV";
+  const indexedHeaderGroups = useMemo(() => {
+    if (!isCsv || inputEmpty) return [];
+    const table = parseCsvTable(input, delimiter);
+    return detectIndexedHeaderGroups(table.headers.map((h) => h.trim()));
+  }, [isCsv, inputEmpty, input, delimiter]);
   const wrapperCandidates = useMemo(
     () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
     [isCsv, inputEmpty, input]
@@ -330,24 +341,54 @@ export function InputPane({
             onBrowse={() => fileInputRef.current?.click()}
             onTryExample={onTryExample}
           />
-        ) : isCsv && rawMode ? (
-          <textarea
-            data-testid="input-editor"
-            value={input}
-            onChange={(event) => onInputChange(event.target.value)}
-            spellCheck={false}
-            className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
-          />
         ) : isCsv ? (
-          <CsvTable
-            text={input}
-            delimiter={delimiter}
-            testId="input-table"
-            dark={dark}
-            onCellCommit={onCellCommit}
-            onUndo={onUndo}
-            onRedo={onRedo}
-          />
+          <>
+            {indexedHeaderGroups.length > 0 ? (
+              <div
+                data-testid="csv-indexed-array-bar"
+                className="flex flex-shrink-0 flex-wrap items-center justify-between gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  {`Indexed columns (${indexedHeaderGroups.map((g) => `${g.prefix}[${g.indices.length}]`).join(", ")}):`}
+                </span>
+                <button
+                  type="button"
+                  data-testid="csv-indexed-array-pill"
+                  aria-pressed={collapseIndexedArrays}
+                  onClick={() => onToggleCollapseIndexedArrays?.()}
+                  className={cn(
+                    "inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-xs font-medium shadow-2xs transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    collapseIndexedArrays
+                      ? "border-border bg-background text-foreground hover:bg-muted"
+                      : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {collapseIndexedArrays
+                    ? "Arrays: .0, .1 → []"
+                    : "Keep flat keys (.0, .1)"}
+                </button>
+              </div>
+            ) : null}
+            {rawMode ? (
+              <textarea
+                data-testid="input-editor"
+                value={input}
+                onChange={(event) => onInputChange(event.target.value)}
+                spellCheck={false}
+                className="min-h-0 flex-1 resize-none bg-transparent px-5 py-4 font-mono text-[13px] leading-6 tracking-tight focus:outline-none"
+              />
+            ) : (
+              <CsvTable
+                text={input}
+                delimiter={delimiter}
+                testId="input-table"
+                dark={dark}
+                onCellCommit={onCellCommit}
+                onUndo={onUndo}
+                onRedo={onRedo}
+              />
+            )}
+          </>
         ) : (
           <>
             {wrapperCandidates.length > 0 ? (

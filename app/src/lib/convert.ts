@@ -57,6 +57,12 @@ export type Csv2JsonOptions = {
   nullLiterals?: NullLiterals;
   transpose?: boolean;
   hash?: boolean; // first column becomes the object key
+  /**
+   * Collapses contiguous 0- or 1-based indexed header groups (e.g.
+   * `code.0, code.1` or `code[0], code[1]`, and nested `items.0.sku, items.1.sku`)
+   * into arrays under their shared prefix when transpose is off. Defaults to true.
+   */
+  collapseIndexedArrays?: boolean;
 };
 
 export type Json2CsvOptions = {
@@ -275,6 +281,235 @@ function applySmartValues(
   return converted;
 }
 
+export interface IndexedHeaderGroup {
+  prefix: string;
+  indices: number[];
+  columns: string[];
+}
+
+type ParsedIndexedHeader = {
+  column: string;
+  prefix: string;
+  index: number;
+  notation: "dot" | "bracket";
+  subKey?: string;
+};
+
+const INDEXED_HEADER_RE =
+  /^([^.[\]]+)(?:\.(0|[1-9]\d*)|\[(0|[1-9]\d*)\])(?:\.(.+))?$/;
+
+function parseIndexedHeader(column: string): ParsedIndexedHeader | null {
+  const match = INDEXED_HEADER_RE.exec(column);
+  if (!match) return null;
+  const prefix = match[1];
+  const dotIdx = match[2];
+  const bracketIdx = match[3];
+  const subKey = match[4];
+  const index = Number(dotIdx ?? bracketIdx);
+  if (!Number.isSafeInteger(index)) return null;
+  return {
+    column,
+    prefix,
+    index,
+    notation: dotIdx !== undefined ? "dot" : "bracket",
+    ...(subKey !== undefined ? { subKey } : {}),
+  };
+}
+
+/**
+ * Detects when 2 or more CSV headers form a 0-based or 1-based contiguous
+ * numeric index group using dot (`code.0, code.1`) or bracket (`code[0], code[1]`)
+ * notation, including nested object-in-array headers (`items.0.sku, items.0.qty,
+ * items.1.sku, items.1.qty`). Single or non-contiguous dotted headers like
+ * `v1.0` or `price.usd` are ignored.
+ */
+export function detectIndexedHeaderGroups(
+  headers: string[]
+): IndexedHeaderGroup[] {
+  const headerSet = new Set(headers);
+  const byPrefix = new Map<string, ParsedIndexedHeader[]>();
+
+  for (const header of headers) {
+    const parsed = parseIndexedHeader(header);
+    if (!parsed) continue;
+    const list = byPrefix.get(parsed.prefix);
+    if (list) {
+      list.push(parsed);
+    } else {
+      byPrefix.set(parsed.prefix, [parsed]);
+    }
+  }
+
+  const groups: IndexedHeaderGroup[] = [];
+  for (const [prefix, entries] of byPrefix.entries()) {
+    // Do not clobber an existing standalone column with the same name as prefix.
+    if (headerSet.has(prefix)) continue;
+
+    const firstHasSubKey = entries[0].subKey !== undefined;
+    const firstNotation = entries[0].notation;
+    if (
+      entries.some(
+        (e) =>
+          (e.subKey !== undefined) !== firstHasSubKey ||
+          e.notation !== firstNotation
+      )
+    ) {
+      continue;
+    }
+
+    // Reject duplicate column slots within the same prefix (e.g. duplicate headers).
+    const slotSignatures = new Set<string>();
+    let hasDuplicateSlot = false;
+    for (const entry of entries) {
+      const sig = `${entry.index}:${entry.subKey ?? ""}`;
+      if (slotSignatures.has(sig)) {
+        hasDuplicateSlot = true;
+        break;
+      }
+      slotSignatures.add(sig);
+    }
+    if (hasDuplicateSlot) continue;
+
+    const indices = Array.from(new Set(entries.map((e) => e.index))).sort(
+      (a, b) => a - b
+    );
+    if (indices.length < 2) continue;
+    const start = indices[0];
+    if (start !== 0 && start !== 1) continue;
+    const contiguous = indices.every((idx, i) => idx === start + i);
+    if (!contiguous) continue;
+
+    groups.push({
+      prefix,
+      indices,
+      columns: entries.map((e) => e.column),
+    });
+  }
+
+  return groups;
+}
+
+function isEmptyIndexedSlot(value: unknown, emptyFields: EmptyFields): boolean {
+  if (value === undefined || value === "") return true;
+  if (emptyFields === "skip" && value === null) return true;
+  return false;
+}
+
+function collapseRowIndexedGroups(
+  row: Record<string, unknown>,
+  headers: string[],
+  groups: IndexedHeaderGroup[],
+  emptyFields: EmptyFields
+): Record<string, unknown> {
+  const groupByFirstColumn = new Map<string, IndexedHeaderGroup>();
+  const memberColumns = new Set<string>();
+  const parsedByGroup = new Map<string, ParsedIndexedHeader[]>();
+
+  for (const group of groups) {
+    if (group.columns.length === 0) continue;
+    groupByFirstColumn.set(group.columns[0], group);
+    for (const col of group.columns) {
+      memberColumns.add(col);
+    }
+    parsedByGroup.set(
+      group.prefix,
+      group.columns
+        .map((col) => parseIndexedHeader(col))
+        .filter((p): p is ParsedIndexedHeader => p !== null)
+    );
+  }
+
+  const collapsed: Record<string, unknown> = {};
+  for (const header of headers) {
+    const group = groupByFirstColumn.get(header);
+    if (group) {
+      const parsedEntries = parsedByGroup.get(group.prefix) ?? [];
+      const isNested = parsedEntries.some((e) => e.subKey !== undefined);
+      if (!isNested) {
+        const byIndex = new Map<number, string>();
+        for (const entry of parsedEntries) {
+          byIndex.set(entry.index, entry.column);
+        }
+        const values: unknown[] = [];
+        for (const idx of group.indices) {
+          const col = byIndex.get(idx);
+          if (!col) continue;
+          const val = row[col];
+          if (isEmptyIndexedSlot(val, emptyFields)) continue;
+          values.push(val);
+        }
+        if (values.length === 0 && emptyFields === "skip") continue;
+        collapsed[group.prefix] = values;
+      } else {
+        const entriesByIndex = new Map<number, ParsedIndexedHeader[]>();
+        for (const entry of parsedEntries) {
+          const list = entriesByIndex.get(entry.index);
+          if (list) list.push(entry);
+          else entriesByIndex.set(entry.index, [entry]);
+        }
+        const objects: Record<string, unknown>[] = [];
+        for (const idx of group.indices) {
+          const idxEntries = entriesByIndex.get(idx) ?? [];
+          const itemObj: Record<string, unknown> = {};
+          for (const entry of idxEntries) {
+            if (!entry.subKey) continue;
+            const val = row[entry.column];
+            if (isEmptyIndexedSlot(val, emptyFields)) continue;
+            itemObj[entry.subKey] = val;
+          }
+          if (Object.keys(itemObj).length > 0) {
+            objects.push(itemObj);
+          }
+        }
+        if (objects.length === 0 && emptyFields === "skip") continue;
+        collapsed[group.prefix] = objects;
+      }
+      continue;
+    }
+
+    if (memberColumns.has(header)) continue;
+    if (Object.prototype.hasOwnProperty.call(row, header)) {
+      collapsed[header] = row[header];
+    }
+  }
+
+  return collapsed;
+}
+
+function collapseIndexedArraysInJson(
+  rawJson: Record<string, unknown>[] | Record<string, unknown>,
+  smartJson: Record<string, unknown>[] | Record<string, unknown>,
+  emptyFields: EmptyFields
+): Record<string, unknown>[] | Record<string, unknown> {
+  if (Array.isArray(rawJson) && Array.isArray(smartJson)) {
+    const firstRaw = rawJson[0];
+    if (!isRecord(firstRaw)) return smartJson;
+    const headers = Object.keys(firstRaw);
+    const groups = detectIndexedHeaderGroups(headers);
+    if (groups.length === 0) return smartJson;
+    return smartJson.map((row) =>
+      isRecord(row)
+        ? collapseRowIndexedGroups(row, headers, groups, emptyFields)
+        : row
+    );
+  }
+  if (!Array.isArray(rawJson) && !Array.isArray(smartJson)) {
+    const firstRaw = Object.values(rawJson)[0];
+    if (!isRecord(firstRaw)) return smartJson;
+    const headers = Object.keys(firstRaw);
+    const groups = detectIndexedHeaderGroups(headers);
+    if (groups.length === 0) return smartJson;
+    const out: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(smartJson)) {
+      out[key] = isRecord(value)
+        ? collapseRowIndexedGroups(value, headers, groups, emptyFields)
+        : value;
+    }
+    return out;
+  }
+  return smartJson;
+}
+
 export function csvToJson(
   csv: string,
   options: Csv2JsonOptions = {}
@@ -307,7 +542,11 @@ export function csvToJson(
       // false here; the smart pass restores numeric adjacency (toSmartNumber).
       trim: false,
     }) as Record<string, unknown>[] | Record<string, unknown>;
-    return applySmartValues(json, pass);
+    const smart = applySmartValues(json, pass);
+    if (options.collapseIndexedArrays !== false && !options.transpose) {
+      return collapseIndexedArraysInJson(json, smart, pass.emptyFields);
+    }
+    return smart;
   } catch (e) {
     // The packages throw plain strings — rethrow as real Errors so callers
     // never see a swallowed or message-less failure.
@@ -368,6 +607,7 @@ export type ConverterOptions = {
   hash: boolean;
   minify: boolean;
   flatten: boolean;
+  collapseIndexedArrays?: boolean;
 };
 
 export const DEFAULT_OPTIONS: ConverterOptions = {
@@ -383,6 +623,7 @@ export const DEFAULT_OPTIONS: ConverterOptions = {
   hash: false,
   minify: false,
   flatten: false,
+  collapseIndexedArrays: true,
 };
 
 export type ConversionResult =
@@ -674,6 +915,7 @@ export function convertText(
         nullLiterals: options.nullLiterals,
         transpose: options.transpose,
         hash: options.hash,
+        collapseIndexedArrays: options.collapseIndexedArrays ?? true,
       };
       const json = csvToJson(input, csv2jsonOptions);
       let warnings = csvWarnings(input, csv2jsonOptions.separator);
