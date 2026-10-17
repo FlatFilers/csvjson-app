@@ -126,22 +126,26 @@ export function OutputPane({
             <button
               type="button"
               data-testid="copy-output"
+              aria-label="Copy"
+              title="Copy"
               onClick={onCopy}
               disabled={!outputText}
               className={actionButtonClass}
             >
               <Copy aria-hidden="true" />
-              Copy
+              <span className="hidden xl:inline">Copy</span>
             </button>
             <button
               type="button"
               data-testid="download-output"
+              aria-label="Download"
+              title="Download"
               onClick={onDownload}
               disabled={!outputText}
               className={actionButtonClass}
             >
               <Download aria-hidden="true" />
-              Download
+              <span className="hidden xl:inline">Download</span>
             </button>
           </>
         }

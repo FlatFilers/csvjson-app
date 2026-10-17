@@ -81,7 +81,7 @@ function ActionButton({
   disabled?: boolean;
   /** Decorative v0 icon (aria-hidden) — the label stays the accessible name. */
   Icon?: LucideIcon;
-  /** Keep visible text label on <sm for contextual mode toggles (Format/Minify). */
+  /** Keep visible text label below xl for contextual mode toggles (Format/Minify). */
   keepLabelOnMobile?: boolean;
 }) {
   return (
@@ -96,7 +96,7 @@ function ActionButton({
     >
       {Icon ? <Icon aria-hidden="true" /> : null}
       {Icon && !keepLabelOnMobile ? (
-        <span className="hidden sm:inline">{label}</span>
+        <span className="hidden xl:inline">{label}</span>
       ) : (
         label
       )}

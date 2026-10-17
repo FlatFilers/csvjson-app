@@ -24,13 +24,11 @@ type PaneShellProps = {
 export function PaneShell({ title, meta, actions, status, children }: PaneShellProps) {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      {/* Wrap-and-tighten (spec: mobile toolbar compaction): the input
-          pane's five controls reflow into tidy rows below the md:
-          breakpoint instead of overflowing; counts stay attached to the
-          title group and output exports stay visible without scrolling.
-          Desktop (md+) is v0's fixed h-12 header; mobile keeps the
-          min-height so wrapped rows can grow. */}
-      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3.5 py-2 max-md:gap-2 md:h-12 md:py-0 md:pr-3 md:pl-5">
+      {/* Wrap-and-tighten (spec: mobile & half-pane toolbar compaction):
+          the input pane's controls reflow cleanly if a narrow split or long
+          filename ever wraps; desktop (md+) uses min-h-12 so single-line
+          headers stay 48px tall while wrapped rows expand without clipping. */}
+      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-border px-3.5 py-2 max-md:gap-2 md:min-h-12 md:py-1.5 md:pr-3 md:pl-5">
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
             {title}
