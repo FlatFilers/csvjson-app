@@ -123,7 +123,7 @@ export function SplitPane({
         data-testid="pane-left"
         style={{ "--split": `${split}%` } as CSSProperties}
         className={cn(
-          "flex min-h-0 min-w-0 flex-col overflow-hidden border-border bg-panel max-md:min-h-[280px]",
+          "flex min-h-0 min-w-0 flex-col overflow-hidden border-border bg-panel max-md:min-h-[280px] max-md:max-h-[360px]",
           // Stacked: --split sizes the pane's height; side-by-side: its width.
           "h-[var(--split)] border-b",
           "md:h-auto md:w-[var(--split)] md:border-b-0 md:border-r"
@@ -188,7 +188,7 @@ export function SplitPane({
 
       <div
         data-testid="pane-right"
-        className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-panel max-md:min-h-[240px]"
+        className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-panel max-md:min-h-[240px] max-md:max-h-[340px]"
       >
         {right}
       </div>
