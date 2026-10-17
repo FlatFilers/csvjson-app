@@ -481,7 +481,7 @@ export default function App() {
     trackExport({ via: "copy", format: csvToJson ? "json" : "csv" });
     // Copy always delivers the pane's current text — the edited one while
     // the edited state holds.
-    const text = outputEdited ? editedOutput : lastValidOutput;
+    const text = outputEdited ? editedOutput : currentValidOutput;
     if (text) void copyText(text);
   };
   const downloadInput = () => {
@@ -497,7 +497,7 @@ export default function App() {
   const downloadOutput = () => {
     trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
     downloadText(
-      (outputEdited ? editedOutput : lastValidOutput) ?? "",
+      (outputEdited ? editedOutput : currentValidOutput) ?? "",
       outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
       {
         mime: csvToJson ? "application/json" : "text/csv",
