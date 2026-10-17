@@ -481,7 +481,7 @@ export default function App() {
     trackExport({ via: "copy", format: csvToJson ? "json" : "csv" });
     // Copy always delivers the pane's current text — the edited one while
     // the edited state holds.
-    const text = outputEdited ? editedOutput : lastValidOutput;
+    const text = outputEdited ? editedOutput : currentValidOutput;
     if (text) void copyText(text);
   };
   const downloadInput = () => {
@@ -497,7 +497,7 @@ export default function App() {
   const downloadOutput = () => {
     trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
     downloadText(
-      (outputEdited ? editedOutput : lastValidOutput) ?? "",
+      (outputEdited ? editedOutput : currentValidOutput) ?? "",
       outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
       {
         mime: csvToJson ? "application/json" : "text/csv",
@@ -577,9 +577,10 @@ export default function App() {
       {/* The one H1 the page ships (spec: SEO on-page targets) — quiet, so
           the tool itself stays the interface. */}
       <h1 className="sr-only">CSV to JSON and JSON to CSV converter</h1>
-      {/* The converter keeps a full viewport; the FAQ accordion sits below
-          the fold (spec: SEO — collapsed FAQ below the tool). */}
-      <div className="flex h-svh min-h-0 flex-col">
+      {/* The converter keeps a full viewport on desktop; below md: it grows
+          with its stacked panes so small screens scroll cleanly without
+          crushing either pane (spec: SEO — collapsed FAQ below the tool). */}
+      <div className="flex min-h-svh flex-col md:h-svh md:min-h-0">
         {/* Launch-week banner sits above the TopBar inside the h-svh column,
             so the flex panes absorb its height instead of overflowing. */}
         <FeedbackBanner />

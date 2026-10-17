@@ -1203,6 +1203,54 @@ describe("CSV upload responsiveness & blank-page resilience (AC-7 / art_cPIu3u6a
   });
 });
 
+describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
+  it("unclamps the converter shell on <md, compacts secondary header action labels on <sm, and toggles mobile options disclosure", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Converter shell uses min-h-svh on mobile and h-svh on md+
+    const topbar = screen.getByTestId("topbar");
+    const shell = topbar.parentElement;
+    expect(shell).not.toBeNull();
+    expect(shell?.className).toContain("min-h-svh");
+    expect(shell?.className).toContain("md:h-svh");
+
+    // Load sample CSV so the InputPane header action buttons render
+    await user.click(screen.getByTestId("try-example"));
+
+    // Secondary InputPane actions preserve accessible names via aria-label while hiding text labels on <sm
+    for (const [testId, label] of [
+      ["upload", "Upload"],
+      ["copy-input", "Copy"],
+      ["clear-input", "Clear"],
+      ["download-input", "Download"],
+    ] as const) {
+      const btn = screen.getByTestId(testId);
+      expect(btn).toHaveAttribute("aria-label", label);
+      const span = btn.querySelector("span");
+      expect(span).not.toBeNull();
+      expect(span?.className).toContain("hidden");
+      expect(span?.className).toContain("sm:inline");
+    }
+
+    // Mobile options disclosure toggles aria-expanded and updates summary when direction flips
+    const mobileToggle = screen.getByTestId("options-mobile-toggle");
+    expect(mobileToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("options-mobile-summary")).toHaveTextContent(
+      "Auto · Parse numbers · Parse JSON"
+    );
+
+    await user.click(mobileToggle);
+    expect(mobileToggle).toHaveAttribute("aria-expanded", "true");
+
+    await user.click(screen.getByTestId("divider-switch"));
+    expect(screen.getByTestId("options-mobile-summary")).toHaveTextContent(
+      "Auto"
+    );
+  });
+});
+
+
 
 
 

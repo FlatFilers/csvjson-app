@@ -413,4 +413,19 @@ describe("FeedbackVote", () => {
       reasonText: "padded reason",
     });
   });
+
+  it("anchors the downvote popover to the viewport on narrow (<sm) screens", async () => {
+    const user = userEvent.setup();
+    render(<FeedbackVote />);
+
+    const wrapper = screen.getByTestId("feedback-vote");
+    expect(wrapper.className).toContain("max-sm:static");
+
+    await user.click(screen.getByTestId("feedback-down"));
+    const popover = screen.getByTestId("feedback-popover");
+    expect(popover.className).toContain("max-sm:inset-x-2");
+    expect(popover.className).toContain("max-sm:top-14");
+    expect(popover.className).toContain("max-sm:w-auto");
+  });
 });
+

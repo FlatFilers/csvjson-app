@@ -73,6 +73,7 @@ function ActionButton({
   onClick,
   disabled,
   Icon,
+  keepLabelOnMobile = false,
 }: {
   label: string;
   testId: string;
@@ -80,18 +81,25 @@ function ActionButton({
   disabled?: boolean;
   /** Decorative v0 icon (aria-hidden) — the label stays the accessible name. */
   Icon?: LucideIcon;
+  /** Keep visible text label on <sm for contextual mode toggles (Format/Minify). */
+  keepLabelOnMobile?: boolean;
 }) {
   return (
     <button
       type="button"
       data-testid={testId}
+      aria-label={label}
       disabled={disabled}
       onClick={onClick}
       title={label}
       className={actionButtonClass}
     >
       {Icon ? <Icon aria-hidden="true" /> : null}
-      {label}
+      {Icon && !keepLabelOnMobile ? (
+        <span className="hidden sm:inline">{label}</span>
+      ) : (
+        label
+      )}
     </button>
   );
 }
@@ -319,6 +327,7 @@ export function InputPane({
                 testId="json-format-toggle"
                 onClick={() => onInputChange(jsonFormatAction.nextInput)}
                 Icon={Braces}
+                keepLabelOnMobile
               />
             ) : null}
             <input

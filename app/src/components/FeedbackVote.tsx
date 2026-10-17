@@ -270,7 +270,7 @@ export function FeedbackVote() {
   };
 
   return (
-    <div data-testid="feedback-vote" ref={containerRef} className="relative flex items-center gap-1">
+    <div data-testid="feedback-vote" ref={containerRef} className="relative flex items-center gap-1 max-sm:static">
       <button
         type="button"
         data-testid="feedback-up"
@@ -322,7 +322,7 @@ export function FeedbackVote() {
           data-testid="feedback-popover"
           role="dialog"
           aria-label="What went wrong?"
-          className="absolute right-0 top-9 z-50 w-72 rounded-md border border-border bg-panel p-3 shadow-md"
+          className="absolute right-0 top-9 z-50 w-72 rounded-md border border-border bg-panel p-3 shadow-md max-sm:inset-x-2 max-sm:top-14 max-sm:w-auto"
         >
           <p className="mb-2 text-xs font-medium text-foreground">What went wrong?</p>
           <div className="mb-2 flex flex-wrap gap-1.5">

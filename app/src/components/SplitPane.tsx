@@ -123,7 +123,7 @@ export function SplitPane({
         data-testid="pane-left"
         style={{ "--split": `${split}%` } as CSSProperties}
         className={cn(
-          "flex min-h-0 min-w-0 flex-col border-border bg-panel",
+          "flex min-h-0 min-w-0 flex-col overflow-hidden border-border bg-panel max-md:min-h-[280px] max-md:max-h-[360px]",
           // Stacked: --split sizes the pane's height; side-by-side: its width.
           "h-[var(--split)] border-b",
           "md:h-auto md:w-[var(--split)] md:border-b-0 md:border-r"
@@ -131,9 +131,9 @@ export function SplitPane({
       >
         {left}
       </div>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-panel">{right}</div>
 
-      {/* Invisible drag strip centered on the seam; the switch floats on it. */}
+      {/* In-flow horizontal bar between stacked panes on <md; invisible drag
+          strip centered on the vertical seam on md:. */}
       <div
         data-testid="seam"
         role="separator"
@@ -162,28 +162,35 @@ export function SplitPane({
         onKeyDown={onKeyDown}
         style={{ "--split": `${split}%`, touchAction: "none" } as CSSProperties}
         className={cn(
-          "absolute z-10",
-          // Stacked: a zero-height horizontal strip across the full width.
-          "top-[var(--split)] left-0 right-0 h-0 cursor-row-resize",
-          // Side-by-side: a zero-width vertical strip down the full height.
-          "md:top-0 md:right-auto md:bottom-0 md:left-[var(--split)] md:h-auto md:w-0 md:cursor-col-resize"
+          // Stacked (<md): in-flow horizontal bar between the two panes so the
+          // direction switch never floats over table rows or pane headers.
+          "relative z-10 flex h-9 flex-shrink-0 items-center justify-center border-b border-border bg-muted/20 cursor-row-resize",
+          // Side-by-side (md:): a zero-width vertical strip down the full height.
+          "md:absolute md:top-0 md:right-auto md:bottom-0 md:left-[var(--split)] md:h-auto md:w-0 md:border-b-0 md:bg-transparent md:cursor-col-resize"
         )}
       >
         {/* 12px invisible hit area so the 1px seam is grabbable */}
         <div
           className={cn(
             "absolute",
-            // Stacked: 12px tall, centered on the zero-height strip.
-            "left-0 right-0 -top-1.5 h-3",
+            // Stacked: covers the full in-flow seam bar.
+            "inset-0",
             // Side-by-side: 12px wide, centered on the zero-width strip.
-            "md:top-0 md:right-auto md:bottom-0 md:-left-1.5 md:h-auto md:w-3"
+            "md:inset-auto md:top-0 md:right-auto md:bottom-0 md:-left-1.5 md:h-auto md:w-3"
           )}
         />
         {children ? (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="relative z-10 md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
             {children}
           </div>
         ) : null}
+      </div>
+
+      <div
+        data-testid="pane-right"
+        className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-panel max-md:min-h-[240px] max-md:max-h-[340px]"
+      >
+        {right}
       </div>
     </div>
   );

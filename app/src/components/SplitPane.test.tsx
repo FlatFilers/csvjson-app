@@ -223,6 +223,29 @@ describe("SplitPane CSS-first orientation", () => {
         .getPropertyValue("--split")
     ).toBe("35%");
   });
+  it("keeps the seam in-flow between panes on <md and clips stacked panes with responsive minimum heights", () => {
+    render(<Harness />);
+    const left = screen.getByTestId("pane-left");
+    const seam = screen.getByTestId("seam");
+    const right = screen.getByTestId("pane-right");
+    const splitPane = left.parentElement!;
+
+    // DOM order: pane-left -> seam -> pane-right so the stacked mobile seam sits between panes.
+    const children = Array.from(splitPane.children);
+    expect(children).toEqual([left, seam, right]);
+
+    // Stacked panes clip overflow and enforce responsive minimum heights on <md.
+    expect(left.className).toContain("overflow-hidden");
+    expect(left.className).toContain("max-md:min-h-[280px]");
+    expect(right.className).toContain("overflow-hidden");
+    expect(right.className).toContain("max-md:min-h-[240px]");
+
+    // Seam is an in-flow horizontal bar on <md and a floating vertical seam on md:.
+    expect(seam.className).toContain("relative");
+    expect(seam.className).toContain("h-9");
+    expect(seam.className).toContain("md:absolute");
+    expect(seam.className).toContain("md:left-[var(--split)]");
+  });
 });
 
 describe("SplitPane text selection", () => {

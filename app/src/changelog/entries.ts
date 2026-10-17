@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 14,
+    date: "2026-10-17",
+    tag: "improvement",
+    title: "Polished mobile stacked panes and collapsible options bar",
+    summary:
+      "Small screens now stack the input and output panes with an in-flow direction switch and compact icon actions so nothing overlaps. The options bar collapses into a one-tap summary on phones while keeping every setting a tap away.",
+  },
+  {
     id: 13,
     date: "2026-10-15",
     tag: "fix",

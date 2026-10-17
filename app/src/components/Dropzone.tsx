@@ -50,15 +50,15 @@ export function Dropzone({
   return (
     <div
       data-testid="dropzone"
-      className="flex flex-1 flex-col items-center justify-center p-3"
+      className="flex flex-1 flex-col items-center justify-center p-3 md:p-6"
     >
-      <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <div className="flex w-full max-w-sm flex-col items-center gap-2.5 md:gap-3">
         {/* v0's decorative anchor tile — subtle, invisible to AT. */}
         <div
           aria-hidden="true"
-          className="flex size-11 items-center justify-center rounded-xl border border-border bg-muted/50 text-muted-foreground"
+          className="flex size-9 items-center justify-center rounded-xl border border-border bg-muted/50 text-muted-foreground md:size-11"
         >
-          <Clipboard className="size-5" />
+          <Clipboard className="size-4 md:size-5" />
         </div>
 
         <p className="text-sm font-medium text-foreground">

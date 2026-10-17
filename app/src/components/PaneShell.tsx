@@ -30,7 +30,7 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
           title group and output exports stay visible without scrolling.
           Desktop (md+) is v0's fixed h-12 header; mobile keeps the
           min-height so wrapped rows can grow. */}
-      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3 py-2 pl-5 max-md:gap-2 md:h-12 md:py-0">
+      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border px-3.5 py-2 max-md:gap-2 md:h-12 md:py-0 md:pr-3 md:pl-5">
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
             {title}
