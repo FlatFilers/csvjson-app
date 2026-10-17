@@ -1,5 +1,6 @@
 import type { ConverterOptions, Direction } from "@/lib/convert";
 import { UPLOAD_ENCODINGS, type UploadEncoding } from "@/lib/files";
+import { ChevronDown } from "lucide-react";
 import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,31 @@ const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: st
  * Group divider between the footer's option clusters (v0 port).
  */
 function Divider() {
-  return <div className="h-5 w-px shrink-0 bg-border" aria-hidden="true" />;
+  return <div className="hidden h-5 w-px shrink-0 bg-border md:block" aria-hidden="true" />;
+}
+
+function summarizeActiveOptions(
+  direction: Direction,
+  options: ConverterOptions
+): string {
+  const sepLabel =
+    options.separator === "auto"
+      ? "Auto"
+      : (SEPARATOR_OPTIONS.find((o) => o.value === options.separator)?.label ??
+        "Auto");
+  const parts: string[] = [sepLabel];
+  if (direction === "csv2json") {
+    if (options.parseNumbers) parts.push("Parse numbers");
+    if (options.parseJSON) parts.push("Parse JSON");
+    if (options.emptyFields === "skip") parts.push("Skip empty");
+    if (options.nullLiterals === "null") parts.push("NULL→null");
+    if (options.transpose) parts.push("Transpose");
+    if (options.hash) parts.push("Hash");
+    if (options.minify) parts.push("Minify");
+  } else if (options.flatten) {
+    parts.push("Flatten");
+  }
+  return parts.join(" · ");
 }
 
 /** v0's MiniSelect: unstyled native select with an overlaid chevron. */
@@ -152,12 +177,52 @@ export function OptionsRow({
   uploadEncoding,
   onUploadEncodingChange,
 }: OptionsRowProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const csvToJson = direction === "csv2json";
+  const summary = summarizeActiveOptions(direction, options);
   return (
     <div
       data-testid="options-row"
-      className="flex flex-shrink-0 flex-wrap items-center gap-5 border-t border-border bg-panel px-5 py-2.5 text-[13px] text-muted-foreground"
+      className="flex flex-shrink-0 flex-col border-t border-border bg-panel px-3.5 py-2 text-[13px] text-muted-foreground md:flex-row md:flex-wrap md:items-center md:gap-5 md:px-5 md:py-2.5"
     >
+      <div className="flex w-full items-center justify-between gap-2 md:hidden">
+        <button
+          type="button"
+          data-testid="options-mobile-toggle"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((current) => !current)}
+          className="inline-flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 rounded-md py-0.5 text-left text-xs font-medium text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <span className="font-mono text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+            Options
+          </span>
+          <span className="inline-flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              data-testid="options-mobile-summary"
+              className="truncate font-normal"
+            >
+              {summary}
+            </span>
+            <ChevronDown
+              aria-hidden="true"
+              className={cn(
+                "size-3.5 shrink-0 transition-transform",
+                mobileOpen && "rotate-180"
+              )}
+            />
+          </span>
+        </button>
+      </div>
+
+      <div
+        data-testid="options-controls"
+        className={cn(
+          "flex-wrap items-center gap-x-4 gap-y-2.5 md:flex md:flex-1 md:gap-5",
+          mobileOpen
+            ? "mt-2 flex border-t border-border pt-2.5 md:mt-0 md:border-t-0 md:pt-0"
+            : "max-md:hidden"
+        )}
+      >
       <span className="inline-flex items-center gap-2">
         <label className="flex items-center gap-2">
           <GroupLabel>Separator</GroupLabel>
@@ -278,6 +343,7 @@ export function OptionsRow({
           {notice}
         </span>
       ) : null}
+      </div>
     </div>
   );
 }

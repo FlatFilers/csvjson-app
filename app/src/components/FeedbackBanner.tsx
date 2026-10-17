@@ -12,7 +12,7 @@ export function FeedbackBanner() {
   return (
     <div
       data-testid="feedback-banner"
-      className="flex flex-shrink-0 items-center justify-center border-b border-border bg-muted px-4 py-1.5 text-sm text-muted-foreground"
+      className="flex flex-shrink-0 items-center justify-center border-b border-border bg-muted px-3 py-1.5 text-xs text-muted-foreground sm:px-4 sm:text-sm"
     >
       <p className="text-center">
         Enjoy a cleaner, simpler CSVJSON.{" "}
