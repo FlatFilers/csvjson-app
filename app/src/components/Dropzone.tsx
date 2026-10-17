@@ -50,7 +50,7 @@ export function Dropzone({
   return (
     <div
       data-testid="dropzone"
-      className="flex flex-1 flex-col items-center justify-center p-3 md:p-6"
+      className="flex flex-1 flex-col items-center justify-center p-3 md:p-6 md:px-16"
     >
       <div className="flex w-full max-w-sm flex-col items-center gap-2.5 md:gap-3">
         {/* v0's decorative anchor tile — subtle, invisible to AT. */}
@@ -109,7 +109,7 @@ export function Dropzone({
             type="button"
             data-testid="choose-file"
             onClick={onBrowse}
-            className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-[13px] font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
+            className="inline-flex h-8 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg border border-border bg-background px-3 text-[13px] font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
           >
             <FileUp aria-hidden="true" />
             Choose file
@@ -119,7 +119,7 @@ export function Dropzone({
             type="button"
             data-testid="try-example"
             onClick={onTryExample}
-            className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
+            className="inline-flex h-8 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-3.5"
           >
             <Sparkles aria-hidden="true" />
             Try an example

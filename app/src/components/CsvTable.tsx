@@ -921,7 +921,7 @@ export function CsvTable({
             : `${total.toLocaleString()} rows`}
         </span>
         {showSelectionChip && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex flex-wrap items-center gap-1.5">
             <span
               data-testid={`${testId}-selected-count`}
               className="text-[11px] font-medium tabular-nums text-muted-foreground"
