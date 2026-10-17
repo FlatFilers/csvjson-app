@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_OPTIONS } from "@/lib/convert";
@@ -222,5 +222,42 @@ describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
     expect(
       screen.queryByRole("switch", { name: "NULL as null" })
     ).not.toBeInTheDocument();
+  });
+
+  it("collapses option controls behind options-mobile-toggle on <md while keeping all controls and hints mounted in the DOM", () => {
+    render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+      />
+    );
+
+    const toggle = screen.getByTestId("options-mobile-toggle");
+    const summary = screen.getByTestId("options-mobile-summary");
+    const controls = screen.getByTestId("options-controls");
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(summary).toHaveTextContent("Auto · Parse numbers · Parse JSON");
+    expect(controls.className).toContain("max-md:hidden");
+    expect(controls.className).toContain("md:flex");
+
+    // Even when collapsed on mobile, every option control and data-hint node remains in the DOM for SEO prerender.
+    expect(screen.getByTestId("opt-separator")).toBeInTheDocument();
+    expect(
+      screen.getByRole("switch", { name: "Parse numbers" })
+    ).toBeInTheDocument();
+    expect(
+      document.querySelectorAll("[data-hint]").length
+    ).toBeGreaterThanOrEqual(8);
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(controls.className).not.toContain("max-md:hidden");
+    expect(controls.className).toContain("flex");
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(controls.className).toContain("max-md:hidden");
   });
 });
