@@ -260,4 +260,42 @@ describe("empty/NULL toggles (spec B1 — issues #65 #100 #46 #6)", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(controls.className).toContain("max-md:hidden");
   });
+
+  it("hides vertical Divider rules until xl:block and only renders the trailing flex-1 spacer when notice is present (AC-9 / D8)", () => {
+    const { rerender } = render(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+        uploadEncoding="utf-8"
+        onUploadEncodingChange={() => {}}
+      />
+    );
+
+    const controls = screen.getByTestId("options-controls");
+    const dividers = Array.from(controls.querySelectorAll("div.w-px"));
+    expect(dividers.length).toBeGreaterThanOrEqual(2);
+    for (const divider of dividers) {
+      expect(divider.className).toContain("hidden");
+      expect(divider.className).toContain("xl:block");
+      expect(divider.className).not.toContain("md:block");
+    }
+
+    // Without notice, no trailing flex-1 spacer is rendered inside options-controls
+    expect(controls.querySelector("div.flex-1")).toBeNull();
+
+    // When notice is provided, the spacer and notice render
+    rerender(
+      <OptionsRow
+        direction="csv2json"
+        options={DEFAULT_OPTIONS}
+        onChange={() => {}}
+        notice="Large file — converting on pause"
+      />
+    );
+    expect(controls.querySelector("div.flex-1")).not.toBeNull();
+    expect(screen.getByTestId("options-notice")).toHaveTextContent(
+      "Large file — converting on pause"
+    );
+  });
 });

@@ -1218,7 +1218,7 @@ describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
     // Load sample CSV so the InputPane header action buttons render
     await user.click(screen.getByTestId("try-example"));
 
-    // Secondary InputPane actions preserve accessible names via aria-label while hiding text labels on <sm
+    // Secondary InputPane actions preserve accessible names via aria-label while hiding text labels below xl
     for (const [testId, label] of [
       ["upload", "Upload"],
       ["copy-input", "Copy"],
@@ -1230,7 +1230,7 @@ describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
       const span = btn.querySelector("span");
       expect(span).not.toBeNull();
       expect(span?.className).toContain("hidden");
-      expect(span?.className).toContain("sm:inline");
+      expect(span?.className).toContain("xl:inline");
     }
 
     // Mobile options disclosure toggles aria-expanded and updates summary when direction flips
@@ -1247,6 +1247,58 @@ describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
     expect(screen.getByTestId("options-mobile-summary")).toHaveTextContent(
       "Auto"
     );
+  });
+});
+
+describe("smaller-desktop & half-screen layout polish (AC-9 / D8)", () => {
+  it("uses md:min-h-12 on PaneShell headers, keeps InputPane and OutputPane secondary action labels icon-only until xl:inline, and adds md:px-16 seam clearance on Dropzone", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Dropzone includes md:px-16 horizontal seam clearance so the floating DividerSwitch never overlaps the paste box
+    const dropzone = screen.getByTestId("dropzone");
+    expect(dropzone.className).toContain("md:px-16");
+
+    // DividerSwitch uses compact md: sizing on side-by-side viewports
+    const dividerSwitch = screen.getByTestId("divider-switch");
+    expect(dividerSwitch.className).toContain("md:h-8");
+    expect(dividerSwitch.className).toContain("md:px-2.5");
+    expect(dividerSwitch.className).toContain("md:text-[11px]");
+
+    // Both PaneShell headers use md:min-h-12 and md:py-1.5 rather than a rigid md:h-12 lock
+    const inputHeader = screen
+      .getByTestId("input-pane")
+      .querySelector(".border-b");
+    const outputHeader = screen
+      .getByTestId("output-pane")
+      .querySelector(".border-b");
+    expect(inputHeader).not.toBeNull();
+    expect(outputHeader).not.toBeNull();
+    for (const header of [inputHeader, outputHeader]) {
+      expect(header?.className).toContain("md:min-h-12");
+      expect(header?.className).toContain("md:py-1.5");
+      expect(header?.className).not.toMatch(/(?:^|\s)md:h-12(?:\s|$)/);
+    }
+
+    // Load sample CSV so all InputPane and OutputPane controls are active
+    await user.click(screen.getByTestId("try-example"));
+
+    for (const [testId, label] of [
+      ["upload", "Upload"],
+      ["copy-input", "Copy"],
+      ["clear-input", "Clear"],
+      ["download-input", "Download"],
+      ["copy-output", "Copy"],
+      ["download-output", "Download"],
+    ] as const) {
+      const btn = screen.getByTestId(testId);
+      expect(btn).toHaveAttribute("aria-label", label);
+      expect(btn).toHaveAttribute("title", label);
+      const span = btn.querySelector("span");
+      expect(span).not.toBeNull();
+      expect(span?.className).toContain("hidden");
+      expect(span?.className).toContain("xl:inline");
+    }
   });
 });
 

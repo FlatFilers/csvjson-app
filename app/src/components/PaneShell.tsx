@@ -28,8 +28,8 @@ export function PaneShell({ title, meta, actions, status, children }: PaneShellP
           the input pane's controls reflow cleanly if a narrow split or long
           filename ever wraps; desktop (md+) uses min-h-12 so single-line
           headers stay 48px tall while wrapped rows expand without clipping. */}
-      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-border px-3.5 py-2 max-md:gap-2 md:min-h-12 md:py-1.5 md:pr-3 md:pl-5">
-        <div className="flex items-center gap-3">
+      <div className="flex min-h-[42px] flex-shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1.5 border-b border-border px-3.5 py-2 max-md:gap-2 md:min-h-12 md:py-1.5 md:pr-2.5 md:pl-3.5 lg:gap-x-3 lg:pr-3 lg:pl-5">
+        <div className="flex items-center gap-2 lg:gap-3">
           <span className="font-mono text-[11px] font-semibold tracking-[0.18em] text-muted-foreground">
             {title}
           </span>
