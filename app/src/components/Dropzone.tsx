@@ -50,7 +50,7 @@ export function Dropzone({
   return (
     <div
       data-testid="dropzone"
-      className="flex flex-1 flex-col items-center justify-center p-3 md:p-6"
+      className="flex flex-1 flex-col items-center justify-center p-3 md:p-6 md:px-16"
     >
       <div className="flex w-full max-w-sm flex-col items-center gap-2.5 md:gap-3">
         {/* v0's decorative anchor tile — subtle, invisible to AT. */}

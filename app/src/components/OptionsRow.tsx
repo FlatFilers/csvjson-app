@@ -27,7 +27,7 @@ const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: st
  * Group divider between the footer's option clusters (v0 port).
  */
 function Divider() {
-  return <div className="hidden h-5 w-px shrink-0 bg-border md:block" aria-hidden="true" />;
+  return <div className="hidden h-5 w-px shrink-0 bg-border xl:block" aria-hidden="true" />;
 }
 
 function summarizeActiveOptions(
@@ -183,7 +183,7 @@ export function OptionsRow({
   return (
     <div
       data-testid="options-row"
-      className="flex flex-shrink-0 flex-col border-t border-border bg-panel px-3.5 py-2 text-[13px] text-muted-foreground md:flex-row md:flex-wrap md:items-center md:gap-5 md:px-5 md:py-2.5"
+      className="flex flex-shrink-0 flex-col border-t border-border bg-panel px-3.5 py-2 text-[13px] text-muted-foreground md:flex-row md:flex-wrap md:items-center md:gap-x-3.5 md:gap-y-2 md:px-4 md:py-2 xl:gap-5 xl:px-5 xl:py-2.5"
     >
       <div className="flex w-full items-center justify-between gap-2 md:hidden">
         <button
@@ -217,7 +217,7 @@ export function OptionsRow({
       <div
         data-testid="options-controls"
         className={cn(
-          "flex-wrap items-center gap-x-4 gap-y-2.5 md:flex md:flex-1 md:gap-5",
+          "flex-wrap items-center gap-x-4 gap-y-2.5 md:flex md:flex-1 md:gap-x-3.5 md:gap-y-2 xl:gap-5",
           mobileOpen
             ? "mt-2 flex border-t border-border pt-2.5 md:mt-0 md:border-t-0 md:pt-0"
             : "max-md:hidden"
@@ -337,11 +337,13 @@ export function OptionsRow({
         />
       )}
 
-      <div className="flex-1" />
       {notice ? (
-        <span data-testid="options-notice" className="text-muted-foreground">
-          {notice}
-        </span>
+        <>
+          <div className="flex-1" />
+          <span data-testid="options-notice" className="text-muted-foreground">
+            {notice}
+          </span>
+        </>
       ) : null}
       </div>
     </div>

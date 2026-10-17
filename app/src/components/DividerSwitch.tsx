@@ -37,7 +37,7 @@ export function DividerSwitch({ direction, onFlip }: DividerSwitchProps) {
       // The visible label states the CURRENT direction (defect fix: the
       // icon alone left JSON → CSV undiscoverable); the aria-label keeps
       // describing the ACTION, so the accessible name stays coherent.
-      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-background px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-background px-3 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground md:h-8 md:gap-1 md:px-2.5 md:text-[11px]"
     >
       <SwapIcon flipped={direction === "json2csv"} />
       <span data-testid="divider-switch-label">{directionLabel(direction)}</span>
