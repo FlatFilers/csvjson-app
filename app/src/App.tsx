@@ -577,9 +577,10 @@ export default function App() {
       {/* The one H1 the page ships (spec: SEO on-page targets) — quiet, so
           the tool itself stays the interface. */}
       <h1 className="sr-only">CSV to JSON and JSON to CSV converter</h1>
-      {/* The converter keeps a full viewport; the FAQ accordion sits below
-          the fold (spec: SEO — collapsed FAQ below the tool). */}
-      <div className="flex h-svh min-h-0 flex-col">
+      {/* The converter keeps a full viewport on desktop; below md: it grows
+          with its stacked panes so small screens scroll cleanly without
+          crushing either pane (spec: SEO — collapsed FAQ below the tool). */}
+      <div className="flex min-h-svh flex-col md:h-svh md:min-h-0">
         {/* Launch-week banner sits above the TopBar inside the h-svh column,
             so the flex panes absorb its height instead of overflowing. */}
         <FeedbackBanner />
