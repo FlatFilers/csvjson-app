@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 15,
+    date: "2026-10-18",
+    tag: "improvement",
+    title: "Options fold into a Parse settings menu",
+    summary:
+      "On narrower screens the converter's options bar no longer wraps onto extra lines — it collapses to a single Parse settings line showing your active options, with the full control set in a drop-up above it. Small screens lose the accordion that squeezed the panes.",
+  },
+  {
     id: 14,
     date: "2026-10-17",
     tag: "improvement",
