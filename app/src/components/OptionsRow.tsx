@@ -1,7 +1,8 @@
 import type { ConverterOptions, Direction } from "@/lib/convert";
 import { UPLOAD_ENCODINGS, type UploadEncoding } from "@/lib/files";
 import { ChevronDown } from "lucide-react";
-import { useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
 type OptionsRowProps = {
@@ -24,10 +25,12 @@ const SEPARATOR_OPTIONS: Array<{ value: ConverterOptions["separator"]; label: st
 ];
 
 /**
- * Group divider between the footer's option clusters (v0 port).
+ * Group divider between the footer's option clusters (v0 port). Hidden below
+ * the fit threshold: the drop-up panel wraps, and a rule dangling at a line
+ * break reads as a stray mark. `fit` is the measured threshold in index.css.
  */
 function Divider() {
-  return <div className="hidden h-5 w-px shrink-0 bg-border xl:block" aria-hidden="true" />;
+  return <div className="hidden h-5 w-px shrink-0 bg-border fit:block" aria-hidden="true" />;
 }
 
 function summarizeActiveOptions(
@@ -168,6 +171,16 @@ function OptionHint({ text }: { text: string }) {
  * parse numbers, parse JSON, skip empty fields, NULL as null, transpose,
  * hash output, minify; JSON → CSV shows separator and flatten (minify does
  * not apply to CSV output).
+ *
+ * Fit rule (spec: parse settings menu, art_kW2qUlGL): below the width where
+ * the full control set fits on one line — the measured `fit` breakpoint in
+ * index.css (98.5rem = 1576px; the widest set, csv→json with encoding, needs
+ * ~1507px plus a scrollbar's gutter) — the bar collapses to a single
+ * "Parse settings" line (trigger, live summary, large-file notice) with the
+ * full control set in a drop-up panel above the trigger. At the threshold
+ * and above, the controls render inline as today's unwrapped row. Both presentations keep every
+ * control and hint in the DOM at load (SEO initial-DOM rule); the notice
+ * always sits on the visible row, never inside the menu.
  */
 export function OptionsRow({
   direction,
@@ -177,52 +190,48 @@ export function OptionsRow({
   uploadEncoding,
   onUploadEncodingChange,
 }: OptionsRowProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  // One breakpoint for both directions (locked decision): the widest set —
+  // csv→json with encoding — is what stops fitting, so it sets the threshold.
+  // `fit` is defined in index.css (98.5rem = 1576px, measured); media
+  // queries can't read CSS vars, so the value is mirrored here.
+  const expanded = useMediaQuery("(min-width: 98.5rem)");
   const csvToJson = direction === "csv2json";
   const summary = summarizeActiveOptions(direction, options);
-  return (
-    <div
-      data-testid="options-row"
-      className="flex flex-shrink-0 flex-col border-t border-border bg-panel px-3.5 py-2 text-[13px] text-muted-foreground md:flex-row md:flex-wrap md:items-center md:gap-x-3.5 md:gap-y-2 md:px-4 md:py-2 xl:gap-5 xl:px-5 xl:py-2.5"
-    >
-      <div className="flex w-full items-center justify-between gap-2 md:hidden">
-        <button
-          type="button"
-          data-testid="options-mobile-toggle"
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((current) => !current)}
-          className="inline-flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 rounded-md py-0.5 text-left text-xs font-medium text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          <span className="font-mono text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-            Options
-          </span>
-          <span className="inline-flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-            <span
-              data-testid="options-mobile-summary"
-              className="truncate font-normal"
-            >
-              {summary}
-            </span>
-            <ChevronDown
-              aria-hidden="true"
-              className={cn(
-                "size-3.5 shrink-0 transition-transform",
-                mobileOpen && "rotate-180"
-              )}
-            />
-          </span>
-        </button>
-      </div>
 
-      <div
-        data-testid="options-controls"
-        className={cn(
-          "flex-wrap items-center gap-x-4 gap-y-2.5 md:flex md:flex-1 md:gap-x-3.5 md:gap-y-2 xl:gap-5",
-          mobileOpen
-            ? "mt-2 flex border-t border-border pt-2.5 md:mt-0 md:border-t-0 md:pt-0"
-            : "max-md:hidden"
-        )}
-      >
+  /** Close the drop-up and return focus to the trigger (every dismissal path). */
+  const closeMenu = useCallback(() => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }, []);
+
+  // While open: Escape dismisses and a click outside the whole bar closes
+  // the same way. Click (not mousedown) per the jsdom/user-event contract
+  // the tests rely on; the trigger re-click is handled by the button itself
+  // (the document listener ignores clicks inside the container, so the two
+  // paths never double-fire).
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    const onClick = (event: MouseEvent) => {
+      const container = containerRef.current;
+      if (container === null || !(event.target instanceof Node)) return;
+      if (!container.contains(event.target)) closeMenu();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("click", onClick);
+    };
+  }, [open, closeMenu]);
+
+  const controls = (
+    <>
       <span className="inline-flex items-center gap-2">
         <label className="flex items-center gap-2">
           <GroupLabel>Separator</GroupLabel>
@@ -336,15 +345,90 @@ export function OptionsRow({
           hint="Explode nested arrays into extra rows with dotted keys — needed when the JSON isn't a flat table."
         />
       )}
+    </>
+  );
 
-      {notice ? (
-        <>
-          <div className="flex-1" />
-          <span data-testid="options-notice" className="text-muted-foreground">
+  if (expanded) {
+    // At the fit threshold and above: today's single unwrapped row.
+    return (
+      <div
+        data-testid="options-row"
+        className="flex flex-shrink-0 flex-row items-center gap-5 border-t border-border bg-panel px-5 py-2.5 text-[13px] text-muted-foreground"
+      >
+        <div
+          data-testid="options-settings-menu"
+          role="group"
+          aria-label="Parse settings"
+          className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2.5"
+        >
+          {controls}
+          {notice ? (
+            <>
+              <div className="flex-1" />
+              <span data-testid="options-notice">{notice}</span>
+            </>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-testid="options-row"
+      ref={containerRef}
+      className="relative flex flex-shrink-0 flex-col border-t border-border bg-panel px-3.5 py-2 text-[13px] text-muted-foreground md:px-4"
+    >
+      {/* Collapsed row: one line, always — trigger, live summary, notice. */}
+      <div className="flex w-full items-center gap-2">
+        <button
+          type="button"
+          ref={triggerRef}
+          data-testid="options-settings-toggle"
+          aria-expanded={open}
+          aria-haspopup="true"
+          onClick={() => (open ? closeMenu() : setOpen(true))}
+          className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md py-0.5 text-[13px] font-medium text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          Parse settings
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              "size-3.5 shrink-0 transition-transform",
+              open && "rotate-180"
+            )}
+          />
+        </button>
+        <span
+          data-testid="options-settings-summary"
+          className="min-w-0 truncate"
+        >
+          {summary}
+        </span>
+        {notice ? (
+          <span
+            data-testid="options-notice"
+            className="ml-auto shrink-0 text-right"
+          >
             {notice}
           </span>
-        </>
-      ) : null}
+        ) : null}
+      </div>
+
+      {/* Drop-up panel: anchored above the trigger, overlaying the panes —
+          no layout shift, unlike the accordion it replaces. Content mounts
+          at load, hidden until opened (SEO initial-DOM rule). */}
+      <div
+        data-testid="options-settings-menu"
+        role="group"
+        aria-label="Parse settings"
+        hidden={!open}
+        className={cn(
+          "absolute bottom-full left-0 z-50 mb-2 w-full items-center gap-x-4 gap-y-2.5 rounded-md border border-border bg-panel p-3 shadow-md",
+          open ? "flex flex-wrap" : "hidden"
+        )}
+      >
+        {controls}
       </div>
     </div>
   );

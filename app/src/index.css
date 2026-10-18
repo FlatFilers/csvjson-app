@@ -63,6 +63,15 @@
   --radius-lg: var(--radius);
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
+  /*
+   * Fit threshold for the converter's options bar (spec: parse settings
+   * menu, art_kW2qUlGL): measured one-line width of the widest control set
+   * (csv→json with encoding) is ~1507px; with classic scrollbars it stops
+   * wrapping at 1564px of viewport. 98.5rem = 1576px adds margin and biases
+   * to the safe side — collapsing a beat early is invisible, wrapping again
+   * is the bug. useMediaQuery in OptionsRow reads the same value.
+   */
+  --breakpoint-fit: 98.5rem;
 }
 
 body {
