@@ -27,6 +27,7 @@ import { copyText } from "@/lib/clipboard";
 import { convertText } from "@/lib/convert";
 import { downloadText } from "@/lib/download";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { setMediaQueryMatches } from "./test/setup";
 
 async function flip() {
   const user = userEvent.setup();
@@ -1204,8 +1205,11 @@ describe("CSV upload responsiveness & blank-page resilience (AC-7 / art_cPIu3u6a
 });
 
 describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
-  it("unclamps the converter shell on <md, compacts secondary header action labels on <sm, and toggles mobile options disclosure", async () => {
+  it("unclamps the converter shell on <md, compacts secondary header action labels on <sm, and collapses the options bar into the Parse settings drop-up", async () => {
     const user = userEvent.setup();
+    // Below the fit threshold (see index.css --breakpoint-fit): collapsed
+    // options bar + stacked panes.
+    setMediaQueryMatches(false);
     render(<App />);
 
     // Converter shell uses min-h-svh on mobile and h-svh on md+
@@ -1233,20 +1237,25 @@ describe("mobile & small-screen layout polish (AC-8 / D7)", () => {
       expect(span?.className).toContain("xl:inline");
     }
 
-    // Mobile options disclosure toggles aria-expanded and updates summary when direction flips
-    const mobileToggle = screen.getByTestId("options-mobile-toggle");
-    expect(mobileToggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("options-mobile-summary")).toHaveTextContent(
-      "Auto · Parse numbers · Parse JSON"
-    );
+    // The options bar collapses to the Parse settings drop-up trigger below
+    // the fit threshold; the summary names the active options and flips with
+    // the direction. Opening the menu then flipping direction also exercises
+    // the outside-click dismissal (the seam switch is outside the bar).
+    const settingsToggle = screen.getByTestId("options-settings-toggle");
+    expect(settingsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.getByTestId("options-settings-summary")
+    ).toHaveTextContent("Auto · Parse numbers · Parse JSON");
 
-    await user.click(mobileToggle);
-    expect(mobileToggle).toHaveAttribute("aria-expanded", "true");
+    await user.click(settingsToggle);
+    expect(settingsToggle).toHaveAttribute("aria-expanded", "true");
 
     await user.click(screen.getByTestId("divider-switch"));
-    expect(screen.getByTestId("options-mobile-summary")).toHaveTextContent(
+    expect(screen.getByTestId("options-settings-summary")).toHaveTextContent(
       "Auto"
     );
+    expect(settingsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(settingsToggle).toHaveFocus();
   });
 });
 
