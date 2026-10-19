@@ -83,6 +83,8 @@ type CsvTableProps = {
   /** Undo/redo handlers invoked on Mod+Z and Mod+Shift+Z / Mod+Y inside the grid. */
   onUndo?: () => void;
   onRedo?: () => void;
+  /** Fired when non-empty selection is copied via the toolbar chip or Cmd/Ctrl+C. */
+  onCopySelection?: () => void;
 };
 
 function isTextEntryElement(node: EventTarget | Element | null): boolean {
@@ -203,6 +205,7 @@ export function CsvTable({
   onCellCommit,
   onUndo,
   onRedo,
+  onCopySelection,
 }: CsvTableProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const gridWrapRef = useRef<HTMLDivElement>(null);
@@ -480,6 +483,9 @@ export function CsvTable({
   const selectedColumnCount = selectedDataColumns.length;
   const showSelectionChip = selectedInView.length > 0 || selectedColumnCount > 0;
 
+  const onCopySelectionRef = useRef(onCopySelection);
+  onCopySelectionRef.current = onCopySelection;
+
   const copySelection = () => {
     const selection = gridSelectionRef.current;
     const payload = serializeGridSelection(
@@ -493,6 +499,7 @@ export function CsvTable({
       GUTTER_COLUMNS
     );
     if (payload === null) return;
+    onCopySelectionRef.current?.();
     navigator.clipboard?.writeText(payload).catch(() => {
       // Clipboard denial (permission, insecure context) degrades to a no-op —
       // same posture as the localStorage vote ids, never a broken page.
@@ -525,6 +532,7 @@ export function CsvTable({
       event.preventDefault();
       event.stopImmediatePropagation();
       event.clipboardData?.setData("text/plain", payload);
+      onCopySelectionRef.current?.();
     };
     window.addEventListener("copy", onCopy, { capture: true });
     return () => window.removeEventListener("copy", onCopy, { capture: true });

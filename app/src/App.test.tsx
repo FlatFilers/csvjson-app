@@ -463,7 +463,181 @@ describe("analytics events", () => {
     delete (window as { plausible?: unknown }).plausible;
   });
 
-  it("fires exactly one conversion event after the example input settles", async () => {
+  it("fires Input (valid: true) and Conversion immediately on 'Try an example' with input: 'example'", async () => {
+    const { gtag, plausible } = installAnalytics();
+
+    const { unmount } = render(<App />);
+    fireEvent.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view")).toBeInTheDocument();
+    });
+
+    expect(
+      gtag.mock.calls.filter((call) => call[1] === "input")
+    ).toEqual([
+      [
+        "event",
+        "input",
+        {
+          direction: "csv_to_json",
+          input: "example",
+          size: "<10KB",
+          valid: true,
+        },
+      ],
+    ]);
+    expect(
+      gtag.mock.calls.filter((call) => call[1] === "conversion")
+    ).toEqual([
+      [
+        "event",
+        "conversion",
+        { direction: "csv_to_json", input: "example", size: "<10KB" },
+      ],
+    ]);
+    expect(plausible).toHaveBeenCalledWith("Input", {
+      props: {
+        direction: "csv_to_json",
+        input: "example",
+        size: "<10KB",
+        valid: true,
+      },
+    });
+    expect(plausible).toHaveBeenCalledWith("Conversion", {
+      props: { direction: "csv_to_json", input: "example", size: "<10KB" },
+    });
+    unmount();
+  });
+
+  it("fires Input (valid: false) without Conversion when invalid JSON settles in JSON→CSV mode", async () => {
+    const { gtag, plausible } = installAnalytics();
+    window.history.pushState({}, "", "/?direction=json2csv");
+
+    try {
+      const { unmount } = render(<App />);
+      fireEvent.paste(screen.getByTestId("input-pane"), {
+        clipboardData: { getData: () => "{broken: json" },
+      });
+
+      await waitFor(
+        () => {
+          expect(
+            gtag.mock.calls.filter((call) => call[1] === "input")
+          ).toHaveLength(1);
+        },
+        { timeout: 4000 }
+      );
+      expect(plausible).toHaveBeenCalledWith("Input", {
+        props: {
+          direction: "json_to_csv",
+          input: "paste",
+          size: "<10KB",
+          valid: false,
+        },
+      });
+      expect(
+        gtag.mock.calls.filter((call) => call[1] === "conversion")
+      ).toHaveLength(0);
+      unmount();
+    } finally {
+      window.history.pushState({}, "", "/");
+    }
+  });
+
+  it("fires Input and Conversion on file upload, drag-drop, and direction flip", async () => {
+    const { gtag, plausible } = installAnalytics();
+    const dateNowSpy = vi.spyOn(Date, "now");
+    let fakeNow = 10_000;
+    dateNowSpy.mockImplementation(() => fakeNow);
+
+    try {
+      render(<App />);
+
+      // 1. File upload (via: "file")
+      const uploadedCsv = "album,year\nElephant,2003";
+      const file = createStreamableFile("albums.csv", uploadedCsv);
+      fireEvent.change(screen.getByTestId("file-input"), {
+        target: { files: [file] },
+      });
+
+      await waitFor(() => {
+        expect(plausible).toHaveBeenCalledWith("Input", {
+          props: {
+            direction: "csv_to_json",
+            input: "file",
+            size: "<10KB",
+            valid: true,
+          },
+        });
+      });
+      expect(plausible).toHaveBeenCalledWith("Conversion", {
+        props: {
+          direction: "csv_to_json",
+          input: "file",
+          size: "<10KB",
+        },
+      });
+
+      // 2. Direction flip (via: "flip") past the 2s rate window
+      fakeNow += 3_000;
+      await flip();
+      await waitFor(() => {
+        expect(plausible).toHaveBeenCalledWith("Input", {
+          props: {
+            direction: "json_to_csv",
+            input: "flip",
+            size: "<10KB",
+            valid: true,
+          },
+        });
+      });
+      expect(plausible).toHaveBeenCalledWith("Conversion", {
+        props: {
+          direction: "json_to_csv",
+          input: "flip",
+          size: "<10KB",
+        },
+      });
+
+      // 3. Drag-and-drop (via: "drag") past the 2s rate window
+      fakeNow += 3_000;
+      const droppedJson = '[{"album":"De Stijl","year":2000}]';
+      const dropFile = createStreamableFile(
+        "albums.json",
+        droppedJson,
+        "application/json"
+      );
+      fireEvent.drop(screen.getByTestId("input-pane"), {
+        dataTransfer: { files: [dropFile], types: ["Files"] },
+      });
+
+      await waitFor(() => {
+        expect(plausible).toHaveBeenCalledWith("Input", {
+          props: {
+            direction: "json_to_csv",
+            input: "drag",
+            size: "<10KB",
+            valid: true,
+          },
+        });
+      });
+      expect(plausible).toHaveBeenCalledWith("Conversion", {
+        props: {
+          direction: "json_to_csv",
+          input: "drag",
+          size: "<10KB",
+        },
+      });
+      expect(gtag.mock.calls.filter((c) => c[1] === "input")).toHaveLength(3);
+      expect(gtag.mock.calls.filter((c) => c[1] === "conversion")).toHaveLength(
+        3
+      );
+    } finally {
+      dateNowSpy.mockRestore();
+    }
+  });
+
+  it("fires Export with pane and direction across button copy/download, native OutputPane copy, and CsvTable selection copy", async () => {
     const { gtag, plausible } = installAnalytics();
 
     render(<App />);
@@ -472,45 +646,108 @@ describe("analytics events", () => {
       expect(screen.getByTestId("output-view")).toBeInTheDocument();
     });
 
-    // Settle window is 2s after the last edit — the event must appear.
-    await waitFor(
-      () => {
-        expect(
-          gtag.mock.calls.filter((call) => call[1] === "conversion")
-        ).toHaveLength(1);
-      },
-      { timeout: 4000 }
-    );
-    const call = gtag.mock.calls.find((c) => c[1] === "conversion");
-    expect(call).toEqual([
-      "event",
-      "conversion",
-      { direction: "csv_to_json", input: "paste", size: "<10KB" },
-    ]);
-    expect(plausible).toHaveBeenCalledWith("Conversion", {
-      props: { direction: "csv_to_json", input: "paste", size: "<10KB" },
-    });
-  });
-
-  it("fires an export event on every output copy click", async () => {
-    const gtag = vi.fn();
-    const plausible = vi.fn();
-    (window as { gtag?: unknown }).gtag = gtag;
-    (window as { plausible?: unknown }).plausible = plausible;
-
-    render(<App />);
-    fireEvent.click(screen.getByTestId("try-example"));
-    await waitFor(() => {
-      expect(screen.getByTestId("output-view")).toBeInTheDocument();
-    });
-
+    // 1. Output pane Copy button
     fireEvent.click(screen.getByTestId("copy-output"));
-    expect(gtag).toHaveBeenCalledWith("event", "export", {
+    expect(gtag).toHaveBeenLastCalledWith("event", "export", {
       via: "copy",
       format: "json",
+      pane: "output",
+      direction: "csv_to_json",
     });
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "json",
+        pane: "output",
+        direction: "csv_to_json",
+      },
+    });
+
+    // 2. Output pane Download button
+    fireEvent.click(screen.getByTestId("download-output"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "download",
+        format: "json",
+        pane: "output",
+        direction: "csv_to_json",
+      },
+    });
+
+    // 3. Input pane Copy & Download buttons
+    fireEvent.click(screen.getByTestId("copy-input"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "csv",
+        pane: "input",
+        direction: "csv_to_json",
+      },
+    });
+    fireEvent.click(screen.getByTestId("download-input"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "download",
+        format: "csv",
+        pane: "input",
+        direction: "csv_to_json",
+      },
+    });
+
+    // 4. Native keyboard copy (Cmd/Ctrl+C) inside JSON OutputPane
+    fireEvent.copy(screen.getByTestId("output-view"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "json",
+        pane: "output",
+        direction: "csv_to_json",
+      },
+    });
+
+    // 5. CsvTable selection copy in InputPane ("Copy as CSV" chip)
+    const inputTable = screen.getByTestId("input-table");
+    fireEvent.click(within(inputTable).getByTestId("glide-row-select-0"));
+    fireEvent.click(screen.getByTestId("input-table-copy"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "csv",
+        pane: "input",
+        direction: "csv_to_json",
+      },
+    });
+
+    // 6. Flip to JSON→CSV and test CsvTable selection copy in OutputPane (chip + Cmd/Ctrl+C)
+    await flip();
+    const outputTable = await screen.findByTestId("output-table");
+    fireEvent.click(within(outputTable).getByTestId("glide-row-select-0"));
+    fireEvent.click(screen.getByTestId("output-table-copy"));
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "csv",
+        pane: "output",
+        direction: "json_to_csv",
+      },
+    });
+
+    // Cmd/Ctrl+C inside the focused output grid
+    plausible.mockClear();
+    within(outputTable).getByTestId("glide-grid-mock").focus();
+    const copyEvent = new Event("copy", { bubbles: true, cancelable: true });
+    Object.defineProperty(copyEvent, "clipboardData", {
+      value: { setData: () => {} },
+    });
+    window.dispatchEvent(copyEvent);
+    expect(plausible).toHaveBeenCalledTimes(1);
     expect(plausible).toHaveBeenCalledWith("Export", {
-      props: { via: "copy", format: "json" },
+      props: {
+        via: "copy",
+        format: "csv",
+        pane: "output",
+        direction: "json_to_csv",
+      },
     });
   });
 });

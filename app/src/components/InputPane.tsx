@@ -30,6 +30,7 @@ type InputPaneProps = {
   onTryExample: () => void;
   onClear: () => void;
   onCopy: () => void;
+  onCopySelection?: () => void;
   onDownload: () => void;
   filename: string | null;
   reading: boolean;
@@ -145,6 +146,7 @@ export function InputPane({
   onTryExample,
   onClear,
   onCopy,
+  onCopySelection,
   onDownload,
   filename,
   reading,
@@ -429,6 +431,7 @@ export function InputPane({
                 onCellCommit={onCellCommit}
                 onUndo={onUndo}
                 onRedo={onRedo}
+                onCopySelection={onCopySelection}
               />
             )}
           </>
