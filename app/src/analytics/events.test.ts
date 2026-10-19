@@ -5,10 +5,11 @@ import {
   sizeBucket,
   trackConversion,
   trackExport,
+  trackInput,
 } from "./events";
 
 /**
- * Payload-level tests for the conversion/export event fan-out and the
+ * Payload-level tests for the input/conversion/export event fan-out and the
  * stateful conversion tracker (fire-once-per-signature, 2s window, settle
  * debounce). window.gtag / window.plausible are mocked; the helper must be
  * a safe no-op when either is absent.
@@ -22,6 +23,14 @@ function installAnalytics() {
   return { gtag, plausible };
 }
 
+function gtagCallsFor(gtag: ReturnType<typeof vi.fn>, eventName: string) {
+  return gtag.mock.calls.filter((call) => call[1] === eventName);
+}
+
+function plausibleCallsFor(plausible: ReturnType<typeof vi.fn>, goalName: string) {
+  return plausible.mock.calls.filter((call) => call[0] === goalName);
+}
+
 afterEach(() => {
   delete (window as { gtag?: unknown }).gtag;
   delete (window as { plausible?: unknown }).plausible;
@@ -29,6 +38,34 @@ afterEach(() => {
 });
 
 describe("event payloads", () => {
+  it("fans an input event to gtag and Plausible with valid flag", () => {
+    const { gtag, plausible } = installAnalytics();
+
+    trackInput({
+      direction: "json_to_csv",
+      input: "paste",
+      size: "<10KB",
+      valid: false,
+    });
+
+    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtag).toHaveBeenCalledWith("event", "input", {
+      direction: "json_to_csv",
+      input: "paste",
+      size: "<10KB",
+      valid: false,
+    });
+    expect(plausible).toHaveBeenCalledTimes(1);
+    expect(plausible).toHaveBeenCalledWith("Input", {
+      props: {
+        direction: "json_to_csv",
+        input: "paste",
+        size: "<10KB",
+        valid: false,
+      },
+    });
+  });
+
   it("fans a conversion event to gtag and Plausible with lowercase machine names", () => {
     const { gtag, plausible } = installAnalytics();
 
@@ -52,7 +89,7 @@ describe("event payloads", () => {
     });
   });
 
-  it("fans an export event to both surfaces with via + resolved format", () => {
+  it("fans an export event to both surfaces with via + resolved format and optional pane/direction", () => {
     const { gtag, plausible } = installAnalytics();
 
     trackExport({ via: "download", format: "csv" });
@@ -65,16 +102,46 @@ describe("event payloads", () => {
     expect(plausible).toHaveBeenCalledWith("Export", {
       props: { via: "download", format: "csv" },
     });
+
+    trackExport({
+      via: "copy",
+      format: "json",
+      pane: "output",
+      direction: "csv_to_json",
+    });
+
+    expect(gtag).toHaveBeenLastCalledWith("event", "export", {
+      via: "copy",
+      format: "json",
+      pane: "output",
+      direction: "csv_to_json",
+    });
+    expect(plausible).toHaveBeenLastCalledWith("Export", {
+      props: {
+        via: "copy",
+        format: "json",
+        pane: "output",
+        direction: "csv_to_json",
+      },
+    });
   });
 
   it("is a safe no-op when no analytics globals exist", () => {
     delete (window as { gtag?: unknown }).gtag;
     delete (window as { plausible?: unknown }).plausible;
     expect(() =>
+      trackInput({
+        direction: "json_to_csv",
+        input: "paste",
+        size: "<10KB",
+        valid: true,
+      })
+    ).not.toThrow();
+    expect(() =>
       trackConversion({ direction: "json_to_csv", input: "paste", size: "<10KB" })
     ).not.toThrow();
     expect(() =>
-      trackExport({ via: "copy", format: "json" })
+      trackExport({ via: "copy", format: "json", pane: "output", direction: "csv_to_json" })
     ).not.toThrow();
   });
 });
@@ -92,7 +159,7 @@ describe("sizeBucket", () => {
 });
 
 describe("conversion tracker", () => {
-  it("fires one event per settled input with the exact payload", () => {
+  it("fires Input (valid: true) and Conversion per settled input with the exact payload", () => {
     vi.useFakeTimers();
     const { gtag, plausible } = installAnalytics();
     const tracker = createConversionTracker();
@@ -103,16 +170,50 @@ describe("conversion tracker", () => {
     vi.advanceTimersByTime(2000);
 
     const size = sizeBucket(byteLength("album,year\nElephant,2003"));
-    expect(gtag).toHaveBeenCalledTimes(1);
-    expect(gtag).toHaveBeenCalledWith("event", "conversion", {
-      direction: "csv_to_json",
-      input: "paste",
-      size,
-    });
-    expect(plausible).toHaveBeenCalledTimes(1);
-    expect(plausible).toHaveBeenCalledWith("Conversion", {
-      props: { direction: "csv_to_json", input: "paste", size },
-    });
+    expect(gtagCallsFor(gtag, "input")).toEqual([
+      [
+        "event",
+        "input",
+        {
+          direction: "csv_to_json",
+          input: "paste",
+          size,
+          valid: true,
+        },
+      ],
+    ]);
+    expect(gtagCallsFor(gtag, "conversion")).toEqual([
+      [
+        "event",
+        "conversion",
+        {
+          direction: "csv_to_json",
+          input: "paste",
+          size,
+        },
+      ],
+    ]);
+    expect(plausibleCallsFor(plausible, "Input")).toEqual([
+      [
+        "Input",
+        {
+          props: {
+            direction: "csv_to_json",
+            input: "paste",
+            size,
+            valid: true,
+          },
+        },
+      ],
+    ]);
+    expect(plausibleCallsFor(plausible, "Conversion")).toEqual([
+      [
+        "Conversion",
+        {
+          props: { direction: "csv_to_json", input: "paste", size },
+        },
+      ],
+    ]);
   });
 
   it("debounces: fires once for a burst of keystrokes, ~2s after the last edit", () => {
@@ -128,7 +229,8 @@ describe("conversion tracker", () => {
     expect(gtag).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(500);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
   });
 
   it("fires once per signature: same input settles again without refiring", () => {
@@ -138,35 +240,41 @@ describe("conversion tracker", () => {
 
     tracker.edit("csv_to_json", "a,b");
     vi.advanceTimersByTime(2000);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
 
     // Same direction + method + length: the input has not actually changed.
     tracker.edit("csv_to_json", "a,b");
     vi.advanceTimersByTime(3000);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
 
     // Input actually changes (length grows) → fires again.
     tracker.edit("csv_to_json", "a,b,c");
     vi.advanceTimersByTime(3000);
-    expect(gtag).toHaveBeenCalledTimes(2);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(2);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(2);
   });
 
-  it("never fires more than one conversion event per 2s window", () => {
+  it("never fires more than one input or conversion event per 2s window", () => {
     const now = vi.fn(() => 10_000);
     const { gtag } = installAnalytics();
     const tracker = createConversionTracker({ now });
 
     tracker.discrete("csv_to_json", "file", "a,b");
-    expect(gtag).toHaveBeenCalledTimes(1); // discrete fires immediately
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1); // discrete fires immediately
 
     // Different input, but inside the 2s window → dropped.
     tracker.discrete("csv_to_json", "drag", "a,b,c,d");
-    expect(gtag).toHaveBeenCalledTimes(1); // dropped
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1); // dropped
 
     // Past the window, a genuinely new input fires again.
     now.mockReturnValue(10_000 + 2001);
     tracker.discrete("csv_to_json", "permalink", "a,b,c,d,e");
-    expect(gtag).toHaveBeenCalledTimes(2);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(2);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(2);
   });
 
   it("counts genuinely new inputs of the same byte length (content fingerprint)", () => {
@@ -178,11 +286,11 @@ describe("conversion tracker", () => {
     // signature tracks content, not just byte length.
     tracker.edit("csv_to_json", "a,b\n1,2");
     vi.advanceTimersByTime(3000);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
 
     tracker.edit("csv_to_json", "a,b\n3,4");
     vi.advanceTimersByTime(3000);
-    expect(gtag).toHaveBeenCalledTimes(2);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(2);
   });
 
   it("counts a repeat conversion after clear + re-paste of identical content", () => {
@@ -192,33 +300,89 @@ describe("conversion tracker", () => {
 
     tracker.edit("csv_to_json", "a,b");
     vi.advanceTimersByTime(2000);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(1);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
 
     // Clear wipes the pending observation AND forgets the last signature —
     // a fresh paste of the same content is a new conversion.
     tracker.cancel();
     tracker.edit("csv_to_json", "a,b");
     vi.advanceTimersByTime(3000);
-    expect(gtag).toHaveBeenCalledTimes(2);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(2);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(2);
   });
 
-  it("fires discrete inputs immediately with the given input method", () => {
-    const { gtag } = installAnalytics();
-    const tracker = createConversionTracker();
+  it("fires discrete inputs immediately with the given input method (permalink, example, flip)", () => {
+    const now = vi.fn(() => 10_000);
+    const { gtag, plausible } = installAnalytics();
+    const tracker = createConversionTracker({ now });
 
     tracker.discrete("json_to_csv", "permalink", '{"a":[1,2]}');
 
-    expect(gtag).toHaveBeenCalledTimes(1);
-    expect(gtag).toHaveBeenCalledWith("event", "conversion", {
-      direction: "json_to_csv",
-      input: "permalink",
-      size: sizeBucket(byteLength('{"a":[1,2]}')),
+    expect(gtagCallsFor(gtag, "input")).toEqual([
+      [
+        "event",
+        "input",
+        {
+          direction: "json_to_csv",
+          input: "permalink",
+          size: sizeBucket(byteLength('{"a":[1,2]}')),
+          valid: true,
+        },
+      ],
+    ]);
+    expect(gtagCallsFor(gtag, "conversion")).toEqual([
+      [
+        "event",
+        "conversion",
+        {
+          direction: "json_to_csv",
+          input: "permalink",
+          size: sizeBucket(byteLength('{"a":[1,2]}')),
+        },
+      ],
+    ]);
+
+    now.mockReturnValue(13_000);
+    tracker.discrete("csv_to_json", "example", "a,b\n1,2");
+    expect(plausible).toHaveBeenCalledWith("Input", {
+      props: {
+        direction: "csv_to_json",
+        input: "example",
+        size: "<10KB",
+        valid: true,
+      },
+    });
+    expect(plausible).toHaveBeenCalledWith("Conversion", {
+      props: {
+        direction: "csv_to_json",
+        input: "example",
+        size: "<10KB",
+      },
+    });
+
+    now.mockReturnValue(16_000);
+    tracker.discrete("json_to_csv", "flip", '[{"a":1,"b":2}]');
+    expect(plausible).toHaveBeenCalledWith("Input", {
+      props: {
+        direction: "json_to_csv",
+        input: "flip",
+        size: "<10KB",
+        valid: true,
+      },
+    });
+    expect(plausible).toHaveBeenCalledWith("Conversion", {
+      props: {
+        direction: "json_to_csv",
+        input: "flip",
+        size: "<10KB",
+      },
     });
   });
 
-  it("never counts an empty or invalid result as a conversion", () => {
+  it("fires Input with valid: false on invalid input without firing Conversion, then fires both when corrected", () => {
     vi.useFakeTimers();
-    const { gtag } = installAnalytics();
+    const { gtag, plausible } = installAnalytics();
     const tracker = createConversionTracker({
       isValid: (_direction, text) => text.startsWith("a,"),
     });
@@ -229,12 +393,51 @@ describe("conversion tracker", () => {
 
     tracker.edit("csv_to_json", "garbage");
     vi.advanceTimersByTime(2000);
-    expect(gtag).not.toHaveBeenCalled(); // invalid result — not a conversion
+    // Invalid input still records Stage 2 ("Input") with valid: false,
+    // while Stage 3 ("Conversion") does not fire.
+    expect(gtagCallsFor(gtag, "input")).toEqual([
+      [
+        "event",
+        "input",
+        {
+          direction: "csv_to_json",
+          input: "paste",
+          size: "<10KB",
+          valid: false,
+        },
+      ],
+    ]);
+    expect(plausibleCallsFor(plausible, "Input")).toEqual([
+      [
+        "Input",
+        {
+          props: {
+            direction: "csv_to_json",
+            input: "paste",
+            size: "<10KB",
+            valid: false,
+          },
+        },
+      ],
+    ]);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(0);
 
-    // Later a valid settle fires; the invalid input never burned the window.
+    // Later a valid settle fires both Input (valid: true) and Conversion;
+    // the invalid input never burned the Conversion window.
     tracker.edit("csv_to_json", "a,b");
     vi.advanceTimersByTime(2000);
-    expect(gtag).toHaveBeenCalledTimes(1);
+    expect(gtagCallsFor(gtag, "input")).toHaveLength(2);
+    expect(gtagCallsFor(gtag, "input")[1]).toEqual([
+      "event",
+      "input",
+      {
+        direction: "csv_to_json",
+        input: "paste",
+        size: "<10KB",
+        valid: true,
+      },
+    ]);
+    expect(gtagCallsFor(gtag, "conversion")).toHaveLength(1);
   });
 
   it("drops pending work when the input is cleared", () => {

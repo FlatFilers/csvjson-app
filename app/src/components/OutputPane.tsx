@@ -49,6 +49,10 @@ type OutputPaneProps = {
   delimiter?: string;
   dark: boolean;
   onCopy: () => void;
+  /** Fired when selected rows/columns are copied from the CSV output table. */
+  onCopySelection?: () => void;
+  /** Fired when a native clipboard copy occurs inside the JSON output editor. */
+  onNativeCopy?: () => void;
   onDownload: () => void;
   /** Fired for every user modification of the editable output text. */
   onOutputChange?: (value: string) => void;
@@ -71,6 +75,8 @@ export function OutputPane({
   delimiter,
   dark,
   onCopy,
+  onCopySelection,
+  onNativeCopy,
   onDownload,
   onOutputChange,
   onRevert,
@@ -183,21 +189,27 @@ export function OutputPane({
           </div>
         ) : outputText ? (
           isJson ? (
-            <JsonCodeMirror
-              value={outputText}
-              editable={
-                editable && outputText.length <= LARGE_OUTPUT_PREVIEW_MAX_CHARS
-              }
-              onChange={onOutputChange}
-              dark={dark}
-              testId="output-view"
-            />
+            <div
+              className="flex min-h-0 flex-1 flex-col"
+              onCopy={() => onNativeCopy?.()}
+            >
+              <JsonCodeMirror
+                value={outputText}
+                editable={
+                  editable && outputText.length <= LARGE_OUTPUT_PREVIEW_MAX_CHARS
+                }
+                onChange={onOutputChange}
+                dark={dark}
+                testId="output-view"
+              />
+            </div>
           ) : (
             <CsvTable
               text={outputText}
               delimiter={delimiter}
               testId="output-table"
               dark={dark}
+              onCopySelection={onCopySelection}
             />
           )
         ) : error ? (

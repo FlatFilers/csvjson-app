@@ -139,6 +139,7 @@ export default function App() {
     });
   }
   const tracker = trackerRef.current;
+  useEffect(() => () => tracker.cancel(), [tracker]);
 
   // Responsive orientation is CSS-first in SplitPane (flex-col md:flex-row);
   // this query feeds only drag math and aria-orientation. It must stay in
@@ -296,30 +297,56 @@ export default function App() {
   }, [csvToJson, inputHistory, tracker]);
 
   const handleFlip = () => {
+    const nextDirection: Direction =
+      direction === "csv2json" ? "json2csv" : "csv2json";
     if (outputEdited) {
       // Flip with an edited output: adopt the edited text as the new input
       // when it is valid JSON — else today's error-output rule (input
       // untouched). Either way the output fully regenerates in the new
       // direction, so the edited state clears.
       const edited = editedOutput ?? "";
-      setInputHistory((current) =>
-        createCsvHistory(isParsableJson(edited) ? edited : current.present)
-      );
-      setDirection((current) =>
-        current === "csv2json" ? "json2csv" : "csv2json"
-      );
+      const nextInput = isParsableJson(edited) ? edited : input;
+      setInputHistory(createCsvHistory(nextInput));
+      setDirection(nextDirection);
       setOutputEdited(false);
       setEditedOutput(null);
+      if (nextInput.trim() !== "") {
+        converterStateRef.current = {
+          direction: nextDirection,
+          options,
+          input: nextInput,
+          resultOk: convertText(nextDirection, nextInput, options).ok,
+        };
+        tracker.discrete(
+          nextDirection === "csv2json" ? "csv_to_json" : "json_to_csv",
+          "flip",
+          nextInput
+        );
+      }
       return;
     }
-    setDirection((current) => (current === "csv2json" ? "json2csv" : "csv2json"));
+    setDirection(nextDirection);
     // Flip rule: the last valid output becomes the new input; an error
     // output leaves the input untouched. Convert the *current* input — the
     // memoized result lags `input` by the debounce window (1 s for large
     // files), so using it here could wipe a freshly typed value.
     if (!inputEmpty) {
       const current = convertText(direction, input, options);
-      setInputHistory(createCsvHistory(current.ok ? current.text : input));
+      const nextInput = current.ok ? current.text : input;
+      setInputHistory(createCsvHistory(nextInput));
+      if (nextInput.trim() !== "") {
+        converterStateRef.current = {
+          direction: nextDirection,
+          options,
+          input: nextInput,
+          resultOk: convertText(nextDirection, nextInput, options).ok,
+        };
+        tracker.discrete(
+          nextDirection === "csv2json" ? "csv_to_json" : "json_to_csv",
+          "flip",
+          nextInput
+        );
+      }
     } else {
       setInputHistory(createCsvHistory(""));
     }
@@ -473,19 +500,35 @@ export default function App() {
 
   // Every intentional copy/download is an export event; format is the
   // resolved format of the pane's text (input pane carries the input format).
+  const analyticsDirection = csvToJson ? "csv_to_json" : "json_to_csv";
   const copyInput = () => {
-    trackExport({ via: "copy", format: csvToJson ? "csv" : "json" });
+    trackExport({
+      via: "copy",
+      format: csvToJson ? "csv" : "json",
+      pane: "input",
+      direction: analyticsDirection,
+    });
     void copyText(input);
   };
   const copyOutput = () => {
-    trackExport({ via: "copy", format: csvToJson ? "json" : "csv" });
+    trackExport({
+      via: "copy",
+      format: csvToJson ? "json" : "csv",
+      pane: "output",
+      direction: analyticsDirection,
+    });
     // Copy always delivers the pane's current text — the edited one while
     // the edited state holds.
     const text = outputEdited ? editedOutput : currentValidOutput;
     if (text) void copyText(text);
   };
   const downloadInput = () => {
-    trackExport({ via: "download", format: csvToJson ? "csv" : "json" });
+    trackExport({
+      via: "download",
+      format: csvToJson ? "csv" : "json",
+      pane: "input",
+      direction: analyticsDirection,
+    });
     downloadText(input, filename ?? (csvToJson ? "data.csv" : "data.json"), {
       mime: csvToJson ? "text/csv" : "application/json",
       bom: csvToJson,
@@ -495,7 +538,12 @@ export default function App() {
   // The output name swaps the uploaded source's extension (spec B3: #79 #102);
   // pasted input has no source and falls back to data.json / data.csv.
   const downloadOutput = () => {
-    trackExport({ via: "download", format: csvToJson ? "json" : "csv" });
+    trackExport({
+      via: "download",
+      format: csvToJson ? "json" : "csv",
+      pane: "output",
+      direction: analyticsDirection,
+    });
     downloadText(
       (outputEdited ? editedOutput : currentValidOutput) ?? "",
       outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
@@ -505,6 +553,33 @@ export default function App() {
       }
     );
   };
+
+  const trackInputSelectionCopy = useCallback(() => {
+    trackExport({
+      via: "copy",
+      format: "csv",
+      pane: "input",
+      direction: analyticsDirection,
+    });
+  }, [analyticsDirection]);
+
+  const trackOutputSelectionCopy = useCallback(() => {
+    trackExport({
+      via: "copy",
+      format: "csv",
+      pane: "output",
+      direction: analyticsDirection,
+    });
+  }, [analyticsDirection]);
+
+  const trackOutputNativeCopy = useCallback(() => {
+    trackExport({
+      via: "copy",
+      format: "json",
+      pane: "output",
+      direction: analyticsDirection,
+    });
+  }, [analyticsDirection]);
 
   const leftPane = (
     <InputPane
@@ -516,8 +591,14 @@ export default function App() {
       onTryExample={() => {
         setNotice(null);
         const sample = csvToJson ? SAMPLE_CSV : SAMPLE_JSON;
+        converterStateRef.current = {
+          direction,
+          options,
+          input: sample,
+          resultOk: convertText(direction, sample, options).ok,
+        };
         commitInput(sample);
-        tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", sample);
+        tracker.discrete(analyticsDirection, "example", sample);
       }}
       onClear={() => {
         commitInput("");
@@ -529,6 +610,7 @@ export default function App() {
         tracker.cancel();
       }}
       onCopy={copyInput}
+      onCopySelection={trackInputSelectionCopy}
       onDownload={downloadInput}
       canUndo={canUndo}
       canRedo={canRedo}
@@ -565,6 +647,8 @@ export default function App() {
       delimiter={options.separator === "auto" ? undefined : options.separator}
       dark={theme === "dark"}
       onCopy={copyOutput}
+      onCopySelection={trackOutputSelectionCopy}
+      onNativeCopy={trackOutputNativeCopy}
       onDownload={downloadOutput}
       onOutputChange={handleOutputEdit}
       onRevert={regenerateOutput}

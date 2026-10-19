@@ -16,10 +16,26 @@
 export type AnalyticsDirection = "csv_to_json" | "json_to_csv";
 
 /** How the input arrived. Typed/pasted text counts as "paste". */
-export type ConversionInput = "paste" | "file" | "drag" | "permalink";
+export type ConversionInput =
+  | "paste"
+  | "file"
+  | "drag"
+  | "permalink"
+  | "example"
+  | "flip";
 
 export type ExportVia = "copy" | "download";
 export type ExportFormat = "json" | "csv";
+export type ExportPane = "output" | "input";
+
+export interface InputProps {
+  direction: AnalyticsDirection;
+  input: ConversionInput;
+  /** Byte bucket of the input: '<10KB' | '10-100KB' | '100KB-1MB' | '>1MB'. */
+  size: string;
+  /** Whether the provided input parsed into a valid conversion output. */
+  valid: boolean;
+}
 
 export interface ConversionProps {
   direction: AnalyticsDirection;
@@ -31,6 +47,8 @@ export interface ConversionProps {
 export interface ExportProps {
   via: ExportVia;
   format: ExportFormat;
+  pane?: ExportPane;
+  direction?: AnalyticsDirection;
 }
 
 export interface FeedbackProps {
@@ -40,7 +58,11 @@ export interface FeedbackProps {
   with_reason: boolean;
 }
 
-export type TrackableEventName = "conversion" | "export" | "feedback";
+export type TrackableEventName =
+  | "input"
+  | "conversion"
+  | "export"
+  | "feedback";
 
 function capitalize(name: TrackableEventName): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
@@ -52,10 +74,14 @@ function capitalize(name: TrackableEventName): string {
  */
 export function trackEvent(
   name: TrackableEventName,
-  props: ConversionProps | ExportProps | FeedbackProps
+  props: InputProps | ConversionProps | ExportProps | FeedbackProps
 ): void {
   window.gtag?.("event", name, { ...props });
   window.plausible?.(capitalize(name), { props: { ...props } });
+}
+
+export function trackInput(props: InputProps): void {
+  trackEvent("input", props);
 }
 
 export function trackConversion(props: ConversionProps): void {
@@ -63,7 +89,13 @@ export function trackConversion(props: ConversionProps): void {
 }
 
 export function trackExport(props: ExportProps): void {
-  trackEvent("export", props);
+  const payload: ExportProps = {
+    via: props.via,
+    format: props.format,
+    ...(props.pane !== undefined ? { pane: props.pane } : {}),
+    ...(props.direction !== undefined ? { direction: props.direction } : {}),
+  };
+  trackEvent("export", payload);
 }
 
 /** One recorded feedback vote (spec: CSVJSON feedback votes, art_2AdAvo34). */
@@ -137,23 +169,45 @@ export function createConversionTracker(
 
   let pending: ConversionObservation | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let lastInputSignature: string | null = null;
+  let lastInputFiredAt = 0;
   let lastSignature: string | null = null;
   let lastFiredAt = 0; // epoch 0 = "long ago": the first fire is never window-blocked
 
   function attemptFire(obs: ConversionObservation): boolean {
     if (obs.text.trim() === "") return false; // nothing to convert — not a conversion
     const bytes = byteLength(obs.text);
+    const bucket = sizeBucket(bytes);
+    const valid = isValid(obs.direction, obs.text);
     const signature = `${obs.direction}:${obs.input}:${bytes}:${contentFingerprint(obs.text)}`;
-    if (signature === lastSignature) return false;
-    if (!isValid(obs.direction, obs.text)) return false;
     const at = now();
-    if (at - lastFiredAt < minWindowMs) return false;
+
+    // Stage 2: Data Provided ("Input") fires once per distinct signature and
+    // rate window regardless of whether parsing succeeded (`valid: boolean`).
+    if (
+      signature !== lastInputSignature &&
+      (lastInputFiredAt === 0 || at - lastInputFiredAt >= minWindowMs)
+    ) {
+      lastInputSignature = signature;
+      lastInputFiredAt = at;
+      trackInput({
+        direction: obs.direction,
+        input: obs.input,
+        size: bucket,
+        valid,
+      });
+    }
+
+    // Stage 3: Data Converted ("Conversion") fires only on valid output.
+    if (!valid) return false;
+    if (signature === lastSignature) return false;
+    if (lastFiredAt !== 0 && at - lastFiredAt < minWindowMs) return false;
     lastSignature = signature;
     lastFiredAt = at;
     trackConversion({
       direction: obs.direction,
       input: obs.input,
-      size: sizeBucket(bytes),
+      size: bucket,
     });
     return true;
   }
@@ -182,6 +236,7 @@ export function createConversionTracker(
       pending = null;
       // A cleared input followed by a fresh paste is a new conversion even
       // for identical content — forget the last-fired signature.
+      lastInputSignature = null;
       lastSignature = null;
       if (timer) {
         clearTimeout(timer);
@@ -192,12 +247,12 @@ export function createConversionTracker(
 }
 
 export interface ConversionTracker {
-  /** A settled (non-discrete) input: paste, typing, example, or post-flip. */
+  /** A settled (non-discrete) input: paste or typing. */
   edit(direction: AnalyticsDirection, text: string): void;
-  /** Discrete success (picker/drop/permalink): immediate fire attempt. */
+  /** Discrete data provision (picker/drop/permalink/example/flip): immediate fire attempt. */
   discrete(
     direction: AnalyticsDirection,
-    input: "file" | "drag" | "permalink",
+    input: Exclude<ConversionInput, "paste">,
     text: string
   ): void;
   /** Drop any pending observation (input was cleared). */
