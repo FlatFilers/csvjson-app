@@ -42,8 +42,21 @@ describe("Dropzone paste field", () => {
     );
     const field = screen.getByTestId("paste-field");
     expect(field.tagName).toBe("TEXTAREA");
-    expect(screen.getByRole("textbox", { name: /paste anywhere on this page/i })).toBe(field);
-    expect(field).toHaveAttribute("placeholder", "Paste CSV or TSV text here");
+    expect(
+      screen.getByRole("textbox", {
+        name: /Paste CSV, TSV, Markdown, or CLI table data — or press .* to paste anywhere on this page/i,
+      })
+    ).toBe(field);
+    expect(field).toHaveAttribute(
+      "placeholder",
+      "Paste CSV, TSV, Markdown, or psql/MySQL table here"
+    );
+    expect(screen.getByTestId("dropzone-title")).toHaveTextContent(
+      "Paste CSV, TSV, or Markdown table"
+    );
+    expect(screen.getByTestId("dropzone-formats")).toHaveTextContent(
+      "Supports CSV, TSV / spreadsheet cells, Markdown & ChatGPT docs (multi-table), and psql / MySQL box tables"
+    );
     expect(field).toHaveFocus();
   });
 
@@ -96,7 +109,18 @@ describe("Dropzone paste field", () => {
     );
     expect(screen.getByTestId("paste-field")).toHaveAttribute(
       "placeholder",
-      "Paste JSON here"
+      "Paste JSON, JSONL / NDJSON, or API response here"
+    );
+    expect(
+      screen.getByRole("textbox", {
+        name: /Paste JSON, JSONL, or API response data — or press .* to paste anywhere on this page/i,
+      })
+    ).toBe(screen.getByTestId("paste-field"));
+    expect(screen.getByTestId("dropzone-title")).toHaveTextContent(
+      "Paste JSON or JSONL here"
+    );
+    expect(screen.getByTestId("dropzone-formats")).toHaveTextContent(
+      "Supports JSON arrays, nested objects, wrapped API payloads ({ data: […] }), and JSONL / NDJSON"
     );
   });
 
