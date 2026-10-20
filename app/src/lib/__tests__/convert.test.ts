@@ -1221,6 +1221,130 @@ describe("CSV upload performance & resilience guards (AC-7 / art_cPIu3u6a)", () 
   });
 });
 
+describe("per-column type overrides (AC-16 / D15)", () => {
+  const sampleCsv = [
+    "id,zip,amount,active,flag,notes",
+    "1001,90210,42.5,yes,1,true",
+    "1002,00501,100,no,0,false",
+  ].join("\n");
+
+  it("pins numeric columns to string ('string' override) while other columns still parse as numbers", () => {
+    const out = csvToJson(sampleCsv, {
+      parseNumbers: true,
+      parseJSON: true,
+      columnTypes: {
+        id: "string",
+        zip: "string",
+        notes: "string",
+      },
+    });
+    expect(out).toEqual([
+      {
+        id: "1001",
+        zip: "90210",
+        amount: 42.5,
+        active: "yes",
+        flag: 1,
+        notes: "true",
+      },
+      {
+        id: "1002",
+        zip: "00501",
+        amount: 100,
+        active: "no",
+        flag: 0,
+        notes: "false",
+      },
+    ]);
+  });
+
+  it("coerces a 'number'-pinned column via toSmartNumber even when global parseNumbers is false", () => {
+    const out = csvToJson(sampleCsv, {
+      parseNumbers: false,
+      parseJSON: false,
+      columnTypes: {
+        amount: "number",
+      },
+    });
+    expect(out).toEqual([
+      {
+        id: "1001",
+        zip: "90210",
+        amount: 42.5,
+        active: "yes",
+        flag: "1",
+        notes: "true",
+      },
+      {
+        id: "1002",
+        zip: "00501",
+        amount: 100,
+        active: "no",
+        flag: "0",
+        notes: "false",
+      },
+    ]);
+  });
+
+  it("coerces 'boolean'-pinned columns for case-insensitive true/false/1/0/yes/no and preserves unrecognized values", () => {
+    const csv = [
+      "label,active,flag,custom",
+      "A,YES,1,maybe",
+      "B, no ,0,true",
+      "C,True,FALSE,N/A",
+    ].join("\n");
+    const out = csvToJson(csv, {
+      parseNumbers: true,
+      parseJSON: false,
+      columnTypes: {
+        active: "boolean",
+        flag: "boolean",
+        custom: "boolean",
+      },
+    });
+    expect(out).toEqual([
+      { label: "A", active: true, flag: true, custom: "maybe" },
+      { label: "B", active: false, flag: false, custom: true },
+      { label: "C", active: true, flag: false, custom: "N/A" },
+    ]);
+  });
+
+  it("falls through to global rules when override is 'auto' and composes with hash mode, emptyFields, and nullLiterals", () => {
+    const csv = [
+      "key,zip,amount,active",
+      "r1,90210,15,yes",
+      "r2,NULL,,0",
+    ].join("\n");
+    const out = csvToJson(csv, {
+      hash: true,
+      parseNumbers: false,
+      emptyFields: "skip",
+      nullLiterals: "null",
+      columnTypes: {
+        zip: "auto",
+        amount: "number",
+        active: "boolean",
+      },
+    });
+    expect(out).toEqual({
+      r1: { zip: "90210", amount: 15, active: true },
+      r2: { zip: null, active: false },
+    });
+
+    const viaConvertText = convertText("csv2json", "zip,active\n90210,yes", {
+      ...DEFAULT_OPTIONS,
+      columnTypes: { zip: "string", active: "boolean" },
+    });
+    expect(viaConvertText.ok).toBe(true);
+    if (viaConvertText.ok) {
+      expect(JSON.parse(viaConvertText.text)).toEqual([
+        { zip: "90210", active: true },
+      ]);
+    }
+  });
+});
+
+
 
 
 

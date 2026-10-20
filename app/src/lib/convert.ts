@@ -24,6 +24,12 @@ export type EmptyFields = "keep" | "skip";
  */
 export type NullLiterals = "string" | "null";
 
+/**
+ * Per-column type override (AC-16 / D15): pins a column's coercion mode in
+ * CSV → JSON before global smart number / JSON parsing runs.
+ */
+export type ColumnTypeOverride = "auto" | "string" | "number" | "boolean";
+
 export type Csv2JsonOptions = {
   /**
    * omitted → auto-detect over , ; \t. "|" is explicit-only (B2, #110): prose
@@ -63,6 +69,10 @@ export type Csv2JsonOptions = {
    * into arrays under their shared prefix when transpose is off. Defaults to true.
    */
   collapseIndexedArrays?: boolean;
+  /**
+   * Per-column type overrides keyed by header name (AC-16 / D15).
+   */
+  columnTypes?: Record<string, ColumnTypeOverride>;
 };
 
 export type Json2CsvOptions = {
@@ -243,9 +253,34 @@ type CellPass = {
   parseNumbers: boolean;
   emptyFields: EmptyFields;
   nullLiterals: NullLiterals;
+  columnTypes?: Record<string, ColumnTypeOverride>;
 };
 
-function smartCellValue(value: string, pass: CellPass): unknown {
+function coerceBooleanOverride(value: string): string | boolean {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1" || normalized === "yes") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0" || normalized === "no") {
+    return false;
+  }
+  return value;
+}
+
+function smartCellValue(
+  value: string,
+  pass: CellPass,
+  override?: ColumnTypeOverride
+): unknown {
+  if (override === "string") {
+    return value;
+  }
+  if (override === "number") {
+    return toSmartNumber(value);
+  }
+  if (override === "boolean") {
+    return coerceBooleanOverride(value);
+  }
   if (pass.parseJSON) {
     const parsed = tryParseJsonLiteral(value);
     if (parsed.ok && typeof parsed.value !== "number") return parsed.value;
@@ -272,15 +307,16 @@ function applySmartValues(
         converted[key] = value;
         continue;
       }
-      const smart = smartCellValue(value, pass);
       // B1: "skip" deletes keys whose value is exactly the empty string.
-      if (pass.emptyFields === "skip" && smart === "") continue;
+      if (pass.emptyFields === "skip" && value === "") continue;
       // B1: the exact uppercase NULL literal becomes null — case-sensitive,
       // so Null stays a string; lowercase null is parseJSON's business.
-      if (pass.nullLiterals === "null" && smart === "NULL") {
+      if (pass.nullLiterals === "null" && value === "NULL") {
         converted[key] = null;
         continue;
       }
+      const override = pass.columnTypes?.[key];
+      const smart = smartCellValue(value, pass, override);
       converted[key] = smart;
     }
     return converted;
@@ -535,6 +571,7 @@ export function csvToJson(
     parseJSON: options.parseJSON ?? false,
     emptyFields: options.emptyFields ?? "keep",
     nullLiterals: options.nullLiterals ?? "string",
+    columnTypes: options.columnTypes,
   };
   // Belt and suspenders: the package tolerates a BOM, but stripping it here
   // guarantees header detection never sees it (spec: UTF-8 BOM stripped on input).
@@ -622,6 +659,7 @@ export type ConverterOptions = {
   minify: boolean;
   flatten: boolean;
   collapseIndexedArrays?: boolean;
+  columnTypes?: Record<string, ColumnTypeOverride>;
 };
 
 export const DEFAULT_OPTIONS: ConverterOptions = {
@@ -921,7 +959,7 @@ export function convertText(
   if (input.trim() === "") return { ok: true, text: "", rows: 0, cols: 0 };
   try {
     if (direction === "csv2json") {
-      const csv2jsonOptions = {
+      const csv2jsonOptions: Csv2JsonOptions = {
         separator: separatorFor(options.separator),
         parseNumbers: options.parseNumbers,
         parseJSON: options.parseJSON,
@@ -930,6 +968,7 @@ export function convertText(
         transpose: options.transpose,
         hash: options.hash,
         collapseIndexedArrays: options.collapseIndexedArrays ?? true,
+        columnTypes: options.columnTypes,
       };
       const json = csvToJson(input, csv2jsonOptions);
       let warnings = csvWarnings(input, csv2jsonOptions.separator);

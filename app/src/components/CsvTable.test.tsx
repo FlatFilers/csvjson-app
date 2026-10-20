@@ -801,4 +801,71 @@ describe("CsvTable selection aggregates", () => {
   });
 });
 
+describe("CsvTable — per-column type override pills & header badges (AC-16 / D15)", () => {
+  it("renders Auto · String · Number · Boolean override pills when a column is selected in editable mode, updates header badges, and resets via chip", async () => {
+    const user = userEvent.setup();
+    const onChangeColumnTypes = vi.fn();
+    render(
+      <CsvTable
+        text={FIXTURE}
+        testId="input-table"
+        onCellCommit={vi.fn()}
+        onChangeColumnTypes={onChangeColumnTypes}
+      />
+    );
+
+    // Not visible before selecting a column
+    expect(screen.queryByTestId("input-table-column-type-group")).toBeNull();
+
+    // Select data column 1 ("year" -> grid column 2)
+    await user.click(screen.getByTestId("glide-select-column-2"));
+    expect(screen.getByTestId("input-table-column-type-group")).toBeInTheDocument();
+    expect(screen.getByTestId("input-table-column-type-auto")).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByTestId("input-table-column-type-string")).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+
+    // Pin "year" to String
+    await user.click(screen.getByTestId("input-table-column-type-string"));
+    expect(onChangeColumnTypes).toHaveBeenLastCalledWith({ year: "string" });
+    expect(screen.getByTestId("input-table-column-type-string")).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByTestId("glide-header-2")).toHaveTextContent("YEAR [STR]");
+    expect(screen.getByTestId("input-table-column-types-reset")).toHaveTextContent(
+      "1 column type pinned"
+    );
+
+    // Pin "year" to Boolean -> badge updates to [BOOL]
+    await user.click(screen.getByTestId("input-table-column-type-boolean"));
+    expect(onChangeColumnTypes).toHaveBeenLastCalledWith({ year: "boolean" });
+    expect(screen.getByTestId("glide-header-2")).toHaveTextContent("YEAR [BOOL]");
+
+    // Pin "year" back to Auto -> removes override and hides reset chip
+    await user.click(screen.getByTestId("input-table-column-type-auto"));
+    expect(onChangeColumnTypes).toHaveBeenLastCalledWith({});
+    expect(screen.getByTestId("glide-header-2")).toHaveTextContent("YEAR");
+    expect(screen.queryByTestId("input-table-column-types-reset")).toBeNull();
+
+    // Pin to Number, then click the toolbar reset chip
+    await user.click(screen.getByTestId("input-table-column-type-number"));
+    expect(screen.getByTestId("glide-header-2")).toHaveTextContent("YEAR [NUM]");
+    await user.click(screen.getByTestId("input-table-column-types-reset"));
+    expect(onChangeColumnTypes).toHaveBeenLastCalledWith({});
+    expect(screen.getByTestId("glide-header-2")).toHaveTextContent("YEAR");
+  });
+
+  it("does not render column type override pills in read-only output tables", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} testId="output-table" />);
+    await user.click(screen.getByTestId("glide-select-column-2"));
+    expect(screen.queryByTestId("input-table-column-type-group")).toBeNull();
+  });
+});
+
 

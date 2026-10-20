@@ -6,6 +6,7 @@ import { JsonCodeMirror } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
 import {
+  type ColumnTypeOverride,
   detectIndexedHeaderGroups,
   detectJsonWrapperCandidates,
   resolveJsonFormatToggle,
@@ -48,6 +49,8 @@ type InputPaneProps = {
   onRedo?: () => void;
   collapseIndexedArrays?: boolean;
   onToggleCollapseIndexedArrays?: () => void;
+  columnTypes?: Record<string, ColumnTypeOverride>;
+  onChangeColumnTypes?: (columnTypes: Record<string, ColumnTypeOverride>) => void;
 };
 
 function ReadingSpinner() {
@@ -162,6 +165,8 @@ export function InputPane({
   onRedo,
   collapseIndexedArrays = true,
   onToggleCollapseIndexedArrays,
+  columnTypes,
+  onChangeColumnTypes,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -432,6 +437,8 @@ export function InputPane({
                 onUndo={onUndo}
                 onRedo={onRedo}
                 onCopySelection={onCopySelection}
+                columnTypes={columnTypes}
+                onChangeColumnTypes={onChangeColumnTypes}
               />
             )}
           </>

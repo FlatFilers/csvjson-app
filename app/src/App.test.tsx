@@ -1720,7 +1720,66 @@ describe("Developer egress formats in OutputPane header (AC-13 / D12)", () => {
     await flip();
     expect(screen.queryByTestId("output-format-switcher")).toBeNull();
   });
+
+  it("pins per-column types from the CSV table selection bar and updates JSON output immediately, resetting on Clear (AC-16 / D15)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: "zip,amount,active\n90210,42,yes\n10001,99,no" },
+    });
+
+    // By default, 90210 is parsed as number 90210 and "yes" stays string "yes"
+    await waitFor(() => {
+      const output = JSON.parse(screen.getByTestId("output-view").textContent ?? "[]");
+      expect(output).toEqual([
+        { zip: 90210, amount: 42, active: "yes" },
+        { zip: 10001, amount: 99, active: "no" },
+      ]);
+    });
+
+    // Select column 0 ("zip" -> grid col 1) and pin to String
+    await user.click(screen.getByTestId("glide-select-column-1"));
+    await user.click(screen.getByTestId("input-table-column-type-string"));
+
+    await waitFor(() => {
+      const output = JSON.parse(screen.getByTestId("output-view").textContent ?? "[]");
+      expect(output).toEqual([
+        { zip: "90210", amount: 42, active: "yes" },
+        { zip: "10001", amount: 99, active: "no" },
+      ]);
+    });
+    expect(screen.getByTestId("glide-header-1")).toHaveTextContent("ZIP [STR]");
+
+    // Select column 2 ("active" -> grid col 3) and pin to Boolean
+    await user.click(screen.getByTestId("glide-select-column-3"));
+    await user.click(screen.getByTestId("input-table-column-type-boolean"));
+
+    await waitFor(() => {
+      const output = JSON.parse(screen.getByTestId("output-view").textContent ?? "[]");
+      expect(output).toEqual([
+        { zip: "90210", amount: 42, active: true },
+        { zip: "10001", amount: 99, active: false },
+      ]);
+    });
+    expect(screen.getByTestId("glide-header-3")).toHaveTextContent("ACTIVE [BOOL]");
+    expect(screen.getByTestId("input-table-column-types-reset")).toHaveTextContent(
+      "2 column types pinned"
+    );
+
+    // Clear input -> resets pinned column types
+    await user.click(screen.getByTestId("clear-input"));
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: "zip,amount,active\n90210,42,yes" },
+    });
+    await waitFor(() => {
+      const output = JSON.parse(screen.getByTestId("output-view").textContent ?? "[]");
+      expect(output).toEqual([{ zip: 90210, amount: 42, active: "yes" }]);
+    });
+    expect(screen.queryByTestId("input-table-column-types-reset")).toBeNull();
+  });
 });
+
 
 
 

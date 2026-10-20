@@ -547,6 +547,14 @@ export default function App() {
   const handleInputChange = useCallback(
     (value: string) => {
       setNotice(null);
+      if (value.trim() === "") {
+        setOptions((current) => {
+          if (!current.columnTypes) return current;
+          const next = { ...current };
+          delete next.columnTypes;
+          return next;
+        });
+      }
       commitInput(value);
       tracker.edit(csvToJson ? "csv_to_json" : "json_to_csv", value);
     },
@@ -707,6 +715,12 @@ export default function App() {
       onClear={() => {
         commitInput("");
         setFilename(null);
+        setOptions((current) => {
+          if (!current.columnTypes) return current;
+          const next = { ...current };
+          delete next.columnTypes;
+          return next;
+        });
         // Clearing the input fully regenerates the output (empty state) —
         // the edited state has nothing to stay attached to.
         setOutputEdited(false);
@@ -726,6 +740,18 @@ export default function App() {
           ...current,
           collapseIndexedArrays: !(current.collapseIndexedArrays ?? true),
         }))
+      }
+      columnTypes={options.columnTypes ?? {}}
+      onChangeColumnTypes={(nextColumnTypes) =>
+        setOptions((current) => {
+          const next = { ...current };
+          if (Object.keys(nextColumnTypes).length > 0) {
+            next.columnTypes = nextColumnTypes;
+          } else {
+            delete next.columnTypes;
+          }
+          return next;
+        })
       }
       filename={filename}
       reading={reading}
