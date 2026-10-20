@@ -1,6 +1,7 @@
 import csv2json from "csvjson-csv2json";
 import json2csv from "csvjson-json2csv";
 import { parseCsvTable } from "./csvTable";
+import { detectMarkdownOrCliTable } from "./markdownTable";
 
 /**
  * Typed wrapper over the csvjson conversion packages. The packages are
@@ -616,7 +617,12 @@ export function csvToJson(
   };
   // Belt and suspenders: the package tolerates a BOM, but stripping it here
   // guarantees header detection never sees it (spec: UTF-8 BOM stripped on input).
-  const input = csv.startsWith(UTF8_BOM) ? csv.slice(UTF8_BOM.length) : csv;
+  const rawInput = csv.startsWith(UTF8_BOM) ? csv.slice(UTF8_BOM.length) : csv;
+  const normalizedTable =
+    options.separator === undefined
+      ? detectMarkdownOrCliTable(rawInput)
+      : null;
+  const input = normalizedTable ? normalizedTable.cleanedCsv : rawInput;
   try {
     // Structural parsing only: the package's own value coercion (parseNumbers
     // mangles leading zeros; parseJSON JSON.parses every cell, turning
@@ -1061,15 +1067,22 @@ export function convertText(
         collapseIndexedArrays: options.collapseIndexedArrays ?? true,
         columnTypes: options.columnTypes,
       };
-      const json = csvToJson(input, csv2jsonOptions);
-      let warnings = csvWarnings(input, csv2jsonOptions.separator);
+      const normalizedTable =
+        csv2jsonOptions.separator === undefined
+          ? detectMarkdownOrCliTable(input)
+          : null;
+      const effectiveInput = normalizedTable
+        ? normalizedTable.cleanedCsv
+        : input;
+      const json = csvToJson(effectiveInput, csv2jsonOptions);
+      let warnings = csvWarnings(effectiveInput, csv2jsonOptions.separator);
       if (options.hash && !Array.isArray(json)) {
         // The hash result carries no memory of how many rows went in (B4,
         // #143) — count what hashing started from: the array result for the
         // same input and options, minus hash. The parse is identical to the
         // run above, so this cannot fail where it passed, and the displayed
         // hash output stays exactly what the package produced.
-        const arrayJson = csvToJson(input, { ...csv2jsonOptions, hash: false });
+        const arrayJson = csvToJson(effectiveInput, { ...csv2jsonOptions, hash: false });
         const arrayRows = Array.isArray(arrayJson) ? arrayJson.length : 0;
         const collapse = duplicateKeyWarning(
           arrayRows,

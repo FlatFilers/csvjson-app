@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 21,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Paste Markdown & CLI box tables directly into CSV → JSON",
+    summary:
+      "Paste GitHub/ChatGPT Markdown pipe tables or psql/MySQL ASCII box tables directly into CSV → JSON: divider rows, outer pipes, and (N rows) footers are stripped automatically, with a one-click Clean table action to normalize the raw CSV in place.",
+  },
+  {
     id: 20,
     date: "2026-10-20",
     tag: "new",

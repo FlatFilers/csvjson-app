@@ -20,6 +20,7 @@ import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
 import { type ColumnTypeOverride } from "@/lib/convert";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
+import { detectMarkdownOrCliTable } from "@/lib/markdownTable";
 import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
 import { matchHistoryShortcut } from "@/lib/csvHistory";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
@@ -309,14 +310,24 @@ export function CsvTable({
   const imageWindowLoaderRef = useRef<ImageWindowLoaderImpl>();
   if (imageWindowLoaderRef.current === undefined) imageWindowLoaderRef.current = new ImageWindowLoaderImpl();
 
-  const table = useMemo(() => parseCsvTable(text, delimiter), [text, delimiter]);
+  const effectiveText = useMemo(
+    () =>
+      delimiter === undefined
+        ? (detectMarkdownOrCliTable(text)?.cleanedCsv ?? text)
+        : text,
+    [text, delimiter]
+  );
+  const table = useMemo(
+    () => parseCsvTable(effectiveText, delimiter),
+    [effectiveText, delimiter]
+  );
   const numeric = useMemo(() => numericColumns(table), [table]);
   const columnsCount = table.headers.length;
 
   // Latest-value mirrors: event handlers (copy key, edit commits, canvas
   // draw callbacks) must always see the props of the last completed render.
-  const latestRef = useRef({ text, table });
-  latestRef.current = { text, table };
+  const latestRef = useRef({ text: effectiveText, table });
+  latestRef.current = { text: effectiveText, table };
   const gridSelectionRef = useRef(gridSelection);
   gridSelectionRef.current = gridSelection;
 
