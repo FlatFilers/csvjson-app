@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 18,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Live spreadsheet selection aggregates in the table toolbar",
+    summary:
+      "Select any range of cells, rows, or columns in the data table to see instant cell, distinct, and empty counts alongside numeric Sum, Avg, Min, and Max aggregates. Range selections also expose one-click Copy as CSV right from the toolbar.",
+  },
+  {
     id: 17,
     date: "2026-10-20",
     tag: "new",

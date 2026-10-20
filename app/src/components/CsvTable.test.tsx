@@ -744,3 +744,61 @@ describe("CsvTable double-click header rename (input table only)", () => {
   });
 });
 
+describe("CsvTable selection aggregates", () => {
+  it("shows selection stats and enables Copy as CSV for a multi-cell range selection", async () => {
+    const user = userEvent.setup();
+    const writeText = stubClipboard();
+    render(<CsvTable text={FIXTURE} />);
+
+    // 1x2 range in album column (rows 0-1: De Stijl, Elephant)
+    await user.click(screen.getByTestId("glide-select-range"));
+
+    expect(screen.getByTestId("csv-table-selected-count")).toHaveTextContent("2 cells selected");
+    expect(screen.getByTestId("csv-table-selection-stats")).toHaveTextContent(
+      "Cells: 2 · Distinct: 2"
+    );
+    expect(screen.getByTestId("csv-table-selection-stats")).not.toHaveTextContent("Empty:");
+    expect(screen.getByTestId("csv-table-selection-stats")).not.toHaveTextContent("Sum:");
+
+    await user.click(screen.getByTestId("csv-table-copy"));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText).toHaveBeenCalledWith("album\nDe Stijl\nElephant");
+
+    await user.click(screen.getByTestId("csv-table-clear-selection"));
+    expect(screen.queryByTestId("csv-table-selection-stats")).toBeNull();
+  });
+
+  it("displays Empty and formatted numeric Sum, Avg, Min, Max for rectangular ranges, rows, and columns", async () => {
+    const user = userEvent.setup();
+    const csvWithBlanksAndNumbers = [
+      "album,sales",
+      "De Stijl,1250.5",
+      "Elephant,",
+      "De Stijl,-250.25",
+      "Get Behind Me Satan,500",
+    ].join("\n");
+    render(<CsvTable text={csvWithBlanksAndNumbers} />);
+
+    // 2x3 rectangular range: rows 0..2, cols 0..1 (6 cells: 3 albums with 2 distinct, 2 numeric sales + 1 empty)
+    await user.click(screen.getByTestId("glide-select-rect-range"));
+    expect(screen.getByTestId("csv-table-selection-stats")).toHaveTextContent(
+      "Cells: 6 · Distinct: 4 · Empty: 1 · Sum: 1,000.25 · Avg: 500.125 · Min: -250.25 · Max: 1,250.5"
+    );
+
+    // Select the numeric column (grid col 2 = sales): 4 cells, 1 empty, 3 numeric (1250.5, -250.25, 500 -> sum 1500.25, avg 500.0833)
+    await user.click(screen.getByTestId("glide-select-column-2"));
+    expect(screen.getByTestId("csv-table-selection-stats")).toHaveTextContent(
+      "Cells: 4 · Distinct: 3 · Empty: 1 · Sum: 1,500.25 · Avg: 500.0833 · Min: -250.25 · Max: 1,250.5"
+    );
+  });
+
+  it("hides selection stats when only a single cell is selected without a row or column selection", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={FIXTURE} />);
+    await user.click(screen.getByTestId("glide-select-single-cell"));
+    expect(screen.queryByTestId("csv-table-selection-stats")).toBeNull();
+    expect(screen.queryByTestId("csv-table-selected-count")).toBeNull();
+  });
+});
+
+

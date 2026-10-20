@@ -22,7 +22,12 @@ import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "
 import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
 import { matchHistoryShortcut } from "@/lib/csvHistory";
 import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
-import { serializeGridSelection } from "@/lib/tableSelection";
+import {
+  computeSelectionStats,
+  serializeGridSelection,
+  type SelectionShape,
+  type SelectionStats,
+} from "@/lib/tableSelection";
 
 /**
  * Dense full-bleed CSV/TSV table (spec: CSV pane — sticky header, compact
@@ -110,6 +115,37 @@ type GutterClickEvent = { shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boole
 /** Toolbar button classes — dense chrome matching the header strip. */
 const TOOLBAR_BUTTON =
   "inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+
+const STAT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 });
+
+function formatStatNumber(value: number): string {
+  return STAT_NUMBER_FORMATTER.format(Object.is(value, -0) ? 0 : value);
+}
+
+function formatSelectionStatsLabel(stats: SelectionStats): string {
+  const parts = [
+    `Cells: ${STAT_NUMBER_FORMATTER.format(stats.cellCount)}`,
+    `Distinct: ${STAT_NUMBER_FORMATTER.format(stats.distinctCount)}`,
+  ];
+  if (stats.emptyCount > 0) {
+    parts.push(`Empty: ${STAT_NUMBER_FORMATTER.format(stats.emptyCount)}`);
+  }
+  if (
+    stats.numericCount > 0 &&
+    stats.sum !== null &&
+    stats.avg !== null &&
+    stats.min !== null &&
+    stats.max !== null
+  ) {
+    parts.push(
+      `Sum: ${formatStatNumber(stats.sum)}`,
+      `Avg: ${formatStatNumber(stats.avg)}`,
+      `Min: ${formatStatNumber(stats.min)}`,
+      `Max: ${formatStatNumber(stats.max)}`
+    );
+  }
+  return parts.join(" · ");
+}
 
 /** Canvas has no CSS variables — resolve the palette per theme explicitly.
  *
@@ -481,7 +517,31 @@ export function CsvTable({
     [gridSelection]
   );
   const selectedColumnCount = selectedDataColumns.length;
-  const showSelectionChip = selectedInView.length > 0 || selectedColumnCount > 0;
+  const selection = useMemo<SelectionShape>(
+    () => ({
+      ranges: gridSelection?.current
+        ? [gridSelection.current.range, ...gridSelection.current.rangeStack]
+        : [],
+      columns: gridSelection ? [...gridSelection.columns] : [],
+      rows:
+        selectedSources.size > 0
+          ? view.reduce<number[]>((acc, source, viewRow) => {
+              if (selectedSources.has(source)) acc.push(viewRow);
+              return acc;
+            }, [])
+          : gridSelection
+            ? [...gridSelection.rows]
+            : [],
+    }),
+    [gridSelection, selectedSources, view]
+  );
+  const gutterColumns = GUTTER_COLUMNS;
+  const selectionStats = useMemo(
+    () => computeSelectionStats(table, view, selection, gutterColumns),
+    [table, view, selection, gutterColumns]
+  );
+  const showSelectionChip =
+    selectedInView.length > 0 || selectedColumnCount > 0 || selectionStats !== null;
 
   const onCopySelectionRef = useRef(onCopySelection);
   onCopySelectionRef.current = onCopySelection;
@@ -936,10 +996,20 @@ export function CsvTable({
             >
               {selectedInView.length > 0
                 ? `${selectedInView.length.toLocaleString()} selected`
-                : `${selectedColumnCount.toLocaleString()} ${
-                    selectedColumnCount === 1 ? "column" : "columns"
-                  } selected`}
+                : selectedColumnCount > 0
+                  ? `${selectedColumnCount.toLocaleString()} ${
+                      selectedColumnCount === 1 ? "column" : "columns"
+                    } selected`
+                  : `${(selectionStats?.cellCount ?? 0).toLocaleString()} cells selected`}
             </span>
+            {selectionStats !== null && (
+              <span
+                data-testid={`${testId}-selection-stats`}
+                className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums text-muted-foreground"
+              >
+                {formatSelectionStatsLabel(selectionStats)}
+              </span>
+            )}
             <button type="button" data-testid={`${testId}-copy`} onClick={copySelection} className={TOOLBAR_BUTTON}>
               <Copy aria-hidden="true" className="size-3" />
               Copy as CSV

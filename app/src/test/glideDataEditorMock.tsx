@@ -190,6 +190,34 @@ vi.mock("@glideapps/glide-data-grid", async (importOriginal) => {
         "button",
         {
           type: "button",
+          "data-testid": "glide-select-rect-range",
+          onClick: () =>
+            props.onGridSelectionChange?.({
+              current: { cell: [1, 0], range: { x: 1, y: 0, width: 2, height: 3 }, rangeStack: [] },
+              rows: emptySelection,
+              columns: emptySelection,
+            }),
+        },
+        "select-rect-range"
+      ),
+      React.createElement(
+        "button",
+        {
+          type: "button",
+          "data-testid": "glide-select-single-cell",
+          onClick: () =>
+            props.onGridSelectionChange?.({
+              current: { cell: [1, 0], range: { x: 1, y: 0, width: 1, height: 1 }, rangeStack: [] },
+              rows: emptySelection,
+              columns: emptySelection,
+            }),
+        },
+        "select-single-cell"
+      ),
+      React.createElement(
+        "button",
+        {
+          type: "button",
           "data-testid": "glide-delete-key",
           onClick: (event: { currentTarget: { dataset: { deleteResult?: string } } }) => {
             if (!props.onDelete) return;
