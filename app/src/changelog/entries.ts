@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 16,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Restore recent conversions from the top bar",
+    summary:
+      "The new Recent menu in the top bar saves up to 10 valid conversions locally on your device so you can jump back to an earlier dataset in one click. Fresh page loads still start on a clean empty dropzone.",
+  },
+  {
     id: 15,
     date: "2026-10-18",
     tag: "improvement",
