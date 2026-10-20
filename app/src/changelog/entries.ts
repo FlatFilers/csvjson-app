@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 23,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Extract and switch between multiple tables in pasted Markdown",
+    summary:
+      "Paste an entire ChatGPT response or Markdown document containing prose and multiple Markdown or CLI box tables into CSV → JSON: every table is detected in order with interactive chooser pills to switch which table is previewed and converted, or keep only the selected table as clean CSV.",
+  },
+  {
     id: 22,
     date: "2026-10-20",
     tag: "new",
