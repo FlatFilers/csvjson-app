@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 20,
+    date: "2026-10-20",
+    tag: "new",
+    title: "One-click nested JSON flattening in JSON → CSV",
+    summary:
+      "When JSON → CSV input contains nested objects or arrays, a contextual Flatten nested keys pill appears above the editor to expand deep objects into dotted CSV column headers (like user.profile.name) and join scalar arrays in one click.",
+  },
+  {
     id: 19,
     date: "2026-10-20",
     tag: "new",

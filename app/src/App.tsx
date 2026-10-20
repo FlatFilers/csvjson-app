@@ -753,6 +753,10 @@ export default function App() {
           return next;
         })
       }
+      flatten={options.flatten}
+      onToggleFlatten={() =>
+        setOptions((prev) => ({ ...prev, flatten: !prev.flatten }))
+      }
       filename={filename}
       reading={reading}
       meta={meta}

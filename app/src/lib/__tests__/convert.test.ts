@@ -7,6 +7,7 @@ import {
   DEFAULT_OPTIONS,
   detectIndexedHeaderGroups,
   detectJsonWrapperCandidates,
+  detectNestedJsonKeys,
   jsonToJsonCsv,
   NonTabularJsonError,
   resolveJsonFormatToggle,
@@ -442,36 +443,40 @@ const R1_CUSTOMERS = [
 
 describe("lib output → preview table round-trip (art_afRt2cdg R1)", () => {
 
-  it("round-trips nested JSON cells through parseCsvTable with flatten", () => {
+  it("flattens nested plain objects and explodes array rows through parseCsvTable with flatten", () => {
     const csv = jsonToJsonCsv(R1_CUSTOMERS, { flatten: true });
     const table = parseCsvTable(csv);
     expect(table.headers).toEqual([
       "name",
       "email",
-      "note",
+      "note.text",
+      "note.priority",
       "items.sku",
       "items.qty",
     ]);
-    // Exploded rows repeat the scalars; the JSON cell arrives intact.
+    // Exploded rows repeat the scalars and flattened object keys.
     expect(table.rows).toEqual([
       [
         "Ada Lovelace",
         "ada@example.com",
-        '{"text":"ships expedited","priority":1}',
+        "ships expedited",
+        "1",
         "SKU-1",
         "1",
       ],
       [
         "Ada Lovelace",
         "ada@example.com",
-        '{"text":"ships expedited","priority":1}',
+        "ships expedited",
+        "1",
         "SKU-2",
         "3",
       ],
       [
         "Grace Hopper",
         "grace@example.com",
-        '{"text":"leave at desk","priority":2}',
+        "leave at desk",
+        "2",
         "SKU-3",
         "2",
       ],
@@ -505,28 +510,31 @@ describe("lib output → preview table round-trip (art_afRt2cdg R1)", () => {
     ]);
   });
 
-  it("flattened output with JSON cells round-trips through csv2json", () => {
+  it("flattened output with dotted object keys round-trips through csv2json", () => {
     const csv = jsonToJsonCsv(R1_CUSTOMERS, { flatten: true });
-    // Dotted headers stay literal keys; the JSON cells come back as values.
+    // Dotted headers stay literal keys when read back by csvToJson.
     expect(csvToJson(csv, { parseJSON: true })).toEqual([
       {
         name: "Ada Lovelace",
         email: "ada@example.com",
-        note: { text: "ships expedited", priority: 1 },
+        "note.text": "ships expedited",
+        "note.priority": 1,
         "items.sku": "SKU-1",
         "items.qty": 1,
       },
       {
         name: "Ada Lovelace",
         email: "ada@example.com",
-        note: { text: "ships expedited", priority: 1 },
+        "note.text": "ships expedited",
+        "note.priority": 1,
         "items.sku": "SKU-2",
         "items.qty": 3,
       },
       {
         name: "Grace Hopper",
         email: "grace@example.com",
-        note: { text: "leave at desk", priority: 2 },
+        "note.text": "leave at desk",
+        "note.priority": 2,
         "items.sku": "SKU-3",
         "items.qty": 2,
       },
@@ -561,10 +569,10 @@ describe("count parity — count == preview == download (art_afRt2cdg R1/R1b/R1c
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     const table = parseCsvTable(result.text);
-    // 2 customers (one with 2 items) explode to 3 rows; dotted keys → 5 cols.
+    // 2 customers (one with 2 items) explode to 3 rows; dotted keys → 6 cols.
     // The input shape said 2 rows · 4 cols — the defect.
     expect(result.rows).toBe(3);
-    expect(result.cols).toBe(5);
+    expect(result.cols).toBe(6);
     expect(table.rows).toHaveLength(result.rows);
     expect(table.headers).toHaveLength(result.cols);
   });
@@ -830,10 +838,10 @@ describe("P2 — scalar arrays under Flatten (art_RfUU1oAy, fixes #80)", () => {
     expect(csv).toBe('"id","tags.t"\n1,"a"\n1,"b"');
   });
 
-  it("keeps nested objects as lossless JSON cells — no join inside them", () => {
+  it("flattens nested plain objects and joins scalar arrays inside them under Flatten", () => {
     expect(
       jsonToJsonCsv([{ meta: { tags: ["x", "y"] } }], { flatten: true })
-    ).toBe('"meta"\n"{""tags"":[""x"",""y""]}"');
+    ).toBe('"meta.tags"\n"x, y"');
   });
 
   it("never advises enabling Flatten when Flatten is on", () => {
@@ -1344,7 +1352,117 @@ describe("per-column type overrides (AC-16 / D15)", () => {
   });
 });
 
+describe("Symmetric JSON → CSV nested object flatten & detectNestedJsonKeys (AC-15 / D14, art_MJHTha6X)", () => {
+  it("detectNestedJsonKeys returns unique top-level keys holding plain objects or non-empty arrays in insertion order", () => {
+    const input = JSON.stringify([
+      { id: 1, name: "Ada", user: { role: "admin" }, tags: [] },
+      { id: 2, name: "Grace", tags: ["pioneer", "navy"], address: { city: "NY" }, user: { role: "lead" } },
+    ]);
+    expect(detectNestedJsonKeys(input)).toEqual(["user", "tags", "address"]);
+  });
 
+  it("detectNestedJsonKeys returns [] for flat records, invalid JSON, empty input, or wrappable REST containers", () => {
+    expect(detectNestedJsonKeys("")).toEqual([]);
+    expect(detectNestedJsonKeys("{invalid")).toEqual([]);
+    expect(
+      detectNestedJsonKeys(
+        JSON.stringify([
+          { id: 1, name: "Ada", emptyList: [], nothing: null },
+          { id: 2, name: "Grace", active: true },
+        ])
+      )
+    ).toEqual([]);
+    // A root object wrapping an array of records is handled by Unwrap .data pill instead.
+    expect(
+      detectNestedJsonKeys(
+        JSON.stringify({
+          data: [{ id: 1, user: { name: "Ada" } }],
+          meta: { page: 1 },
+        })
+      )
+    ).toEqual([]);
+  });
+
+  it("detectNestedJsonKeys supports JSONL / NDJSON and single non-wrappable root objects and caps scanning at 50 records", () => {
+    const jsonl = [
+      '{"id":1,"profile":{"handle":"ada"}}',
+      '{"id":2,"scores":[10,20]}',
+    ].join("\n");
+    expect(detectNestedJsonKeys(jsonl)).toEqual(["profile", "scores"]);
+
+    const singleObject = JSON.stringify({
+      id: 1,
+      user: { profile: { name: "Ada" } },
+      roles: ["admin", "dev"],
+    });
+    expect(detectNestedJsonKeys(singleObject)).toEqual(["user", "roles"]);
+
+    const manyRecords: Array<Record<string, unknown>> = Array.from(
+      { length: 55 },
+      (_, idx) => (idx === 52 ? { id: idx, lateNested: { x: 1 } } : { id: idx })
+    );
+    expect(detectNestedJsonKeys(JSON.stringify(manyRecords))).toEqual([]);
+    manyRecords[49] = { id: 49, fiftiethNested: { y: 2 } };
+    expect(detectNestedJsonKeys(JSON.stringify(manyRecords))).toEqual([
+      "fiftiethNested",
+    ]);
+  });
+
+  it("flattens 2–3 level deep plain objects into dotted column headers and joins scalar arrays when flatten is true", () => {
+    const input = [
+      {
+        id: 1,
+        user: {
+          profile: {
+            name: "Ada Lovelace",
+            address: { city: "London", country: "UK" },
+          },
+          roles: ["math", "computing"],
+        },
+      },
+    ];
+
+    const flattenedCsv = jsonToJsonCsv(input, { flatten: true });
+    expect(flattenedCsv).toBe(
+      [
+        '"id","user.profile.name","user.profile.address.city","user.profile.address.country","user.roles"',
+        '1,"Ada Lovelace","London","UK","math, computing"',
+      ].join("\n")
+    );
+
+    // Toggling flatten off preserves JSON-encoded nested cell values.
+    const unflattenedCsv = jsonToJsonCsv(input, { flatten: false });
+    const table = parseCsvTable(unflattenedCsv);
+    expect(table.headers).toEqual(["id", "user"]);
+    expect(JSON.parse(table.rows[0][1])).toEqual(input[0].user);
+  });
+
+  it("flattens nested plain objects and scalar arrays inside arrays of objects without throwing NonTabularJsonError", () => {
+    const input = [
+      {
+        orderId: 101,
+        lineItems: [
+          {
+            sku: "SKU-1",
+            meta: { warehouse: { code: "EU-1" }, labels: ["fragile", "priority"] },
+          },
+          {
+            sku: "SKU-2",
+            meta: { warehouse: { code: "US-2" }, labels: ["standard"] },
+          },
+        ],
+      },
+    ];
+    const csv = jsonToJsonCsv(input, { flatten: true });
+    expect(csv).toBe(
+      [
+        '"orderId","lineItems.sku","lineItems.meta.warehouse.code","lineItems.meta.labels"',
+        '101,"SKU-1","EU-1","fragile, priority"',
+        '101,"SKU-2","US-2","standard"',
+      ].join("\n")
+    );
+  });
+});
 
 
 

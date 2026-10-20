@@ -9,6 +9,7 @@ import {
   type ColumnTypeOverride,
   detectIndexedHeaderGroups,
   detectJsonWrapperCandidates,
+  detectNestedJsonKeys,
   resolveJsonFormatToggle,
 } from "@/lib/convert";
 import { parseCsvTable } from "@/lib/csvTable";
@@ -51,6 +52,8 @@ type InputPaneProps = {
   onToggleCollapseIndexedArrays?: () => void;
   columnTypes?: Record<string, ColumnTypeOverride>;
   onChangeColumnTypes?: (columnTypes: Record<string, ColumnTypeOverride>) => void;
+  flatten?: boolean;
+  onToggleFlatten?: () => void;
 };
 
 function ReadingSpinner() {
@@ -141,6 +144,15 @@ function sliceFirstCsvRecord(csv: string): string {
   return csv.slice(0, maxScan);
 }
 
+function formatNestedKeysSummary(keys: string[]): string {
+  const shown = keys
+    .slice(0, 3)
+    .map((k) => `.${k}`)
+    .join(", ");
+  const remaining = keys.length - 3;
+  return remaining > 0 ? `${shown}, +${remaining} more` : shown;
+}
+
 export function InputPane({
   format,
   input,
@@ -167,6 +179,8 @@ export function InputPane({
   onToggleCollapseIndexedArrays,
   columnTypes,
   onChangeColumnTypes,
+  flatten = false,
+  onToggleFlatten,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -182,6 +196,10 @@ export function InputPane({
   }, [isCsv, inputEmpty, input, delimiter]);
   const wrapperCandidates = useMemo(
     () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
+    [isCsv, inputEmpty, input]
+  );
+  const nestedJsonKeys = useMemo(
+    () => (isCsv || inputEmpty ? [] : detectNestedJsonKeys(input)),
     [isCsv, inputEmpty, input]
   );
   const jsonFormatAction = useMemo(
@@ -463,6 +481,30 @@ export function InputPane({
                     {`Unwrap .${candidate.key} (${candidate.rowCount} ${candidate.rowCount === 1 ? "row" : "rows"})`}
                   </button>
                 ))}
+              </div>
+            ) : null}
+            {nestedJsonKeys.length > 0 ? (
+              <div
+                data-testid="json-flatten-bar"
+                className="flex flex-shrink-0 flex-wrap items-center justify-between gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  {`Nested keys (${nestedJsonKeys.length}):`}
+                </span>
+                <button
+                  type="button"
+                  data-testid="json-flatten-pill"
+                  aria-pressed={flatten}
+                  onClick={() => onToggleFlatten?.()}
+                  className={cn(
+                    "inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-xs font-medium shadow-2xs transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    flatten
+                      ? "border-border bg-background text-foreground hover:bg-muted"
+                      : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {`${flatten ? "Flattened" : "Flatten"} nested keys (${formatNestedKeysSummary(nestedJsonKeys)})`}
+                </button>
               </div>
             ) : null}
             <JsonCodeMirror
