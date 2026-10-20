@@ -74,6 +74,11 @@ export type Csv2JsonOptions = {
    * Per-column type overrides keyed by header name (AC-16 / D15).
    */
   columnTypes?: Record<string, ColumnTypeOverride>;
+  /**
+   * 0-based index of the extracted Markdown/CLI table when input contains
+   * multiple tables (AC-18 / D17).
+   */
+  markdownTableIndex?: number;
 };
 
 export type Json2CsvOptions = {
@@ -620,7 +625,7 @@ export function csvToJson(
   const rawInput = csv.startsWith(UTF8_BOM) ? csv.slice(UTF8_BOM.length) : csv;
   const normalizedTable =
     options.separator === undefined
-      ? detectMarkdownOrCliTable(rawInput)
+      ? detectMarkdownOrCliTable(rawInput, options.markdownTableIndex ?? 0)
       : null;
   const input = normalizedTable ? normalizedTable.cleanedCsv : rawInput;
   try {
@@ -710,6 +715,7 @@ export type ConverterOptions = {
   flatten: boolean;
   collapseIndexedArrays?: boolean;
   columnTypes?: Record<string, ColumnTypeOverride>;
+  markdownTableIndex?: number;
 };
 
 export const DEFAULT_OPTIONS: ConverterOptions = {
@@ -1066,10 +1072,11 @@ export function convertText(
         hash: options.hash,
         collapseIndexedArrays: options.collapseIndexedArrays ?? true,
         columnTypes: options.columnTypes,
+        markdownTableIndex: options.markdownTableIndex,
       };
       const normalizedTable =
         csv2jsonOptions.separator === undefined
-          ? detectMarkdownOrCliTable(input)
+          ? detectMarkdownOrCliTable(input, options.markdownTableIndex ?? 0)
           : null;
       const effectiveInput = normalizedTable
         ? normalizedTable.cleanedCsv

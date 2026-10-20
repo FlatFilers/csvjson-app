@@ -102,9 +102,15 @@ function parseField(source: string, start: number, delimiter: string): [string, 
  * CRLF/LF/CR line endings all accepted; a trailing newline does not create
  * an empty trailing row.
  */
-export function parseCsvTable(raw: string, forcedDelimiter?: string): CsvTableData {
+export function parseCsvTable(
+  raw: string,
+  forcedDelimiter?: string,
+  markdownTableIndex = 0
+): CsvTableData {
   const mdTable =
-    forcedDelimiter === undefined ? detectMarkdownOrCliTable(raw) : null;
+    forcedDelimiter === undefined
+      ? detectMarkdownOrCliTable(raw, markdownTableIndex)
+      : null;
   const effectiveRaw = mdTable ? mdTable.cleanedCsv : raw;
   const bomStripped = effectiveRaw.startsWith(UTF8_BOM);
   const text = bomStripped ? effectiveRaw.slice(UTF8_BOM.length) : effectiveRaw;
