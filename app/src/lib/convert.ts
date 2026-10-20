@@ -194,6 +194,47 @@ function isJsonScalar(value: unknown): value is JsonScalar {
 }
 
 /**
+ * Recursively flattens nested plain objects (`Record<string, unknown>`) into
+ * dotted keys (`{ user: { profile: { name: "Ada" } } }` →
+ * `{ "user.profile.name": "Ada" }`) when `options.flatten === true`.
+ *
+ * Non-empty scalar arrays are preserved at their dotted key so `joinScalarArrays`
+ * can join them into `"a, b"`, and arrays of objects are preserved (with any
+ * nested plain objects inside their element records flattened) so the package's
+ * `flattenArray` can explode them into rows. Empty plain objects (`{}`) are kept
+ * at their key so the column is not dropped.
+ */
+function flattenNestedPlainObjects(data: unknown): unknown {
+  const flattenObjectEntries = (
+    obj: Record<string, unknown>,
+    prefix: string,
+    out: Record<string, unknown>
+  ): void => {
+    for (const [key, value] of Object.entries(obj)) {
+      const nextKey = prefix ? `${prefix}.${key}` : key;
+      if (isRecord(value) && Object.keys(value).length > 0) {
+        flattenObjectEntries(value, nextKey, out);
+      } else if (Array.isArray(value)) {
+        out[nextKey] = value.map(flattenRow);
+      } else {
+        out[nextKey] = value;
+      }
+    }
+  };
+
+  const flattenRow = (row: unknown): unknown => {
+    if (!isRecord(row)) return row;
+    const out: Record<string, unknown> = {};
+    flattenObjectEntries(row, "", out);
+    return out;
+  };
+
+  if (Array.isArray(data)) return data.map(flattenRow);
+  if (isRecord(data)) return flattenRow(data);
+  return data;
+}
+
+/**
  * P2 (art_RfUU1oAy, fixes #80): under Flatten, a non-empty array of JSON
  * scalars serializes as a single column named after its key, elements
  * joined by ", " — the CSV writer then quotes the cell correctly when
@@ -610,9 +651,12 @@ export function jsonToJsonCsv(
   options: Json2CsvOptions = {}
 ): string {
   try {
-    // P2: under Flatten the scalar-array join runs before the package sees
-    // the data — its own flatten would reject those arrays (#80).
-    const prepared = options.flatten ? joinScalarArrays(data) : data;
+    // D14 / AC-15 + P2: under Flatten, first recursively flatten nested plain
+    // objects into dotted keys, then join scalar arrays into ", "-separated
+    // strings before handing the records to csvjson-json2csv.
+    const prepared = options.flatten
+      ? joinScalarArrays(flattenNestedPlainObjects(data))
+      : data;
     return json2csv(prepared, options);
   } catch (e) {
     // The packages throw plain strings — rethrow as real Errors so callers
@@ -821,6 +865,53 @@ export function resolveJsonFormatToggle(
     label: "Format",
     nextInput: formatted,
   };
+}
+
+/**
+ * Inspect valid JSON (or valid multi-line JSONL via `tryParseJsonLines`) in
+ * `JSON → CSV` mode and return unique top-level keys across up to the first 50
+ * record objects whose value is a non-null plain object or a non-empty array.
+ * Returns `[]` when the input is empty, invalid, or a wrappable REST container
+ * (where `detectJsonWrapperCandidates` takes precedence).
+ */
+export function detectNestedJsonKeys(input: string): string[] {
+  const trimmed = input.trim();
+  if (trimmed === "") return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(trimmed);
+  } catch {
+    const jsonlData = tryParseJsonLines(trimmed);
+    if (jsonlData === null) return [];
+    parsed = jsonlData;
+  }
+
+  let records: Record<string, unknown>[] = [];
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0 || !parsed.every((item) => isPlainRecord(item))) {
+      return [];
+    }
+    records = parsed;
+  } else if (isPlainRecord(parsed)) {
+    if (detectJsonWrapperCandidates(trimmed).length > 0) {
+      return [];
+    }
+    records = [parsed];
+  } else {
+    return [];
+  }
+
+  const keys = new Set<string>();
+  const sample = records.slice(0, 50);
+  for (const record of sample) {
+    for (const [key, val] of Object.entries(record)) {
+      if (isPlainRecord(val) || (Array.isArray(val) && val.length > 0)) {
+        keys.add(key);
+      }
+    }
+  }
+  return Array.from(keys);
 }
 
 /** Best-effort row/col counts for the pane headers. Empty cells → 0. */

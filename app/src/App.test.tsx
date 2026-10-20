@@ -1780,6 +1780,97 @@ describe("Developer egress formats in OutputPane header (AC-13 / D12)", () => {
   });
 });
 
+describe("Symmetric JSON → CSV nested object flatten pill (AC-15 / D14)", () => {
+  it("surfaces the contextual Flatten nested keys pill in JSON → CSV mode, toggles options.flatten, and flattens deep objects into dotted CSV columns", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await flip();
+
+    const nestedJson = JSON.stringify([
+      {
+        id: 1,
+        user: { profile: { name: "Ada", city: "London" } },
+        tags: ["math", "code"],
+      },
+      {
+        id: 2,
+        user: { profile: { name: "Grace", city: "NY" } },
+        tags: ["compilers"],
+      },
+    ]);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => nestedJson },
+    });
+
+    const bar = await screen.findByTestId("json-flatten-bar");
+    expect(bar).toBeInTheDocument();
+    const pill = screen.getByTestId("json-flatten-pill");
+    expect(pill).toHaveAttribute("aria-pressed", "false");
+    expect(pill).toHaveTextContent("Flatten nested keys (.user, .tags)");
+
+    // Before toggling flatten: output table keeps nested object/array as unflattened JSON cells
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toHaveTextContent(
+        '{"profile":{"name":"Ada","city":"London"}}'
+      );
+    });
+
+    // Click pill to enable flatten
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "true");
+    expect(pill).toHaveTextContent("Flattened nested keys (.user, .tags)");
+
+    await waitFor(() => {
+      const outputTable = screen.getByTestId("output-table");
+      expect(outputTable).toHaveTextContent(/user\.profile\.name/i);
+      expect(outputTable).toHaveTextContent(/user\.profile\.city/i);
+      expect(outputTable).toHaveTextContent("math, code");
+    });
+
+    // Click pill again to disable flatten -> restores JSON-encoded nested cell values
+    await user.click(pill);
+    expect(pill).toHaveAttribute("aria-pressed", "false");
+    expect(pill).toHaveTextContent("Flatten nested keys (.user, .tags)");
+    await waitFor(() => {
+      const outputTable = screen.getByTestId("output-table");
+      expect(outputTable).not.toHaveTextContent(/user\.profile\.name/i);
+      expect(outputTable).toHaveTextContent('{"profile":{"name":"Ada","city":"London"}}');
+    });
+  });
+
+  it("truncates more than 3 nested keys with +N more and hides the bar when JSON input is flat", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await flip();
+
+    const fiveNestedKeys = JSON.stringify([
+      {
+        a: { v: 1 },
+        b: { v: 2 },
+        c: [1, 2],
+        d: { v: 4 },
+        e: ["x"],
+      },
+    ]);
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => fiveNestedKeys },
+    });
+
+    const pill = await screen.findByTestId("json-flatten-pill");
+    expect(pill).toHaveTextContent("Flatten nested keys (.a, .b, .c, +2 more)");
+
+    // Clear and ingest flat JSON -> flatten bar hides
+    await user.click(screen.getByTestId("clear-input"));
+    fireEvent.paste(screen.getByTestId("input-pane"), {
+      clipboardData: { getData: () => '[{"id":1,"name":"Ada"}]' },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("output-table")).toHaveTextContent("Ada");
+    });
+    expect(screen.queryByTestId("json-flatten-bar")).toBeNull();
+  });
+});
+
 
 
 
