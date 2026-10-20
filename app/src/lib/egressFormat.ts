@@ -57,12 +57,15 @@ export function extractEgressRows(parsed: unknown): Record<string, unknown>[] {
     return parsed.map((item) => (isRecord(item) ? item : { value: item }));
   }
   if (isRecord(parsed)) {
-    const values = Object.values(parsed);
-    if (values.length > 0 && values.every(isRecord)) {
-      return values;
-    }
-    if (values.length === 0) {
+    const entries = Object.entries(parsed);
+    if (entries.length === 0) {
       return [];
+    }
+    if (entries.every(([, val]) => isRecord(val))) {
+      return entries.map(([key, val]) => {
+        const rec = val as Record<string, unknown>;
+        return "key" in rec ? rec : { key, ...rec };
+      });
     }
     return [parsed];
   }
@@ -263,6 +266,22 @@ function orderTsTypes(types: string[]): string[] {
 
 export function formatTsPropertyKey(key: string): string {
   return VALID_TS_IDENTIFIER.test(key) ? key : JSON.stringify(key);
+}
+
+/**
+ * Infer the TypeScript property type across all values in a column.
+ */
+export function inferTsPropertyType(values: unknown[]): string {
+  const seenTypes = new Set<string>();
+  for (const val of values) {
+    if (val === undefined) {
+      seenTypes.add("null");
+      continue;
+    }
+    seenTypes.add(inferSingleValueTsType(val));
+  }
+  const orderedTypes = orderTsTypes(Array.from(seenTypes));
+  return orderedTypes.length > 0 ? orderedTypes.join(" | ") : "unknown";
 }
 
 /**
