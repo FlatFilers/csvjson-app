@@ -1959,6 +1959,134 @@ describe("Markdown & CLI box table paste in CSV → JSON (AC-14 / D13)", () => {
   });
 });
 
+describe("View-Driven Output: Column Picker & Apply view to output (AC-11 / D10)", () => {
+  it("projects filtered/sorted/column-subsetted CSV into JSON output and Copy/Download when Apply view to output is enabled without mutating raw input", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByTestId("try-example"));
+    const inputTable = await screen.findByTestId("input-table");
+    const outputPane = screen.getByTestId("output-pane");
+
+    // Default sample conversion has all 6 rows and 3 columns
+    await waitFor(() => {
+      expect(outputPane.textContent).toContain("6 rows · 3 cols");
+    });
+    expect(screen.queryByTestId("input-table-apply-view")).toBeNull();
+
+    // Open Columns popover on input table and hide column 2 (US_peak_chart_post)
+    await user.click(screen.getByTestId("input-table-columns-button"));
+    await user.click(screen.getByTestId("input-table-column-toggle-2"));
+
+    // Sort by column 2 (year) descending (2 clicks on glide-header-2)
+    await user.click(within(inputTable).getByTestId("glide-header-2"));
+    await user.click(within(inputTable).getByTestId("glide-header-2"));
+
+    // While Apply view to output is off (default), output still has all 3 columns
+    const applyBtn = screen.getByTestId("input-table-apply-view");
+    expect(applyBtn).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("output-view").textContent).toContain(
+      "US_peak_chart_post"
+    );
+
+    // Enable Apply view to output -> JSON output and status badge reflect the 2 visible columns & descending year sort
+    await user.click(applyBtn);
+    expect(applyBtn).toHaveAttribute("aria-pressed", "true");
+
+    await waitFor(() => {
+      expect(outputPane.textContent).toContain("6 rows · 2 cols");
+    });
+    const outText = screen.getByTestId("output-view").textContent ?? "";
+    expect(outText).not.toContain("US_peak_chart_post");
+    const parsed = JSON.parse(outText);
+    expect(parsed).toEqual([
+      { album: "Icky Thump", year: 2007 },
+      { album: "Get Behind Me Satan", year: 2005 },
+      { album: "Elephant", year: 2003 },
+      { album: "White Blood Cells", year: 2001 },
+      { album: "De Stijl", year: 2000 },
+      { album: "The White Stripes", year: 1999 },
+    ]);
+
+    // Raw input CSV is never mutated — copying input still emits the original 3-column CSV
+    vi.mocked(copyText).mockClear();
+    await user.click(screen.getByTestId("copy-input"));
+    expect(vi.mocked(copyText).mock.lastCall?.[0]).toContain(
+      "US_peak_chart_post"
+    );
+
+    // Toggling Apply view to output off restores full 3-column conversion immediately
+    await user.click(applyBtn);
+    expect(applyBtn).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() => {
+      expect(outputPane.textContent).toContain("6 rows · 3 cols");
+    });
+    expect(screen.getByTestId("output-view").textContent).toContain(
+      "US_peak_chart_post"
+    );
+  });
+
+  it("exports the projected CSV view on Copy and Download in JSON → CSV mode when Apply view to output is enabled on the output table", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByTestId("try-example"));
+    await screen.findByTestId("input-table");
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        "The White Stripes"
+      );
+    });
+
+    // Flip to JSON → CSV mode and wait for the CSV output table to finish converting
+    await flip();
+    const outputTable = await screen.findByTestId("output-table");
+    await waitFor(() => {
+      expect(
+        within(outputTable).getByTestId("glide-grid-headers")
+      ).toHaveTextContent("#ALBUMYEARUS_PEAK_CHART_POST");
+    });
+
+    // Hide column 2 (US_peak_chart_post) in output table
+    await user.click(screen.getByTestId("output-table-columns-button"));
+    await user.click(screen.getByTestId("output-table-column-toggle-2"));
+
+    // Turn on Apply view to output on the output CSV table
+    const applyOutBtn = screen.getByTestId("output-table-apply-view");
+    await user.click(applyOutBtn);
+    expect(applyOutBtn).toHaveAttribute("aria-pressed", "true");
+
+    vi.mocked(copyText).mockClear();
+    vi.mocked(downloadText).mockClear();
+    await user.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenCalledWith(
+      [
+        "album,year",
+        "The White Stripes,1999",
+        "De Stijl,2000",
+        "White Blood Cells,2001",
+        "Elephant,2003",
+        "Get Behind Me Satan,2005",
+        "Icky Thump,2007",
+      ].join("\n")
+    );
+
+    await user.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenCalledWith(
+      [
+        "album,year",
+        "The White Stripes,1999",
+        "De Stijl,2000",
+        "White Blood Cells,2001",
+        "Elephant,2003",
+        "Get Behind Me Satan,2005",
+        "Icky Thump,2007",
+      ].join("\n"),
+      "data.csv",
+      { mime: "text/csv", bom: true }
+    );
+  });
+});
 
 
 

@@ -868,4 +868,146 @@ describe("CsvTable — per-column type override pills & header badges (AC-16 / D
   });
 });
 
+describe("CsvTable column visibility picker & Apply view to output (AC-11 / D10)", () => {
+  const MULTI_COL_FIXTURE = [
+    "id,album,year,chart",
+    "1,The White Stripes,1999,99",
+    "2,De Stijl,2000,50",
+    "3,Elephant,2003,6",
+  ].join("\n");
+
+  it("toggles visible columns via the Columns popover, enforces >= 1 visible column, and resets via Show all", async () => {
+    const user = userEvent.setup();
+    render(<CsvTable text={MULTI_COL_FIXTURE} />);
+
+    // No view transform active initially -> Apply view to output pill is hidden
+    expect(screen.queryByTestId("csv-table-apply-view")).toBeNull();
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent(
+      "#IDALBUMYEARCHART"
+    );
+
+    const colsBtn = screen.getByTestId("csv-table-columns-button");
+    await user.click(colsBtn);
+    const popout = screen.getByTestId("csv-table-columns-popout");
+    expect(popout).toBeInTheDocument();
+    expect(screen.queryByTestId("csv-table-columns-reset")).toBeNull();
+
+    // Uncheck column 0 (id), column 2 (year), and column 3 (chart)
+    await user.click(screen.getByTestId("csv-table-column-toggle-0"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-2"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-3"));
+
+    // Only column 1 (album) remains visible -> its checkbox is disabled so >=1 stays checked
+    const remainingCheckbox = screen.getByTestId(
+      "csv-table-column-toggle-1"
+    ) as HTMLInputElement;
+    expect(remainingCheckbox.checked).toBe(true);
+    expect(remainingCheckbox.disabled).toBe(true);
+
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent("#ALBUM");
+    expect(screen.getByTestId("csv-table-apply-view")).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+
+    // Click Show all to restore all columns
+    await user.click(screen.getByTestId("csv-table-columns-reset"));
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent(
+      "#IDALBUMYEARCHART"
+    );
+    expect(screen.queryByTestId("csv-table-apply-view")).toBeNull();
+  });
+
+  it("maps visible grid column indices back to source columns for cell edit, sort, header rename, and selection copy when columns are hidden", async () => {
+    const user = userEvent.setup();
+    const writeText = stubClipboard();
+
+    function EditableHarness() {
+      const [csv, setCsv] = useState(MULTI_COL_FIXTURE);
+      return (
+        <div>
+          <pre data-testid="raw-csv">{csv}</pre>
+          <CsvTable text={csv} onCellCommit={setCsv} />
+        </div>
+      );
+    }
+
+    render(<EditableHarness />);
+
+    // Hide column 0 ("id") and column 2 ("year") -> visible columns are [1 ("album"), 3 ("chart")]
+    await user.click(screen.getByTestId("csv-table-columns-button"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-0"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-2"));
+    expect(screen.getByTestId("glide-grid-headers")).toHaveTextContent(
+      "#ALBUMCHART"
+    );
+
+    // Sort by visible grid column 2 (which is source column 3: "chart") ascending
+    await user.click(screen.getByTestId("glide-header-2"));
+    // Row 0 in sorted view should be Elephant (chart=6)
+    expect(cellText(0, 0)).toBe("3");
+    expect(cellText(0, 1)).toBe("Elephant");
+    expect(cellText(0, 2)).toBe("6");
+
+    // Edit view row 0 (y=0, source row 2 "Elephant"), visible grid column 1 (x=1, source col 1 "album")
+    // (Editing album keeps chart=6 so row 0 in ascending chart sort remains source row 2)
+    await user.click(screen.getByTestId("glide-edit-0-1"));
+    expect(screen.getByTestId("raw-csv").textContent).toBe(
+      [
+        "id,album,year,chart",
+        "1,The White Stripes,1999,99",
+        "2,De Stijl,2000,50",
+        "3,EDITED,2003,6",
+      ].join("\n")
+    );
+
+    // Select view row 0 and copy -> copies only visible columns (album,chart)
+    await user.click(screen.getByTestId("glide-row-select-0"));
+    await user.click(screen.getByTestId("csv-table-copy"));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText).toHaveBeenCalledWith("album,chart\nEDITED,6");
+  });
+
+  it("emits projectedCsv via onProjectedCsvChange only when Apply view to output is toggled on and a view transform is active", async () => {
+    const user = userEvent.setup();
+    const onProjected = vi.fn();
+    render(
+      <CsvTable text={MULTI_COL_FIXTURE} onProjectedCsvChange={onProjected} />
+    );
+
+    expect(onProjected).toHaveBeenLastCalledWith(null);
+
+    // Hide column 0 ("id") and column 3 ("chart") -> visible: album, year
+    await user.click(screen.getByTestId("csv-table-columns-button"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-0"));
+    await user.click(screen.getByTestId("csv-table-column-toggle-3"));
+
+    // Sort by visible column 2 ("year") descending (2 clicks)
+    await user.click(screen.getByTestId("glide-header-2"));
+    await user.click(screen.getByTestId("glide-header-2"));
+
+    // Apply view to output is still off -> projectedCsv is null
+    const applyBtn = screen.getByTestId("csv-table-apply-view");
+    expect(applyBtn).toHaveAttribute("aria-pressed", "false");
+    expect(onProjected).toHaveBeenLastCalledWith(null);
+
+    // Toggle Apply view to output ON -> emits projected CSV with sorted rows and visible columns
+    await user.click(applyBtn);
+    expect(applyBtn).toHaveAttribute("aria-pressed", "true");
+    expect(onProjected).toHaveBeenLastCalledWith(
+      [
+        "album,year",
+        "Elephant,2003",
+        "De Stijl,2000",
+        "The White Stripes,1999",
+      ].join("\n")
+    );
+
+    // Toggle Apply view to output OFF -> emits null
+    await user.click(applyBtn);
+    expect(applyBtn).toHaveAttribute("aria-pressed", "false");
+    expect(onProjected).toHaveBeenLastCalledWith(null);
+  });
+});
+
 
