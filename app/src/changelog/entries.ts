@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 22,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Column visibility picker and Apply view to output",
+    summary:
+      "Use the new Columns menu in any data table to hide or restore columns without touching your raw input. When a search filter, sort order, or column subset is active, toggle Apply view to output to project that exact table view into the converted output, Copy, and Download.",
+  },
+  {
     id: 21,
     date: "2026-10-20",
     tag: "new",
