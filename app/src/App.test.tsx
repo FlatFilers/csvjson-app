@@ -2179,6 +2179,45 @@ describe("View-Driven Output: Column Picker & Apply view to output (AC-11 / D10)
   });
 });
 
+describe("Expanded Dropzone format descriptions and file input accept types (AC-19 / D18)", () => {
+  it("describes all supported CSV/Markdown/CLI and JSON/JSONL formats and updates file-input accept across directions", async () => {
+    render(<App />);
+
+    // CSV -> JSON empty state
+    expect(screen.getByTestId("dropzone-title")).toHaveTextContent(
+      "Paste CSV, TSV, or Markdown table"
+    );
+    expect(screen.getByTestId("dropzone-formats")).toHaveTextContent(
+      "Supports CSV, TSV / spreadsheet cells, Markdown & ChatGPT docs (multi-table), and psql / MySQL box tables"
+    );
+    expect(screen.getByTestId("paste-field")).toHaveAttribute(
+      "placeholder",
+      "Paste CSV, TSV, Markdown, or psql/MySQL table here"
+    );
+    expect(screen.getByTestId("file-input")).toHaveAttribute(
+      "accept",
+      ".csv,.tsv,.txt,.md,text/csv,text/tab-separated-values,text/markdown"
+    );
+
+    // Flip to JSON -> CSV empty state
+    await flip();
+    expect(screen.getByTestId("dropzone-title")).toHaveTextContent(
+      "Paste JSON or JSONL here"
+    );
+    expect(screen.getByTestId("dropzone-formats")).toHaveTextContent(
+      "Supports JSON arrays, nested objects, wrapped API payloads ({ data: […] }), and JSONL / NDJSON"
+    );
+    expect(screen.getByTestId("paste-field")).toHaveAttribute(
+      "placeholder",
+      "Paste JSON, JSONL / NDJSON, or API response here"
+    );
+    expect(screen.getByTestId("file-input")).toHaveAttribute(
+      "accept",
+      ".json,.jsonl,.ndjson,.txt,application/json,application/x-ndjson"
+    );
+  });
+});
+
 
 
 

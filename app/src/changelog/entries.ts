@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 24,
+    date: "2026-10-20",
+    tag: "improvement",
+    title: "Clearer supported paste and upload formats in the input area",
+    summary:
+      "The empty-state input area and file picker now explicitly list every accepted format in each mode — CSV, TSV / spreadsheet cells, Markdown & ChatGPT multi-table docs, and psql/MySQL box tables in CSV → JSON, plus JSON arrays, nested objects, wrapped API payloads, and JSONL / NDJSON in JSON → CSV.",
+  },
+  {
     id: 23,
     date: "2026-10-20",
     tag: "new",

@@ -1,5 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { decodeUpload } from "../files";
+import { decodeUpload, isTextFile } from "../files";
+
+describe("isTextFile (AC-19 / D18)", () => {
+  it("accepts .csv, .tsv, .txt, .md, .json, .jsonl, .ndjson, and .log extensions even with empty or generic MIME types", () => {
+    for (const ext of [
+      "csv",
+      "tsv",
+      "txt",
+      "md",
+      "json",
+      "jsonl",
+      "ndjson",
+      "log",
+      "MD",
+      "JSONL",
+    ]) {
+      expect(isTextFile(new File(["x"], `sample.${ext}`, { type: "" }))).toBe(
+        true
+      );
+    }
+  });
+
+  it("rejects binary extensions when MIME is non-text", () => {
+    expect(
+      isTextFile(new File(["x"], "archive.zip", { type: "application/zip" }))
+    ).toBe(false);
+    expect(
+      isTextFile(new File(["x"], "photo.png", { type: "image/png" }))
+    ).toBe(false);
+  });
+});
 
 /**
  * Upload decode labels (spec B7 — issue #106). The utf-8 default must stay
