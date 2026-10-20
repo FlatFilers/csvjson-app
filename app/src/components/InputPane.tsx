@@ -49,6 +49,7 @@ type InputPaneProps = {
   canRedo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
+  onProjectedCsvChange?: (projectedCsv: string | null) => void;
   collapseIndexedArrays?: boolean;
   onToggleCollapseIndexedArrays?: () => void;
   columnTypes?: Record<string, ColumnTypeOverride>;
@@ -176,6 +177,7 @@ export function InputPane({
   canRedo = false,
   onUndo,
   onRedo,
+  onProjectedCsvChange,
   collapseIndexedArrays = true,
   onToggleCollapseIndexedArrays,
   columnTypes,
@@ -490,6 +492,7 @@ export function InputPane({
                 onCopySelection={onCopySelection}
                 columnTypes={columnTypes}
                 onChangeColumnTypes={onChangeColumnTypes}
+                onProjectedCsvChange={onProjectedCsvChange}
               />
             )}
           </>

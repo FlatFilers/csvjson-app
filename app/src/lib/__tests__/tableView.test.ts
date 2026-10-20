@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterRowIndices, sortRowIndices, splitHighlight } from "../tableView";
+import { filterRowIndices, projectCsvView, sortRowIndices, splitHighlight } from "../tableView";
 
 // Identity grid used across suites: headers are not part of these transforms —
 // they only ever see the data rows.
@@ -129,3 +129,59 @@ describe("splitHighlight", () => {
     expect(splitHighlight("", "x")).toEqual([]);
   });
 });
+
+describe("projectCsvView", () => {
+  const sampleTable = {
+    headers: ["id", "name", "role", "score"],
+    rows: [
+      ["1", "Ada, Countess", "eng", "95"],
+      ["2", "Grace", 'lead "compiler"', "99"],
+      ["3", "Linus", "kernel", "88"],
+    ],
+    delimiter: ",",
+  };
+
+  it("serializes full rows and columns in source order", () => {
+    expect(projectCsvView(sampleTable, [0, 1, 2], [0, 1, 2, 3])).toBe(
+      [
+        "id,name,role,score",
+        '1,"Ada, Countess",eng,95',
+        '2,Grace,"lead ""compiler""",99',
+        "3,Linus,kernel,88",
+      ].join("\n")
+    );
+  });
+
+  it("projects a filtered and sorted row order with a visible column subset", () => {
+    // Rows 1 then 0, only columns 1 (name) and 3 (score)
+    expect(projectCsvView(sampleTable, [1, 0], [1, 3])).toBe(
+      ["name,score", "Grace,99", '"Ada, Countess",95'].join("\n")
+    );
+  });
+
+  it("serializes headers-only when the row filter matches zero rows", () => {
+    expect(projectCsvView(sampleTable, [], [0, 2])).toBe("id,role");
+  });
+
+  it("uses the table delimiter (tab, semicolon, pipe) and quotes cells containing it", () => {
+    const pipeTable = {
+      headers: ["key", "val"],
+      rows: [
+        ["a", "x|y"],
+        ["b", "plain"],
+      ],
+      delimiter: "|",
+    };
+    expect(projectCsvView(pipeTable, [1, 0], [0, 1])).toBe(
+      ["key|val", "b|plain", 'a|"x|y"'].join("\n")
+    );
+  });
+
+  it("returns empty string when visibleColIndices or headers is empty", () => {
+    expect(projectCsvView(sampleTable, [0, 1], [])).toBe("");
+    expect(
+      projectCsvView({ headers: [], rows: [], delimiter: "," }, [], [0])
+    ).toBe("");
+  });
+});
+
