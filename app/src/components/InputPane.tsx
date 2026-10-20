@@ -401,8 +401,8 @@ export function InputPane({
               data-testid="file-input"
               accept={
                 isCsv
-                  ? ".csv,.tsv,.txt,text/csv,text/tab-separated-values"
-                  : ".json,.txt,application/json"
+                  ? ".csv,.tsv,.txt,.md,text/csv,text/tab-separated-values,text/markdown"
+                  : ".json,.jsonl,.ndjson,.txt,application/json,application/x-ndjson"
               }
               className="hidden"
               onChange={(event) => {

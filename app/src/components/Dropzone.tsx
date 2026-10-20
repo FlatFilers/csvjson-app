@@ -61,8 +61,20 @@ export function Dropzone({
           <Clipboard className="size-4 md:size-5" />
         </div>
 
-        <p className="text-sm font-medium text-foreground">
-          Paste {isCsv ? "CSV or TSV" : "JSON"} here
+        <p
+          data-testid="dropzone-title"
+          className="text-center text-sm font-medium text-foreground"
+        >
+          {isCsv ? "Paste CSV, TSV, or Markdown table" : "Paste JSON or JSONL here"}
+        </p>
+
+        <p
+          data-testid="dropzone-formats"
+          className="max-w-[36ch] text-center text-[11.5px] leading-relaxed text-muted-foreground"
+        >
+          {isCsv
+            ? "Supports CSV, TSV / spreadsheet cells, Markdown & ChatGPT docs (multi-table), and psql / MySQL box tables"
+            : "Supports JSON arrays, nested objects, wrapped API payloads ({ data: […] }), and JSONL / NDJSON"}
         </p>
 
         {/* The empty state's primary surface: a compact input-styled field,
@@ -75,15 +87,19 @@ export function Dropzone({
           ref={fieldRef}
           data-testid="paste-field"
           rows={1}
-          aria-label={`Paste ${isCsv ? "CSV or TSV" : "JSON"} data — or press ${shortcut} to paste anywhere on this page`}
-          placeholder={isCsv ? "Paste CSV or TSV text here" : "Paste JSON here"}
+          aria-label={`Paste ${isCsv ? "CSV, TSV, Markdown, or CLI table" : "JSON, JSONL, or API response"} data — or press ${shortcut} to paste anywhere on this page`}
+          placeholder={
+            isCsv
+              ? "Paste CSV, TSV, Markdown, or psql/MySQL table here"
+              : "Paste JSON, JSONL / NDJSON, or API response here"
+          }
           spellCheck={false}
           onChange={(event) => {
             const field = event.currentTarget;
             field.rows = rowsFor(field.value);
             onIngest(field.value);
           }}
-          className="min-h-11 w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 font-mono text-[12.5px] leading-relaxed text-foreground transition-colors placeholder:text-muted-foreground focus:outline-none focus-visible:border-sky-600 dark:focus-visible:border-sky-400"
+          className="min-h-11 w-full resize-none overflow-hidden rounded-md border border-border bg-background px-3 py-2.5 font-mono text-[12.5px] leading-relaxed text-foreground transition-colors placeholder:font-sans placeholder:text-xs placeholder:text-muted-foreground focus:outline-none focus-visible:border-sky-600 dark:focus-visible:border-sky-400"
         />
 
         {/* One plain sentence teaches the rest: drop works on the whole
