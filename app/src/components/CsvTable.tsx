@@ -17,19 +17,20 @@ import {
   ImageWindowLoaderImpl,
 } from "@glideapps/glide-data-grid";
 import "@glideapps/glide-data-grid/dist/index.css";
-import { Copy, Search, Trash2, X } from "lucide-react";
+import { Columns3, Copy, Search, Trash2, X } from "lucide-react";
 import { type ColumnTypeOverride } from "@/lib/convert";
-import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
+import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow, type CsvTableData } from "@/lib/csvTable";
 import { detectMarkdownOrCliTable } from "@/lib/markdownTable";
 import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
 import { matchHistoryShortcut } from "@/lib/csvHistory";
-import { filterRowIndices, sortRowIndices, type SortDir } from "@/lib/tableView";
+import { filterRowIndices, projectCsvView, sortRowIndices, type SortDir } from "@/lib/tableView";
 import {
   computeSelectionStats,
   serializeGridSelection,
   type SelectionShape,
   type SelectionStats,
 } from "@/lib/tableSelection";
+import { cn } from "@/lib/utils";
 
 /**
  * Dense full-bleed CSV/TSV table (spec: CSV pane — sticky header, compact
@@ -96,6 +97,13 @@ type CsvTableProps = {
   columnTypes?: Record<string, ColumnTypeOverride>;
   /** Updates per-column type overrides (input table only). */
   onChangeColumnTypes?: (columnTypes: Record<string, ColumnTypeOverride>) => void;
+  /**
+   * Emits the projected CSV string when "Apply view to output" is active and
+   * at least one view transform (search filter, sort, or column subset) is
+   * active; emits `null` when toggled off or when all rows/columns are in
+   * natural source order.
+   */
+  onProjectedCsvChange?: (projectedCsv: string | null) => void;
 };
 
 const COLUMN_TYPE_OPTIONS: readonly {
@@ -269,9 +277,11 @@ export function CsvTable({
   onCopySelection,
   columnTypes,
   onChangeColumnTypes,
+  onProjectedCsvChange,
 }: CsvTableProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const gridWrapRef = useRef<HTMLDivElement>(null);
+  const columnsContainerRef = useRef<HTMLDivElement>(null);
   /** Source index of the last direct selection — the shift-click range anchor. */
   const anchorRef = useRef<number | null>(null);
   const [searchInput, setSearchInput] = useState("");
@@ -283,6 +293,9 @@ export function CsvTable({
   const [editingHeader, setEditingHeader] = useState<EditingHeaderState | null>(null);
   const [headerDraft, setHeaderDraft] = useState("");
   const headerInputRef = useRef<HTMLInputElement>(null);
+  const [hiddenCols, setHiddenCols] = useState<Set<number>>(() => new Set<number>());
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const [applyViewToOutput, setApplyViewToOutput] = useState(false);
   const [gridSelection, setGridSelection] = useState<GridSelection | undefined>(undefined);
   /** Selected rows as SOURCE indices — survives filter and sort. */
   const [selectedSources, setSelectedSources] = useState<Set<number>>(() => new Set<number>());
@@ -324,10 +337,46 @@ export function CsvTable({
   const numeric = useMemo(() => numericColumns(table), [table]);
   const columnsCount = table.headers.length;
 
+  // Reset hiddenCols when table.headers length/names change unless columns
+  // still match (e.g. row edits or single-column header rename).
+  const prevHeadersRef = useRef<string[]>(table.headers);
+  if (prevHeadersRef.current !== table.headers) {
+    const prev = prevHeadersRef.current;
+    const curr = table.headers;
+    prevHeadersRef.current = curr;
+    const sameLength = prev.length === curr.length;
+    const diffCount = sameLength
+      ? curr.reduce((acc, h, i) => (h === prev[i] ? acc : acc + 1), 0)
+      : Infinity;
+    if (!sameLength || diffCount > 1 || (diffCount === 1 && curr.length <= 1)) {
+      if (hiddenCols.size > 0) {
+        setHiddenCols(new Set());
+      }
+    }
+  }
+
+  const visibleColIndices = useMemo(() => {
+    const all = Array.from({ length: columnsCount }, (_, i) => i);
+    if (hiddenCols.size === 0) return all;
+    const filtered = all.filter((i) => !hiddenCols.has(i));
+    return filtered.length > 0 ? filtered : all;
+  }, [columnsCount, hiddenCols]);
+  const visibleColIndicesRef = useRef(visibleColIndices);
+  visibleColIndicesRef.current = visibleColIndices;
+
+  const visibleTable = useMemo<CsvTableData>(() => {
+    if (visibleColIndices.length === table.headers.length) return table;
+    return {
+      ...table,
+      headers: visibleColIndices.map((c) => table.headers[c] ?? ""),
+      rows: table.rows.map((row) => visibleColIndices.map((c) => row[c] ?? "")),
+    };
+  }, [table, visibleColIndices]);
+
   // Latest-value mirrors: event handlers (copy key, edit commits, canvas
   // draw callbacks) must always see the props of the last completed render.
-  const latestRef = useRef({ text: effectiveText, table });
-  latestRef.current = { text: effectiveText, table };
+  const latestRef = useRef({ text: effectiveText, table, visibleTable });
+  latestRef.current = { text: effectiveText, table, visibleTable };
   const gridSelectionRef = useRef(gridSelection);
   gridSelectionRef.current = gridSelection;
 
@@ -361,8 +410,79 @@ export function CsvTable({
 
   const columnWidth = Math.max(
     COLUMN_MIN_WIDTH,
-    Math.floor((containerWidth - GUTTER_WIDTH) / Math.max(1, columnsCount))
+    Math.floor((containerWidth - GUTTER_WIDTH) / Math.max(1, visibleColIndices.length))
   );
+
+  // Close the Columns popover on Escape or outside click.
+  useEffect(() => {
+    if (!columnsOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        setColumnsOpen(false);
+      }
+    };
+    const onClickOutside = (event: MouseEvent) => {
+      const container = columnsContainerRef.current;
+      if (container === null || !(event.target instanceof Node)) return;
+      if (!container.contains(event.target)) setColumnsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("click", onClickOutside);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("click", onClickOutside);
+    };
+  }, [columnsOpen]);
+
+  const toggleColumnVisibility = useCallback(
+    (colIndex: number) => {
+      setHiddenCols((prev) => {
+        const next = new Set(prev);
+        if (next.has(colIndex)) {
+          next.delete(colIndex);
+        } else {
+          const visibleAfter = columnsCount - (next.size + 1);
+          if (visibleAfter < 1) return prev;
+          next.add(colIndex);
+        }
+        return next;
+      });
+      setGridSelection((prev) =>
+        prev && prev.columns.length > 0
+          ? { ...prev, columns: CompactSelection.empty() }
+          : prev
+      );
+    },
+    [columnsCount]
+  );
+
+  const resetColumnsVisibility = useCallback(() => {
+    setHiddenCols(new Set());
+    setGridSelection((prev) =>
+      prev && prev.columns.length > 0
+        ? { ...prev, columns: CompactSelection.empty() }
+        : prev
+    );
+  }, []);
+
+  const hasHiddenColumns = visibleColIndices.length < columnsCount;
+  const hasActiveViewTransform = query !== "" || sort !== null || hasHiddenColumns;
+  const projectedCsv = useMemo(() => {
+    if (!applyViewToOutput || !hasActiveViewTransform) return null;
+    return projectCsvView(table, view, visibleColIndices);
+  }, [applyViewToOutput, hasActiveViewTransform, table, view, visibleColIndices]);
+
+  const onProjectedCsvChangeRef = useRef(onProjectedCsvChange);
+  onProjectedCsvChangeRef.current = onProjectedCsvChange;
+  useEffect(() => {
+    onProjectedCsvChangeRef.current?.(projectedCsv);
+  }, [projectedCsv]);
+  useEffect(() => {
+    return () => {
+      onProjectedCsvChangeRef.current?.(null);
+    };
+  }, []);
 
   // A new parse can shrink the grid. Drop source indices that no longer
   // exist so the toolbar count stays honest (copy filters through the view).
@@ -427,7 +547,9 @@ export function CsvTable({
   const handleHeaderClicked = useCallback(
     (colIndex: number, event?: HeaderClickEvent) => {
       if (colIndex < GUTTER_COLUMNS) return; // the gutter header is not sortable or editable
-      const col = colIndex - GUTTER_COLUMNS;
+      const visiblePos = colIndex - GUTTER_COLUMNS;
+      const col = visibleColIndicesRef.current[visiblePos];
+      if (col === undefined) return;
       if (editable && event?.isDoubleClick) {
         setSort(preClickSortRef.current);
         const currentHeader = latestRef.current.table.headers[col] ?? "";
@@ -442,7 +564,7 @@ export function CsvTable({
                 height: rawBounds.height,
               }
             : rawBounds ?? {
-                x: GUTTER_WIDTH + col * columnWidth,
+                x: GUTTER_WIDTH + visiblePos * columnWidth,
                 y: 0,
                 width: columnWidth,
                 height: HEADER_HEIGHT,
@@ -575,8 +697,9 @@ export function CsvTable({
     () =>
       [...(gridSelection?.columns ?? [])]
         .filter((c) => c >= GUTTER_COLUMNS)
-        .map((c) => c - GUTTER_COLUMNS),
-    [gridSelection]
+        .map((c) => visibleColIndices[c - GUTTER_COLUMNS])
+        .filter((col): col is number => col !== undefined),
+    [gridSelection, visibleColIndices]
   );
   const selectedColumnCount = selectedDataColumns.length;
   const selectedColumnHeaders = useMemo(
@@ -638,8 +761,8 @@ export function CsvTable({
   );
   const gutterColumns = GUTTER_COLUMNS;
   const selectionStats = useMemo(
-    () => computeSelectionStats(table, view, selection, gutterColumns),
-    [table, view, selection, gutterColumns]
+    () => computeSelectionStats(visibleTable, view, selection, gutterColumns),
+    [visibleTable, view, selection, gutterColumns]
   );
   const showSelectionChip =
     selectedInView.length > 0 || selectedColumnCount > 0 || selectionStats !== null;
@@ -650,7 +773,7 @@ export function CsvTable({
   const copySelection = () => {
     const selection = gridSelectionRef.current;
     const payload = serializeGridSelection(
-      latestRef.current.table,
+      latestRef.current.visibleTable,
       viewRef.current,
       {
         ranges: selection?.current ? [selection.current.range, ...selection.current.rangeStack] : [],
@@ -680,7 +803,7 @@ export function CsvTable({
       }
       const selection = gridSelectionRef.current;
       const payload = serializeGridSelection(
-        latestRef.current.table,
+        latestRef.current.visibleTable,
         viewRef.current,
         {
           ranges: selection?.current ? [selection.current.range, ...selection.current.rangeStack] : [],
@@ -789,8 +912,9 @@ export function CsvTable({
       }
       if (selection.columns.length > 0) {
         const dataCols = [...selection.columns]
-          .filter((c) => c >= GUTTER_COLUMNS && c < GUTTER_COLUMNS + current.headers.length)
-          .map((c) => c - GUTTER_COLUMNS);
+          .filter((c) => c >= GUTTER_COLUMNS)
+          .map((c) => visibleColIndicesRef.current[c - GUTTER_COLUMNS])
+          .filter((col): col is number => col !== undefined && col >= 0 && col < current.headers.length);
         // Last-column guard — same rule as the toolbar action.
         if (dataCols.length > 0 && dataCols.length < current.headers.length) {
           commitDeletion(deleteColumns(sourceText, current, dataCols));
@@ -833,9 +957,10 @@ export function CsvTable({
       let working = sourceText;
       let delta = 0;
       for (const { location, value } of ordered) {
-        const dataCol = location[0] - GUTTER_COLUMNS;
+        const visiblePos = location[0] - GUTTER_COLUMNS;
+        const dataCol = visiblePos >= 0 ? visibleColIndicesRef.current[visiblePos] : undefined;
         const viewRow = location[1];
-        if (dataCol < 0 || value.kind !== GridCellKind.Text) continue;
+        if (dataCol === undefined || dataCol < 0 || value.kind !== GridCellKind.Text) continue;
         const source = view[viewRow];
         const span = source === undefined ? undefined : current.rowSpans[source];
         if (!span) continue;
@@ -872,7 +997,9 @@ export function CsvTable({
           contentAlign: "right",
         };
       }
-      const value = latestRef.current.table.rows[source]?.[col - GUTTER_COLUMNS] ?? "";
+      const sourceCol = visibleColIndicesRef.current[col - GUTTER_COLUMNS];
+      const value =
+        sourceCol === undefined ? "" : (latestRef.current.table.rows[source]?.[sourceCol] ?? "");
       return {
         kind: GridCellKind.Text,
         data: value,
@@ -908,8 +1035,8 @@ export function CsvTable({
     [onGutterClick]
   );
 
-  // Columns: the source-row gutter plus one per header. Uppercase in the
-  // title (canvas has no text-transform); numeric columns get the mono
+  // Columns: the source-row gutter plus one per visible header. Uppercase in
+  // the title (canvas has no text-transform); numeric columns get the mono
   // base font through a per-column theme override. Memoized — the grid
   // redraws when the array identity changes.
   const columns = useMemo<GridColumn[]>(() => {
@@ -919,19 +1046,20 @@ export function CsvTable({
       width: GUTTER_WIDTH,
       themeOverride: { baseFontStyle: `11px ${MONO_FONT}`, textDark: "hsla(240, 3.8%, 46.1%, 0.4)" },
     };
-    const data: GridColumn[] = table.headers.map((header, index) => {
+    const data: GridColumn[] = visibleColIndices.map((sourceCol) => {
+      const header = table.headers[sourceCol] ?? "";
       const badge = editable
         ? columnTypeBadge(effectiveColumnTypes[header])
         : null;
       return {
         title: badge ? `${header.toUpperCase()} [${badge}]` : header.toUpperCase(),
-        id: `c${index}`,
+        id: `c${sourceCol}`,
         width: columnWidth,
-        themeOverride: numeric[index] ? { baseFontStyle: `12px ${MONO_FONT}` } : undefined,
+        themeOverride: numeric[sourceCol] ? { baseFontStyle: `12px ${MONO_FONT}` } : undefined,
       };
     });
     return [gutter, ...data];
-  }, [table.headers, numeric, columnWidth, editable, effectiveColumnTypes]);
+  }, [table.headers, visibleColIndices, numeric, columnWidth, editable, effectiveColumnTypes]);
 
   // Header strip: mono uppercase muted text, sort glyph on the sorted
   // column, right-aligned "#" in the gutter. A selected column header
@@ -960,7 +1088,8 @@ export function CsvTable({
           return;
         }
         drawContent();
-        const sortDir = sort && sort.col === columnIndex - GUTTER_COLUMNS ? sort.dir : null;
+        const sourceCol = visibleColIndices[columnIndex - GUTTER_COLUMNS];
+        const sortDir = sort && sort.col === sourceCol ? sort.dir : null;
         if (sortDir !== null) {
           const cx = rect.x + rect.width - 11;
           const cy = rect.y + rect.height / 2;
@@ -983,7 +1112,7 @@ export function CsvTable({
         ctx.restore();
       }
     },
-    [sort]
+    [sort, visibleColIndices]
   );
 
   // Cell layer: amber wash behind search matches (the DOM table's <mark>),
@@ -1106,6 +1235,97 @@ export function CsvTable({
               pinnedColumnCount === 1 ? "column type" : "column types"
             } pinned`}
             <X aria-hidden="true" className="size-3 text-muted-foreground" />
+          </button>
+        )}
+        <div ref={columnsContainerRef} className="relative">
+          <button
+            type="button"
+            data-testid={`${testId}-columns-button`}
+            aria-expanded={columnsOpen}
+            aria-haspopup="dialog"
+            aria-label="Columns"
+            onClick={() => setColumnsOpen((prev) => !prev)}
+            className={cn(
+              TOOLBAR_BUTTON,
+              hasHiddenColumns && "border-foreground/30 bg-muted font-semibold"
+            )}
+          >
+            <Columns3 aria-hidden="true" className="size-3" />
+            <span>
+              {hasHiddenColumns
+                ? `Columns (${visibleColIndices.length}/${columnsCount})`
+                : "Columns"}
+            </span>
+          </button>
+          {columnsOpen && (
+            <div
+              data-testid={`${testId}-columns-popout`}
+              role="dialog"
+              aria-label="Visible columns"
+              className="absolute left-0 top-7 z-30 min-w-44 max-w-64 rounded-md border border-border bg-panel p-1.5 shadow-md"
+            >
+              <div className="mb-1 flex items-center justify-between gap-2 border-b border-border px-1.5 pb-1">
+                <span className="text-[11px] font-semibold text-foreground">
+                  Columns ({visibleColIndices.length}/{columnsCount})
+                </span>
+                {hasHiddenColumns && (
+                  <button
+                    type="button"
+                    data-testid={`${testId}-columns-reset`}
+                    onClick={resetColumnsVisibility}
+                    className="cursor-pointer rounded px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    Show all
+                  </button>
+                )}
+              </div>
+              <div className="max-h-56 overflow-y-auto">
+                {table.headers.map((header, colIdx) => {
+                  const checked = !hiddenCols.has(colIdx);
+                  const isLastVisible = checked && visibleColIndices.length <= 1;
+                  const label = header !== "" ? header : `Column ${colIdx + 1}`;
+                  return (
+                    <label
+                      key={colIdx}
+                      className={cn(
+                        "flex items-center gap-2 rounded px-1.5 py-1 text-xs",
+                        isLastVisible
+                          ? "cursor-not-allowed opacity-60"
+                          : "cursor-pointer hover:bg-muted"
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        data-testid={`${testId}-column-toggle-${colIdx}`}
+                        checked={checked}
+                        disabled={isLastVisible}
+                        onChange={() => toggleColumnVisibility(colIdx)}
+                        className="size-3.5 accent-foreground"
+                      />
+                      <span className="truncate font-mono text-[11px] text-foreground">
+                        {label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+        {hasActiveViewTransform && (
+          <button
+            type="button"
+            data-testid={`${testId}-apply-view`}
+            aria-pressed={applyViewToOutput}
+            onClick={() => setApplyViewToOutput((prev) => !prev)}
+            className={cn(
+              "inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+              applyViewToOutput
+                ? "border-foreground bg-foreground text-background hover:bg-foreground/90"
+                : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            Apply view to output
           </button>
         )}
         {showSelectionChip && (

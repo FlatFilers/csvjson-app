@@ -11,7 +11,11 @@
  * single sort authority, shared by header clicks and tests.
  */
 
+import { serializeCsvRow, type CsvTableData } from "./csvTable";
+
 export type SortDir = "asc" | "desc";
+
+export type CsvTable = Pick<CsvTableData, "headers" | "rows" | "delimiter">;
 
 /** Integer-shaped cells with 16+ digits can exceed Number's exact range. */
 const BIG_INT_RE = /^[+-]?\d{16,}$/;
@@ -108,3 +112,35 @@ export function splitHighlight(text: string, query: string): { text: string; hit
   if (cursor < text.length) parts.push({ text: text.slice(cursor), hit: false });
   return parts;
 }
+
+/**
+ * Project the active table view (filtered/sorted row order + visible column
+ * subset) into an RFC 4180 CSV string using the table's delimiter.
+ *
+ * Raw input text is never mutated; callers opt in via "Apply view to output"
+ * to feed this projected CSV into conversion or Copy/Download.
+ */
+export function projectCsvView(
+  table: CsvTable,
+  viewRowIndices: readonly number[],
+  visibleColIndices: readonly number[]
+): string {
+  if (visibleColIndices.length === 0 || table.headers.length === 0) {
+    return "";
+  }
+  const delimiter = table.delimiter || ",";
+  const headerRow = serializeCsvRow(
+    visibleColIndices.map((c) => table.headers[c] ?? ""),
+    delimiter
+  );
+  const dataRows = viewRowIndices
+    .filter((rowIdx) => rowIdx >= 0 && rowIdx < table.rows.length)
+    .map((rowIdx) =>
+      serializeCsvRow(
+        visibleColIndices.map((c) => table.rows[rowIdx]?.[c] ?? ""),
+        delimiter
+      )
+    );
+  return [headerRow, ...dataRows].join("\n");
+}
+

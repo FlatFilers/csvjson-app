@@ -58,6 +58,8 @@ type OutputPaneProps = {
   onCopy: () => void;
   /** Fired when selected rows/columns are copied from the CSV output table. */
   onCopySelection?: () => void;
+  /** Fired when "Apply view to output" projects the CSV output table view. */
+  onProjectedCsvChange?: (projectedCsv: string | null) => void;
   /** Fired when a native clipboard copy occurs inside the JSON output editor. */
   onNativeCopy?: () => void;
   onDownload: () => void;
@@ -86,6 +88,7 @@ export function OutputPane({
   dark,
   onCopy,
   onCopySelection,
+  onProjectedCsvChange,
   onNativeCopy,
   onDownload,
   onEgressFormatChange,
@@ -254,6 +257,7 @@ export function OutputPane({
               testId="output-table"
               dark={dark}
               onCopySelection={onCopySelection}
+              onProjectedCsvChange={onProjectedCsvChange}
             />
           )
         ) : error ? (

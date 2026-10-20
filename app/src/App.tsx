@@ -127,6 +127,8 @@ export default function App() {
   // localStorage for one-click restore from the TopBar Recent popover.
   const [recentSnapshots, setRecentSnapshots] =
     useState<RecentSnapshot[]>(loadRecentHistory);
+  const [projectedInputCsv, setProjectedInputCsv] = useState<string | null>(null);
+  const [projectedOutputCsv, setProjectedOutputCsv] = useState<string | null>(null);
 
   // Latest converter state for the conversion-event validity predicate —
   // fires happen up to 2s after the last edit (or synchronously for a
@@ -204,6 +206,10 @@ export default function App() {
   const isDiscreteUploadInput =
     input !== "" && uploadedRef.current?.text === input;
   const effectiveInput = isDiscreteUploadInput ? input : debouncedInput;
+  const conversionInput =
+    csvToJson && projectedInputCsv !== null && effectiveInput.trim() !== ""
+      ? projectedInputCsv
+      : effectiveInput;
 
   // Legacy permalinks: /<tool>/<32-hex-id> hydrates the converter from the
   // S3 object, read-only. The URL is never rewritten; edits behave normally
@@ -221,8 +227,8 @@ export default function App() {
   const permalink = useLegacyPermalink(permalinkPath);
 
   const result = useMemo(
-    () => convertText(direction, effectiveInput, options),
-    [direction, effectiveInput, options]
+    () => convertText(direction, conversionInput, options),
+    [direction, conversionInput, options]
   );
   // Fire-time validity reads this; assigned after the memo so it always
   // holds the freshest state (see the tracker's isValid above).
@@ -322,11 +328,15 @@ export default function App() {
   // re-running the conversion from the CURRENT input + options — not the
   // debounced snapshot, which can lag a fresh keystroke by up to 1s.
   const regenerateOutput = useCallback(() => {
-    const current = convertText(direction, input, options);
+    const sourceText =
+      csvToJson && projectedInputCsv !== null && input.trim() !== ""
+        ? projectedInputCsv
+        : input;
+    const current = convertText(direction, sourceText, options);
     if (current.ok) setLastValidOutput(current.text);
     setOutputEdited(false);
     setEditedOutput(null);
-  }, [direction, input, options]);
+  }, [csvToJson, direction, input, options, projectedInputCsv]);
 
   const commitInput = useCallback(
     (value: string) => {
@@ -616,6 +626,10 @@ export default function App() {
     });
     void copyText(input);
   };
+  const effectiveOutputExportText =
+    !csvToJson && projectedOutputCsv !== null
+      ? projectedOutputCsv
+      : displayedOutput;
   const copyOutput = () => {
     trackExport({
       via: "copy",
@@ -623,9 +637,9 @@ export default function App() {
       pane: "output",
       direction: analyticsDirection,
     });
-    // Copy always delivers the pane's current text — the active egress format
-    // or the edited JSON when the edited state holds.
-    if (displayedOutput) void copyText(displayedOutput);
+    // Copy always delivers the pane's current text — the active egress format,
+    // projected CSV view, or the edited JSON when the edited state holds.
+    if (effectiveOutputExportText) void copyText(effectiveOutputExportText);
   };
   const downloadInput = () => {
     trackExport({
@@ -650,7 +664,7 @@ export default function App() {
       direction: analyticsDirection,
     });
     downloadText(
-      displayedOutput ?? "",
+      effectiveOutputExportText ?? "",
       outputFilenameFor(
         filename,
         csvToJson ? "csv2json" : "json2csv",
@@ -729,6 +743,7 @@ export default function App() {
       }}
       onCopy={copyInput}
       onCopySelection={trackInputSelectionCopy}
+      onProjectedCsvChange={setProjectedInputCsv}
       onDownload={downloadInput}
       canUndo={canUndo}
       canRedo={canRedo}
@@ -783,6 +798,7 @@ export default function App() {
       dark={theme === "dark"}
       onCopy={copyOutput}
       onCopySelection={trackOutputSelectionCopy}
+      onProjectedCsvChange={setProjectedOutputCsv}
       onNativeCopy={trackOutputNativeCopy}
       onDownload={downloadOutput}
       onEgressFormatChange={setEgressFormat}
