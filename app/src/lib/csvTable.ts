@@ -9,6 +9,8 @@
  * and embedded newlines. Ragged rows are padded to the header width.
  */
 
+import { detectMarkdownOrCliTable } from "./markdownTable";
+
 export type CsvTableData = {
   headers: string[];
   /** Data rows, padded to headers.length. Empty cells stay "" — never null. */
@@ -101,8 +103,11 @@ function parseField(source: string, start: number, delimiter: string): [string, 
  * an empty trailing row.
  */
 export function parseCsvTable(raw: string, forcedDelimiter?: string): CsvTableData {
-  const bomStripped = raw.startsWith(UTF8_BOM);
-  const text = bomStripped ? raw.slice(UTF8_BOM.length) : raw;
+  const mdTable =
+    forcedDelimiter === undefined ? detectMarkdownOrCliTable(raw) : null;
+  const effectiveRaw = mdTable ? mdTable.cleanedCsv : raw;
+  const bomStripped = effectiveRaw.startsWith(UTF8_BOM);
+  const text = bomStripped ? effectiveRaw.slice(UTF8_BOM.length) : effectiveRaw;
   // Row spans report offsets into the caller's string (BOM included), so a
   // commit can slice/splice the very text it holds.
   const spanBase = bomStripped ? UTF8_BOM.length : 0;

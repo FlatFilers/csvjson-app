@@ -1464,5 +1464,72 @@ describe("Symmetric JSON → CSV nested object flatten & detectNestedJsonKeys (A
   });
 });
 
+describe("Markdown & CLI box table auto-normalization in convertText and csvToJson (AC-14 / D13)", () => {
+  it("auto-normalizes GitHub / ChatGPT Markdown pipe tables in csvToJson and convertText", () => {
+    const md = [
+      "| service | port | active |",
+      "| :--- | ---: | :---: |",
+      "| auth-api | 8080 | true |",
+      "| billing | 9090 | false |",
+    ].join("\n");
+
+    const parsed = csvToJson(md, { parseNumbers: true, parseJSON: true });
+    expect(parsed).toEqual([
+      { service: "auth-api", port: 8080, active: true },
+      { service: "billing", port: 9090, active: false },
+    ]);
+
+    const res = convertText("csv2json", md, DEFAULT_OPTIONS);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.rows).toBe(2);
+      expect(res.cols).toBe(3);
+      expect(res.warnings).toBeUndefined();
+      expect(JSON.parse(res.text)).toEqual([
+        { service: "auth-api", port: 8080, active: true },
+        { service: "billing", port: 9090, active: false },
+      ]);
+    }
+  });
+
+  it("auto-normalizes psql and MySQL ASCII box tables (stripping borders and (N rows) footers)", () => {
+    const psql = [
+      " id | city     | pop ",
+      "----+----------+-----",
+      "  1 | Lisbon   | 545 ",
+      "  2 | Porto    | 231 ",
+      "(2 rows)",
+    ].join("\n");
+
+    const res = convertText("csv2json", psql, DEFAULT_OPTIONS);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.rows).toBe(2);
+      expect(res.cols).toBe(3);
+      expect(res.warnings).toBeUndefined();
+      expect(JSON.parse(res.text)).toEqual([
+        { id: 1, city: "Lisbon", pop: 545 },
+        { id: 2, city: "Porto", pop: 231 },
+      ]);
+    }
+  });
+
+  it("preserves explicit pipe separator behavior for plain pipe-separated CSV without divider rules", () => {
+    const plainPipe = "a|b\n1|2\n3|4";
+    const res = convertText("csv2json", plainPipe, {
+      ...DEFAULT_OPTIONS,
+      separator: "|",
+    });
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(JSON.parse(res.text)).toEqual([
+        { a: 1, b: 2 },
+        { a: 3, b: 4 },
+      ]);
+    }
+  });
+});
+
+
 
 

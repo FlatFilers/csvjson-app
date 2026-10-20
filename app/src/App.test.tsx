@@ -1871,6 +1871,95 @@ describe("Symmetric JSON → CSV nested object flatten pill (AC-15 / D14)", () =
   });
 });
 
+describe("Markdown & CLI box table paste in CSV → JSON (AC-14 / D13)", () => {
+  it("auto-renders Markdown pipe tables in the CSV table and JSON output, surfaces Clean Markdown table pill, normalizes raw input in place, and supports undo", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const mdTable = [
+      "| name | role | score |",
+      "| :--- | :---: | ---: |",
+      "| Ada | Engineer | 98 |",
+      "| Linus | Kernel | 95 |",
+    ].join("\n");
+
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: mdTable },
+    });
+
+    await waitFor(() => {
+      const output = JSON.parse(
+        screen.getByTestId("output-view").textContent ?? "[]"
+      );
+      expect(output).toEqual([
+        { name: "Ada", role: "Engineer", score: 98 },
+        { name: "Linus", role: "Kernel", score: 95 },
+      ]);
+    });
+
+    const inputTable = screen.getByTestId("input-table");
+    expect(within(inputTable).getByText("NAME")).toBeInTheDocument();
+    expect(within(inputTable).getByText("ROLE")).toBeInTheDocument();
+    expect(within(inputTable).getByText("SCORE")).toBeInTheDocument();
+    expect(within(inputTable).getByText("Ada")).toBeInTheDocument();
+
+    const pill = screen.getByTestId("csv-clean-markdown-pill");
+    expect(pill).toHaveTextContent("Clean Markdown table (2 rows)");
+
+    await user.click(pill);
+
+    expect(screen.queryByTestId("csv-clean-markdown-pill")).toBeNull();
+
+    await user.click(screen.getByTestId("raw-toggle"));
+    const rawEditor = screen.getByTestId(
+      "input-editor"
+    ) as HTMLTextAreaElement;
+    expect(rawEditor.value).toBe(
+      "name,role,score\nAda,Engineer,98\nLinus,Kernel,95"
+    );
+
+    await user.click(screen.getByTestId("csv-undo-button"));
+    expect(rawEditor.value).toBe(mdTable);
+    expect(screen.getByTestId("csv-clean-markdown-pill")).toHaveTextContent(
+      "Clean Markdown table (2 rows)"
+    );
+  });
+
+  it("auto-renders psql ASCII box tables and surfaces Clean CLI table pill", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const psqlTable = [
+      " id | host      | port ",
+      "----+-----------+------",
+      "  1 | db-prod-1 | 5432 ",
+      "  2 | db-read-2 | 5433 ",
+      "(2 rows)",
+    ].join("\n");
+
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: psqlTable },
+    });
+
+    await waitFor(() => {
+      const output = JSON.parse(
+        screen.getByTestId("output-view").textContent ?? "[]"
+      );
+      expect(output).toEqual([
+        { id: 1, host: "db-prod-1", port: 5432 },
+        { id: 2, host: "db-read-2", port: 5433 },
+      ]);
+    });
+
+    const pill = screen.getByTestId("csv-clean-markdown-pill");
+    expect(pill).toHaveTextContent("Clean CLI table (2 rows)");
+
+    await user.click(pill);
+    expect(screen.queryByTestId("csv-clean-markdown-pill")).toBeNull();
+  });
+});
+
+
 
 
 

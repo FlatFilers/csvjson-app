@@ -13,6 +13,7 @@ import {
   resolveJsonFormatToggle,
 } from "@/lib/convert";
 import { parseCsvTable } from "@/lib/csvTable";
+import { detectMarkdownOrCliTable } from "@/lib/markdownTable";
 import { cn } from "@/lib/utils";
 
 /**
@@ -188,12 +189,22 @@ export function InputPane({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputEmpty = input.trim() === "";
   const isCsv = format === "CSV";
+  const detectedMarkdownTable = useMemo(
+    () =>
+      !isCsv || inputEmpty || delimiter !== undefined
+        ? null
+        : detectMarkdownOrCliTable(input),
+    [isCsv, inputEmpty, input, delimiter]
+  );
   const indexedHeaderGroups = useMemo(() => {
     if (!isCsv || inputEmpty) return [];
-    const headerSlice = sliceFirstCsvRecord(input);
+    const sourceCsv = detectedMarkdownTable
+      ? detectedMarkdownTable.cleanedCsv
+      : input;
+    const headerSlice = sliceFirstCsvRecord(sourceCsv);
     const table = parseCsvTable(headerSlice, delimiter);
     return detectIndexedHeaderGroups(table.headers.map((h) => h.trim()));
-  }, [isCsv, inputEmpty, input, delimiter]);
+  }, [isCsv, inputEmpty, input, delimiter, detectedMarkdownTable]);
   const wrapperCandidates = useMemo(
     () => (isCsv || inputEmpty ? [] : detectJsonWrapperCandidates(input)),
     [isCsv, inputEmpty, input]
@@ -411,6 +422,28 @@ export function InputPane({
           />
         ) : isCsv ? (
           <>
+            {detectedMarkdownTable ? (
+              <div
+                data-testid="csv-markdown-table-bar"
+                className="flex flex-shrink-0 flex-wrap items-center justify-between gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
+              >
+                <span className="text-xs text-muted-foreground">
+                  {detectedMarkdownTable.kind === "box"
+                    ? "ASCII CLI box table detected:"
+                    : "Markdown pipe table detected:"}
+                </span>
+                <button
+                  type="button"
+                  data-testid="csv-clean-markdown-pill"
+                  onClick={() => onInputChange(detectedMarkdownTable.cleanedCsv)}
+                  className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  {detectedMarkdownTable.kind === "box"
+                    ? `Clean CLI table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`
+                    : `Clean Markdown table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`}
+                </button>
+              </div>
+            ) : null}
             {indexedHeaderGroups.length > 0 ? (
               <div
                 data-testid="csv-indexed-array-bar"
