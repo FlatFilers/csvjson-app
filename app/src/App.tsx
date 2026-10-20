@@ -27,7 +27,15 @@ import {
   type Direction,
 } from "@/lib/convert";
 import { copyText } from "@/lib/clipboard";
-import { downloadText, outputFilenameFor } from "@/lib/download";
+import {
+  downloadText,
+  outputFilenameFor,
+  outputMimeFor,
+} from "@/lib/download";
+import {
+  formatEgressOutput,
+  type EgressFormat,
+} from "@/lib/egressFormat";
 import {
   decodeUpload,
   isTextFile,
@@ -104,6 +112,7 @@ export default function App() {
   const [inputHistory, setInputHistory] = useState(() => createCsvHistory(""));
   const input = inputHistory.present;
   const [options, setOptions] = useState<ConverterOptions>(DEFAULT_OPTIONS);
+  const [egressFormat, setEgressFormat] = useState<EgressFormat>("json");
   const [split, setSplit] = useState(50);
   // Upload bookkeeping: source filename, reader spinner, rejection notice.
   const [filename, setFilename] = useState<string | null>(null);
@@ -263,13 +272,36 @@ export default function App() {
   // reconvert, a valid flip, and paths that fully regenerate the output.
   const [outputEdited, setOutputEdited] = useState(false);
   const [editedOutput, setEditedOutput] = useState<string | null>(null);
-  const displayedOutput = outputEdited ? editedOutput : currentValidOutput;
-  // Editable window: CSV→JSON with a valid result — or an edited output,
-  // which stays editable even after the input breaks (the freeze notice,
-  // not a lockout, is the guard). Retained invalid-input results and the
-  // CSV table stay read-only.
+  const rawJsonOutput = outputEdited ? editedOutput : currentValidOutput;
+  const displayedOutput = useMemo(() => {
+    if (!csvToJson || rawJsonOutput === null) return rawJsonOutput;
+    if (egressFormat === "json") return rawJsonOutput;
+    const sourceJson =
+      outputEdited && editedOutput !== null && isParsableJson(editedOutput)
+        ? editedOutput
+        : currentValidOutput;
+    if (sourceJson === null) return null;
+    return formatEgressOutput(sourceJson, egressFormat, options, filename);
+  }, [
+    csvToJson,
+    rawJsonOutput,
+    egressFormat,
+    outputEdited,
+    editedOutput,
+    currentValidOutput,
+    options,
+    filename,
+  ]);
+  // Editable window: CSV→JSON in JSON egress mode with a valid result — or
+  // an edited output, which stays editable even after the input breaks (the
+  // freeze notice, not a lockout, is the guard). Non-JSON egress modes,
+  // retained invalid-input results, and the CSV table stay read-only.
   const outputEditable =
-    csvToJson && !inputEmpty && displayedOutput !== null && (outputEdited || result.ok);
+    csvToJson &&
+    egressFormat === "json" &&
+    !inputEmpty &&
+    displayedOutput !== null &&
+    (outputEdited || result.ok);
 
   // Every user modification marks the output edited — including undo steps
   // that happen to land back on the derived text, which is not an edit.
@@ -566,6 +598,7 @@ export default function App() {
   // Every intentional copy/download is an export event; format is the
   // resolved format of the pane's text (input pane carries the input format).
   const analyticsDirection = csvToJson ? "csv_to_json" : "json_to_csv";
+  const activeOutputExportFormat = csvToJson ? egressFormat : "csv";
   const copyInput = () => {
     trackExport({
       via: "copy",
@@ -578,14 +611,13 @@ export default function App() {
   const copyOutput = () => {
     trackExport({
       via: "copy",
-      format: csvToJson ? "json" : "csv",
+      format: activeOutputExportFormat,
       pane: "output",
       direction: analyticsDirection,
     });
-    // Copy always delivers the pane's current text — the edited one while
-    // the edited state holds.
-    const text = outputEdited ? editedOutput : currentValidOutput;
-    if (text) void copyText(text);
+    // Copy always delivers the pane's current text — the active egress format
+    // or the edited JSON when the edited state holds.
+    if (displayedOutput) void copyText(displayedOutput);
   };
   const downloadInput = () => {
     trackExport({
@@ -599,21 +631,28 @@ export default function App() {
       bom: csvToJson,
     });
   };
-  // CSV downloads carry a UTF-8 BOM (spec: Download); JSON never does.
+  // CSV downloads carry a UTF-8 BOM (spec: Download); JSON/JSONL/SQL/TS never do.
   // The output name swaps the uploaded source's extension (spec B3: #79 #102);
-  // pasted input has no source and falls back to data.json / data.csv.
+  // pasted input has no source and falls back to data.<ext> / data.csv.
   const downloadOutput = () => {
     trackExport({
       via: "download",
-      format: csvToJson ? "json" : "csv",
+      format: activeOutputExportFormat,
       pane: "output",
       direction: analyticsDirection,
     });
     downloadText(
-      (outputEdited ? editedOutput : currentValidOutput) ?? "",
-      outputFilenameFor(filename, csvToJson ? "csv2json" : "json2csv"),
+      displayedOutput ?? "",
+      outputFilenameFor(
+        filename,
+        csvToJson ? "csv2json" : "json2csv",
+        egressFormat
+      ),
       {
-        mime: csvToJson ? "application/json" : "text/csv",
+        mime: outputMimeFor(
+          csvToJson ? "csv2json" : "json2csv",
+          egressFormat
+        ),
         bom: !csvToJson,
       }
     );
@@ -640,11 +679,11 @@ export default function App() {
   const trackOutputNativeCopy = useCallback(() => {
     trackExport({
       via: "copy",
-      format: "json",
+      format: activeOutputExportFormat,
       pane: "output",
       direction: analyticsDirection,
     });
-  }, [analyticsDirection]);
+  }, [activeOutputExportFormat, analyticsDirection]);
 
   const leftPane = (
     <InputPane
@@ -709,12 +748,14 @@ export default function App() {
       warnings={warnings}
       edited={outputEdited}
       editable={outputEditable}
+      egressFormat={egressFormat}
       delimiter={options.separator === "auto" ? undefined : options.separator}
       dark={theme === "dark"}
       onCopy={copyOutput}
       onCopySelection={trackOutputSelectionCopy}
       onNativeCopy={trackOutputNativeCopy}
       onDownload={downloadOutput}
+      onEgressFormatChange={setEgressFormat}
       onOutputChange={handleOutputEdit}
       onRevert={regenerateOutput}
       onDiscardReconvert={regenerateOutput}
