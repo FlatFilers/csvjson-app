@@ -54,7 +54,7 @@ export function serializeGridSelection(
     const fromCol = clamp(range.x, gutterColumns + dataColumns);
     const toCol = clamp(range.x + range.width, gutterColumns + dataColumns);
     if (toCol <= gutterColumns) continue; // gutter-only range
-    const dataFrom = fromCol - gutterColumns;
+    const dataFrom = Math.max(0, fromCol - gutterColumns);
     const dataTo = toCol - gutterColumns;
     if (dataTo <= dataFrom) continue;
 
@@ -100,4 +100,128 @@ export function serializeGridSelection(
   }
 
   return null;
+}
+
+export interface SelectionStats {
+  cellCount: number;
+  distinctCount: number;
+  emptyCount: number;
+  numericCount: number;
+  sum: number | null;
+  avg: number | null;
+  min: number | null;
+  max: number | null;
+}
+
+const MAX_STATS_CELLS = 100_000;
+const NUMERIC_CELL_RE = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
+
+/**
+ * Compute live spreadsheet-style aggregate statistics across all unique
+ * (viewRow, dataCol) coordinates in the active selection (rectangular ranges,
+ * whole rows, and whole columns).
+ *
+ * Returns null when nothing is selected, or when only a single cell
+ * (cellCount < 2) is selected without a full row or column selection.
+ */
+export function computeSelectionStats(
+  table: CsvTableData,
+  view: readonly number[],
+  selection: SelectionShape,
+  gutterColumns: number
+): SelectionStats | null {
+  const dataColumns = table.headers.length;
+  const viewLength = view.length;
+  if (dataColumns === 0 || viewLength === 0) return null;
+
+  const visited = new Set<number>();
+
+  // 1. Rectangular ranges (subtracting gutterColumns from rect.x, skipping gutter columns < 0).
+  for (const range of selection.ranges) {
+    if (visited.size >= MAX_STATS_CELLS) break;
+    const dataFrom = Math.max(0, range.x - gutterColumns);
+    const dataTo = Math.min(dataColumns, range.x + range.width - gutterColumns);
+    if (dataTo <= dataFrom) continue;
+
+    const fromRow = Math.max(0, range.y);
+    const toRow = Math.min(viewLength, range.y + range.height);
+    if (toRow <= fromRow) continue;
+
+    for (let v = fromRow; v < toRow; v++) {
+      if (visited.size >= MAX_STATS_CELLS) break;
+      const rowBase = v * dataColumns;
+      for (let c = dataFrom; c < dataTo; c++) {
+        visited.add(rowBase + c);
+        if (visited.size >= MAX_STATS_CELLS) break;
+      }
+    }
+  }
+
+  // 2. Whole selected rows (all data columns across each selected view row).
+  for (const viewRow of selection.rows) {
+    if (visited.size >= MAX_STATS_CELLS) break;
+    if (viewRow < 0 || viewRow >= viewLength) continue;
+    const rowBase = viewRow * dataColumns;
+    for (let c = 0; c < dataColumns; c++) {
+      visited.add(rowBase + c);
+      if (visited.size >= MAX_STATS_CELLS) break;
+    }
+  }
+
+  // 3. Whole selected columns (all visible view rows across each selected data column).
+  for (const gridCol of selection.columns) {
+    if (visited.size >= MAX_STATS_CELLS) break;
+    const dataCol = gridCol - gutterColumns;
+    if (dataCol < 0 || dataCol >= dataColumns) continue;
+    for (let v = 0; v < viewLength; v++) {
+      visited.add(v * dataColumns + dataCol);
+      if (visited.size >= MAX_STATS_CELLS) break;
+    }
+  }
+
+  const cellCount = visited.size;
+  if (cellCount === 0) return null;
+  if (cellCount < 2 && selection.rows.length === 0 && selection.columns.length === 0) {
+    return null;
+  }
+
+  let emptyCount = 0;
+  let numericCount = 0;
+  let sum = 0;
+  let min: number | null = null;
+  let max: number | null = null;
+  const distinct = new Set<string>();
+
+  for (const coord of visited) {
+    const viewRow = Math.floor(coord / dataColumns);
+    const dataCol = coord % dataColumns;
+    const sourceRow = view[viewRow];
+    const raw = (sourceRow !== undefined ? table.rows[sourceRow]?.[dataCol] : undefined) ?? "";
+    const trimmed = raw.trim();
+    if (trimmed === "") {
+      emptyCount += 1;
+      continue;
+    }
+    distinct.add(trimmed);
+    if (NUMERIC_CELL_RE.test(trimmed)) {
+      const value = Number(trimmed);
+      if (Number.isFinite(value)) {
+        numericCount += 1;
+        sum += value;
+        if (min === null || value < min) min = value;
+        if (max === null || value > max) max = value;
+      }
+    }
+  }
+
+  return {
+    cellCount,
+    distinctCount: distinct.size,
+    emptyCount,
+    numericCount,
+    sum: numericCount > 0 ? sum : null,
+    avg: numericCount > 0 ? sum / numericCount : null,
+    min: numericCount > 0 ? min : null,
+    max: numericCount > 0 ? max : null,
+  };
 }
