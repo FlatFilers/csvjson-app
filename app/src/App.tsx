@@ -129,6 +129,27 @@ export default function App() {
     useState<RecentSnapshot[]>(loadRecentHistory);
   const [projectedInputCsv, setProjectedInputCsv] = useState<string | null>(null);
   const [projectedOutputCsv, setProjectedOutputCsv] = useState<string | null>(null);
+  const [markdownTableSelection, setMarkdownTableSelection] = useState<{
+    forInput: string;
+    index: number;
+  }>({ forInput: "", index: 0 });
+  const selectedMarkdownTableIndex =
+    markdownTableSelection.forInput === input
+      ? markdownTableSelection.index
+      : 0;
+  const handleSelectMarkdownTableIndex = useCallback(
+    (index: number) => {
+      setMarkdownTableSelection({ forInput: input, index });
+    },
+    [input]
+  );
+  const effectiveOptions = useMemo<ConverterOptions>(
+    () =>
+      selectedMarkdownTableIndex > 0
+        ? { ...options, markdownTableIndex: selectedMarkdownTableIndex }
+        : options,
+    [options, selectedMarkdownTableIndex]
+  );
 
   // Latest converter state for the conversion-event validity predicate —
   // fires happen up to 2s after the last edit (or synchronously for a
@@ -227,14 +248,14 @@ export default function App() {
   const permalink = useLegacyPermalink(permalinkPath);
 
   const result = useMemo(
-    () => convertText(direction, conversionInput, options),
-    [direction, conversionInput, options]
+    () => convertText(direction, conversionInput, effectiveOptions),
+    [direction, conversionInput, effectiveOptions]
   );
   // Fire-time validity reads this; assigned after the memo so it always
   // holds the freshest state (see the tracker's isValid above).
   converterStateRef.current = {
     direction,
-    options,
+    options: effectiveOptions,
     input: effectiveInput,
     resultOk: result.ok,
   };
@@ -332,11 +353,11 @@ export default function App() {
       csvToJson && projectedInputCsv !== null && input.trim() !== ""
         ? projectedInputCsv
         : input;
-    const current = convertText(direction, sourceText, options);
+    const current = convertText(direction, sourceText, effectiveOptions);
     if (current.ok) setLastValidOutput(current.text);
     setOutputEdited(false);
     setEditedOutput(null);
-  }, [csvToJson, direction, input, options, projectedInputCsv]);
+  }, [csvToJson, direction, effectiveOptions, input, projectedInputCsv]);
 
   const commitInput = useCallback(
     (value: string) => {
@@ -438,7 +459,7 @@ export default function App() {
     // memoized result lags `input` by the debounce window (1 s for large
     // files), so using it here could wipe a freshly typed value.
     if (!inputEmpty) {
-      const current = convertText(direction, input, options);
+      const current = convertText(direction, input, effectiveOptions);
       const nextInput = current.ok ? current.text : input;
       setInputHistory(createCsvHistory(nextInput));
       if (nextInput.trim() !== "") {
@@ -772,6 +793,8 @@ export default function App() {
       onToggleFlatten={() =>
         setOptions((prev) => ({ ...prev, flatten: !prev.flatten }))
       }
+      selectedMarkdownTableIndex={selectedMarkdownTableIndex}
+      onSelectMarkdownTableIndex={handleSelectMarkdownTableIndex}
       filename={filename}
       reading={reading}
       meta={meta}

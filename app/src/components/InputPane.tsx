@@ -13,7 +13,7 @@ import {
   resolveJsonFormatToggle,
 } from "@/lib/convert";
 import { parseCsvTable } from "@/lib/csvTable";
-import { detectMarkdownOrCliTable } from "@/lib/markdownTable";
+import { extractTablesFromMarkdownBlock } from "@/lib/markdownTable";
 import { cn } from "@/lib/utils";
 
 /**
@@ -56,6 +56,8 @@ type InputPaneProps = {
   onChangeColumnTypes?: (columnTypes: Record<string, ColumnTypeOverride>) => void;
   flatten?: boolean;
   onToggleFlatten?: () => void;
+  selectedMarkdownTableIndex?: number;
+  onSelectMarkdownTableIndex?: (index: number) => void;
 };
 
 function ReadingSpinner() {
@@ -184,20 +186,45 @@ export function InputPane({
   onChangeColumnTypes,
   flatten = false,
   onToggleFlatten,
+  selectedMarkdownTableIndex,
+  onSelectMarkdownTableIndex,
 }: InputPaneProps) {
   const [rawMode, setRawMode] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [localTableSelection, setLocalTableSelection] = useState<{
+    forInput: string;
+    index: number;
+  }>({ forInput: "", index: 0 });
   const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputEmpty = input.trim() === "";
   const isCsv = format === "CSV";
-  const detectedMarkdownTable = useMemo(
+  const extractedMarkdownTables = useMemo(
     () =>
       !isCsv || inputEmpty || delimiter !== undefined
-        ? null
-        : detectMarkdownOrCliTable(input),
+        ? []
+        : extractTablesFromMarkdownBlock(input),
     [isCsv, inputEmpty, input, delimiter]
   );
+  const requestedTableIndex =
+    selectedMarkdownTableIndex !== undefined
+      ? selectedMarkdownTableIndex
+      : localTableSelection.forInput === input
+        ? localTableSelection.index
+        : 0;
+  const activeMarkdownTableIndex =
+    extractedMarkdownTables.length === 0
+      ? 0
+      : Math.min(
+          Math.max(0, requestedTableIndex),
+          extractedMarkdownTables.length - 1
+        );
+  const detectedMarkdownTable =
+    extractedMarkdownTables[activeMarkdownTableIndex] ?? null;
+  const handleSelectMarkdownTable = (index: number) => {
+    setLocalTableSelection({ forInput: input, index });
+    onSelectMarkdownTableIndex?.(index);
+  };
   const indexedHeaderGroups = useMemo(() => {
     if (!isCsv || inputEmpty) return [];
     const sourceCsv = detectedMarkdownTable
@@ -429,20 +456,56 @@ export function InputPane({
                 data-testid="csv-markdown-table-bar"
                 className="flex flex-shrink-0 flex-wrap items-center justify-between gap-1.5 border-b border-border bg-muted/30 px-3.5 py-1.5"
               >
-                <span className="text-xs text-muted-foreground">
-                  {detectedMarkdownTable.kind === "box"
-                    ? "ASCII CLI box table detected:"
-                    : "Markdown pipe table detected:"}
-                </span>
+                {extractedMarkdownTables.length >= 2 ? (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">
+                      {`${extractedMarkdownTables.length} tables detected:`}
+                    </span>
+                    {extractedMarkdownTables.map((candidate) => {
+                      const isSelected =
+                        candidate.index === activeMarkdownTableIndex;
+                      const shortTitle =
+                        candidate.title ??
+                        candidate.headers.slice(0, 2).join(", ");
+                      return (
+                        <button
+                          key={candidate.index}
+                          type="button"
+                          data-testid={`csv-markdown-table-select-${candidate.index}`}
+                          aria-pressed={isSelected}
+                          onClick={() =>
+                            handleSelectMarkdownTable(candidate.index)
+                          }
+                          className={cn(
+                            "inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-xs font-medium shadow-2xs transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                            isSelected
+                              ? "border-foreground/30 bg-background text-foreground ring-1 ring-foreground/15"
+                              : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          {`${candidate.index + 1}. ${shortTitle} (${candidate.rows}×${candidate.cols})`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {detectedMarkdownTable.kind === "box"
+                      ? "ASCII CLI box table detected:"
+                      : "Markdown pipe table detected:"}
+                  </span>
+                )}
                 <button
                   type="button"
                   data-testid="csv-clean-markdown-pill"
                   onClick={() => onInputChange(detectedMarkdownTable.cleanedCsv)}
                   className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground shadow-2xs transition-colors hover:bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
-                  {detectedMarkdownTable.kind === "box"
-                    ? `Clean CLI table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`
-                    : `Clean Markdown table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`}
+                  {extractedMarkdownTables.length >= 2
+                    ? `Use only this table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`
+                    : detectedMarkdownTable.kind === "box"
+                      ? `Clean CLI table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`
+                      : `Clean Markdown table (${detectedMarkdownTable.rows} ${detectedMarkdownTable.rows === 1 ? "row" : "rows"})`}
                 </button>
               </div>
             ) : null}
@@ -482,7 +545,11 @@ export function InputPane({
               />
             ) : (
               <CsvTable
-                text={input}
+                text={
+                  detectedMarkdownTable
+                    ? detectedMarkdownTable.cleanedCsv
+                    : input
+                }
                 delimiter={delimiter}
                 testId="input-table"
                 dark={dark}

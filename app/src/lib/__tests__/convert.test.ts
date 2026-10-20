@@ -1528,6 +1528,55 @@ describe("Markdown & CLI box table auto-normalization in convertText and csvToJs
       ]);
     }
   });
+
+  it("converts a single table surrounded by Markdown prose/fences and selects tables via markdownTableIndex in multi-table documents (AC-18 / D17)", () => {
+    const multiDoc = [
+      "# Monthly Summary",
+      "Here are the two tables from the report:",
+      "",
+      "## By Region",
+      "| region | revenue |",
+      "| --- | ---: |",
+      "| NA | 1200 |",
+      "| EU | 950 |",
+      "",
+      "## Server Inventory",
+      " host     | port ",
+      "----------+------",
+      " db-main  | 5432 ",
+      " db-read  | 5433 ",
+      " db-cache | 6379 ",
+      "(3 rows)",
+      "",
+      "Generated automatically.",
+    ].join("\n");
+
+    const table0 = convertText("csv2json", multiDoc, DEFAULT_OPTIONS);
+    expect(table0.ok).toBe(true);
+    if (table0.ok) {
+      expect(table0.rows).toBe(2);
+      expect(table0.cols).toBe(2);
+      expect(JSON.parse(table0.text)).toEqual([
+        { region: "NA", revenue: 1200 },
+        { region: "EU", revenue: 950 },
+      ]);
+    }
+
+    const table1 = convertText("csv2json", multiDoc, {
+      ...DEFAULT_OPTIONS,
+      markdownTableIndex: 1,
+    });
+    expect(table1.ok).toBe(true);
+    if (table1.ok) {
+      expect(table1.rows).toBe(3);
+      expect(table1.cols).toBe(2);
+      expect(JSON.parse(table1.text)).toEqual([
+        { host: "db-main", port: 5432 },
+        { host: "db-read", port: 5433 },
+        { host: "db-cache", port: 6379 },
+      ]);
+    }
+  });
 });
 
 
