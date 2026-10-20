@@ -1548,6 +1548,79 @@ describe("smaller-desktop & half-screen layout polish (AC-9 / D8)", () => {
   });
 });
 
+describe("TopBar Recent history popover & empty boot (AC-12 / D11)", () => {
+  it("boots to the clean empty dropzone on reload even when snapshots exist, records valid conversions, restores on click (with CSV undo), and supports Clear history", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    // Fresh visit starts at empty dropzone with no saved snapshots
+    expect(screen.getByTestId("dropzone")).toBeInTheDocument();
+    expect(screen.queryByTestId("recent-history-count")).toBeNull();
+
+    // Load sample CSV -> settles valid conversion -> saved to recent history
+    await user.click(screen.getByTestId("try-example"));
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"The White Stripes"'
+      );
+    });
+    expect(screen.getByTestId("recent-history-count")).toHaveTextContent("1");
+
+    // Upload a second CSV file so we have 2 distinct snapshots
+    const secondCsv = "city,pop\nTokyo,14000000\nParis,2100000";
+    const file = createStreamableFile("cities.csv", secondCsv);
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: { files: [file] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain('"Tokyo"');
+    });
+    expect(screen.getByTestId("recent-history-count")).toHaveTextContent("2");
+
+    // Simulate reload: unmount and mount a fresh <App /> over the same localStorage
+    unmount();
+    render(<App />);
+
+    // Must boot to the clean empty dropzone, NOT auto-restoring the last conversion
+    expect(screen.getByTestId("dropzone")).toBeInTheDocument();
+    expect(screen.getByTestId("recent-history-count")).toHaveTextContent("2");
+
+    // Open the Recent popover and restore the uploaded cities.csv snapshot
+    await user.click(screen.getByTestId("recent-history-toggle"));
+    const popout = screen.getByTestId("recent-history-popout");
+    const items = within(popout).getAllByTestId(/^recent-history-item-/);
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent("cities.csv");
+
+    await user.click(items[0]);
+    expect(screen.queryByTestId("recent-history-popout")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain('"Tokyo"');
+    });
+
+    // Now restore the earlier sample snapshot while already in csv2json -> pushes prior CSV to undo history
+    await user.click(screen.getByTestId("recent-history-toggle"));
+    const updatedPopout = screen.getByTestId("recent-history-popout");
+    const updatedItems = within(updatedPopout).getAllByTestId(
+      /^recent-history-item-/
+    );
+    await user.click(updatedItems[1]);
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"The White Stripes"'
+      );
+    });
+    expect(screen.getByTestId("csv-undo-button")).not.toBeDisabled();
+
+    // Clear all history from the popover
+    await user.click(screen.getByTestId("recent-history-toggle"));
+    await user.click(screen.getByTestId("recent-history-clear"));
+    expect(screen.getByTestId("recent-history-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("recent-history-count")).toBeNull();
+  });
+});
+
+
 
 
 
