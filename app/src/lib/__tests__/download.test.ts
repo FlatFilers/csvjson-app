@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { outputFilenameFor } from "@/lib/download";
+import { outputFilenameFor, outputMimeFor } from "@/lib/download";
 
 describe("outputFilenameFor", () => {
   it("swaps the extension of a known source name", () => {
@@ -15,6 +15,32 @@ describe("outputFilenameFor", () => {
     expect(outputFilenameFor(null, "csv2json")).toBe("data.json");
     expect(outputFilenameFor(null, "json2csv")).toBe("data.csv");
     expect(outputFilenameFor("", "csv2json")).toBe("data.json");
+  });
+
+  it("supports developer egress extensions (.jsonl, .sql, .ts) in csv2json mode", () => {
+    expect(outputFilenameFor("users.csv", "csv2json", "json")).toBe(
+      "users.json"
+    );
+    expect(outputFilenameFor("users.csv", "csv2json", "jsonl")).toBe(
+      "users.jsonl"
+    );
+    expect(outputFilenameFor("users.csv", "csv2json", "sql")).toBe("users.sql");
+    expect(outputFilenameFor("users.csv", "csv2json", "ts")).toBe("users.ts");
+    expect(outputFilenameFor(null, "csv2json", "jsonl")).toBe("data.jsonl");
+    expect(outputFilenameFor(null, "csv2json", "sql")).toBe("data.sql");
+    expect(outputFilenameFor(null, "csv2json", "ts")).toBe("data.ts");
+    // json2csv always emits .csv regardless of egressFormat
+    expect(outputFilenameFor("users.json", "json2csv", "sql")).toBe(
+      "users.csv"
+    );
+  });
+
+  it("resolves MIME types for CSV and all developer egress formats", () => {
+    expect(outputMimeFor("json2csv", "json")).toBe("text/csv");
+    expect(outputMimeFor("csv2json", "json")).toBe("application/json");
+    expect(outputMimeFor("csv2json", "jsonl")).toBe("application/x-ndjson");
+    expect(outputMimeFor("csv2json", "sql")).toBe("application/sql");
+    expect(outputMimeFor("csv2json", "ts")).toBe("text/typescript");
   });
 
   it("keeps dotfiles whole — the leading dot is a name, not an extension", () => {

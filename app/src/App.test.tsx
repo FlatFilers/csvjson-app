@@ -1620,6 +1620,108 @@ describe("TopBar Recent history popover & empty boot (AC-12 / D11)", () => {
   });
 });
 
+describe("Developer egress formats in OutputPane header (AC-13 / D12)", () => {
+  it("switches between JSON, JSONL, SQL, and TS in CSV→JSON mode, updates Copy/Download output and extensions, and hides the switcher in JSON→CSV mode", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Output format switcher is rendered in CSV→JSON mode with JSON active by default
+    const switcher = screen.getByTestId("output-format-switcher");
+    expect(switcher).toBeInTheDocument();
+    const jsonBtn = screen.getByTestId("output-format-option-json");
+    const jsonlBtn = screen.getByTestId("output-format-option-jsonl");
+    const sqlBtn = screen.getByTestId("output-format-option-sql");
+    const tsBtn = screen.getByTestId("output-format-option-ts");
+    expect(jsonBtn).toHaveAttribute("aria-pressed", "true");
+    expect(jsonlBtn).toHaveAttribute("aria-pressed", "false");
+    expect(sqlBtn).toHaveAttribute("aria-pressed", "false");
+    expect(tsBtn).toHaveAttribute("aria-pressed", "false");
+
+    // Upload a CSV file so filename-based SQL table naming and download extensions are exercised
+    const csvContent = "id,album,year\n1,Elephant,2003\n2,De Stijl,2000";
+    const file = createStreamableFile("studio-albums.csv", csvContent);
+    fireEvent.change(screen.getByTestId("file-input"), {
+      target: { files: [file] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"Elephant"'
+      );
+    });
+
+    // Switch to JSONL
+    await user.click(jsonlBtn);
+    expect(jsonlBtn).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      const text = screen.getByTestId("output-view").textContent ?? "";
+      expect(text).toContain('{"id":1,"album":"Elephant","year":2003}');
+      expect(text).toContain('{"id":2,"album":"De Stijl","year":2000}');
+    });
+    vi.mocked(copyText).mockClear();
+    vi.mocked(downloadText).mockClear();
+    await user.click(screen.getByTestId("copy-output"));
+    expect(copyText).toHaveBeenCalledWith(
+      '{"id":1,"album":"Elephant","year":2003}\n{"id":2,"album":"De Stijl","year":2000}'
+    );
+    await user.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenCalledWith(
+      '{"id":1,"album":"Elephant","year":2003}\n{"id":2,"album":"De Stijl","year":2000}',
+      "studio-albums.jsonl",
+      { mime: "application/x-ndjson", bom: false }
+    );
+
+    // Switch to SQL
+    await user.click(sqlBtn);
+    expect(sqlBtn).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      const sqlText = screen.getByTestId("output-view").textContent ?? "";
+      expect(sqlText).toContain('CREATE TABLE "studio_albums"');
+      expect(sqlText).toContain(
+        'INSERT INTO "studio_albums" ("id", "album", "year") VALUES'
+      );
+      expect(sqlText).toContain("(1, 'Elephant', 2003)");
+    });
+    vi.mocked(downloadText).mockClear();
+    await user.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenCalledWith(
+      expect.stringContaining('CREATE TABLE "studio_albums"'),
+      "studio-albums.sql",
+      { mime: "application/sql", bom: false }
+    );
+
+    // Switch to TS
+    await user.click(tsBtn);
+    expect(tsBtn).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      const tsText = screen.getByTestId("output-view").textContent ?? "";
+      expect(tsText).toContain("export interface DataRow {");
+      expect(tsText).toContain("id: number;");
+      expect(tsText).toContain("album: string;");
+      expect(tsText).toContain("export const data: DataRow[] = [");
+    });
+    vi.mocked(downloadText).mockClear();
+    await user.click(screen.getByTestId("download-output"));
+    expect(downloadText).toHaveBeenCalledWith(
+      expect.stringContaining("export interface DataRow {"),
+      "studio-albums.ts",
+      { mime: "text/typescript", bom: false }
+    );
+
+    // Switch back to JSON -> editable mode restored
+    await user.click(jsonBtn);
+    expect(jsonBtn).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      expect(screen.getByTestId("output-view").textContent).toContain(
+        '"album": "Elephant"'
+      );
+    });
+
+    // Flip to JSON→CSV -> egress format switcher is hidden
+    await flip();
+    expect(screen.queryByTestId("output-format-switcher")).toBeNull();
+  });
+});
+
 
 
 

@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 17,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Export CSV as JSONL, SQL INSERTs, or TypeScript",
+    summary:
+      "Switch the CSV → JSON output header between JSON, JSONL, SQL, and TS to generate newline-delimited records, CREATE TABLE and INSERT statements with inferred types, or a typed TypeScript DataRow interface and array ready to copy or download.",
+  },
+  {
     id: 16,
     date: "2026-10-20",
     tag: "new",

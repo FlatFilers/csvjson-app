@@ -94,6 +94,8 @@ type JsonCodeMirrorProps = {
    * (retained invalid-input result) without remounting.
    */
   editable?: boolean;
+  /** Disable JSON parse linting when displaying non-JSON egress formats (JSONL, SQL, TS). */
+  lintJson?: boolean;
   dark: boolean;
   placeholder?: string;
   testId?: string;
@@ -106,6 +108,7 @@ export function JsonCodeMirror({
   value,
   onChange,
   editable,
+  lintJson = true,
   dark,
   placeholder,
   testId = "json-editor",
@@ -123,6 +126,7 @@ export function JsonCodeMirror({
   const languageCompartmentRef = useRef<Compartment | null>(null);
   const editableProp = editable ?? onChange !== undefined;
   const wasEditableRef = useRef(editableProp);
+  const wasLintJsonRef = useRef(lintJson);
   const isLargeDoc = value.length > LARGE_DOC_MAX_CHARS;
   const wasLargeDocRef = useRef(isLargeDoc);
   const isPreviewTruncated =
@@ -138,7 +142,7 @@ export function JsonCodeMirror({
   // One extension bundle per role; the compartment swaps it at runtime.
   // Stable identity: it only touches refs, and the effects below key on it.
   const editabilityExtensions = useCallback(
-    (canEdit: boolean, largeDoc: boolean): Extension[] =>
+    (canEdit: boolean, largeDoc: boolean, enableLint: boolean): Extension[] =>
       canEdit
         ? [
             EditorView.updateListener.of((update) => {
@@ -146,7 +150,9 @@ export function JsonCodeMirror({
                 onChangeRef.current?.(update.state.doc.toString());
               }
             }),
-            ...(largeDoc ? [] : [linter(sizeGatedJsonLinter, { delay: 300 })]),
+            ...(largeDoc || !enableLint
+              ? []
+              : [linter(sizeGatedJsonLinter, { delay: 300 })]),
           ]
         : [EditorState.readOnly.of(true), EditorView.editable.of(false)],
     []
@@ -162,13 +168,15 @@ export function JsonCodeMirror({
     const state = EditorState.create({
       doc: editorValue,
       extensions: [
-        languageCompartment.of(isLargeDoc ? [] : json()),
+        languageCompartment.of(isLargeDoc || !lintJson ? [] : json()),
         EditorView.lineWrapping,
         history(),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         baseTheme,
         themeCompartment.of(syntaxHighlighting(jsonHighlight(dark))),
-        editabilityCompartment.of(editabilityExtensions(editableProp, isLargeDoc)),
+        editabilityCompartment.of(
+          editabilityExtensions(editableProp, isLargeDoc, lintJson)
+        ),
         ...(placeholder ? [cmPlaceholder(placeholder)] : []),
       ],
     });
@@ -193,15 +201,21 @@ export function JsonCodeMirror({
     const languageCompartment = languageCompartmentRef.current;
     const editabilityCompartment = editabilityCompartmentRef.current;
     const effects = [];
-    if (isLargeDoc !== wasLargeDocRef.current) {
+    if (
+      isLargeDoc !== wasLargeDocRef.current ||
+      lintJson !== wasLintJsonRef.current
+    ) {
       wasLargeDocRef.current = isLargeDoc;
+      wasLintJsonRef.current = lintJson;
       if (languageCompartment) {
-        effects.push(languageCompartment.reconfigure(isLargeDoc ? [] : json()));
+        effects.push(
+          languageCompartment.reconfigure(isLargeDoc || !lintJson ? [] : json())
+        );
       }
       if (editabilityCompartment) {
         effects.push(
           editabilityCompartment.reconfigure(
-            editabilityExtensions(editableProp, isLargeDoc)
+            editabilityExtensions(editableProp, isLargeDoc, lintJson)
           )
         );
       }
@@ -219,7 +233,7 @@ export function JsonCodeMirror({
     } finally {
       applyingExternalRef.current = false;
     }
-  }, [editorValue, isLargeDoc, editableProp, editabilityExtensions]);
+  }, [editorValue, isLargeDoc, lintJson, editableProp, editabilityExtensions]);
 
   // Runtime editability swap (output editor: editable on a valid result,
   // read-only for a retained invalid-input result).
@@ -231,10 +245,10 @@ export function JsonCodeMirror({
     wasEditableRef.current = editableProp;
     view.dispatch({
       effects: compartment.reconfigure(
-        editabilityExtensions(editableProp, isLargeDoc)
+        editabilityExtensions(editableProp, isLargeDoc, lintJson)
       ),
     });
-  }, [editableProp, isLargeDoc, editabilityExtensions]);
+  }, [editableProp, isLargeDoc, lintJson, editabilityExtensions]);
 
   // Dark-mode token palette swap.
   useEffect(() => {

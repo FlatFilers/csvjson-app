@@ -25,7 +25,7 @@ export type ConversionInput =
   | "flip";
 
 export type ExportVia = "copy" | "download";
-export type ExportFormat = "json" | "csv";
+export type ExportFormat = "json" | "jsonl" | "sql" | "ts" | "csv";
 export type ExportPane = "output" | "input";
 
 export interface InputProps {

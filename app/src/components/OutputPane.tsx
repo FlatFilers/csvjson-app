@@ -6,6 +6,11 @@ import {
 } from "@/components/JsonCodeMirror";
 import { PaneShell } from "@/components/PaneShell";
 import { actionButtonClass } from "@/components/pane-actions";
+import {
+  EGRESS_FORMAT_OPTIONS,
+  type EgressFormat,
+} from "@/lib/egressFormat";
+import { cn } from "@/lib/utils";
 
 /**
  * Output pane (spec: States → Empty/Ready): a quiet placeholder while the
@@ -45,6 +50,8 @@ type OutputPaneProps = {
    * editor; the retained invalid-input result stays read-only.
    */
   editable: boolean;
+  /** Active developer egress format in CSV→JSON mode (`json` default). */
+  egressFormat?: EgressFormat;
   /** Forced separator (, ; \t |) mirroring the converter's separator option; omitted → auto-detect. */
   delimiter?: string;
   dark: boolean;
@@ -54,6 +61,8 @@ type OutputPaneProps = {
   /** Fired when a native clipboard copy occurs inside the JSON output editor. */
   onNativeCopy?: () => void;
   onDownload: () => void;
+  /** Fired when the user picks an egress format in CSV→JSON mode. */
+  onEgressFormatChange?: (format: EgressFormat) => void;
   /** Fired for every user modification of the editable output text. */
   onOutputChange?: (value: string) => void;
   /** Restores the derived output (re-runs the conversion, clears edited). */
@@ -72,17 +81,20 @@ export function OutputPane({
   warnings,
   edited,
   editable,
+  egressFormat = "json",
   delimiter,
   dark,
   onCopy,
   onCopySelection,
   onNativeCopy,
   onDownload,
+  onEgressFormatChange,
   onOutputChange,
   onRevert,
   onDiscardReconvert,
 }: OutputPaneProps) {
   const isJson = format === "JSON";
+  const isJsonEgress = egressFormat === "json";
   return (
     <div
       data-testid="output-pane"
@@ -129,6 +141,35 @@ export function OutputPane({
         }
         actions={
           <>
+            {isJson ? (
+              <span
+                data-testid="output-format-switcher"
+                role="group"
+                aria-label="Output format"
+                className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted/60 p-0.5"
+              >
+                {EGRESS_FORMAT_OPTIONS.map((option) => {
+                  const active = egressFormat === option.format;
+                  return (
+                    <button
+                      key={option.format}
+                      type="button"
+                      data-testid={`output-format-option-${option.format}`}
+                      aria-pressed={active}
+                      onClick={() => onEgressFormatChange?.(option.format)}
+                      className={cn(
+                        "inline-flex cursor-pointer items-center rounded-[7px] px-1.5 py-0.5 font-mono text-[11px] font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2 sm:py-1",
+                        active
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </span>
+            ) : null}
             <button
               type="button"
               data-testid="copy-output"
@@ -196,8 +237,11 @@ export function OutputPane({
               <JsonCodeMirror
                 value={outputText}
                 editable={
-                  editable && outputText.length <= LARGE_OUTPUT_PREVIEW_MAX_CHARS
+                  editable &&
+                  isJsonEgress &&
+                  outputText.length <= LARGE_OUTPUT_PREVIEW_MAX_CHARS
                 }
+                lintJson={isJsonEgress}
                 onChange={onOutputChange}
                 dark={dark}
                 testId="output-view"

@@ -16,12 +16,22 @@ export function buildDownloadBlob(text: string, mime: string, bom: boolean): Blo
   return new Blob([content], { type: `${mime};charset=utf-8` });
 }
 
+import type { EgressFormat } from "@/lib/egressFormat";
+
 /**
  * Extensions the converter recognizes as data sources (.txt is an accepted
  * upload type). A stacked name like "report.csv.json" must not leak a stale
  * data extension into the derived output name.
  */
-const DATA_EXTENSIONS = new Set(["csv", "tsv", "json", "txt"]);
+const DATA_EXTENSIONS = new Set([
+  "csv",
+  "tsv",
+  "json",
+  "jsonl",
+  "sql",
+  "ts",
+  "txt",
+]);
 
 function baseName(source: string): string {
   // Strip data extensions from the right, so "report.csv.json" reduces to
@@ -52,11 +62,29 @@ function baseName(source: string): string {
  */
 export function outputFilenameFor(
   source: string | null,
-  direction: "csv2json" | "json2csv"
+  direction: "csv2json" | "json2csv",
+  egressFormat: EgressFormat = "json"
 ): string {
-  const ext = direction === "csv2json" ? "json" : "csv";
+  const ext = direction === "csv2json" ? egressFormat : "csv";
   if (!source) return `data.${ext}`;
   return `${baseName(source)}.${ext}`;
+}
+
+export function outputMimeFor(
+  direction: "csv2json" | "json2csv",
+  egressFormat: EgressFormat = "json"
+): string {
+  if (direction === "json2csv") return "text/csv";
+  switch (egressFormat) {
+    case "json":
+      return "application/json";
+    case "jsonl":
+      return "application/x-ndjson";
+    case "sql":
+      return "application/sql";
+    case "ts":
+      return "text/typescript";
+  }
 }
 
 /** Trigger a browser download for the given text. Returns the filename used. */
