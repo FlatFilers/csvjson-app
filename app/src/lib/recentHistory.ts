@@ -1,5 +1,6 @@
 import {
   DEFAULT_OPTIONS,
+  type ColumnTypeOverride,
   type ConverterOptions,
   type Direction,
 } from "./convert";
@@ -32,6 +33,24 @@ function isDirection(value: unknown): value is Direction {
   return value === "csv2json" || value === "json2csv";
 }
 
+function sanitizeColumnTypes(
+  raw: unknown
+): Record<string, ColumnTypeOverride> | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const result: Record<string, ColumnTypeOverride> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (
+      value === "string" ||
+      value === "number" ||
+      value === "boolean" ||
+      value === "auto"
+    ) {
+      result[key] = value;
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 function sanitizeOptions(raw: unknown): ConverterOptions {
   if (typeof raw !== "object" || raw === null) {
     return { ...DEFAULT_OPTIONS };
@@ -50,6 +69,8 @@ function sanitizeOptions(raw: unknown): ConverterOptions {
     obj.nullLiterals === "string" || obj.nullLiterals === "null"
       ? obj.nullLiterals
       : DEFAULT_OPTIONS.nullLiterals;
+
+  const columnTypes = sanitizeColumnTypes(obj.columnTypes);
 
   return {
     separator,
@@ -76,6 +97,7 @@ function sanitizeOptions(raw: unknown): ConverterOptions {
       typeof obj.collapseIndexedArrays === "boolean"
         ? obj.collapseIndexedArrays
         : DEFAULT_OPTIONS.collapseIndexedArrays,
+    ...(columnTypes ? { columnTypes } : {}),
   };
 }
 

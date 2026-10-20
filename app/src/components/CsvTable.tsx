@@ -18,6 +18,7 @@ import {
 } from "@glideapps/glide-data-grid";
 import "@glideapps/glide-data-grid/dist/index.css";
 import { Copy, Search, Trash2, X } from "lucide-react";
+import { type ColumnTypeOverride } from "@/lib/convert";
 import { numericColumns, parseCsvRecord, parseCsvTable, serializeCsvRow } from "@/lib/csvTable";
 import { deleteColumns, deleteRows, renameHeader } from "@/lib/tableDeletion";
 import { matchHistoryShortcut } from "@/lib/csvHistory";
@@ -90,7 +91,30 @@ type CsvTableProps = {
   onRedo?: () => void;
   /** Fired when non-empty selection is copied via the toolbar chip or Cmd/Ctrl+C. */
   onCopySelection?: () => void;
+  /** Per-column type overrides (AC-16 / D15) keyed by header name. */
+  columnTypes?: Record<string, ColumnTypeOverride>;
+  /** Updates per-column type overrides (input table only). */
+  onChangeColumnTypes?: (columnTypes: Record<string, ColumnTypeOverride>) => void;
 };
+
+const COLUMN_TYPE_OPTIONS: readonly {
+  mode: ColumnTypeOverride;
+  label: string;
+}[] = [
+  { mode: "auto", label: "Auto" },
+  { mode: "string", label: "String" },
+  { mode: "number", label: "Number" },
+  { mode: "boolean", label: "Boolean" },
+];
+
+function columnTypeBadge(
+  mode: ColumnTypeOverride | undefined
+): "STR" | "NUM" | "BOOL" | null {
+  if (mode === "string") return "STR";
+  if (mode === "number") return "NUM";
+  if (mode === "boolean") return "BOOL";
+  return null;
+}
 
 function isTextEntryElement(node: EventTarget | Element | null): boolean {
   if (!(node instanceof HTMLElement)) return false;
@@ -242,6 +266,8 @@ export function CsvTable({
   onUndo,
   onRedo,
   onCopySelection,
+  columnTypes,
+  onChangeColumnTypes,
 }: CsvTableProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const gridWrapRef = useRef<HTMLDivElement>(null);
@@ -262,8 +288,19 @@ export function CsvTable({
   const selectedSourcesRef = useRef(selectedSources);
   /** Measured container width — drives the master table's 1fr column growth. */
   const [containerWidth, setContainerWidth] = useState(0);
+  const [internalColumnTypes, setInternalColumnTypes] = useState<
+    Record<string, ColumnTypeOverride>
+  >({});
 
   const editable = onCellCommit !== undefined;
+  const effectiveColumnTypes = columnTypes ?? internalColumnTypes;
+  const updateColumnTypes = useCallback(
+    (next: Record<string, ColumnTypeOverride>) => {
+      setInternalColumnTypes(next);
+      onChangeColumnTypes?.(next);
+    },
+    [onChangeColumnTypes]
+  );
   const palette = useMemo(() => buildTheme(dark), [dark]);
   const matchWash = highlightColor(dark);
   const selectedRowBg = dark ? "hsl(240 3.7% 15.9%)" : "hsl(240 4.8% 95.9%)";
@@ -420,11 +457,25 @@ export function CsvTable({
     setEditingHeader(null);
     if (!onCellCommit) return;
     const { text: sourceText, table: current } = latestRef.current;
+    const oldHeader = current.headers[col] ?? "";
     const nextText = renameHeader(sourceText, current, col, headerDraft);
     if (nextText !== sourceText) {
+      if (
+        oldHeader !== "" &&
+        oldHeader !== headerDraft &&
+        effectiveColumnTypes[oldHeader] !== undefined
+      ) {
+        const nextTypes = { ...effectiveColumnTypes };
+        const existingMode = nextTypes[oldHeader];
+        delete nextTypes[oldHeader];
+        if (headerDraft !== "" && existingMode !== undefined) {
+          nextTypes[headerDraft] = existingMode;
+        }
+        updateColumnTypes(nextTypes);
+      }
       onCellCommit(nextText);
     }
-  }, [editingHeader, headerDraft, onCellCommit]);
+  }, [editingHeader, headerDraft, onCellCommit, effectiveColumnTypes, updateColumnTypes]);
 
   const cancelHeaderRename = useCallback(() => {
     setEditingHeader(null);
@@ -517,6 +568,45 @@ export function CsvTable({
     [gridSelection]
   );
   const selectedColumnCount = selectedDataColumns.length;
+  const selectedColumnHeaders = useMemo(
+    () =>
+      selectedDataColumns
+        .map((colIndex) => table.headers[colIndex])
+        .filter((header): header is string => header !== undefined),
+    [selectedDataColumns, table.headers]
+  );
+  const sharedSelectedColumnType = useMemo<ColumnTypeOverride | null>(() => {
+    if (selectedColumnHeaders.length === 0) return null;
+    const first = effectiveColumnTypes[selectedColumnHeaders[0]] ?? "auto";
+    for (let i = 1; i < selectedColumnHeaders.length; i += 1) {
+      const mode = effectiveColumnTypes[selectedColumnHeaders[i]] ?? "auto";
+      if (mode !== first) return null;
+    }
+    return first;
+  }, [selectedColumnHeaders, effectiveColumnTypes]);
+  const setSelectedColumnsType = useCallback(
+    (mode: ColumnTypeOverride) => {
+      if (!editable || selectedColumnHeaders.length === 0) return;
+      const next: Record<string, ColumnTypeOverride> = {
+        ...effectiveColumnTypes,
+      };
+      for (const header of selectedColumnHeaders) {
+        if (mode === "auto") {
+          delete next[header];
+        } else {
+          next[header] = mode;
+        }
+      }
+      updateColumnTypes(next);
+    },
+    [editable, selectedColumnHeaders, effectiveColumnTypes, updateColumnTypes]
+  );
+  const pinnedColumnCount = useMemo(() => {
+    if (!editable) return 0;
+    return table.headers.filter(
+      (header) => columnTypeBadge(effectiveColumnTypes[header]) !== null
+    ).length;
+  }, [editable, table.headers, effectiveColumnTypes]);
   const selection = useMemo<SelectionShape>(
     () => ({
       ranges: gridSelection?.current
@@ -818,14 +908,19 @@ export function CsvTable({
       width: GUTTER_WIDTH,
       themeOverride: { baseFontStyle: `11px ${MONO_FONT}`, textDark: "hsla(240, 3.8%, 46.1%, 0.4)" },
     };
-    const data: GridColumn[] = table.headers.map((header, index) => ({
-      title: header.toUpperCase(),
-      id: `c${index}`,
-      width: columnWidth,
-      themeOverride: numeric[index] ? { baseFontStyle: `12px ${MONO_FONT}` } : undefined,
-    }));
+    const data: GridColumn[] = table.headers.map((header, index) => {
+      const badge = editable
+        ? columnTypeBadge(effectiveColumnTypes[header])
+        : null;
+      return {
+        title: badge ? `${header.toUpperCase()} [${badge}]` : header.toUpperCase(),
+        id: `c${index}`,
+        width: columnWidth,
+        themeOverride: numeric[index] ? { baseFontStyle: `12px ${MONO_FONT}` } : undefined,
+      };
+    });
     return [gutter, ...data];
-  }, [table.headers, numeric, columnWidth]);
+  }, [table.headers, numeric, columnWidth, editable, effectiveColumnTypes]);
 
   // Header strip: mono uppercase muted text, sort glyph on the sorted
   // column, right-aligned "#" in the gutter. A selected column header
@@ -988,6 +1083,20 @@ export function CsvTable({
             ? `${view.length.toLocaleString()} of ${total.toLocaleString()}`
             : `${total.toLocaleString()} rows`}
         </span>
+        {editable && pinnedColumnCount > 0 && (
+          <button
+            type="button"
+            data-testid="input-table-column-types-reset"
+            onClick={() => updateColumnTypes({})}
+            title="Reset all pinned column types to Auto"
+            className={TOOLBAR_BUTTON}
+          >
+            {`${pinnedColumnCount} ${
+              pinnedColumnCount === 1 ? "column type" : "column types"
+            } pinned`}
+            <X aria-hidden="true" className="size-3 text-muted-foreground" />
+          </button>
+        )}
         {showSelectionChip && (
           <span className="flex flex-wrap items-center gap-1.5">
             <span
@@ -1030,24 +1139,52 @@ export function CsvTable({
               </button>
             )}
             {editable && selectedColumnCount > 0 && (
-              <button
-                type="button"
-                data-testid={`${testId}-delete-columns`}
-                onClick={deleteSelectedColumns}
-                disabled={allColumnsSelected}
-                title={
-                  allColumnsSelected
-                    ? "At least one column must remain — the converter needs a column to detect"
-                    : `Deletes the ${selectedColumnCount} selected ${
-                        selectedColumnCount === 1 ? "column" : "columns"
-                      } from the source CSV`
-                }
-                className={`${TOOLBAR_BUTTON} disabled:cursor-not-allowed disabled:opacity-50`}
-              >
-                <Trash2 aria-hidden="true" className="size-3" />
-                Delete {selectedColumnCount.toLocaleString()}{" "}
-                {selectedColumnCount === 1 ? "column" : "columns"}
-              </button>
+              <>
+                <span
+                  role="group"
+                  aria-label="Column type override"
+                  data-testid="input-table-column-type-group"
+                  className="inline-flex items-center gap-0.5 rounded-md border border-border bg-muted/60 p-0.5"
+                >
+                  {COLUMN_TYPE_OPTIONS.map(({ mode, label }) => {
+                    const active = sharedSelectedColumnType === mode;
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        data-testid={`input-table-column-type-${mode}`}
+                        aria-pressed={active}
+                        onClick={() => setSelectedColumnsType(mode)}
+                        className={
+                          active
+                            ? "cursor-pointer rounded bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground shadow-2xs outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                            : "cursor-pointer rounded px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+                        }
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </span>
+                <button
+                  type="button"
+                  data-testid={`${testId}-delete-columns`}
+                  onClick={deleteSelectedColumns}
+                  disabled={allColumnsSelected}
+                  title={
+                    allColumnsSelected
+                      ? "At least one column must remain — the converter needs a column to detect"
+                      : `Deletes the ${selectedColumnCount} selected ${
+                          selectedColumnCount === 1 ? "column" : "columns"
+                        } from the source CSV`
+                  }
+                  className={`${TOOLBAR_BUTTON} disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  <Trash2 aria-hidden="true" className="size-3" />
+                  Delete {selectedColumnCount.toLocaleString()}{" "}
+                  {selectedColumnCount === 1 ? "column" : "columns"}
+                </button>
+              </>
             )}
             <button
               type="button"

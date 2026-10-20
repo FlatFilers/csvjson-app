@@ -35,6 +35,14 @@ export function newestFirst(entries: ChangelogEntry[]): ChangelogEntry[] {
 
 export const changelogEntries: ChangelogEntry[] = [
   {
+    id: 19,
+    date: "2026-10-20",
+    tag: "new",
+    title: "Pin per-column types in the CSV grid",
+    summary:
+      "Select any column in the CSV table to pin its JSON output type to String, Number, Boolean, or Auto — keeping postal codes and IDs as strings or coercing yes/no/1/0 columns to booleans without changing global parse settings.",
+  },
+  {
     id: 18,
     date: "2026-10-20",
     tag: "new",
