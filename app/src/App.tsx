@@ -13,6 +13,7 @@ import { InputPane } from "@/components/InputPane";
 import { OptionsRow } from "@/components/OptionsRow";
 import { OutputPane } from "@/components/OutputPane";
 import { PermalinkNotice } from "@/components/PermalinkNotice";
+import { RecentHistoryButton } from "@/components/RecentHistoryButton";
 import { SplitPane, type SplitLayout } from "@/components/SplitPane";
 import { TopBar } from "@/components/TopBar";
 import { ChangelogButton } from "@/changelog/ChangelogButton";
@@ -43,6 +44,13 @@ import {
   undoCsvHistory,
 } from "@/lib/csvHistory";
 import { directionFromSearch } from "@/lib/direction";
+import {
+  clearRecentHistory,
+  loadRecentHistory,
+  removeRecentSnapshot,
+  saveRecentSnapshot,
+  type RecentSnapshot,
+} from "@/lib/recentHistory";
 
 /** Past this size, live conversion stretches its debounce (spec: Throttled). */
 const LARGE_INPUT_CHARS = 2 * 1024 * 1024;
@@ -105,6 +113,11 @@ export default function App() {
   // typed text already arrived as decoded strings, so the select never
   // touches them.
   const [uploadEncoding, setUploadEncoding] = useState<UploadEncoding>("utf-8");
+  // Recent local snapshots (spec AC-12 / D11): fresh page loads always boot to
+  // the empty dropzone, while up to 10 settled valid conversions are saved in
+  // localStorage for one-click restore from the TopBar Recent popover.
+  const [recentSnapshots, setRecentSnapshots] =
+    useState<RecentSnapshot[]>(loadRecentHistory);
 
   // Latest converter state for the conversion-event validity predicate —
   // fires happen up to 2s after the last edit (or synchronously for a
@@ -225,6 +238,21 @@ export default function App() {
     if (effectiveInput.trim() === "") return;
     if (result.ok) setLastValidOutput(result.text);
   }, [result, effectiveInput]);
+
+  useEffect(() => {
+    if (effectiveInput.trim() === "") return;
+    if (!result.ok || (result.rows <= 0 && result.cols <= 0)) return;
+    setRecentSnapshots(
+      saveRecentSnapshot({
+        direction,
+        input: effectiveInput,
+        options,
+        filename,
+        rows: result.rows,
+        cols: result.cols,
+      })
+    );
+  }, [direction, effectiveInput, filename, options, result]);
   const currentValidOutput =
     effectiveInput.trim() !== "" && result.ok ? result.text : lastValidOutput;
 
@@ -295,6 +323,43 @@ export default function App() {
     setInputHistory(next);
     tracker.edit("csv_to_json", next.present);
   }, [csvToJson, inputHistory, tracker]);
+
+  const handleRestoreSnapshot = useCallback(
+    (snapshot: RecentSnapshot) => {
+      setNotice(null);
+      uploadedRef.current = null;
+      setDirection(snapshot.direction);
+      setOptions({ ...snapshot.options });
+      setFilename(snapshot.filename);
+      setOutputEdited(false);
+      setEditedOutput(null);
+      setInputHistory((current) =>
+        snapshot.direction === "csv2json" && direction === "csv2json"
+          ? pushCsvHistory(current, snapshot.input)
+          : createCsvHistory(snapshot.input)
+      );
+      setRecentSnapshots(
+        saveRecentSnapshot({
+          direction: snapshot.direction,
+          input: snapshot.input,
+          options: snapshot.options,
+          filename: snapshot.filename,
+          rows: snapshot.rows,
+          cols: snapshot.cols,
+        })
+      );
+    },
+    [direction]
+  );
+
+  const handleRemoveSnapshot = useCallback((id: string) => {
+    setRecentSnapshots(removeRecentSnapshot(id));
+  }, []);
+
+  const handleClearSnapshots = useCallback(() => {
+    clearRecentHistory();
+    setRecentSnapshots([]);
+  }, []);
 
   const handleFlip = () => {
     const nextDirection: Direction =
@@ -675,6 +740,12 @@ export default function App() {
           // block-level root, so without the flex wrapper they would stack).
           slot={
             <div className="flex items-center gap-1">
+              <RecentHistoryButton
+                snapshots={recentSnapshots}
+                onSelect={handleRestoreSnapshot}
+                onRemove={handleRemoveSnapshot}
+                onClear={handleClearSnapshots}
+              />
               <ChangelogButton />
               <FeedbackVote />
             </div>
