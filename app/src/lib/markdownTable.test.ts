@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { detectMarkdownOrCliTable } from "./markdownTable";
+import {
+  detectMarkdownOrCliTable,
+  extractTablesFromMarkdownBlock,
+} from "./markdownTable";
 
 describe("detectMarkdownOrCliTable (AC-14 / D13)", () => {
   it("detects and normalizes a GitHub / ChatGPT Markdown pipe table with outer pipes and alignment colons", () => {
@@ -123,5 +126,160 @@ describe("detectMarkdownOrCliTable (AC-14 / D13)", () => {
     expect(
       detectMarkdownOrCliTable("id|album|year\n1|Elephant|2003\n2|De Stijl|2000")
     ).toBeNull();
+    expect(
+      extractTablesFromMarkdownBlock(
+        "id|album|year\n1|Elephant|2003\n2|De Stijl|2000"
+      )
+    ).toEqual([]);
+  });
+});
+
+describe("extractTablesFromMarkdownBlock (AC-18 / D17)", () => {
+  it("extracts a single Markdown table embedded in ChatGPT prose and code fences", () => {
+    const doc = [
+      "Sure! Here is the summary table you requested:",
+      "",
+      "### Active Regions",
+      "",
+      "```markdown",
+      "| region | revenue | active |",
+      "| :--- | ---: | :---: |",
+      "| NA | 1200 | true |",
+      "| EU | 950 | true |",
+      "```",
+      "",
+      "Let me know if you would like to filter by quarter.",
+    ].join("\n");
+
+    const tables = extractTablesFromMarkdownBlock(doc);
+    expect(tables).toEqual([
+      {
+        index: 0,
+        title: "Active Regions",
+        label: "Active Regions",
+        headers: ["region", "revenue", "active"],
+        cleanedCsv: "region,revenue,active\nNA,1200,true\nEU,950,true",
+        rows: 2,
+        cols: 3,
+        kind: "markdown",
+      },
+    ]);
+
+    expect(detectMarkdownOrCliTable(doc)).toEqual({
+      cleanedCsv: "region,revenue,active\nNA,1200,true\nEU,950,true",
+      rows: 2,
+      cols: 3,
+      kind: "markdown",
+    });
+  });
+
+  it("extracts multiple Markdown tables in document order with # headings and **bold** titles", () => {
+    const doc = [
+      "# Q3 Performance Report",
+      "Overview of regional and product metrics.",
+      "",
+      "## By Region",
+      "Regional breakdown for Q3:",
+      "",
+      "| region | revenue |",
+      "| --- | ---: |",
+      "| NA | 1200 |",
+      "| EU | 950 |",
+      "",
+      "**Top Products:**",
+      "| sku | name | units |",
+      "| --- | --- | ---: |",
+      "| A-1 | Widget | 40 |",
+      "| B-2 | Gadget | 25 |",
+      "| C-3 | Gizmo | 15 |",
+      "",
+      "End of report.",
+    ].join("\n");
+
+    const tables = extractTablesFromMarkdownBlock(doc);
+    expect(tables).toHaveLength(2);
+    expect(tables[0]).toEqual({
+      index: 0,
+      title: "By Region",
+      label: "By Region",
+      headers: ["region", "revenue"],
+      cleanedCsv: "region,revenue\nNA,1200\nEU,950",
+      rows: 2,
+      cols: 2,
+      kind: "markdown",
+    });
+    expect(tables[1]).toEqual({
+      index: 1,
+      title: "Top Products",
+      label: "Top Products",
+      headers: ["sku", "name", "units"],
+      cleanedCsv:
+        "sku,name,units\nA-1,Widget,40\nB-2,Gadget,25\nC-3,Gizmo,15",
+      rows: 3,
+      cols: 3,
+      kind: "markdown",
+    });
+
+    expect(detectMarkdownOrCliTable(doc, 0)?.cleanedCsv).toBe(
+      "region,revenue\nNA,1200\nEU,950"
+    );
+    expect(detectMarkdownOrCliTable(doc, 1)?.cleanedCsv).toBe(
+      "sku,name,units\nA-1,Widget,40\nB-2,Gadget,25\nC-3,Gizmo,15"
+    );
+    // Out-of-range tableIndex clamps safely
+    expect(detectMarkdownOrCliTable(doc, 99)?.cleanedCsv).toBe(
+      "sku,name,units\nA-1,Widget,40\nB-2,Gadget,25\nC-3,Gizmo,15"
+    );
+  });
+
+  it("extracts mixed Markdown pipe tables and psql / MySQL ASCII box tables, falling back to Table N (col preview) when untitled", () => {
+    const doc = [
+      "| user_id | handle |",
+      "| --- | --- |",
+      "| 1 | ada |",
+      "",
+      "Database query result:",
+      "",
+      " host      | port | primary ",
+      "-----------+------+---------",
+      " db-main-1 | 5432 | t       ",
+      " db-read-1 | 5433 | f       ",
+      "(2 rows)",
+      "",
+      "+------+-------+",
+      "| code | count |",
+      "+------+-------+",
+      "| 200  | 1420  |",
+      "+------+-------+",
+    ].join("\n");
+
+    const tables = extractTablesFromMarkdownBlock(doc);
+    expect(tables).toHaveLength(3);
+    expect(tables[0]).toMatchObject({
+      index: 0,
+      title: null,
+      label: "Table 1 (user_id, handle)",
+      rows: 1,
+      cols: 2,
+      kind: "markdown",
+    });
+    expect(tables[1]).toMatchObject({
+      index: 1,
+      title: null,
+      label: "Table 2 (host, port, primary)",
+      cleanedCsv: "host,port,primary\ndb-main-1,5432,t\ndb-read-1,5433,f",
+      rows: 2,
+      cols: 3,
+      kind: "box",
+    });
+    expect(tables[2]).toMatchObject({
+      index: 2,
+      title: null,
+      label: "Table 3 (code, count)",
+      cleanedCsv: "code,count\n200,1420",
+      rows: 1,
+      cols: 2,
+      kind: "box",
+    });
   });
 });

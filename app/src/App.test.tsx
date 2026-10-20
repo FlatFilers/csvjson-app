@@ -1957,6 +1957,97 @@ describe("Markdown & CLI box table paste in CSV → JSON (AC-14 / D13)", () => {
     await user.click(pill);
     expect(screen.queryByTestId("csv-clean-markdown-pill")).toBeNull();
   });
+
+  it("extracts all tables from a multi-table Markdown document and switches active table via chooser pills (AC-18 / D17)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const multiTableMarkdown = [
+      "# Q3 Executive Summary",
+      "Below are the regional and product breakdowns:",
+      "",
+      "## By Region",
+      "| region | revenue |",
+      "| :--- | ---: |",
+      "| NA | 1200 |",
+      "| EU | 950 |",
+      "",
+      "## Top Products",
+      "| sku | product | units |",
+      "| :--- | :--- | ---: |",
+      "| A-1 | Widget | 40 |",
+      "| B-2 | Gadget | 25 |",
+      "| C-3 | Gizmo | 15 |",
+      "",
+      "Let me know if you need Q4 projections.",
+    ].join("\n");
+
+    fireEvent.change(screen.getByTestId("paste-field"), {
+      target: { value: multiTableMarkdown },
+    });
+
+    await waitFor(() => {
+      const output = JSON.parse(
+        screen.getByTestId("output-view").textContent ?? "[]"
+      );
+      expect(output).toEqual([
+        { region: "NA", revenue: 1200 },
+        { region: "EU", revenue: 950 },
+      ]);
+    });
+
+    const select0 = screen.getByTestId("csv-markdown-table-select-0");
+    const select1 = screen.getByTestId("csv-markdown-table-select-1");
+    expect(select0).toHaveAttribute("aria-pressed", "true");
+    expect(select0).toHaveTextContent("1. By Region (2×2)");
+    expect(select1).toHaveAttribute("aria-pressed", "false");
+    expect(select1).toHaveTextContent("2. Top Products (3×3)");
+
+    const cleanBtn = screen.getByTestId("csv-clean-markdown-pill");
+    expect(cleanBtn).toHaveTextContent("Use only this table (2 rows)");
+
+    // Switch to Table 2 (Top Products)
+    await user.click(select1);
+
+    expect(select0).toHaveAttribute("aria-pressed", "false");
+    expect(select1).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("csv-clean-markdown-pill")).toHaveTextContent(
+      "Use only this table (3 rows)"
+    );
+
+    const inputTable = screen.getByTestId("input-table");
+    expect(within(inputTable).getByText("SKU")).toBeInTheDocument();
+    expect(within(inputTable).getByText("PRODUCT")).toBeInTheDocument();
+    expect(within(inputTable).getByText("Widget")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const output = JSON.parse(
+        screen.getByTestId("output-view").textContent ?? "[]"
+      );
+      expect(output).toEqual([
+        { sku: "A-1", product: "Widget", units: 40 },
+        { sku: "B-2", product: "Gadget", units: 25 },
+        { sku: "C-3", product: "Gizmo", units: 15 },
+      ]);
+    });
+
+    // Click "Use only this table" to replace raw input with Table 2's clean CSV
+    await user.click(screen.getByTestId("csv-clean-markdown-pill"));
+    expect(screen.queryByTestId("csv-markdown-table-bar")).toBeNull();
+
+    await user.click(screen.getByTestId("raw-toggle"));
+    const rawEditor = screen.getByTestId(
+      "input-editor"
+    ) as HTMLTextAreaElement;
+    expect(rawEditor.value).toBe(
+      "sku,product,units\nA-1,Widget,40\nB-2,Gadget,25\nC-3,Gizmo,15"
+    );
+
+    // Undo restores the full multi-table Markdown document
+    await user.click(screen.getByTestId("csv-undo-button"));
+    expect(rawEditor.value).toBe(multiTableMarkdown);
+    expect(screen.getByTestId("csv-markdown-table-bar")).toBeInTheDocument();
+  });
 });
 
 describe("View-Driven Output: Column Picker & Apply view to output (AC-11 / D10)", () => {
