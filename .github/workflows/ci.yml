@@ -117,8 +117,17 @@ jobs:
           # ID is banned outright — it collects nothing, so any reintroduction
           # is always a bug. Everything else stays banned as before.
           remnant_re='segment|linkedin|carbonads|chikita|flatfile|typekit|putObject|UA-46942708'
+          # Intl.Segmenter is the browser grapheme-segmentation API referenced
+          # by CodeMirror's text-edit commands (@codemirror/state). The vite 5
+          # / esbuild minifier dropped the side-effect-free reference; the
+          # vite 8 / rolldown compressor preserves member-access expressions,
+          # so the string survives into the bundle. Same strip-and-regrep
+          # discipline as the sanctioned banner URL below: a real Segment
+          # analytics integration (segment.io / analytics.js) still trips the
+          # scan.
           if grep -riE "$remnant_re" "${targets[@]}" \
-              | sed 's#github[.]com/FlatFilers/csvjson-app/discussions/163##g' \
+              | sed -e 's#github[.]com/FlatFilers/csvjson-app/discussions/163##g' \
+                    -e 's#Intl[.]Segmenter##g' \
               | grep -iE "$remnant_re"; then
             echo "::error::Promotional or telemetry remnant found in the shipped frontend or PHP shim (spec criterion 8)"
             exit 1
