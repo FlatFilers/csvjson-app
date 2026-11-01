@@ -653,7 +653,7 @@ export function csvToJson(
   } catch (e) {
     // The packages throw plain strings — rethrow as real Errors so callers
     // never see a swallowed or message-less failure.
-    throw new Error(unwrapErrorMessage(e));
+    throw new Error(unwrapErrorMessage(e), { cause: e });
   }
 }
 
@@ -678,7 +678,7 @@ export function jsonToJsonCsv(
         nonTabularMessage(message, options.flatten ?? false)
       );
     }
-    throw new Error(message);
+    throw new Error(message, { cause: e });
   }
 }
 
@@ -899,7 +899,7 @@ export function detectNestedJsonKeys(input: string): string[] {
     parsed = jsonlData;
   }
 
-  let records: Record<string, unknown>[] = [];
+  let records: Record<string, unknown>[];
   if (Array.isArray(parsed)) {
     if (parsed.length === 0 || !parsed.every((item) => isPlainRecord(item))) {
       return [];

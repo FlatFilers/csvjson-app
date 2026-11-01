@@ -4,7 +4,7 @@ Source for www.csvjson.com: a minimal React SPA for in-browser data conversion (
 
 ## Stack
 
-- **Frontend:** React 19 + Vite + TypeScript + Tailwind 4 (app/). CodeMirror for the editable JSON surface, lucide-react for icons, @tanstack/react-virtual for large tables. Dependencies are pinned; dependency behavior changes land as postinstall patches (`app/scripts/patch-*.mjs`), never as forkes.
+- **Frontend:** React 18 + Vite + TypeScript + Tailwind 4 (app/). React stays 18, not 19: @glideapps/glide-data-grid@6.0.3 — the app's table engine — peers react ≤18. CodeMirror for the editable JSON surface, lucide-react for icons, @tanstack/react-virtual for large tables. Dependencies are pinned; dependency behavior changes land as postinstall patches (`app/scripts/patch-*.mjs`), never as forkes.
 - **PHP shim:** plain PHP 8.4 files at the repo root — `index.php` (front controller: SPA serving, 301 redirect map, legacy permalink hydration, route registration), `feedback-db.php` / `feedback-api.php` / `feedback-admin.php`, `changelog-db.php` / `changelog-vote-api.php`. No framework, no composer.
 - **Database:** PostgreSQL via `DATABASE_URL` (Heroku/Neon `postgres://` URL parsed to a libpq DSN). Tables self-create on first use (`feedback_ensure_schema`, `changelog_ensure_schema`, `feedback_ensure_write_log`) — there are no migrations. Locally anything runs without a database; the write endpoints answer 503.
 - **Build artifacts:** `app/dist` is committed. CI hash-guards it against a fresh `npm run build` — always rebuild and commit `app/dist` when `app/` changes.
